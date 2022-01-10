@@ -7,7 +7,7 @@ cache:
     - public/
     - .cache/
 
-pages:
+std-doc-pages:
   stage: deploy
   script:
     - yarn install
