@@ -1,25 +1,19 @@
-stages:
-  - test
-  - deploy
+image: node:latest
 
-test:
-  stage: test
-  script:
-  - cd website
-  - yarn install
-  - yarn build
-  except:
-    - master
+# allow caching for faster deployment
+cache:
+  paths:
+    - node_modules/
+    - public/
+    - .cache/
 
 pages:
   stage: deploy
   script:
-  - cd website
-  - yarn install
-  - yarn build
-  - mv ./build ../public
+    - yarn install
+    - yarn build:gitlab
   artifacts:
-    paths:
-    - public
+      paths:
+        - public
   only:
     - master
