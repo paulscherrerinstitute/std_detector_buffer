@@ -1,19 +1,27 @@
-image: node:latest
+image: node:15.12-alpine3.13
 
-# allow caching for faster deployment
-cache:
-  paths:
-    - node_modules/
-    - public/
-    - .cache/
+stages:
+  - test
+  - deploy
+
+test:
+  stage: test
+  script:
+  - cd website
+  - yarn install
+  - yarn build
+  except:
+    - master
 
 pages:
   stage: deploy
   script:
-    - yarn install
-    - yarn build:gitlab
+  - cd website
+  - yarn install
+  - yarn build
+  - mv ./build ../public
   artifacts:
-      paths:
-        - public
+    paths:
+    - public
   only:
     - master
