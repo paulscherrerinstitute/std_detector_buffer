@@ -1,5 +1,3 @@
-image: node:15.12-alpine3.13
-
 stages:
   - test
   - deploy
