@@ -107,6 +107,7 @@ When a parameter is not recognized the expected response is:
 ---
 
 
+:::
 **NOTE**
 
 The STD DAQ rest server uses the [slsdet package](https://anaconda.org/slsdetectorgroup/slsdet) to set and get configurations to the detector. The currently covered subset of parameters are: 
@@ -119,6 +120,7 @@ The STD DAQ rest server uses the [slsdet package](https://anaconda.org/slsdetect
 - speed
 - tengiga
 - threshold
+:::
 
 ### /detector/<det_name> [GET]
 

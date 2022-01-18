@@ -5,6 +5,7 @@ title: std-udp-sync
 ---
 
 # std-udp-sync
+
 std-udp-sync is the component that verifies if the frames from all the modules have arrived and are synchronized. It creates multiple ZMQ receiving connections to receive the frames' arrival confirmations, as many as the number of receivers (std-udp-recv), and sends out the pulse_id/image_id to external components.
 
 ## Overview
