@@ -9,7 +9,7 @@ const config = {
   title: 'STD DAQ DOC',
   tagline: 'Standard data acquisition documentation',
   url: 'https://hpdi.gitpages.psi.ch/',
-  baseUrl: '/std_daq_doc/doc/',
+  baseUrl: '/std_daq_doc/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
