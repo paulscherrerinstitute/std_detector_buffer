@@ -95,8 +95,7 @@ Rest service answer:
 {'response': 'request_success'}
 ```
 
----
-**NOTE**
+:::note
 
 When a parameter is not recognized the expected response is: 
 
@@ -107,8 +106,7 @@ When a parameter is not recognized the expected response is:
 ---
 
 
-:::
-**NOTE**
+:::important
 
 The STD DAQ rest server uses the [slsdet package](https://anaconda.org/slsdetectorgroup/slsdet) to set and get configurations to the detector. The currently covered subset of parameters are: 
 - triggers
