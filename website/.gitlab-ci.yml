@@ -7,7 +7,7 @@ stages:
 test:
   stage: test
   script:
-  - cd website
+  - cd std-daq-doc
   - yarn install
   - yarn build
   except:
@@ -16,7 +16,7 @@ test:
 pages:
   stage: deploy
   script:
-  - cd website
+  - cd std-daq-doc
   - yarn install
   - yarn build
   - mv ./build ../public
