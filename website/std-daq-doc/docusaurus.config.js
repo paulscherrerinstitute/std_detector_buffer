@@ -9,7 +9,7 @@ const config = {
   title: 'STD DAQ DOC',
   tagline: 'Standard data acquisition documentation',
   url: 'https://hpdi.gitpages.psi.ch/',
-  baseUrl: '/std_daq_doc/',
+  baseUrl: '/std_daq_doc/doc/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
@@ -23,8 +23,6 @@ const config = {
       ({
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          // Please change this to your repo.
-          editUrl: 'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
