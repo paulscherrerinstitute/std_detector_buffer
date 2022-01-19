@@ -50,3 +50,13 @@ git add . && git commit -m "descriptive commit message" && git push
 Alternatively, one can create a fork of the documentation and create a Merge Request to merge changes back to the main branch.
 
 :::
+
+## Build
+
+The documentation is automatically built after each commit to the master branch using a dedicated gitlab-runner. The instructions for the build are described here: https://git.psi.ch/HPDI/std_daq_doc/-/blob/master/.gitlab-ci.yml
+
+:::note
+
+The new changes might take up to a few minutes until they are live. 
+
+:::
