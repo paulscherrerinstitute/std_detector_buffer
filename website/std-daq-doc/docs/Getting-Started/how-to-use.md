@@ -102,8 +102,7 @@ When a parameter is not recognized the expected response is:
 ```bash
 {'response': 'Parameter not valid: <NAME_OF_NOT_VALID_PARAM>'}
 ```
-
----
+:::
 
 
 :::important
