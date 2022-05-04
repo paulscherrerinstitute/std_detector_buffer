@@ -1,12 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
+project(std_detector_buffer)
 
-project(sf_daq_buffer)
 set(CMAKE_CXX_STANDARD 17)
-
-include_directories("/home/dbe/git/hdf5-1.12.0/hdf5/include/" "/usr/include/mpich-3.2-x86_64/")
-
-set (SF_DAQ_BUFFER_VERSION "1.0.0")
-
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG_OUTPUT")
@@ -33,12 +28,7 @@ add_subdirectory(
         EXCLUDE_FROM_ALL)
 
 add_subdirectory("core-buffer")
-#add_subdirectory("std-stream-send")
-#add_subdirectory("std-udp-recv")
-#add_subdirectory("std-udp-sync")
-#add_subdirectory("jf-buffer-writer")
-#add_subdirectory("jf-assembler")
-#add_subdirectory("sf-stream")
-#add_subdirectory("sf-writer")
 add_subdirectory("std-det-writer")
-
+add_subdirectory("std-stream-send")
+add_subdirectory("std-udp-recv")
+add_subdirectory("std-udp-sync")
