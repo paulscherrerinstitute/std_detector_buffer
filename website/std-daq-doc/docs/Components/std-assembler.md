@@ -6,17 +6,16 @@ title: std-assembler
 
 # std-assembler
 
-std-assembler is the component that receives the confirmation from the std-udp-sync that the frames from an image are synchronized and have been arrived, and, therefore, are ready to be consumed. It fetches the frame's data and metadata and assembles them into an image on the image buffer. Once an image is assembled and ready to be consumed, it sends over ZMQ to external components. 
+[std-assembler](https://github.com/paulscherrerinstitute/sf_daq_buffer/tree/eiger/jf-assembler) is the component that receives the confirmation from the std-udp-sync that the frames from an image are synchronized and have been arrived, and, therefore, are ready to be consumed. It fetches the frame's data and metadata and assembles them into an image on the image buffer. Once an image is assembled and ready to be consumed, it sends over ZMQ to external components.
 
 ## Overview
 
-std-assembler is used for assembling the images and send to anyone willing to listen. It receives two arguments:
+std-assembler is used for assembling the images and send to one (or many) components. It receives two arguments:
 
 - detector's configuration file: detector config file path. Which includes, for example, the total number of modules from the detector that is going to be assembled;
 - bit depth: defines properties of the data and the image that will be assembled. For example, number of bytes per line and bytes per image;
 
 Such properties are defined in combination with the detector's header file, which contains the dimensions of the modules and gap pixels (if any).
-
 
 ## ZMQ receiving
 
@@ -32,7 +31,7 @@ Each message is composed by one image_id/pulse_id of the next image to be assemb
 
 With the image_id/pulse_id, the jf-assembler fetches, from the frame buffer, the source data/metadata and the destination, from the image buffer, that the assembled image should be placed.
 
-For example, part of the detector's header file that is used in the assembler is represented below: 
+For example, part of the detector's header file that is used in the assembler is represented below:
 
 ```c++
 #define BYTES_PER_PACKET 4144
@@ -64,7 +63,6 @@ struct ImageMetadata {
 ```
 
 Messages are sent in PUB/SUB mode.
-
 
 ## Assembler statistics
 
