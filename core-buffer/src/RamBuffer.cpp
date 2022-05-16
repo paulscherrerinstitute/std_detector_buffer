@@ -13,12 +13,12 @@
 using namespace std;
 using namespace buffer_config;
 
-RamBuffer::RamBuffer(const string& buffer_name,
+RamBuffer::RamBuffer(string buffer_name,
                      const size_t meta_n_bytes,
                      const size_t data_n_bytes,
                      const int n_modules,
                      const int n_slots) :
-        buffer_name_(buffer_name),
+        buffer_name_(std::move(buffer_name)),
         n_modules_(n_modules),
         n_slots_(n_slots),
         meta_bytes_(meta_n_bytes),
@@ -62,30 +62,20 @@ RamBuffer::~RamBuffer()
     shm_unlink(buffer_name_.c_str());
 }
 
-char* RamBuffer::_get_meta_buffer(
-        int slot_n,
-        uint64_t module_id) const
+char* RamBuffer::_get_meta_buffer(int slot_n, uint64_t module_id) const
 {   
-    return buffer_ + (slot_n * slot_bytes_) +
-          (module_id * meta_bytes_);
+    return buffer_ + (slot_n * slot_bytes_) + (module_id * meta_bytes_);
 }
 
-char* RamBuffer::_get_frame_data_buffer(
-        int slot_n,
-        uint64_t module_id) const
+char* RamBuffer::_get_frame_data_buffer(int slot_n, uint64_t module_id) const
 {
-    return buffer_ + (slot_n * slot_bytes_) +
-           (n_modules_ * meta_bytes_) + (module_id * data_bytes_);
+    return buffer_ + (slot_n * slot_bytes_) + (n_modules_ * meta_bytes_) + (module_id * data_bytes_);
 }
 
-void RamBuffer::write_frame(
-        const ModuleFrame& src_meta,
-        const char *src_data) const
+void RamBuffer::write_frame(const ModuleFrame& src_meta, const char *src_data) const
 {
-    auto *dst_meta = (ModuleFrame*) get_frame_meta(
-            src_meta.id, src_meta.module_id);
-    auto *dst_data = get_frame_data(
-            src_meta.id, src_meta.module_id);
+    auto *dst_meta = (ModuleFrame*) get_frame_meta( src_meta.id, src_meta.module_id);
+    auto *dst_data = get_frame_data( src_meta.id, src_meta.module_id);
 
     #ifdef DEBUG_OUTPUT
         using namespace date;
@@ -103,9 +93,7 @@ void RamBuffer::write_frame(
     memcpy(dst_data, src_data, data_bytes_);
 }
 
-char* RamBuffer::get_frame_meta(
-        const uint64_t image_id,
-        const uint64_t module_id) const
+char* RamBuffer::get_frame_meta(const uint64_t image_id, const uint64_t module_id) const
 {
     const size_t slot_n = image_id % n_slots_;
     return _get_meta_buffer(slot_n, module_id);
@@ -116,9 +104,7 @@ char* RamBuffer::get_slot_meta(const uint64_t image_id) const
     return get_frame_meta(image_id, 0);
 }
 
-char* RamBuffer::get_frame_data(
-        const uint64_t image_id,
-        const uint64_t module_id) const
+char* RamBuffer::get_frame_data(const uint64_t image_id, const uint64_t module_id) const
 {
     const size_t slot_n = image_id % n_slots_;
     return _get_frame_data_buffer(slot_n, module_id);

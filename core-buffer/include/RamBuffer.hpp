@@ -23,26 +23,15 @@ private:
     char* _get_frame_data_buffer(int slot_n, uint64_t module_id) const;
 
 public:
-    RamBuffer(const std::string& buffer_name,
-              size_t meta_n_bytes,
-              size_t data_n_bytes,
-              int n_modules,
-              int n_slots);
-
+    RamBuffer(std::string buffer_name, size_t meta_n_bytes, size_t data_n_bytes, int n_modules, int n_slots);
     ~RamBuffer();
 
     void write_frame(const ModuleFrame &src_meta, const char *src_data) const;
-    void read_frame(const uint64_t pulse_id,
-                     const uint64_t module_id,
-                     ModuleFrame &meta,
-                     char *data) const;
-
-    char* get_frame_data(
-            const uint64_t image_id, const uint64_t module_id) const;
-    char* get_slot_data(const uint64_t image_id) const;
-    char* get_frame_meta(
-            const uint64_t image_id, const uint64_t module_id) const;
-    char* get_slot_meta(const uint64_t image_id) const;
+    void read_frame(uint64_t pulse_id, uint64_t module_id, ModuleFrame &meta, char *data) const;
+    char* get_frame_data(uint64_t image_id, uint64_t module_id) const;
+    char* get_slot_data(uint64_t image_id) const;
+    char* get_frame_meta(uint64_t image_id, uint64_t module_id) const;
+    char* get_slot_meta(uint64_t image_id) const;
 
 
 };
