@@ -13,32 +13,29 @@
 using namespace std;
 using namespace buffer_config;
 
-RamBuffer::RamBuffer(string buffer_name,
+RamBuffer::RamBuffer(string channel_name,
                      const size_t meta_n_bytes,
                      const size_t data_n_bytes,
-                     const int n_modules,
                      const int n_slots) :
-        buffer_name_(std::move(buffer_name)),
-        n_modules_(n_modules),
+        channel_name_(std::move(channel_name)),
         n_slots_(n_slots),
         meta_bytes_(meta_n_bytes),
         data_bytes_(data_n_bytes),
-        slot_bytes_((meta_bytes_ + data_bytes_) * n_modules),
+        slot_bytes_((meta_bytes_ + data_bytes_)),
         buffer_bytes_(slot_bytes_ * n_slots_)
 {
 #ifdef DEBUG_OUTPUT
     using namespace date;
     cout << " [" << std::chrono::system_clock::now();
     cout << "] [RamBuffer::RamBuffer] ";
-    cout << " buffer_name_ " << buffer_name;
-    cout << " || n_modules_ " << n_modules_;
+    cout << " buffer_name_ " << channel_name_;
     cout << " || n_slots_ " << n_slots_;
     cout << " || meta_bytes_" << meta_bytes_;
     cout << " || data_bytes_" << data_bytes_;
     cout << endl;
 #endif
 
-    shm_fd_ = shm_open(buffer_name_.c_str(), O_RDWR | O_CREAT, 0777);
+    shm_fd_ = shm_open(channel_name_.c_str(), O_RDWR | O_CREAT, 0777);
     if (shm_fd_ < 0) {
         throw runtime_error(string("shm_open failed: ") + strerror(errno));
     }
@@ -59,17 +56,17 @@ RamBuffer::~RamBuffer()
 {
     munmap(buffer_, buffer_bytes_);
     close(shm_fd_);
-    shm_unlink(buffer_name_.c_str());
+    shm_unlink(channel_name_.c_str());
 }
 
-char* RamBuffer::_get_meta_buffer(int slot_n, uint64_t module_id) const
+char* RamBuffer::_get_meta_buffer(const size_t slot_id) const
 {   
-    return buffer_ + (slot_n * slot_bytes_) + (module_id * meta_bytes_);
+    return buffer_ + (slot_id * slot_bytes_);
 }
 
-char* RamBuffer::_get_frame_data_buffer(int slot_n, uint64_t module_id) const
+char* RamBuffer::_get_data_buffer(const size_t slot_id) const
 {
-    return buffer_ + (slot_n * slot_bytes_) + (n_modules_ * meta_bytes_) + (module_id * data_bytes_);
+    return buffer_ + (slot_id * slot_bytes_) + meta_bytes_;
 }
 
 void RamBuffer::write_frame(const ModuleFrame& src_meta, const char *src_data) const
