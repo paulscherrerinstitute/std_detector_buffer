@@ -74,7 +74,6 @@ To compile this repo you will need to install the following packages on RH7:
 
 ```bash
 yum install devtoolset-9
-yum install cmake3
 yum install zeromq-devel
 yum install hdf5-devel
 ```
