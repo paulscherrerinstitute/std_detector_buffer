@@ -17,20 +17,13 @@ class RamBuffer {
     int shm_fd_;
     char* buffer_;
 
-private:
-    char* _get_meta_buffer(size_t slot_id) const;
-    char* _get_data_buffer(size_t slot_id) const;
-
 public:
     RamBuffer(std::string channel_name, size_t meta_n_bytes, size_t data_n_bytes, int n_slots);
     ~RamBuffer();
 
-    void write_frame(const ModuleFrame &src_meta, const char *src_data) const;
-    void read_frame(uint64_t pulse_id, uint64_t module_id, ModuleFrame &meta, char *data) const;
-    char* get_frame_data(uint64_t image_id, uint64_t module_id) const;
-    char* get_slot_data(uint64_t image_id) const;
-    char* get_frame_meta(uint64_t image_id, uint64_t module_id) const;
-    char* get_slot_meta(uint64_t image_id) const;
+    void write(const ModuleFrame &src_meta, const char *src_data) const;
+    char* get_data(uint64_t image_id) const;
+    char* get_meta(uint64_t image_id) const;
 
 
 };

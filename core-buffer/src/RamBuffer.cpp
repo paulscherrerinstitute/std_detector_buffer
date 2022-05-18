@@ -59,20 +59,10 @@ RamBuffer::~RamBuffer()
     shm_unlink(channel_name_.c_str());
 }
 
-char* RamBuffer::_get_meta_buffer(const size_t slot_id) const
-{   
-    return buffer_ + (slot_id * slot_bytes_);
-}
-
-char* RamBuffer::_get_data_buffer(const size_t slot_id) const
+void RamBuffer::write(const ModuleFrame& src_meta, const char *src_data) const
 {
-    return buffer_ + (slot_id * slot_bytes_) + meta_bytes_;
-}
-
-void RamBuffer::write_frame(const ModuleFrame& src_meta, const char *src_data) const
-{
-    auto *dst_meta = (ModuleFrame*) get_frame_meta( src_meta.id, src_meta.module_id);
-    auto *dst_data = get_frame_data( src_meta.id, src_meta.module_id);
+    auto *dst_meta = (ModuleFrame*) get_meta( src_meta.id);
+    auto *dst_data = get_data( src_meta.id);
 
     #ifdef DEBUG_OUTPUT
         using namespace date;
@@ -90,24 +80,14 @@ void RamBuffer::write_frame(const ModuleFrame& src_meta, const char *src_data) c
     memcpy(dst_data, src_data, data_bytes_);
 }
 
-char* RamBuffer::get_frame_meta(const uint64_t image_id, const uint64_t module_id) const
+char* RamBuffer::get_meta(const uint64_t image_id) const
 {
-    const size_t slot_n = image_id % n_slots_;
-    return _get_meta_buffer(slot_n, module_id);
+    const size_t slot_id = image_id % n_slots_;
+    return buffer_ + (slot_id * slot_bytes_);
 }
 
-char* RamBuffer::get_slot_meta(const uint64_t image_id) const
+char* RamBuffer::get_data(const uint64_t image_id) const
 {
-    return get_frame_meta(image_id, 0);
-}
-
-char* RamBuffer::get_frame_data(const uint64_t image_id, const uint64_t module_id) const
-{
-    const size_t slot_n = image_id % n_slots_;
-    return _get_frame_data_buffer(slot_n, module_id);
-}
-
-char* RamBuffer::get_slot_data(const uint64_t image_id) const
-{
-    return get_frame_data(image_id, 0);
+    const size_t slot_id = image_id % n_slots_;
+    return buffer_ + (slot_id * slot_bytes_) + meta_bytes_;
 }
