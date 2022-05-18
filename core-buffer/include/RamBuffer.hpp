@@ -3,36 +3,36 @@
 
 #include <string>
 #include "formats.hpp"
+#include "buffer_config.hpp"
 
 class RamBuffer {
-    const std::string detector_name_;
-    const int n_modules_;
+    const std::string channel_name_;
     const int n_slots_;
 
     const size_t meta_bytes_;
-    const size_t image_bytes_;
+    const size_t data_bytes_;
+    const size_t slot_bytes_;
     const size_t buffer_bytes_;
 
     int shm_fd_;
-    void* buffer_;
+    char* buffer_;
 
-    ModuleFrame* meta_buffer_;
-    char* image_buffer_;
+private:
+    char* _get_meta_buffer(size_t slot_id) const;
+    char* _get_data_buffer(size_t slot_id) const;
 
 public:
-    RamBuffer(const std::string& detector_name,
-              const int n_modules,
-              const int n_slots=buffer_config::RAM_BUFFER_N_SLOTS);
+    RamBuffer(std::string channel_name, size_t meta_n_bytes, size_t data_n_bytes, int n_slots);
     ~RamBuffer();
 
     void write_frame(const ModuleFrame &src_meta, const char *src_data) const;
-    void read_frame(const uint64_t pulse_id,
-                     const uint64_t module_id,
-                     ModuleFrame &meta,
-                     char *data) const;
-    char* read_image(const uint64_t pulse_id) const;
-    void assemble_image(
-            const uint64_t pulse_id, ImageMetadata &image_meta) const;
+    void read_frame(uint64_t pulse_id, uint64_t module_id, ModuleFrame &meta, char *data) const;
+    char* get_frame_data(uint64_t image_id, uint64_t module_id) const;
+    char* get_slot_data(uint64_t image_id) const;
+    char* get_frame_meta(uint64_t image_id, uint64_t module_id) const;
+    char* get_slot_meta(uint64_t image_id) const;
+
+
 };
 
 

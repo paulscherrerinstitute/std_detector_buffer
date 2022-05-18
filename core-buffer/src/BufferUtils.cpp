@@ -4,6 +4,10 @@
 #include <buffer_config.hpp>
 #include <zmq.h>
 #include <fstream>
+#include <iostream>
+#include <stdexcept>
+#include <chrono>
+#include "date.h"
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
@@ -90,9 +94,10 @@ void BufferUtils::create_destination_folder(const string& output_file)
 void* BufferUtils::connect_socket(
         void* ctx, const string& detector_name, const string& stream_name)
 {
-    string ipc_address = BUFFER_LIVE_IPC_URL +
+    string ipc_address = buffer_config::IPC_URL_BASE +
                          detector_name + "-" +
                          stream_name;
+    
 #ifdef DEBUG_OUTPUT
     cout << "[BufferUtils::connect_socket]";
     cout << " IPC address: " << ipc_address << endl;
@@ -124,12 +129,53 @@ void* BufferUtils::connect_socket(
     return socket;
 }
 
+void* BufferUtils::connect_socket_gf(
+        void* ctx, const string& detector_name, const string& stream_name)
+{
+    // string ipc_address = buffer_config::IPC_URL_BASE +
+    //                      detector_name + "-" +
+    //                      stream_name;
+    
+    string ipc_address = stream_name;
+
+    void* socket = zmq_socket(ctx, ZMQ_SUB);
+    if (socket == nullptr) {
+        throw runtime_error(zmq_strerror(errno));
+    }
+
+    int rcvhwm = BUFFER_ZMQ_RCVHWM;
+    if (zmq_setsockopt(socket, ZMQ_RCVHWM, &rcvhwm, sizeof(rcvhwm)) != 0) {
+        throw runtime_error(zmq_strerror(errno));
+    }
+
+    int linger = 0;
+    if (zmq_setsockopt(socket, ZMQ_LINGER, &linger, sizeof(linger)) != 0) {
+        throw runtime_error(zmq_strerror(errno));
+    }
+
+    if (zmq_connect(socket, ipc_address.c_str()) != 0) {
+        throw runtime_error(zmq_strerror(errno));
+    }
+
+    if (zmq_setsockopt(socket, ZMQ_SUBSCRIBE, "", 0) != 0) {
+        throw runtime_error(zmq_strerror(errno));
+    }
+
+    return socket;
+}
+
 void* BufferUtils::bind_socket(
         void* ctx, const string& detector_name, const string& stream_name)
 {
-    string ipc_address = BUFFER_LIVE_IPC_URL +
+    string ipc_address = IPC_URL_BASE +
                          detector_name + "-" +
                          stream_name;
+
+#ifdef DEBUG_OUTPUT
+    cout << "[BufferUtils::bind_socket]";
+    cout << " IPC address: " << ipc_address << endl;
+#endif
+
 
     void* socket = zmq_socket(ctx, ZMQ_PUB);
 
@@ -159,15 +205,12 @@ BufferUtils::DetectorConfig BufferUtils::read_json_config(
     config_parameters.ParseStream(isw);
 
     return {
-            config_parameters["streamvis_stream"].GetString(),
-            config_parameters["streamvis_rate"].GetInt(),
-            config_parameters["live_stream"].GetString(),
-            config_parameters["live_rate"].GetInt(),
-            config_parameters["pedestal_file"].GetString(),
-            config_parameters["gain_file"].GetString(),
             config_parameters["detector_name"].GetString(),
+            config_parameters["detector_type"].GetString(),
             config_parameters["n_modules"].GetInt(),
+            config_parameters["bit_depth"].GetInt(),
+            config_parameters["image_height"].GetInt(),
+            config_parameters["image_width"].GetInt(),
             config_parameters["start_udp_port"].GetInt(),
-            config_parameters["buffer_folder"].GetString(),
     };
 }

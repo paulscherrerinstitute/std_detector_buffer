@@ -3,22 +3,31 @@
 
 #include <string>
 #include <vector>
+#include <ostream>
 
 namespace BufferUtils
 {
 
     struct DetectorConfig {
-        const std::string streamvis_address;
-        const int reduction_factor_streamvis;
-        const std::string live_analysis_address;
-        const int reduction_factor_live_analysis;
-        const std::string PEDE_FILENAME;
-        const std::string GAIN_FILENAME;
-
         const std::string detector_name;
+        const std::string detector_type;
         const int n_modules;
+        const int bit_depth;
+        const int image_height;
+        const int image_width;
         const int start_udp_port;
-        const std::string buffer_folder;
+        
+
+        friend std::ostream& operator <<(std::ostream& os, DetectorConfig const& det_config)
+        {
+                return os << det_config.detector_name << ' '
+                        << det_config.detector_type << ' '
+                        << det_config.n_modules << ' '
+                        << det_config.bit_depth << ' '
+                        << det_config.image_height << ' '
+                        << det_config.image_width << ' '
+                        << det_config.start_udp_port << ' ';
+        }
     };
 
 
@@ -45,6 +54,11 @@ namespace BufferUtils
             const std::string& stream_name);
 
     void* connect_socket(
+            void* ctx,
+            const std::string& detector_name,
+            const std::string& stream_name);
+
+    void* connect_socket_gf(
             void* ctx,
             const std::string& detector_name,
             const std::string& stream_name);

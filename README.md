@@ -67,6 +67,21 @@ inclusive range (both start and stop pulse_id are included) of pulses.
 
 ## Build
 
+### In docker
+Building and testing with docker does not require you to modify your host 
+and its the suggested way to build and test your applications.
+
+Running the **Dockerfile** in the project root copies the current repo folder 
+inside the docker container and builds all the targets.
+
+Running the **build\_Dockerfile.sh** builds, tags, and pushes a new 
+container version to the registry. You should do this only if you are sure that 
+your image is production ready. Please, do not forget 
+to push only 100% working images and to increase the VERSION 
+(at the beginning of the build_Dockerfile.sh) number of the container.
+
+### On host
+
 To compile this repo you will need to install the following packages on RH7:
 - devtoolset-9
 - cmake3
@@ -102,7 +117,44 @@ ln -s "$(pwd)""/""sf_stream" /usr/bin/sf_stream
 ln -s "$(pwd)""/""sf_writer" /usr/bin/sf_writer
 ```
 
+## Testing
+Each project should have unit tests associated with it written using 
+GTest. The tests should always be run before pushing a new container to the 
+registry.
+
+Apart from unit-testing an integration pipeline can be started on your local 
+machine or dedicated server.
+
+You can first start RabbitMQ and Redis in order to have the basic services 
+needed running locally
+
+In the root project folder run:
+```bash
+docker-compose up -d broker redis 
+```
+
+**Note**: you need to have docker-compose installed on your system. You can do this 
+by running:
+```bash
+yum install docker-compose
+```
+
+To start and test your new component as part of the integration pipeline run:
+```bash
+docker-compose up -d 
+```
+
 ### Warnings
+
+#### UDP recv tests failing
+
+In case unit tests for std-udp-recv are failing the most common cause of 
+problems is the rmem limit. Please increase your rmem_max to something large:
+
+```bash 
+echo 2147483646 > /proc/sys/net/core/rmem_max
+```
+You need to do this on your host when running the integration pipeline.
 
 #### Zeromq
 

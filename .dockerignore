@@ -1,4 +1,9 @@
 cmake-build-*/
 docker/
 docs/
-scripts/
+
+.idea/
+.dockerignore
+
+build_Dockerfile.sh
+README.md
