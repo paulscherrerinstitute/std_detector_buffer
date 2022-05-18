@@ -18,6 +18,13 @@ We aim to unify all detectors currently used at PSI under a common solution.
     - Run only the process you want to test.
     - Write unit tests.
 
+We are aiming for simplicity and decoupling:
+
+- No interprocess dependencies/communication.
+- No dependencies on external libraries (as much as possible).
+- Using POSIX as much as possible.
+- Stateless services -> no internal state machine.
+
 ## Scope
 
 The scope should be as limited as possible and we should abstain from 
