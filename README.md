@@ -71,11 +71,23 @@ To compile this repo you will need to install the following packages on RH7:
 - cmake3
 - zeromq-devel
 - hdf5-devel
+- mpich-devel
 
 ```bash
 yum install devtoolset-9
 yum install zeromq-devel
 yum install hdf5-devel
+yum install mpich-devel
+```
+
+**Warning**: Your system might not place MPI into your PATH and LD_LIBRARY_PATH.
+This is needed by cmake to properly resolve the MPI compiler.
+Before building the repo you might need to update this 2 env variables:
+
+```bash
+# Assuming your mpich installation directory is /usr/lib64/mpich-3.2/
+export PATH="/usr/lib64/mpich-3.2/bin:${PATH}"
+export LD_LIBRARY_PATH="/usr/lib64/mpich-3.2/lib:${LD_LIBRARY_PATH}"
 ```
 
 Step by step procedure to build the repo:
@@ -89,6 +101,8 @@ cd build/
 cmake3 ..
 make
 ```
+
+
 
 You can create symbolic links to the executables you will be using 
 inside your PATH.
