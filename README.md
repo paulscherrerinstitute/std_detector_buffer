@@ -1,23 +1,6 @@
-# sf_daq_buffer
+# Standard Detector Buffer
 
-The goal of the project is to provide a detector buffering and writing solution 
-that meets the needs of SwissFEL data taking. By dividing the problem into 
-small components (Microservice architecture) we hope to achieve better 
-maintainability and long term stability of the codebase. We try to make the 
-code as simple as possible and write unit tests extensively to facilitate 
-future changes.
-
-Overview of current architecture and component interaction:
-
-![Overview image](docs/sf_daq_buffer-overview.jpg)
-
-Documentation of individual components:
-
-- [sf-buffer](sf-buffer) (Receive UDP and write buffer files)
-- [sf-stream](sf-stream) (Live streaming of detector data)
-- [sf-writer](sf-writer) (Read from buffer and write H5)
-- [sf-utils](sf-utils) (Small utilities for debugging and testing)
-- [jf-live-writer](jf-live-writer) (Live writer to high performance detectors)
+We aim to unify all detectors currently used at PSI under a common solution.
 
 ## Design goals
 
@@ -56,14 +39,8 @@ terminology definitions should be followed:
 
 - frame (data from a single module)
 - image (assembled frames)
-- start_pulse_id and stop_pulse_id is used to determine the 
-inclusive range (both start and stop pulse_id are included) of pulses.
-- pulse_id_step (how many pulses to skip between each image).
-- GPFS buffer (detector buffering mechanism based on binary files on GPFS)
-- detector_folder (root folder of the buffer for a specific detector on disk)
-- module_folder (folder of one module inside the detector_folder)
-- data_folder (folder where we group more buffer files based on pulse_id range)
-- data_file (the files where the actual data is stored, inside data_folder)
+- start_image_id and stop_image_id is used to determine the 
+inclusive range (both start and stop ids are included) of images.
 
 ## Build
 
@@ -99,22 +76,23 @@ Step by step procedure to build the repo:
 
 ```bash
 scl enable devtoolset-9 bash
-git clone https://github.com/paulscherrerinstitute/sf_daq_buffer.git
-cd sf_daq_buffer
+git clone git@github.com:paulscherrerinstitute/std_detector_buffer.git
+cd std_detector_buffer
 mkdir build
 cd build/
 cmake3 ..
 make
 ```
 
-It is recommended to create symbolic links to the executables you will be using 
+You can create symbolic links to the executables you will be using 
 inside your PATH.
 
 Example:
 ```bash
-ln -s "$(pwd)""/""sf_buffer" /usr/bin/sf_buffer
-ln -s "$(pwd)""/""sf_stream" /usr/bin/sf_stream
-ln -s "$(pwd)""/""sf_writer" /usr/bin/sf_writer
+ln -s "$(pwd)""/""std_udp_recv" /usr/bin/std_udp_recv
+ln -s "$(pwd)""/""std_udp_sync" /usr/bin/std_udp_sync
+ln -s "$(pwd)""/""std_stream_send" /usr/bin/std_stream_send
+ln -s "$(pwd)""/""std_det_writer" /usr/bin/std_det_writer
 ```
 
 ## Testing
@@ -125,23 +103,15 @@ registry.
 Apart from unit-testing an integration pipeline can be started on your local 
 machine or dedicated server.
 
-You can first start RabbitMQ and Redis in order to have the basic services 
-needed running locally
-
-In the root project folder run:
+In the root project folder, you can start and test your new component as part of the integration pipeline by running:
 ```bash
-docker-compose up -d broker redis 
+docker-compose up -d 
 ```
 
 **Note**: you need to have docker-compose installed on your system. You can do this 
 by running:
 ```bash
 yum install docker-compose
-```
-
-To start and test your new component as part of the integration pipeline run:
-```bash
-docker-compose up -d 
 ```
 
 ### Warnings
