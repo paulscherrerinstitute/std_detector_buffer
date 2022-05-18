@@ -24,8 +24,6 @@ public:
     void write(const ModuleFrame &src_meta, const char *src_data) const;
     char* get_data(uint64_t image_id) const;
     char* get_meta(uint64_t image_id) const;
-
-
 };
 
 
