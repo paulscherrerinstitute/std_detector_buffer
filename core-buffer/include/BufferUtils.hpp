@@ -30,39 +30,8 @@ namespace BufferUtils
         }
     };
 
-
-    std::string get_filename(
-            const std::string& detector_folder,
-            const std::string& module_name,
-            const uint64_t pulse_id);
-
-    std::string get_image_filename(
-            const std::string& detector_folder,
-            const uint64_t pulse_id);
-
-    std::size_t get_file_frame_index(const uint64_t pulse_id);
-
-    void update_latest_file(
-            const std::string& latest_filename,
-            const std::string& filename_to_write);
-
-    void create_destination_folder(const std::string& output_file);
-
-    void* bind_socket(
-            void* ctx,
-            const std::string& detector_name,
-            const std::string& stream_name);
-
-    void* connect_socket(
-            void* ctx,
-            const std::string& detector_name,
-            const std::string& stream_name);
-
-    void* connect_socket_gf(
-            void* ctx,
-            const std::string& detector_name,
-            const std::string& stream_name);
-
+    void* bind_socket( void* ctx, const std::string& detector_name, const std::string& stream_name);
+    void* connect_socket( void* ctx, const std::string& detector_name, const std::string& stream_name);
     DetectorConfig read_json_config(const std::string& filename);
 }
 
