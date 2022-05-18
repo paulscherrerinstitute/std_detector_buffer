@@ -32,19 +32,18 @@ int main (int argc, char *argv[]) {
     const int module_id = atoi(argv[2]);
 
     if (DETECTOR_TYPE != config.detector_type) {
-        throw runtime_error("UDP recv version for " + DETECTOR_TYPE +
-                            " but config for " + config.detector_type);
+        throw runtime_error("std_udp_recv version for " + DETECTOR_TYPE + " but config for " + config.detector_type);
     }
 
     const auto udp_port = config.start_udp_port + module_id;
+
+    // Detector specific config.
     const size_t FRAME_N_BYTES = MODULE_N_PIXELS * config.bit_depth / 8;
     const size_t N_PACKETS_PER_FRAME = FRAME_N_BYTES / DATA_BYTES_PER_PACKET;
 
     FrameUdpReceiver receiver(udp_port, N_PACKETS_PER_FRAME);
-    RamBuffer frame_buffer(config.detector_name, sizeof(ModuleFrame),
-                           FRAME_N_BYTES, config.n_modules, RAM_BUFFER_N_SLOTS);
-    FrameStats stats(config.detector_name, module_id,
-            N_PACKETS_PER_FRAME, STATS_TIME);
+    RamBuffer frame_buffer(config.detector_name, sizeof(ModuleFrame), FRAME_N_BYTES, RAM_BUFFER_N_SLOTS);
+    FrameStats stats(config.detector_name, module_id, N_PACKETS_PER_FRAME, STATS_TIME);
 
     auto ctx = zmq_ctx_new();
     auto socket = bind_socket(ctx, config.detector_name, to_string(module_id));
@@ -72,7 +71,7 @@ int main (int argc, char *argv[]) {
 #endif
         meta.id = image_id;
 
-        frame_buffer.write_frame(meta, data);
+        frame_buffer.write(meta, data);
         zmq_send(socket, &image_id, sizeof(image_id), 0);
 
         stats.record_stats(meta);
