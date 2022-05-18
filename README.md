@@ -66,18 +66,24 @@ to push only 100% working images and to increase the VERSION
 
 ### On host
 
-To compile this repo you will need to install the following packages on RH7:
-- devtoolset-9
-- cmake3
+To compile this repo you will need to install the following packages:
 - zeromq-devel
 - hdf5-devel
 - mpich-devel
 
+On RH7:
 ```bash
 yum install devtoolset-9
 yum install zeromq-devel
 yum install hdf5-devel
 yum install mpich-devel
+```
+
+on MAC:
+```bash
+brew install zeromq
+brew install hdf5@1.10
+brew install mpich
 ```
 
 **Warning**: Your system might not place MPI into your PATH and LD_LIBRARY_PATH.

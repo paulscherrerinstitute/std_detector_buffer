@@ -27,6 +27,10 @@ add_subdirectory(
         ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
         EXCLUDE_FROM_ALL)
 
+if(APPLE)
+        include_directories("/usr/local/include")
+endif()
+
 add_subdirectory("core-buffer")
 add_subdirectory("std-det-writer")
 add_subdirectory("std-stream-send")
