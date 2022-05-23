@@ -24,7 +24,7 @@ struct det_packet {
     uint32_t scan_id; // Unique ID of the scan.
     // Up to here everything is static per socket and scan.
 
-    uint32_t frame_number; // Number of the frame in the scan.
+    uint32_t frame_id; // Number of the frame in the scan.
     uint16_t image_status_flags; // bit[15] = do not store, rest is debug bits.
     uint16_t packet_starting_row; // Starting row of the current UDP packet.
     uint64_t image_timing; // byte[0-4] = timestamp, bytes[3-7] = exposure_time
