@@ -8,8 +8,7 @@
 using namespace std;
 using namespace buffer_config;
 
-FrameUdpReceiver::FrameUdpReceiver(
-        const uint16_t port, const int n_packets_per_frame) :
+FrameUdpReceiver::FrameUdpReceiver(const uint16_t port, const size_t n_packets_per_frame) :
             n_packets_per_frame_(n_packets_per_frame),
             packet_buffer_(new det_packet[n_packets_per_frame_]),
             recv_buff_ptr_(new iovec[n_packets_per_frame_]),
@@ -148,16 +147,14 @@ inline uint64_t FrameUdpReceiver::process_packets(
     return INVALID_FRAME_INDEX;
 }
 
-uint64_t FrameUdpReceiver::get_frame_from_udp(
-        ModuleFrame& meta, char* frame_buffer)
+uint64_t FrameUdpReceiver::get_frame_from_udp(ModuleFrame& meta, char* frame_buffer)
 {
     meta.frame_index = INVALID_FRAME_INDEX;
 
     // Happens when last packet from previous frame was missed.
     if (packet_buffer_loaded_) {
 
-        auto frame_index = process_packets(
-                packet_buffer_offset_, meta, frame_buffer);
+        auto frame_index = process_packets( packet_buffer_offset_, meta, frame_buffer);
         if (frame_index != INVALID_FRAME_INDEX) {
             return frame_index;
         }
@@ -165,15 +162,12 @@ uint64_t FrameUdpReceiver::get_frame_from_udp(
 
     while (true) {
 
-        packet_buffer_n_packets_ = udp_receiver_.receive_many(
-                msgs_, n_packets_per_frame_);
-
+        packet_buffer_n_packets_ = udp_receiver_.receive_many(msgs_, n_packets_per_frame_);
         if (packet_buffer_n_packets_ == 0) {
             continue;
         }
 
         auto frame_index = process_packets(0, meta, frame_buffer);
-
         if (frame_index != INVALID_FRAME_INDEX) {
             return frame_index;
         }

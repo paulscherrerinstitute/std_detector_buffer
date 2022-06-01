@@ -26,13 +26,11 @@ class FrameUdpReceiver {
     int packet_buffer_offset_ = 0;
 
     inline void init_frame(ModuleFrame& frame_metadata, const int i_packet);
-    inline void copy_packet_to_buffers(
-            ModuleFrame& metadata, char* frame_buffer, const int i_packet);
-    inline uint64_t process_packets(
-            const int n_packets, ModuleFrame& metadata, char* frame_buffer);
+    inline void copy_packet_to_buffers( ModuleFrame& metadata, char* frame_buffer, const int i_packet);
+    inline uint64_t process_packets( const int n_packets, ModuleFrame& metadata, char* frame_buffer);
 
 public:
-    FrameUdpReceiver(const uint16_t port, const int n_packets_per_frame);
+    FrameUdpReceiver(uint16_t port, size_t n_packets_per_frame);
     virtual ~FrameUdpReceiver();
     uint64_t get_frame_from_udp(ModuleFrame& meta, char* frame_buffer);
 };
