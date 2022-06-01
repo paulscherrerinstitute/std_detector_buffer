@@ -35,4 +35,29 @@ struct det_packet {
 };
 #pragma pack(pop)
 
-#endif
+#pragma pack(push)
+#pragma pack(1)
+struct frame_metadata {
+    // 16 bytes
+    uint32_t scan_id;
+    uint32_t frame_id;
+    uint32_t size_x;
+    uint32_t size_y;
+
+    // 24 bytes
+    uint32_t scan_time;
+    uint32_t sync_time;
+    uint64_t frame_timestamp;
+    uint64_t exposure_time;
+
+    // 5 bytes
+    uint8_t quadrant_id;
+    uint8_t link_id;
+    uint8_t corr_mode;
+    uint8_t rpf; // TODO: No idea what this does.
+    uint8_t do_not_store;
+
+    // The struct size needs to be 64 bytes to fit into a cache line.
+    int8_t __padding__[64-16-24-5]
+};
+#pragma pack(pop)
