@@ -4,7 +4,7 @@ file(GLOB SOURCES
         src/*.cpp)
 
 add_library(core-buffer-lib STATIC ${SOURCES})
-target_include_directories(core-buffer-lib PUBLIC include/)
+target_include_directories(core-buffer-lib PUBLIC include/ detectors/)
 target_link_libraries(core-buffer-lib
         external)
 

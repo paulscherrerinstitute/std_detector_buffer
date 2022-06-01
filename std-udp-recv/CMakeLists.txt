@@ -8,7 +8,6 @@ target_link_libraries(std-udp-recv-lib
         core-buffer-lib)
 
 add_executable(std-udp-recv src/main.cpp)
-
 set_target_properties(std-udp-recv PROPERTIES OUTPUT_NAME std_udp_recv)
 
 target_link_libraries(std-udp-recv
