@@ -5,12 +5,7 @@
 #include "PacketUdpReceiver.hpp"
 #include "formats.hpp"
 #include "buffer_config.hpp"
-
-#ifdef USE_EIGER
-    #include "eiger.hpp"
-#else
-    #include "jungfrau.hpp"
-#endif
+#include "detector.hpp"
 
 class FrameUdpReceiver {
     PacketUdpReceiver udp_receiver_;
