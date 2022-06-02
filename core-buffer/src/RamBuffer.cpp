@@ -2,7 +2,6 @@
 #include <fcntl.h>
 #include <cstring>
 #include <stdexcept>
-#include <sstream>
 #include <unistd.h>
 #include "RamBuffer.hpp"
 #include "date.h"
