@@ -5,5 +5,4 @@ docs/
 .idea/
 .dockerignore
 
-build_Dockerfile.sh
 README.md
