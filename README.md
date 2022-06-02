@@ -50,19 +50,31 @@ terminology definitions should be followed:
 inclusive range (both start and stop ids are included) of images.
 
 ## Build
+When building the DAQ you will have to specify the DETECTOR variable either 
+in the Dockerfile build arguments (if you are using Docker to build) or in 
+the Cmake options.
+
+Currently valid DETECTOR values:
+- gigafrost
+- jungfrau
+- eiger
+- jfjoch
 
 ### In docker
-Building and testing with docker does not require you to modify your host 
-and its the suggested way to build and test your applications.
+Building and testing with docker does not require you to modify your host, 
+and it is the suggested way to build and test your applications.
 
 Running the **Dockerfile** in the project root copies the current repo folder 
-inside the docker container and builds all the targets.
+inside the docker container and builds all the targets. You will need to pass 
+build-arg to the Dockerfile in order to specify for which detector you are 
+building the DAQ. This can be done like this:
 
-Running the **build\_Dockerfile.sh** builds, tags, and pushes a new 
-container version to the registry. You should do this only if you are sure that 
-your image is production ready. Please, do not forget 
-to push only 100% working images and to increase the VERSION 
-(at the beginning of the build_Dockerfile.sh) number of the container.
+```bash
+docker build --build-arg DETECTOR=[detector_name]
+```
+
+Please refer to the beginning of the **Build** section for valid DETECTOR 
+values.
 
 ### On host
 
@@ -104,41 +116,17 @@ git clone git@github.com:paulscherrerinstitute/std_detector_buffer.git
 cd std_detector_buffer
 mkdir build
 cd build/
-cmake3 ..
+cmake3 -DDETECTOR=[detector_name] ..
 make
 ```
 
-
-
-You can create symbolic links to the executables you will be using 
-inside your PATH.
-
-Example:
-```bash
-ln -s "$(pwd)""/""std_udp_recv" /usr/bin/std_udp_recv
-ln -s "$(pwd)""/""std_udp_sync" /usr/bin/std_udp_sync
-ln -s "$(pwd)""/""std_stream_send" /usr/bin/std_stream_send
-ln -s "$(pwd)""/""std_det_writer" /usr/bin/std_det_writer
-```
+Please refer to the beginning of the **Build** section for valid DETECTOR
+values.
 
 ## Testing
 Each project should have unit tests associated with it written using 
 GTest. The tests should always be run before pushing a new container to the 
 registry.
-
-Apart from unit-testing an integration pipeline can be started on your local 
-machine or dedicated server.
-
-In the root project folder, you can start and test your new component as part of the integration pipeline by running:
-```bash
-docker-compose up -d 
-```
-
-**Note**: you need to have docker-compose installed on your system. You can do this 
-by running:
-```bash
-yum install docker-compose
-```
 
 ### Warnings
 
