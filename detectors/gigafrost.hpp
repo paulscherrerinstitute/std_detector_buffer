@@ -2,7 +2,6 @@
 #define GIGAFROST_H
 
 #include <cstdint>
-#include <stdint.h>
 
 const std::string DETECTOR_TYPE = "gigafrost";
 
@@ -58,6 +57,7 @@ struct frame_metadata {
     uint8_t do_not_store;
 
     // The struct size needs to be 64 bytes to fit into a cache line.
-    int8_t __padding__[64-16-24-5]
+    int8_t __padding__[64-16-24-5];
 };
 #pragma pack(pop)
+#endif
