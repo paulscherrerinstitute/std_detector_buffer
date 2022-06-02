@@ -31,6 +31,7 @@ if(APPLE)
         include_directories("/usr/local/include")
 endif()
 
+add_subdirectory("detectors")
 add_subdirectory("core-buffer")
 add_subdirectory("std-det-writer")
 add_subdirectory("std-stream-send")
