@@ -20,7 +20,7 @@ int main (int argc, char *argv[]) {
 
     if (argc != 3) {
         cout << endl;
-        cout << "Usage: std_udp_recv [detector_json_filename] [module_id] ";
+        cout << "Usage: std_udp_recv_eiger [detector_json_filename] [module_id] ";
         cout << endl;
         cout << "\tdetector_json_filename: detector config file path." << endl;
         cout << "\tmodule_id: id of the module for this process." << endl;
@@ -30,12 +30,11 @@ int main (int argc, char *argv[]) {
 
     const auto config = UdpRecvConfig::from_json_file(string(argv[1]));
     const int module_id = atoi(argv[2]);
-
-    if (DETECTOR_TYPE != config.detector_type) {
-        throw runtime_error("std_udp_recv version for " + DETECTOR_TYPE + " but config for " + config.detector_type);
-    }
-
     const auto udp_port = config.start_udp_port + module_id;
+
+    if ("eiger" != config.detector_type) {
+        throw runtime_error("Receiver version for Eiger but config for " + config.detector_type);
+    }
 
     // Detector specific config.
     const size_t FRAME_N_BYTES = MODULE_N_PIXELS * config.bit_depth / 8;
@@ -64,11 +63,7 @@ int main (int argc, char *argv[]) {
         receiver.get_frame_from_udp(meta, data);
 
         // Assign the image_id based on the detector type.
-#ifdef USE_EIGER
         const uint64_t image_id = meta.frame_index;
-#else
-        const uint64_t image_id = meta.pulse_id;
-#endif
         meta.id = image_id;
 
         frame_buffer.write(meta, data);
