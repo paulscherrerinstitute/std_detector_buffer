@@ -25,7 +25,7 @@ public:
                const int module_id,
                const int n_packets_per_frame,
                const size_t stats_time);
-    void record_stats(const ModuleFrame &meta);
+    void record_stats(uint64_t n_missing_packets);
 };
 
 
