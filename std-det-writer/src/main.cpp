@@ -45,8 +45,7 @@ int main (int argc, char *argv[])
 
     auto ctx = zmq_ctx_new();
     zmq_ctx_set(ctx, ZMQ_IO_THREADS, LIVE_ZMQ_IO_THREADS);
-    auto receiver = BufferUtils::connect_socket_gf(
-            ctx, config.detector_name, "tcp://localhost:9667");
+    auto receiver = BufferUtils::connect_socket(ctx, config.detector_name, "sync");
 
     const size_t IMAGE_N_BYTES = config.image_width * config.image_height * config.bit_depth / 8;
 
@@ -73,9 +72,6 @@ int main (int argc, char *argv[])
         const int n_images = document["n_images"].GetInt();
         const int user_id = document["user_id"].GetInt();
 
-
-
-
         const int status = document["status"].GetInt();
         const rapidjson::Value& a = document["shape"];
         const int width = a[0].GetInt();
@@ -89,58 +85,14 @@ int main (int argc, char *argv[])
             stats.end_run();
 	    open_run = false;
 
-            #ifdef DEBUG_OUTPUT 
-                cout << "[" << std::chrono::system_clock::now() << "]";
-                cout << "[std_daq_det_writer] Setting real group/user id..." << endl;
-            #endif
-            if (setresgid(0,0,0)){
-                stringstream error_message;
-                cout << " Problem setting real group id..." << endl;
-                error_message << "[" << std::chrono::system_clock::now() << "]";
-                error_message << "[std_daq_det_writer] Cannot set real group id..." << endl;
-                throw runtime_error(error_message.str());
-            }
-            if (setresuid(0,0,0)){
-                stringstream error_message;
-                error_message << "[" << std::chrono::system_clock::now() << "]";
-                error_message << "[std_daq_det_writer] Cannot set real user id..." << endl;
-                throw runtime_error(error_message.str());
-            }
             continue;
         }
 
         // i_image == 0 -> we have a new run.
         if (i_image == 0 && open_run == false) {
-            // TODO Improve changing GID and UID of the writer processes 
-            // to be part of the deployment via the ansible deployment.
-            #ifdef DEBUG_OUTPUT
-                 cout << "[" << std::chrono::system_clock::now() << "]";
-                 cout << "[std_daq_det_writer] Setting process uid to " << user_id << endl;
-            #endif
-            
-            if (setegid(user_id)) {
-                stringstream error_message;
-                error_message << "[" << std::chrono::system_clock::now() << "]";
-                error_message << "[std_daq_det_writer] Cannot set group_id to " << user_id << endl;
-                throw runtime_error(error_message.str());
-            }
-
-            if (seteuid(user_id)) {
-                stringstream error_message;
-                error_message << "[" << std::chrono::system_clock::now() << "]";
-                error_message << "[std_daq_det_writer] Cannot set user_id to " << user_id << endl;
-                throw runtime_error(error_message.str());
-            }
-
-            writer.open_run(output_file,
-                            run_id,
-                            n_images,
-                            heigth,
-                            width,
-                            dtype);
+            writer.open_run(output_file, run_id, n_images, heigth, width, dtype);
             open_run = true;
-	}
-
+        }
 
         // data
         auto img_nbytes = zmq_recv(receiver, &recv_buffer_data, sizeof(recv_buffer_data), 0);
@@ -154,14 +106,11 @@ int main (int argc, char *argv[])
             header_in = false;
         }
 	
-	
         // Only the first instance writes metadata.
         if (i_writer == 0 && header_in == true && open_run == true) {
             writer.write_meta_gf(run_id, i_image, 
                     (uint16_t)run_id, 
                     (uint64_t)status);
             }
-
         }
-    
 }
