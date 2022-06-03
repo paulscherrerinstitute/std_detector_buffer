@@ -1,16 +1,11 @@
 #include <chrono>
 #include "gtest/gtest.h"
 #include "buffer_config.hpp"
+#include "jungfrau.hpp"
 
 extern "C" {
     #include "bitshuffle/bitshuffle.h"
 }
-
-#ifdef USE_EIGER
-#include "eiger.hpp"
-#else
-#include "jungfrau.hpp"
-#endif
 
 using namespace std;
 using namespace buffer_config;
