@@ -28,7 +28,7 @@ TEST(RamBuffer, simple_store)
 
     for (int i_module=0; i_module<n_modules; i_module++) {
         frame_meta.module_id = i_module;
-        buffer.write(frame_meta, (char *) (frame_buffer.get()));
+        buffer.write(frame_meta.id, (char*) (&frame_meta), (char *) (frame_buffer.get()));
     }
 
     auto meta_buffer = (ModuleFrame*) buffer.get_meta(frame_meta.id);
