@@ -64,9 +64,8 @@ int main (int argc, char *argv[]) {
 
         // Assign the image_id based on the detector type.
         const uint64_t image_id = meta.frame_index;
-        meta.id = image_id;
 
-        frame_buffer.write(meta, data);
+        frame_buffer.write(image_id, (char*)(&meta), data);
         zmq_send(socket, &image_id, sizeof(image_id), 0);
 
         stats.record_stats(N_PACKETS_PER_FRAME - meta.n_recv_packets);
