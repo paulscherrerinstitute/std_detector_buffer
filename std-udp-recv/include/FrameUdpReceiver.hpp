@@ -5,7 +5,6 @@
 #include "PacketUdpReceiver.hpp"
 #include "formats.hpp"
 #include "buffer_config.hpp"
-#include "detector.hpp"
 
 class FrameUdpReceiver {
     PacketUdpReceiver udp_receiver_;
