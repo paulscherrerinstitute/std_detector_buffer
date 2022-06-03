@@ -6,12 +6,8 @@
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
-#include <chrono>
-#include "date.h"
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/document.h>
-#include <rapidjson/stringbuffer.h>
-#include <iostream>
 
 using namespace std;
 using namespace buffer_config;
@@ -51,7 +47,7 @@ void* BufferUtils::connect_socket(void* ctx, const string& detector_name, const 
     return socket;
 }
 
-void* BufferUtils::bind_socket( void* ctx, const string& detector_name, const string& stream_name)
+void* BufferUtils::bind_socket(void* ctx, const string& detector_name, const string& stream_name)
 {
     string ipc_address = IPC_URL_BASE + detector_name + "-" + stream_name;
 
