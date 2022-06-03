@@ -3,6 +3,8 @@
 #include <zmq.h>
 #include <RamBuffer.hpp>
 
+#include "eiger.hpp"
+
 #include "formats.hpp"
 #include "buffer_config.hpp"
 #include "FrameUdpReceiver.hpp"
@@ -32,8 +34,8 @@ int main (int argc, char *argv[]) {
     const int module_id = atoi(argv[2]);
     const auto udp_port = config.start_udp_port + module_id;
 
-    if ("eiger" != config.detector_type) {
-        throw runtime_error("Receiver version for Eiger but config for " + config.detector_type);
+    if (DETECTOR_TYPE != config.detector_type) {
+        throw runtime_error("Receiver version for " + DETECTOR_TYPE + " but config for " + config.detector_type);
     }
 
     // Detector specific config.
