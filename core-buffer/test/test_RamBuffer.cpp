@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "RamBuffer.hpp"
+#include "detector.hpp"
 
 using namespace std;
 using namespace buffer_config;
@@ -10,8 +11,7 @@ TEST(RamBuffer, simple_store)
     const int n_modules = 3;
     const size_t DATA_N_BYTES = MODULE_N_PIXELS * 2;
 
-    RamBuffer buffer("test_detector",
-            sizeof(ModuleFrame), DATA_N_BYTES, n_modules, 10);
+    RamBuffer buffer("test_detector", sizeof(ModuleFrame), DATA_N_BYTES, n_modules);
 
     ModuleFrame frame_meta;
     frame_meta.id = 12345678;
@@ -29,11 +29,10 @@ TEST(RamBuffer, simple_store)
 
     for (int i_module=0; i_module<n_modules; i_module++) {
         frame_meta.module_id = i_module;
-
-        buffer.write_frame(frame_meta, (char *) (frame_buffer.get()));
+        buffer.write(frame_meta, (char *) (frame_buffer.get()));
     }
 
-    auto meta_buffer = (ModuleFrame*) buffer.get_slot_meta(frame_meta.id);
+    auto meta_buffer = (ModuleFrame*) buffer.get_meta(frame_meta.id);
     for (int i_module=0; i_module<n_modules; i_module++) {
         ASSERT_EQ(meta_buffer[i_module].id, frame_meta.id);
         ASSERT_EQ(meta_buffer[i_module].pulse_id, frame_meta.pulse_id);
@@ -42,7 +41,7 @@ TEST(RamBuffer, simple_store)
         ASSERT_EQ(meta_buffer[i_module].module_id, i_module);
     }
 
-    auto data_buffer = (uint16_t*) buffer.get_slot_data(frame_meta.id);
+    auto data_buffer = (uint16_t*) buffer.get_data(frame_meta.id);
     for (int i_module=0; i_module<n_modules; i_module++) {
         auto module_buffer = data_buffer + (MODULE_N_PIXELS * i_module);
 
