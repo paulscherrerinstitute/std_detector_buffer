@@ -4,16 +4,12 @@
 #include <BufferUtils.hpp>
 #include <SyncStats.hpp>
 
-#include "date.h"
-#include <chrono>
-#include "sync_config.hpp"
 #include "ZmqPulseSyncReceiver.hpp"
 #include "UdpSyncConfig.hpp"
 #include "buffer_config.hpp"
  
 
 using namespace std;
-using namespace sync_config;
 using namespace buffer_config;
 
 int main (int argc, char *argv[])
