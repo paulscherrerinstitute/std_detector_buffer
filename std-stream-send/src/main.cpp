@@ -39,8 +39,7 @@ int main (int argc, char *argv[])
     const size_t IMAGE_N_BYTES = config.image_height * config.image_width * config.bit_depth / 8;
 
     RamBuffer image_buffer(config.detector_name + "_assembler",
-            sizeof(ImageMetadata), IMAGE_N_BYTES,
-            1, RAM_BUFFER_N_SLOTS);
+                           sizeof(ImageMetadata), IMAGE_N_BYTES, RAM_BUFFER_N_SLOTS);
 
     ImageMetadata meta;
 
@@ -49,7 +48,7 @@ int main (int argc, char *argv[])
         // receives the assembled image id from the assembler
         zmq_recv(receiver_assembler, &meta, sizeof(meta), 0);
         // gets the image data
-        char* dst_data = image_buffer.get_slot_data(meta.id);
+        char* dst_data = image_buffer.get_data(meta.id);
         // sends the json metadata with the data
         sender.send(meta, dst_data , IMAGE_N_BYTES);
 
