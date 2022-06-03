@@ -21,10 +21,7 @@ class ZmqPulseSyncReceiver {
     std::vector<void*> sockets_;
 
 public:
-    ZmqPulseSyncReceiver(
-            void* ctx,
-            const std::string& detector_name,
-            const int n_modules);
+    ZmqPulseSyncReceiver(void* ctx, const std::string& detector_name, int n_modules);
     ~ZmqPulseSyncReceiver();
 
     PulseAndSync get_next_pulse_id() const;

@@ -15,10 +15,7 @@ using namespace chrono;
 using namespace sync_config;
 
 
-ZmqPulseSyncReceiver::ZmqPulseSyncReceiver(
-        void * ctx,
-        const string& detector_name,
-        const int n_modules) :
+ZmqPulseSyncReceiver::ZmqPulseSyncReceiver(void * ctx, const string& detector_name, const int n_modules):
             ctx_(ctx),
             n_modules_(n_modules)
 {
