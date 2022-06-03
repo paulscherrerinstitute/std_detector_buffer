@@ -26,8 +26,8 @@ void FrameStats::reset_counters()
 
 void FrameStats::record_stats(const uint64_t n_missing_packets)
 {
-    if (n_missed_packets > 0) {
-        n_missed_packets_ += n_missed_packets;
+    if (n_missing_packets > 0) {
+        n_missed_packets_ += n_missing_packets;
         n_corrupted_frames_++;
     }
 
