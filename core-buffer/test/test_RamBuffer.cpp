@@ -1,6 +1,5 @@
 #include "gtest/gtest.h"
 #include "RamBuffer.hpp"
-#include "detector.hpp"
 
 using namespace std;
 using namespace buffer_config;
