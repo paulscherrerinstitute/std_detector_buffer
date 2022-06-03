@@ -1,7 +1,7 @@
 FROM paulscherrerinstitute/std-daq-buffer-base:1.0.4
 
 ARG DETECTOR
-RUN if [  -z $DETECTOR ];then \
+RUN if [ -z $DETECTOR ];then \
   >&2 echo  "************* ERROR *************"; \
   >&2 echo "DETECTOR build-arg not set."; \
   >&2 echo "Use: docker build --build-arg DETECTOR=[detector_type]."; exit 1; \
