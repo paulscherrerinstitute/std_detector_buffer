@@ -1,5 +1,4 @@
-file(GLOB SOURCES
-        src/*.cpp)
+file(GLOB SOURCES src/common/*.cpp)
 
 add_library(std-udp-recv-lib STATIC ${SOURCES})
 target_include_directories(std-udp-recv-lib PUBLIC include/)
