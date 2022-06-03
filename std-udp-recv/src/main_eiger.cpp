@@ -69,7 +69,7 @@ int main (int argc, char *argv[]) {
         frame_buffer.write(meta, data);
         zmq_send(socket, &image_id, sizeof(image_id), 0);
 
-        stats.record_stats(meta);
+        stats.record_stats(N_PACKETS_PER_FRAME - meta.n_recv_packets);
     }
 
     delete[] data;
