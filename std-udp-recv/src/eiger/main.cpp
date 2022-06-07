@@ -2,8 +2,9 @@
 #include <stdexcept>
 #include <zmq.h>
 #include <RamBuffer.hpp>
+#include <EigerFrameUdpReceiver.hpp>
+#include <eiger.hpp>
 
-#include "eiger.hpp"
 
 #include "formats.hpp"
 #include "buffer_config.hpp"
@@ -34,22 +35,21 @@ int main (int argc, char *argv[]) {
     const int module_id = atoi(argv[2]);
     const auto udp_port = config.start_udp_port + module_id;
 
-    if (DETECTOR_TYPE != config.detector_type) {
-        throw runtime_error("Receiver version for " + DETECTOR_TYPE + " but config for " + config.detector_type);
+    if ("eiger" != config.detector_type) {
+        throw runtime_error("Config error. Expected detector type is eiger, but received " + config.detector_type);
     }
 
-    // Detector specific config.
-    const size_t FRAME_N_BYTES = MODULE_N_PIXELS * config.bit_depth / 8;
-    const size_t N_PACKETS_PER_FRAME = FRAME_N_BYTES / DATA_BYTES_PER_PACKET;
+    FrameUdpReceiver<EigerUdpPacket> receiver(0, 0, udp_port, config.bit_depth);
+    const size_t FRAME_N_BYTES = receiver.get_frame_n_bytes();
+    const size_t N_PACKETS_PER_FRAME = receiver.get_frame_n_packets();
 
-    FrameUdpReceiver receiver(udp_port, N_PACKETS_PER_FRAME);
-    RamBuffer frame_buffer(config.detector_name, sizeof(ModuleFrame), FRAME_N_BYTES, RAM_BUFFER_N_SLOTS);
+    RamBuffer frame_buffer(config.detector_name, sizeof(EigerFrame), FRAME_N_BYTES, RAM_BUFFER_N_SLOTS);
     FrameStats stats(config.detector_name, module_id, N_PACKETS_PER_FRAME, STATS_TIME);
 
     auto ctx = zmq_ctx_new();
     auto socket = bind_socket(ctx, config.detector_name, to_string(module_id));
 
-    ModuleFrame meta;
+    EigerFrame meta;
     meta.module_id = module_id;
     meta.bit_depth = config.bit_depth;
 
