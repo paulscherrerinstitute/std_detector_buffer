@@ -11,7 +11,7 @@ const std::string DETECTOR_TYPE = "gigafrost";
 
 #pragma pack(push)
 #pragma pack(1)
-struct det_packet {
+struct GigafrostUdpPacket {
     uint8_t protocol_id; // Fixed to 0xCB
     uint8_t quadrant_row_length_in_blocks; // Length of quadrant row in 12 pixel blocks -> 24 .. 1008
     uint8_t quadrant_rows; // Number of rows in each quadrant. quadrant_rows[0] == SWAP bit. -> 2 .. 1008
@@ -36,7 +36,7 @@ struct det_packet {
 
 #pragma pack(push)
 #pragma pack(1)
-struct frame_metadata {
+struct GigafrostFrame {
     // 16 bytes
     uint32_t scan_id;
     uint32_t frame_id;

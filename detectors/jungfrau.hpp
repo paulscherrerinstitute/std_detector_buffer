@@ -18,10 +18,25 @@ const std::string DETECTOR_TYPE = "jungfrau";
 // #define N_PACKETS_PER_FRAME 128
 // #define DATA_BYTES_PER_FRAME 1048576
 
+#pragma pack(push)
+#pragma pack(1)
+struct EigerFrame {
+    uint64_t id;
+    uint64_t pulse_id;
+    uint64_t frame_index;
+    uint64_t daq_rec;
+    uint64_t n_recv_packets;
+    uint64_t module_id;
+    uint16_t bit_depth;
+    uint16_t pos_y;
+    uint16_t pos_x;
+};
+#pragma pack(pop)
+
 // 48 bytes + 8192 bytes = 8240 bytes
 #pragma pack(push)
 #pragma pack(2)
-struct det_packet {
+struct JungfrauUdpPacket {
     uint64_t framenum;
     uint32_t exptime;
     uint32_t packetnum;
