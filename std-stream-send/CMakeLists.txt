@@ -1,21 +1,25 @@
-file(GLOB SOURCES
-        src/*.cpp)
+cmake_minimum_required(VERSION 3.12)
+find_package(Threads REQUIRED)
+find_package(ZeroMQ REQUIRED)
+find_package(RapidJSON REQUIRED)
 
-add_library(std-stream-send-lib STATIC ${SOURCES})
+add_library(std-stream-send-lib)
 target_include_directories(std-stream-send-lib PUBLIC include/)
 target_link_libraries(std-stream-send-lib
-        external
+        RapidJSON::RapidJSON
+        ZeroMQ::ZeroMQ
         core-buffer-lib)
+
+target_sources(std-stream-send-lib
+    PRIVATE
+        src/ZmqLiveSender.cpp
+)
 
 add_executable(std-stream-send src/main.cpp)
 set_target_properties(std-stream-send PROPERTIES OUTPUT_NAME std_stream_send)
 target_link_libraries(std-stream-send
-        external
         core-buffer-lib
         std-stream-send-lib
-        zmq
-        pthread
+        ZeroMQ::ZeroMQ
+        Threads::Threads
         rt)
- 
-enable_testing()
-add_subdirectory(test/)

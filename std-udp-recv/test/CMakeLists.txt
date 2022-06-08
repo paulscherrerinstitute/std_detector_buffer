@@ -1,14 +1,25 @@
-add_executable(std-udp-recv-tests main.cpp)
+cmake_minimum_required(VERSION 3.12)
 
+if(BUILD_TESTING)
+    find_package(GTest REQUIRED)
+    add_executable(std-udp-recv-tests)
+    target_sources(std-udp-recv-tests
+        PRIVATE
+            test_FrameUdpReceiver.cpp
+            test_PacketUdpReceiver.cpp
+    )
+    target_link_libraries(std-udp-recv-tests
+        PRIVATE
+            core-buffer-lib
+            std-udp-recv-lib
+            GTest::GTest
+    )
+endif()
 
-target_link_libraries(std-udp-recv-tests
-        core-buffer-lib
-        std-udp-recv-lib
-        gtest
-        )
+find_package(RapidJSON REQUIRED)
 
 add_executable(std-udp-sim simulator.cpp)
 set_target_properties(std-udp-sim PROPERTIES OUTPUT_NAME std_udp_sim)
 target_link_libraries(std-udp-sim
-        core-buffer-lib
+        core-buffer-lib RapidJSON::RapidJSON detectors
         )

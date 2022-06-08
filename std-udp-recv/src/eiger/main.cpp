@@ -1,10 +1,10 @@
 #include <iostream>
 #include <stdexcept>
+
 #include <zmq.h>
 #include <RamBuffer.hpp>
 #include <EigerFrameUdpReceiver.hpp>
 #include <eiger.hpp>
-
 
 #include "formats.hpp"
 #include "buffer_config.hpp"

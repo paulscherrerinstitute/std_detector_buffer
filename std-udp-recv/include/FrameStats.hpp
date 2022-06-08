@@ -1,10 +1,11 @@
-#include <cstddef>
-#include <formats.hpp>
-#include <chrono>
-
 #ifndef SF_DAQ_BUFFER_FRAMESTATS_HPP
 #define SF_DAQ_BUFFER_FRAMESTATS_HPP
 
+#include <cstddef>
+#include <chrono>
+#include <string>
+
+#include "formats.hpp"
 
 class FrameStats {
     const std::string detector_name_;

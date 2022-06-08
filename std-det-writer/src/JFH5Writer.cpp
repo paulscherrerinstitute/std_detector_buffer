@@ -1,16 +1,15 @@
-#include <H5version.h>
+#include "JFH5Writer.hpp"
+
 #include <iostream>
 #include <utility>
 
-#include "JFH5Writer.hpp"
+#include <mpi.h>
+#include <H5version.h>
+#include <bitshuffle/bshuf_h5filter.h>
+
 #include "live_writer_config.hpp"
 #include "buffer_config.hpp"
 #include "formats.hpp"
-
-extern "C"
-{
-    #include <bitshuffle/bshuf_h5filter.h>
-}
 
 using namespace std;
 using namespace buffer_config;

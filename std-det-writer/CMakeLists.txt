@@ -1,31 +1,38 @@
 find_package(MPI REQUIRED)
-# Because of openmpi.
-add_definitions(-DOMPI_SKIP_MPICXX)
+find_package(date REQUIRED)
+find_package(ZeroMQ REQUIRED)
+find_package(RapidJSON REQUIRED)
 
-file(GLOB SOURCES
-        src/*.cpp)
-
-add_library(std-det-writer-lib STATIC ${SOURCES})
+find_package(HDF5 REQUIRED)
+add_library(std-det-writer-lib)
 target_include_directories(std-det-writer-lib
-        PUBLIC include/
-        SYSTEM ${MPI_INCLUDE_PATH})
+        PUBLIC include
+)
 
 target_link_libraries(std-det-writer-lib
-        external
+    PRIVATE
+        bitshuffle::bitshuffle
+        MPI::MPI_CXX
         core-buffer-lib
-        ${MPI_LIBRARIES}
-        )
+)
 
-add_executable(std-det-writer src/main.cpp)
+target_sources(std-det-writer-lib
+    PRIVATE
+        src/JFH5Writer.cpp
+        src/WriterStats.cpp
+)
 
-set_target_properties(std-det-writer PROPERTIES OUTPUT_NAME std_det_writer)
+add_executable(std_det_writer src/main.cpp)
 
-target_link_libraries(std-det-writer
+set_target_properties(std_det_writer PROPERTIES OUTPUT_NAME std_det_writer)
+
+target_link_libraries(std_det_writer
+    PRIVATE
         std-det-writer-lib
-        zmq
-        hdf5
-        rt
-        )
-
-enable_testing()
-add_subdirectory(test/)
+        core-buffer-lib
+        date::date
+        ZeroMQ::ZeroMQ
+        RapidJSON::RapidJSON
+        hdf5::hdf5
+        MPI::MPI_CXX
+)

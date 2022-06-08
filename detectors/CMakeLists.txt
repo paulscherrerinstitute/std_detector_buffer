@@ -1,5 +1,7 @@
+cmake_minimum_required(VERSION 3.12)
+project(detectors)
+
 add_library(detectors INTERFACE)
 target_include_directories(detectors INTERFACE .)
 
-enable_testing()
-add_subdirectory(test/)
+add_subdirectory(test)

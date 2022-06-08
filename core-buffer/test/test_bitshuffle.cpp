@@ -1,16 +1,15 @@
 #include <chrono>
-#include "gtest/gtest.h"
+
+#include <gtest/gtest.h>
+#include <bitshuffle/bitshuffle.h>
+
 #include "buffer_config.hpp"
 #include "jungfrau.hpp"
-
-extern "C" {
-    #include "bitshuffle/bitshuffle.h"
-}
 
 using namespace std;
 using namespace buffer_config;
 
-TEST(bitshuffle, simple_compression)
+TEST(Bitshuffle, SimpleCompression)
 {
     auto compress_buffer_size = bshuf_compress_lz4_bound(
             MODULE_N_PIXELS, PIXEL_N_BYTES, MODULE_N_PIXELS);
@@ -42,7 +41,7 @@ TEST(bitshuffle, simple_compression)
     }
 }
 
-TEST(bitshuffle, separate_compression)
+TEST(Bitshuffle, SeparateCompression)
 {
     auto compress_buffer_size = bshuf_compress_lz4_bound(
             MODULE_N_PIXELS, PIXEL_N_BYTES, MODULE_N_PIXELS);
@@ -111,7 +110,7 @@ TEST(bitshuffle, separate_compression)
 using namespace std;
 using namespace chrono;
 
-TEST(bitshuffle, compression_speed)
+TEST(Bitshuffle, CompressionSpeed)
 {
     const int n_iterations = 100;
     const size_t n_pixels = MODULE_N_PIXELS*32;

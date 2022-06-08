@@ -1,11 +1,12 @@
-#include "gtest/gtest.h"
 #include "RamBuffer.hpp"
+#include <gtest/gtest.h>
+
+#include "jungfrau.hpp"
 
 using namespace std;
 using namespace buffer_config;
 
-
-TEST(RamBuffer, simple_store)
+TEST(RamBuffer, SimpleStore)
 {
     const int n_modules = 3;
     const size_t DATA_N_BYTES = MODULE_N_PIXELS * 2;
@@ -48,5 +49,4 @@ TEST(RamBuffer, simple_store)
             ASSERT_EQ(module_buffer[i], i%100);
         }
     }
-
 }

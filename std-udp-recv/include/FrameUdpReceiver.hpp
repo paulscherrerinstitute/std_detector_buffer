@@ -5,6 +5,7 @@
 #include "PacketUdpReceiver.hpp"
 #include "formats.hpp"
 #include "buffer_config.hpp"
+#include "eiger.hpp"
 
 template <typename T>
 class FrameUdpReceiver {

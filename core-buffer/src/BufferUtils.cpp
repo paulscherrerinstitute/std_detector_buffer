@@ -1,13 +1,14 @@
 #include "BufferUtils.hpp"
 
-#include <sstream>
-#include <buffer_config.hpp>
-#include <zmq.h>
-#include <fstream>
 #include <iostream>
+#include <fstream>
 #include <stdexcept>
+
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/document.h>
+#include <zmq.h>
+
+#include "buffer_config.hpp"
 
 using namespace std;
 using namespace buffer_config;

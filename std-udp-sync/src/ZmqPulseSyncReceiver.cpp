@@ -6,7 +6,7 @@
 #include <sstream>
 #include <chrono>
 #include <iostream>
-#include "date.h"
+#include <date/date.h>
 
 #include "sync_config.hpp"
 

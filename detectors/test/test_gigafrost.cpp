@@ -1,5 +1,6 @@
-#include "gtest/gtest.h"
 #include "gigafrost.hpp"
+
+#include <gtest/gtest.h>
 
 #define N_CACHE_LINE_BYTES 64
 

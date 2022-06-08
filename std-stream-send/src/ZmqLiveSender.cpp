@@ -1,12 +1,14 @@
 #include "ZmqLiveSender.hpp"
-#include "stream_config.hpp"
 
-#include "zmq.h"
+#include <iostream>
 #include <stdexcept>
+
+#include <zmq.h>
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
-#include <iostream>
+
+#include "stream_config.hpp"
 //
 using namespace std;
 using namespace stream_config;

@@ -1,3 +1,6 @@
+#ifndef STD_DET_WRITER_LIVE_WRITER_CONFIG_HPP
+#define STD_DET_WRITER_LIVE_WRITER_CONFIG_HPP
+
 #include <cstddef>
 
 namespace live_writer_config
@@ -7,3 +10,5 @@ namespace live_writer_config
 
     const std::string OUTPUT_FOLDER_SYMLINK = "OUTPUT/";
 }
+
+#endif //STD_DET_WRITER_LIVE_WRITER_CONFIG_HPP
