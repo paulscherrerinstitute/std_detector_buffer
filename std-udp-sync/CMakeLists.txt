@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.17)
 
 find_package(Threads REQUIRED)
 find_package(ZeroMQ REQUIRED)

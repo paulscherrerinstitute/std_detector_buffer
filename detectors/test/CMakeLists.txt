@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.17)
 
 if(BUILD_TESTING)
     find_package(GTest REQUIRED)
