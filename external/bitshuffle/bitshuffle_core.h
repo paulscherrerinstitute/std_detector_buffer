@@ -18,6 +18,7 @@
  *      -1    : Failed to allocate memory.
  *      -11   : Missing SSE.
  *      -12   : Missing AVX.
+ *      -13   : Missing Arm Neon.
  *      -80   : Input size not a multiple of 8.
  *      -81   : block_size not multiple of 8.
  *      -91   : Decompression error, wrong number of bytes processed.
@@ -29,16 +30,16 @@
 #define BITSHUFFLE_CORE_H
 
 // We assume GNU g++ defining `__cplusplus` has stdint.h
-//#if (defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199900L) || defined(__cplusplus)
+#if (defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199900L) || defined(__cplusplus)
 #include <stdint.h>
-//#else
-//  typedef unsigned char       uint8_t;
-//  typedef unsigned short      uint16_t;
-//  typedef unsigned int        uint32_t;
-//  typedef   signed int        int32_t;
-//  typedef unsigned long long  uint64_t;
-//  typedef long long           int64_t;
-//#endif
+#else
+  typedef unsigned char       uint8_t;
+  typedef unsigned short      uint16_t;
+  typedef unsigned int        uint32_t;
+  typedef   signed int        int32_t;
+  typedef unsigned long long  uint64_t;
+  typedef long long           int64_t;
+#endif
 
 #include <stdlib.h>
 
@@ -46,8 +47,8 @@
 // These are usually set in the setup.py.
 #ifndef BSHUF_VERSION_MAJOR
 #define BSHUF_VERSION_MAJOR 0
-#define BSHUF_VERSION_MINOR 3
-#define BSHUF_VERSION_POINT 3
+#define BSHUF_VERSION_MINOR 4
+#define BSHUF_VERSION_POINT 0
 #endif
 
 #ifdef __cplusplus
@@ -64,6 +65,18 @@ extern "C" {
  *
  */
 int bshuf_using_SSE2(void);
+
+
+/* ---- bshuf_using_NEON ----
+ *
+ * Whether routines where compiled with the NEON instruction set.
+ *
+ * Returns
+ * -------
+ *  1 if using NEON, 0 otherwise.
+ *
+ */
+int bshuf_using_NEON(void);
 
 
 /* ---- bshuf_using_AVX2 ----
@@ -148,9 +161,6 @@ int64_t bshuf_bitshuffle(const void* in, void* out, const size_t size,
  */
 int64_t bshuf_bitunshuffle(const void* in, void* out, const size_t size,
         const size_t elem_size, size_t block_size);
-
-void bshuf_write_uint64_BE(void* buf, uint64_t num);
-void bshuf_write_uint32_BE(void* buf, uint32_t num);
 
 #ifdef __cplusplus
 } // extern "C"
