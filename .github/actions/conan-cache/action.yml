@@ -8,4 +8,4 @@ runs:
       uses: actions/cache@v2
       with:
         path: ${{ env.CONAN_USER_HOME }}
-        key: ${{ hashFiles('./conanfile.py')}}
+        key: ${{ hashFiles('./conan/conanfile.py')}}
