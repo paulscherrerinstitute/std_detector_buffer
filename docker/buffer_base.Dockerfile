@@ -13,6 +13,7 @@ RUN yum update -y \
         devtoolset-10 \
         devtoolset-10-make \
         rpm-build \
+        vim \
     && yum clean all \
     && rm -rf /var/cache/yum
 
@@ -33,8 +34,10 @@ RUN curl https://repo.anaconda.com/miniconda/Miniconda3-py38_4.10.3-Linux-x86_64
     && ${CONDA_PREFIX}/bin/conda init --all
 
 ENV PATH=/${CONDA_PREFIX}/bin:$PATH
-
-RUN echo "source /opt/rh/devtoolset-10/enable" >> /root/.bashrc
-RUN echo "conda activate" >> /root/.bashrc
-
+RUN echo "source /opt/rh/devtoolset-10/enable" >> /etc/bashrc
+RUN echo "source activate" >> /etc/bashrc
 SHELL [ "/bin/bash", "-c", "-l" ]
+
+ARG UID=1000
+RUN useradd -m -u ${UID} -s /bin/bash builder
+USER builder

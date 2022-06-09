@@ -8,4 +8,4 @@ docker tag paulscherrerinstitute/$NAME paulscherrerinstitute/$NAME:$VERSION
 
 docker login
 docker push paulscherrerinstitute/$NAME:$VERSION
-docker push paulscherrerinstitute/$NAME:
+docker push paulscherrerinstitute/$NAME:latest
