@@ -1,7 +1,6 @@
 #ifndef SF_DAQ_BUFFER_ZMQPULSESYNCRECEIVER_HPP
 #define SF_DAQ_BUFFER_ZMQPULSESYNCRECEIVER_HPP
 
-
 #include <cstddef>
 #include <string>
 #include <vector>
