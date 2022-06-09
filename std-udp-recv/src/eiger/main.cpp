@@ -53,6 +53,8 @@ int main (int argc, char *argv[]) {
     meta.module_id = module_id;
     meta.bit_depth = config.bit_depth;
 
+    EigerUdpPacket first_frame_packet;
+
     char* data = new char[FRAME_N_BYTES];
 
     while (true) {
@@ -62,7 +64,7 @@ int main (int argc, char *argv[]) {
         // Reset the data buffer.
         memset(data, 0, FRAME_N_BYTES);
 
-        receiver.get_frame_from_udp(meta, data);
+        receiver.get_frame_from_udp(first_frame_packet, data);
 
         // Assign the image_id based on the detector type.
         const uint64_t image_id = meta.frame_index;

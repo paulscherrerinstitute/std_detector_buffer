@@ -121,7 +121,7 @@ uint64_t FrameUdpReceiver<T>::process_packets(const int start_offset, T& meta, c
 }
 
 template <typename T>
-uint64_t FrameUdpReceiver<T>::get_frame_from_udp(T& meta, char* frame_buffer)
+uint64_t FrameUdpReceiver<T>::get_frame_from_udp(T& first_packet, char* frame_buffer)
 {
     meta.frame_index = INVALID_FRAME_INDEX;
 
