@@ -21,7 +21,7 @@ target_link_libraries(${PROJECT_NAME}
         date::date
         ZeroMQ::ZeroMQ
         RapidJSON::RapidJSON
-        detectors
+        detectors::detectors
         std_detector_buffer::settings
 )
 

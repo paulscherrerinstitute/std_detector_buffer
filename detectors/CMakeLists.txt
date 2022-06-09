@@ -1,7 +1,11 @@
 cmake_minimum_required(VERSION 3.17)
 project(detectors)
 
-add_library(detectors INTERFACE)
-target_include_directories(detectors INTERFACE .)
+add_library(${PROJECT_NAME} INTERFACE)
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
-add_subdirectory(test)
+target_include_directories(${PROJECT_NAME} INTERFACE .)
+
+if(BUILD_TESTING)
+    add_subdirectory(test)
+endif()

@@ -9,7 +9,7 @@ target_include_directories(std-udp-recv-lib PUBLIC include/)
 target_link_libraries(std-udp-recv-lib
     PUBLIC
         RapidJSON::RapidJSON
-        detectors
+        detectors::detectors
     PRIVATE
         date::date
         ZeroMQ::ZeroMQ
