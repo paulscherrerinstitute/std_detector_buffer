@@ -8,6 +8,11 @@ find_package(RapidJSON REQUIRED)
 add_library(${PROJECT_NAME}_lib)
 add_library(${PROJECT_NAME}::${PROJECT_NAME}_lib ALIAS ${PROJECT_NAME}_lib)
 
+target_sources(${PROJECT_NAME}_lib
+    PRIVATE
+        src/ZmqLiveSender.cpp
+)
+
 target_include_directories(${PROJECT_NAME}_lib PUBLIC include)
 target_link_libraries(${PROJECT_NAME}_lib
     PUBLIC
@@ -16,11 +21,6 @@ target_link_libraries(${PROJECT_NAME}_lib
         RapidJSON::RapidJSON
         ZeroMQ::ZeroMQ
         std_detector_buffer::settings
-)
-
-target_sources(${PROJECT_NAME}_lib
-    PRIVATE
-        src/ZmqLiveSender.cpp
 )
 
 add_executable(${PROJECT_NAME} src/main.cpp)
