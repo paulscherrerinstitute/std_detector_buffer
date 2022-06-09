@@ -5,7 +5,6 @@
 #include "formats.hpp"
 #include "BufferUtils.hpp"
 
-
 class ZmqLiveSender {
     void* ctx_;
     const std::string& det_name_;
