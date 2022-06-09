@@ -1,21 +1,22 @@
-#ifndef UDPRECEIVER_H
-#define UDPRECEIVER_H
+#ifndef STD_DETECTOR_BUFFER_PACKET_UDP_RECEIVER_HPP
+#define STD_DETECTOR_BUFFER_PACKET_UDP_RECEIVER_HPP
 
 #include <sys/socket.h>
 
-class PacketUdpReceiver {
+class PacketUdpReceiver
+{
 
-    int socket_fd_;
+  int socket_fd_;
 
 public:
-    PacketUdpReceiver();
-    virtual ~PacketUdpReceiver();
+  PacketUdpReceiver();
+  virtual ~PacketUdpReceiver();
 
-    bool receive(void* buffer, const size_t buffer_n_bytes);
-    int receive_many(mmsghdr* msgs, const size_t n_msgs);
+  bool receive(void* buffer, const size_t buffer_n_bytes);
+  int receive_many(mmsghdr* msgs, const size_t n_msgs);
 
-    void bind(const uint16_t port);
-    void disconnect();
+  void bind(const uint16_t port);
+  void disconnect();
 };
 
-#endif //LIB_CPP_H5_WRITER_UDPRECEIVER_H
+#endif // STD_DETECTOR_BUFFER_PACKET_UDP_RECEIVER_HPP

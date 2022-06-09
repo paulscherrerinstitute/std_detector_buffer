@@ -1,25 +1,42 @@
+cmake_minimum_required(VERSION 3.17)
+project(std_udp_recv)
+
 find_package(date REQUIRED)
 find_package(ZeroMQ REQUIRED)
 find_package(RapidJSON REQUIRED)
 
-file(GLOB SOURCES src/*.cpp src/eiger/EigerFrameUdpReceiver.cpp)
+add_library(${PROJECT_NAME}_lib)
+add_library(${PROJECT_NAME}::${PROJECT_NAME}_lib ALIAS ${PROJECT_NAME}_lib)
 
-add_library(std-udp-recv-lib STATIC ${SOURCES})
-target_include_directories(std-udp-recv-lib PUBLIC include/)
-target_link_libraries(std-udp-recv-lib
+target_sources(${PROJECT_NAME}_lib
+    PRIVATE
+        src/FrameStats.cpp
+        src/FrameUdpReceiver.cpp
+        src/PacketUdpReceiver.cpp
+)
+
+target_include_directories(${PROJECT_NAME}_lib PUBLIC include)
+target_link_libraries(${PROJECT_NAME}_lib
     PUBLIC
-        RapidJSON::RapidJSON
+        core_buffer::core_buffer
         detectors::detectors
+        RapidJSON::RapidJSON
     PRIVATE
         date::date
         ZeroMQ::ZeroMQ
-        core_buffer::core_buffer
+        std_detector_buffer::settings
 )
 
-add_executable(eiger src/eiger/main.cpp)
-set_target_properties(eiger PROPERTIES OUTPUT_NAME std_udp_recv_eiger)
-target_link_libraries(eiger std-udp-recv-lib
+add_executable(${PROJECT_NAME}_eiger src/eiger/main.cpp)
+target_link_libraries(${PROJECT_NAME}_eiger
+    PRIVATE
+        ${PROJECT_NAME}
         ZeroMQ::ZeroMQ
-        core_buffer::core_buffer rt)
+        core_buffer::core_buffer
+        rt
+        std_detector_buffer::settings
+)
 
-add_subdirectory(test/)
+if(BUILD_TESTING)
+    add_subdirectory(test)
+endif()

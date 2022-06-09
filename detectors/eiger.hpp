@@ -1,10 +1,10 @@
-#ifndef EIGER_H
-#define EIGER_H
+#ifndef STD_DETECTOR_BUFFER_EIGER_HPP
+#define STD_DETECTOR_BUFFER_EIGER_HPP
 
 #include <cstdint>
 #include <stdint.h>
 
-#define IS_BOTTOM(n) ((n%2 != 0) ? -1 : 1)
+#define IS_BOTTOM(n) ((n % 2 != 0) ? -1 : 1)
 
 const std::string DETECTOR_TYPE = "eiger";
 
@@ -23,7 +23,8 @@ const std::string DETECTOR_TYPE = "eiger";
 #define EXTEND_X_PIXELS 3
 #define EXTEND_Y_PIXELS 1
 
-// #define N_BYTES_PER_IMAGE_LINE(bit_depth, n_submodules) ((n_submodules / 2 * MODULE_X_SIZE * bit_depth) / 8)
+// #define N_BYTES_PER_IMAGE_LINE(bit_depth, n_submodules) ((n_submodules / 2 * MODULE_X_SIZE *
+// bit_depth) / 8)
 
 // DR 16
 // #define N_PACKETS_PER_FRAME 256
@@ -34,41 +35,42 @@ const std::string DETECTOR_TYPE = "eiger";
 
 #pragma pack(push)
 #pragma pack(1)
-struct EigerFrame {
-    uint64_t id;
-    uint64_t pulse_id;
-    uint64_t frame_index;
-    uint64_t daq_rec;
-    uint64_t n_recv_packets;
-    uint64_t module_id;
-    uint16_t bit_depth;
-    uint16_t pos_y;
-    uint16_t pos_x;
+struct EigerFrame
+{
+  uint64_t id;
+  uint64_t pulse_id;
+  uint64_t frame_index;
+  uint64_t daq_rec;
+  uint64_t n_recv_packets;
+  uint64_t module_id;
+  uint16_t bit_depth;
+  uint16_t pos_y;
+  uint16_t pos_x;
 };
 #pragma pack(pop)
 
 #pragma pack(push)
 #pragma pack(2)
-struct EigerUdpPacket {
-    uint64_t frame_index;
-    uint32_t exptime;
-    uint32_t packetnum;
+struct EigerUdpPacket
+{
+  uint64_t framenum;
+  uint32_t exptime;
+  uint32_t packetnum;
 
-    double bunchid;
-    uint64_t timestamp;
+  double bunchid;
+  uint64_t timestamp;
 
-    uint16_t moduleID;
-    uint16_t row;
-    uint16_t column;
-    uint16_t reserved;
+  uint16_t moduleID;
+  uint16_t row;
+  uint16_t column;
+  uint16_t reserved;
 
-    uint32_t debug;
-    uint16_t roundRobin;
-    uint8_t detectortype;
-    uint8_t headerVersion;
-    char data[DATA_BYTES_PER_PACKET];
+  uint32_t debug;
+  uint16_t roundRobin;
+  uint8_t detectortype;
+  uint8_t headerVersion;
+  char data[DATA_BYTES_PER_PACKET];
 };
 #pragma pack(pop)
 
-
-#endif
+#endif // STD_DETECTOR_BUFFER_EIGER_HPP
