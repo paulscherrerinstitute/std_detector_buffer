@@ -10,7 +10,7 @@ if(BUILD_TESTING)
     )
     target_link_libraries(std-udp-recv-tests
         PRIVATE
-            core-buffer-lib
+            core_buffer::core_buffer
             std-udp-recv-lib
             GTest::GTest
     )
@@ -21,5 +21,5 @@ find_package(RapidJSON REQUIRED)
 add_executable(std-udp-sim simulator.cpp)
 set_target_properties(std-udp-sim PROPERTIES OUTPUT_NAME std_udp_sim)
 target_link_libraries(std-udp-sim
-        core-buffer-lib RapidJSON::RapidJSON detectors
+        core_buffer::core_buffer RapidJSON::RapidJSON detectors
         )

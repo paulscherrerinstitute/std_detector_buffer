@@ -13,7 +13,7 @@ target_link_libraries(std-det-writer-lib
     PRIVATE
         bitshuffle::bitshuffle
         MPI::MPI_CXX
-        core-buffer-lib
+        core_buffer::core_buffer
 )
 
 target_sources(std-det-writer-lib
@@ -29,7 +29,7 @@ set_target_properties(std_det_writer PROPERTIES OUTPUT_NAME std_det_writer)
 target_link_libraries(std_det_writer
     PRIVATE
         std-det-writer-lib
-        core-buffer-lib
+        core_buffer::core_buffer
         date::date
         ZeroMQ::ZeroMQ
         RapidJSON::RapidJSON

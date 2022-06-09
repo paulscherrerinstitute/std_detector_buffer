@@ -11,7 +11,6 @@
 
 #include <date/date.h>
 
-
 using namespace std;
 using namespace buffer_config;
 using namespace chrono;

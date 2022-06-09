@@ -11,7 +11,7 @@ target_link_libraries(std-udp-sync-lib
         ZeroMQ::ZeroMQ
         RapidJSON::RapidJSON
         date::date
-        core-buffer-lib)
+        core_buffer::core_buffer)
 
 target_sources(std-udp-sync-lib
     PRIVATE
@@ -23,7 +23,7 @@ add_executable(std-udp-sync src/main.cpp)
 
 set_target_properties(std-udp-sync PROPERTIES OUTPUT_NAME std_udp_sync)
 target_link_libraries(std-udp-sync
-        core-buffer-lib
+        core_buffer::core_buffer
         std-udp-sync-lib
         ZeroMQ::ZeroMQ
         Threads::Threads

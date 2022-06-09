@@ -13,13 +13,13 @@ target_link_libraries(std-udp-recv-lib
     PRIVATE
         date::date
         ZeroMQ::ZeroMQ
-        core-buffer-lib
+        core_buffer::core_buffer
 )
 
 add_executable(eiger src/eiger/main.cpp)
 set_target_properties(eiger PROPERTIES OUTPUT_NAME std_udp_recv_eiger)
 target_link_libraries(eiger std-udp-recv-lib
         ZeroMQ::ZeroMQ
-        core-buffer-lib rt)
+        core_buffer::core_buffer rt)
 
 add_subdirectory(test/)
