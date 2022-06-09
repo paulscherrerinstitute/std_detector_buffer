@@ -1,15 +1,18 @@
 # Standard Detector Buffer
 
+**Warning** Currently there is an active development ongoing - `master` branch might be unstable until CI system is
+established.
+
 We aim to unify all detectors currently used at PSI under a common solution.
 
 ## Design goals
 
 - Simplest thing that works.
-    - Save time and iterate more quickly.
-    - Less moving parts, easier to debug.
-    - Avoid external libraries as much as possible.
+  - Save time and iterate more quickly.
+  - Less moving parts, easier to debug.
+  - Avoid external libraries as much as possible.
 - Start optimizing only when things break.
-    - Many optimization possibilities, but not actually needed.
+  - Many optimization possibilities, but not actually needed.
     - Makes possible to refactor and change code faster.
 - Small debuggable and profileable processes.
     - Needs to be able to run on your local machine in a debugger.
