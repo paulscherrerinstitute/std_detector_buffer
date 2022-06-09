@@ -1,5 +1,5 @@
-#ifndef JUNGFRAUJOCH_HPP
-#define JUNGFRAUJOCH_HPP
+#ifndef STD_DETECTOR_BUFFER_JUNGFRAUJOCH_HPP
+#define STD_DETECTOR_BUFFER_JUNGFRAUJOCH_HPP
 
 #include <cstdint>
 
@@ -34,4 +34,4 @@ struct jfjoch_packet_t {
 #pragma pack(pop)
 
 
-#endif
+#endif // STD_DETECTOR_BUFFER_JUNGFRAUJOCH_HPP

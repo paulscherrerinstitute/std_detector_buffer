@@ -1,5 +1,5 @@
-#ifndef SF_DAQ_BUFFER_SYNCSTATS_HPP
-#define SF_DAQ_BUFFER_SYNCSTATS_HPP
+#ifndef STD_DETECTOR_BUFFER_SYNC_STATS_HPP
+#define STD_DETECTOR_BUFFER_SYNC_STATS_HPP
 
 #include <chrono>
 #include <string>
@@ -23,5 +23,4 @@ public:
     void record_stats(const uint32_t n_lost_pulses);
 };
 
-
-#endif //SF_DAQ_BUFFER_SYNCSTATS_HPP
+#endif // STD_DETECTOR_BUFFER_SYNC_STATS_HPP

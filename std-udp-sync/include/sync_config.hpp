@@ -1,5 +1,5 @@
-#ifndef SYNC_CONFIG_HPP
-#define SYNC_CONFIG_HPP
+#ifndef STD_DETECTOR_BUFFER_SYNC_CONFIG_HPP
+#define STD_DETECTOR_BUFFER_SYNC_CONFIG_HPP
 
 namespace sync_config
 {
@@ -7,4 +7,4 @@ namespace sync_config
     const int SYNC_RETRY_LIMIT = 3;
 }
 
-#endif // SYNC_CONFIG_HPP
+#endif // STD_DETECTOR_BUFFER_SYNC_CONFIG_HPP

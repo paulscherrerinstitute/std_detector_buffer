@@ -1,5 +1,5 @@
-#ifndef UDPRECEIVER_H
-#define UDPRECEIVER_H
+#ifndef STD_DETECTOR_BUFFER_PACKET_UDP_RECEIVER_HPP
+#define STD_DETECTOR_BUFFER_PACKET_UDP_RECEIVER_HPP
 
 #include <sys/socket.h>
 
@@ -18,4 +18,4 @@ public:
     void disconnect();
 };
 
-#endif //LIB_CPP_H5_WRITER_UDPRECEIVER_H
+#endif // STD_DETECTOR_BUFFER_PACKET_UDP_RECEIVER_HPP

@@ -1,5 +1,5 @@
-#ifndef BUFFERCONFIG_HPP
-#define BUFFERCONFIG_HPP
+#ifndef STD_DETECTOR_BUFFER_BUFFER_CONFIG_HPP
+#define STD_DETECTOR_BUFFER_BUFFER_CONFIG_HPP
 
 #include <cstddef>
 #include <string>
@@ -24,4 +24,4 @@ namespace buffer_config {
     const int RAM_BUFFER_N_SLOTS = 100 * 10;
 }
 
-#endif //BUFFERCONFIG_HPP
+#endif // STD_DETECTOR_BUFFER_BUFFER_CONFIG_HPP

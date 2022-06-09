@@ -1,5 +1,5 @@
-#ifndef SF_DAQ_BUFFER_FRAMESTATS_HPP
-#define SF_DAQ_BUFFER_FRAMESTATS_HPP
+#ifndef STD_DETECTOR_BUFFER_WRITER_STATS_HPP
+#define STD_DETECTOR_BUFFER_WRITER_STATS_HPP
 
 #include <cstddef>
 #include <string>
@@ -30,4 +30,4 @@ public:
     void end_image_write();
 };
 
-#endif //SF_DAQ_BUFFER_FRAMESTATS_HPP
+#endif // STD_DETECTOR_BUFFER_WRITER_STATS_HPP

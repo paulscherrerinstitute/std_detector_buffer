@@ -1,5 +1,5 @@
-#ifndef JUNGFRAU_H
-#define JUNGFRAU_H
+#ifndef STD_DETECTOR_BUFFER_JUNGFRAU_HPP
+#define STD_DETECTOR_BUFFER_JUNGFRAU_HPP
 
 #include <cstdint>
 
@@ -57,4 +57,4 @@ struct JungfrauUdpPacket {
 };
 #pragma pack(pop)
 
-#endif
+#endif // STD_DETECTOR_BUFFER_JUNGFRAU_HPP

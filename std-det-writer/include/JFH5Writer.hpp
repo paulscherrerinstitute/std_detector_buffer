@@ -1,5 +1,5 @@
-#ifndef JF_LIVE_WRITER_HPP
-#define JF_LIVE_WRITER_HPP
+#ifndef STD_DETECTOR_BUFFER_JF_LIVE_WRITER_HPP
+#define STD_DETECTOR_BUFFER_JF_LIVE_WRITER_HPP
 
 #include <memory>
 #include <string>
@@ -57,4 +57,4 @@ public:
                     const uint64_t status);
 };
 
-#endif //JF_LIVE_WRITER_HPP
+#endif // STD_DETECTOR_BUFFER_JF_LIVE_WRITER_HPP

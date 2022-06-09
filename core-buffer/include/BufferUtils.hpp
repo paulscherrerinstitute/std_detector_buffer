@@ -1,5 +1,5 @@
-#ifndef BUFFER_UTILS_HPP
-#define BUFFER_UTILS_HPP
+#ifndef STD_DETECTOR_BUFFER_BUFFER_UTILS_HPP
+#define STD_DETECTOR_BUFFER_BUFFER_UTILS_HPP
 
 #include <string>
 #include <vector>
@@ -35,4 +35,4 @@ namespace BufferUtils
     DetectorConfig read_json_config(const std::string& filename);
 }
 
-#endif //BUFFER_UTILS_HPP
+#endif // STD_DETECTOR_BUFFER_BUFFER_UTILS_HPP

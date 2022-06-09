@@ -1,5 +1,5 @@
-#ifndef GIGAFROST_H
-#define GIGAFROST_H
+#ifndef STD_DETECTOR_BUFFER_GIGAFROST_HPP
+#define STD_DETECTOR_BUFFER_GIGAFROST_HPP
 
 #include <cstdint>
 #include <string>
@@ -61,4 +61,4 @@ struct GigafrostFrame {
     int8_t __padding__[64-16-24-5];
 };
 #pragma pack(pop)
-#endif
+#endif // STD_DETECTOR_BUFFER_GIGAFROST_HPP

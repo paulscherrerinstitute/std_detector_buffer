@@ -1,5 +1,5 @@
-#ifndef EIGER_H
-#define EIGER_H
+#ifndef STD_DETECTOR_BUFFER_EIGER_HPP
+#define STD_DETECTOR_BUFFER_EIGER_HPP
 
 #include <cstdint>
 #include <stdint.h>
@@ -70,5 +70,4 @@ struct EigerUdpPacket {
 };
 #pragma pack(pop)
 
-
-#endif
+#endif // STD_DETECTOR_BUFFER_EIGER_HPP

@@ -1,5 +1,5 @@
-#ifndef SF_DAQ_BUFFER_FRAMESTATS_HPP
-#define SF_DAQ_BUFFER_FRAMESTATS_HPP
+#ifndef STD_DETECTOR_BUFFER_FRAME_STATS_HPP
+#define STD_DETECTOR_BUFFER_FRAME_STATS_HPP
 
 #include <cstddef>
 #include <chrono>
@@ -29,5 +29,4 @@ public:
     void record_stats(uint64_t n_missing_packets);
 };
 
-
-#endif //SF_DAQ_BUFFER_FRAMESTATS_HPP
+#endif // STD_DETECTOR_BUFFER_FRAME_STATS_HPP

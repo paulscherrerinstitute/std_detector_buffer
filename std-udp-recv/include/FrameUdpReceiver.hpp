@@ -1,5 +1,5 @@
-#ifndef SF_DAQ_BUFFER_FRAMEUDPRECEIVER_HPP
-#define SF_DAQ_BUFFER_FRAMEUDPRECEIVER_HPP
+#ifndef STD_DETECTOR_BUFFER_FRAME_UDP_RECEIVER_HPP
+#define STD_DETECTOR_BUFFER_FRAME_UDP_RECEIVER_HPP
 
 #include <netinet/in.h>
 #include "PacketUdpReceiver.hpp"
@@ -31,5 +31,4 @@ public:
     uint64_t get_frame_from_udp(T& meta, char* frame_buffer);
 };
 
-
-#endif //SF_DAQ_BUFFER_FRAMEUDPRECEIVER_HPP
+#endif // STD_DETECTOR_BUFFER_FRAME_UDP_RECEIVER_HPP

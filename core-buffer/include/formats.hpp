@@ -1,5 +1,5 @@
-#ifndef SF_DAQ_BUFFER_FORMATS_HPP
-#define SF_DAQ_BUFFER_FORMATS_HPP
+#ifndef STD_DETECTOR_BUFFER_FORMATS_HPP
+#define STD_DETECTOR_BUFFER_FORMATS_HPP
 
 #include <cstdint>
 
@@ -41,4 +41,4 @@ struct ImageMetadata {
 };
 #pragma pack(pop)
 
-#endif //SF_DAQ_BUFFER_FORMATS_HPP
+#endif // STD_DETECTOR_BUFFER_FORMATS_HPP

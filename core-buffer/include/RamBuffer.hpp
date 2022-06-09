@@ -1,5 +1,5 @@
-#ifndef SF_DAQ_BUFFER_RAMBUFFER_HPP
-#define SF_DAQ_BUFFER_RAMBUFFER_HPP
+#ifndef STD_DETECTOR_BUFFER_RAM_BUFFER_HPP
+#define STD_DETECTOR_BUFFER_RAM_BUFFER_HPP
 
 #include <string>
 #include "formats.hpp"
@@ -27,4 +27,4 @@ public:
 };
 
 
-#endif //SF_DAQ_BUFFER_RAMBUFFER_HPP
+#endif // STD_DETECTOR_BUFFER_RAM_BUFFER_HPP

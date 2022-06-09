@@ -1,3 +1,6 @@
+#ifndef STD_DETECTOR_BUFFER_STREAM_CONFIG_HPP
+#define STD_DETECTOR_BUFFER_STREAM_CONFIG_HPP
+
 namespace stream_config
 {
     // N of IO threads to receive data from modules.
@@ -15,3 +18,5 @@ namespace stream_config
     // reduction factor
     const int REDUCTION_FACTOR = 5;
 }
+
+#endif // STD_DETECTOR_BUFFER_STREAM_CONFIG_HPP

@@ -1,5 +1,5 @@
-#ifndef SF_DAQ_BUFFER_UDPRECVCONFIG_HPP
-#define SF_DAQ_BUFFER_UDPRECVCONFIG_HPP
+#ifndef STD_DETECTOR_BUFFER_DET_WRITER_CONFIG_HPP
+#define STD_DETECTOR_BUFFER_DET_WRITER_CONFIG_HPP
 
 #include <string>
 #include <fstream>
@@ -29,4 +29,4 @@ struct DetWriterConfig {
     const int bit_depth;
 };
 
-#endif //SF_DAQ_BUFFER_UDPRECVCONFIG_HPP
+#endif // STD_DETECTOR_BUFFER_DET_WRITER_CONFIG_HPP
