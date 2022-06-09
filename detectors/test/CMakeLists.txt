@@ -11,3 +11,5 @@ target_link_libraries(${PROJECT_NAME}_tests
         GTest::GTest
         std_detector_buffer::settings
 )
+
+sbd_add_uts(${PROJECT_NAME}_tests)

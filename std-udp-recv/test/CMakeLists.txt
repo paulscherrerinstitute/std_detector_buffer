@@ -18,6 +18,8 @@ target_link_libraries(${PROJECT_NAME}_tests
         std_detector_buffer::settings
 )
 
+sbd_add_uts(${PROJECT_NAME}_tests)
+
 find_package(RapidJSON REQUIRED)
 
 add_executable(std_udp_sim simulator.cpp)
