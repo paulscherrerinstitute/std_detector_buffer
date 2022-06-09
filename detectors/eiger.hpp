@@ -50,7 +50,7 @@ struct EigerFrame {
 #pragma pack(push)
 #pragma pack(2)
 struct EigerUdpPacket {
-    uint64_t framenum;
+    uint64_t frame_index;
     uint32_t exptime;
     uint32_t packetnum;
 
