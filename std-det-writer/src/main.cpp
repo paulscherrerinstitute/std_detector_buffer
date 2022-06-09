@@ -1,25 +1,20 @@
 #include <iostream>
 #include <string>
+
 #include <zmq.h>
 #include <mpi.h>
-#include <unistd.h>
-#include <sstream>
-#include <chrono>
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <date/date.h>
 
-#include "RamBuffer.hpp"
 #include "BufferUtils.hpp"
 #include "live_writer_config.hpp"
 #include "WriterStats.hpp"
 #include "JFH5Writer.hpp"
 #include "DetWriterConfig.hpp"
 
-#include "rapidjson/document.h"
-#include "rapidjson/writer.h"
-#include "date.h"
-
 using namespace std;
 using namespace date;
-using namespace buffer_config;
 using namespace live_writer_config;
 
 int main (int argc, char *argv[])

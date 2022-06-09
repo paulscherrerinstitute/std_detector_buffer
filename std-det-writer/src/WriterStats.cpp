@@ -1,6 +1,7 @@
+#include "WriterStats.hpp"
+
 #include <iostream>
 #include <utility>
-#include "WriterStats.hpp"
 
 using namespace std;
 using namespace chrono;

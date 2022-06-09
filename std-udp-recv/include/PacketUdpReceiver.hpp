@@ -18,5 +18,4 @@ public:
     void disconnect();
 };
 
-
 #endif //LIB_CPP_H5_WRITER_UDPRECEIVER_H

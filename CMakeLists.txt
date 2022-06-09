@@ -1,39 +1,30 @@
 cmake_minimum_required(VERSION 3.12)
-project(std_detector_buffer)
+project(std_detector_buffer LANGUAGES CXX VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 17)
-set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG_OUTPUT")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG_OUTPUT")
 
-# Download and unpack googletest at configure time
-configure_file(googletest.in googletest-download/CMakeLists.txt)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-execute_process(
-        COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download"
-        )
+include(sdb_settings)
+include(sdb_conan)
 
-execute_process(
-        COMMAND "${CMAKE_COMMAND}" --build .
-        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download"
-        )
+conan_config_install(ITEM ${CMAKE_HOME_DIRECTORY}/conan/settings.yml)
+conan_cmake_autodetect(DETECTED_SETTINGS)
+conan_cmake_install(
+        PATH_OR_REFERENCE ${CMAKE_SOURCE_DIR}/conan
+        BUILD missing
+        SETTINGS ${DETECTED_SETTINGS}
+        SETTINGS compiler.psi=True # ensure that all packages are built or used from local cache
+)
 
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
-add_subdirectory(
-        ${CMAKE_CURRENT_BINARY_DIR}/googletest-src
-        ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
-        EXCLUDE_FROM_ALL)
-
-if(APPLE)
-        include_directories("/usr/local/include")
-endif()
-
+include(CTest)
 add_subdirectory("detectors")
 add_subdirectory("core-buffer")
 add_subdirectory("std-det-writer")
 add_subdirectory("std-stream-send")
 add_subdirectory("std-udp-recv")
 add_subdirectory("std-udp-sync")
+add_subdirectory(external)

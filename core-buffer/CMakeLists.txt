@@ -1,21 +1,34 @@
-add_subdirectory(external/)
+cmake_minimum_required(VERSION 3.17)
+project(core_buffer)
 
-file(GLOB SOURCES
-        src/*.cpp)
+find_package(date REQUIRED)
+find_package(ZeroMQ REQUIRED)
+find_package(RapidJSON REQUIRED)
 
-add_library(core-buffer-lib STATIC ${SOURCES})
-target_include_directories(core-buffer-lib PUBLIC include/)
-target_link_libraries(core-buffer-lib
-        detectors
-        external)
+add_library(${PROJECT_NAME})
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
-if (USE_EIGER)
-        target_compile_definitions(core-buffer-lib PUBLIC -DUSE_EIGER)
-endif (USE_EIGER)
+target_sources(${PROJECT_NAME}
+    PRIVATE
+        src/BufferUtils.cpp
+        src/RamBuffer.cpp
+)
 
-if (DEBUG_OUTPUT)
-        target_compile_definitions(core-buffer-lib PUBLIC -DDEBUG_OUTPUT)
-endif(DEBUG_OUTPUT)
+target_include_directories(${PROJECT_NAME} PUBLIC include)
+target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+        bitshuffle::bitshuffle
+        date::date
+        ZeroMQ::ZeroMQ
+        RapidJSON::RapidJSON
+        detectors::detectors
+        std_detector_buffer::settings
+)
 
-enable_testing()
-add_subdirectory(test/)
+if(USE_EIGER)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC -DUSE_EIGER)
+endif()
+
+if(BUILD_TESTING)
+    add_subdirectory(test)
+endif()

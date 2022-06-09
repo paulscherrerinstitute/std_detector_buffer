@@ -46,3 +46,5 @@ cmake-build-*/
 *.exe
 *.out
 *.app
+
+.conan_cache

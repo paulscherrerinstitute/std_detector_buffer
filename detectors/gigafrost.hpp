@@ -2,6 +2,7 @@
 #define GIGAFROST_H
 
 #include <cstdint>
+#include <string>
 
 const std::string DETECTOR_TYPE = "gigafrost";
 

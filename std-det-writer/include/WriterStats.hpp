@@ -1,10 +1,11 @@
-#include <cstddef>
-#include <formats.hpp>
-#include <chrono>
-
 #ifndef SF_DAQ_BUFFER_FRAMESTATS_HPP
 #define SF_DAQ_BUFFER_FRAMESTATS_HPP
 
+#include <cstddef>
+#include <string>
+#include <chrono>
+
+#include "formats.hpp"
 
 class WriterStats {
     const std::string detector_name_;
@@ -28,6 +29,5 @@ public:
     void start_image_write();
     void end_image_write();
 };
-
 
 #endif //SF_DAQ_BUFFER_FRAMESTATS_HPP

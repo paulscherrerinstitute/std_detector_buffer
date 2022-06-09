@@ -1,12 +1,12 @@
 #ifndef SF_DAQ_BUFFER_UDPRECVCONFIG_HPP
 #define SF_DAQ_BUFFER_UDPRECVCONFIG_HPP
 
+#include <string>
+#include <fstream>
 
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
-#include <string>
-#include <fstream>
 
 struct DetWriterConfig {
     static DetWriterConfig from_json_file(const std::string& filename) {
@@ -28,6 +28,5 @@ struct DetWriterConfig {
     const int image_width;
     const int bit_depth;
 };
-
 
 #endif //SF_DAQ_BUFFER_UDPRECVCONFIG_HPP

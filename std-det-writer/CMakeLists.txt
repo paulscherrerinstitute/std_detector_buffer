@@ -1,31 +1,44 @@
+cmake_minimum_required(VERSION 3.17)
+project(std_det_writer)
+
 find_package(MPI REQUIRED)
-# Because of openmpi.
-add_definitions(-DOMPI_SKIP_MPICXX)
+find_package(date REQUIRED)
+find_package(ZeroMQ REQUIRED)
+find_package(RapidJSON REQUIRED)
+find_package(HDF5 REQUIRED)
 
-file(GLOB SOURCES
-        src/*.cpp)
+add_library(${PROJECT_NAME}_lib)
+add_library(${PROJECT_NAME}::${PROJECT_NAME}_lib ALIAS ${PROJECT_NAME}_lib)
 
-add_library(std-det-writer-lib STATIC ${SOURCES})
-target_include_directories(std-det-writer-lib
-        PUBLIC include/
-        SYSTEM ${MPI_INCLUDE_PATH})
+target_include_directories(${PROJECT_NAME}_lib PUBLIC include)
 
-target_link_libraries(std-det-writer-lib
-        external
-        core-buffer-lib
-        ${MPI_LIBRARIES}
-        )
+target_link_libraries(${PROJECT_NAME}_lib
+    PUBLIC
+        RapidJSON::RapidJSON
+        hdf5::hdf5
+    PRIVATE
+        core_buffer::core_buffer
+        bitshuffle::bitshuffle
+        MPI::MPI_CXX
+        std_detector_buffer::settings
+)
 
-add_executable(std-det-writer src/main.cpp)
+target_sources(${PROJECT_NAME}_lib
+    PRIVATE
+        src/JFH5Writer.cpp
+        src/WriterStats.cpp
+)
 
-set_target_properties(std-det-writer PROPERTIES OUTPUT_NAME std_det_writer)
+add_executable(${PROJECT_NAME} src/main.cpp)
 
-target_link_libraries(std-det-writer
-        std-det-writer-lib
-        zmq
-        hdf5
-        rt
-        )
-
-enable_testing()
-add_subdirectory(test/)
+target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+        ${PROJECT_NAME}_lib
+        core_buffer::core_buffer
+        date::date
+        ZeroMQ::ZeroMQ
+        RapidJSON::RapidJSON
+        hdf5::hdf5
+        MPI::MPI_CXX
+        std_detector_buffer::settings
+)
