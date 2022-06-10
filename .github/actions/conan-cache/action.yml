@@ -5,7 +5,7 @@ runs:
   using: "composite"
   steps:
     - name: cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ${{ env.CONAN_USER_HOME }}
         key: ${{ hashFiles('./conan/conanfile.py')}}
