@@ -5,11 +5,8 @@
 #include <unistd.h>
 #include "mock/udp.hpp"
 
-#ifdef USE_EIGER
-  #include "eiger.hpp"
-#else
-  #include "jungfrau.hpp"
-#endif
+
+#include "jungfrau.hpp"
 
 const int MAX_IMAGE_ID = 10000;
 
@@ -40,7 +37,6 @@ int main(int argc, char** argv)
   }
 
   const size_t FRAME_N_BYTES = MODULE_N_PIXELS * bit_depth / 8;
-  const size_t N_PACKETS_PER_FRAME = FRAME_N_BYTES / DATA_BYTES_PER_PACKET;
 
   int sockets[config.n_modules];
   sockaddr_in send_address[config.n_modules];
@@ -59,7 +55,7 @@ int main(int argc, char** argv)
     for (size_t i_packet = 0; i_packet < N_PACKETS_PER_FRAME; i_packet++) {
       for (int i_module = 0; i_module < config.n_modules; i_module++) {
 
-        det_packet send_udp_buffer;
+        jungfrau_packet send_udp_buffer;
         send_udp_buffer.packetnum = i_packet;
 
         // framenum as image_id for the Eiger and bunchid for the JF
