@@ -2,6 +2,7 @@
 #include "gtest/gtest.h"
 #include "FrameUdpReceiver.hpp"
 #include "mock/udp.hpp"
+#include "jungfrau.hpp"
 
 #include <thread>
 #include <chrono>
@@ -9,7 +10,6 @@
 
 using namespace std;
 
-const int DATA_BYTES_PER_FRAME = 512 * 1024 * 2;
 
 TEST(BufferUdpReceiver, simple_recv)
 {
@@ -27,7 +27,7 @@ TEST(BufferUdpReceiver, simple_recv)
   auto handle = async(launch::async, [&]() {
     for (int i_frame = 0; i_frame < n_frames; i_frame++) {
       for (size_t i_packet = 0; i_packet < n_packets; i_packet++) {
-        det_packet send_udp_buffer;
+        jungfrau_packet send_udp_buffer;
         send_udp_buffer.packetnum = i_packet;
         send_udp_buffer.bunchid = i_frame + 1;
         send_udp_buffer.framenum = i_frame + 1000;
@@ -81,7 +81,7 @@ TEST(BufferUdpReceiver, missing_middle_packet)
           continue;
         }
 
-        det_packet send_udp_buffer;
+        jungfrau_packet send_udp_buffer;
         send_udp_buffer.packetnum = i_packet;
         send_udp_buffer.bunchid = i_frame + 1;
         send_udp_buffer.framenum = i_frame + 1000;
@@ -135,7 +135,7 @@ TEST(BufferUdpReceiver, missing_first_packet)
           continue;
         }
 
-        det_packet send_udp_buffer;
+        jungfrau_packet send_udp_buffer;
         send_udp_buffer.packetnum = i_packet;
         send_udp_buffer.bunchid = i_frame + 1;
         send_udp_buffer.framenum = i_frame + 1000;
@@ -188,7 +188,7 @@ TEST(BufferUdpReceiver, missing_last_packet)
           continue;
         }
 
-        det_packet send_udp_buffer;
+        jungfrau_packet send_udp_buffer;
         send_udp_buffer.packetnum = i_packet;
         send_udp_buffer.bunchid = i_frame + 1;
         send_udp_buffer.framenum = i_frame + 1000;
