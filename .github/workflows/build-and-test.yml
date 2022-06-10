@@ -9,7 +9,7 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
-    container: paulscherrerinstitute/std_detector_buffer_base:2.0.0
+    container: paulscherrerinstitute/std_detector_buffer_base:latest
     steps:
       - uses: actions/checkout@v2
       - uses: ./.github/actions/conan-cache
