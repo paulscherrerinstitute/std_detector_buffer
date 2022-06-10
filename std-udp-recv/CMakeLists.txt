@@ -27,8 +27,8 @@ target_link_libraries(${PROJECT_NAME}_lib
         std_detector_buffer::settings
 )
 
-add_executable(${PROJECT_NAME}_eiger src/eiger/main.cpp)
-target_link_libraries(${PROJECT_NAME}_eiger
+add_executable(${PROJECT_NAME}_jf src/jungfrau/main.cpp)
+target_link_libraries(${PROJECT_NAME}_jf
     PRIVATE
         ${PROJECT_NAME}
         ZeroMQ::ZeroMQ
