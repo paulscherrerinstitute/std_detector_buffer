@@ -5,29 +5,9 @@
 #include <string>
 
 namespace buffer_config {
-const size_t MODULE_X_SIZE = 1024;
-const size_t MODULE_Y_SIZE = 512;
-const size_t MODULE_N_PIXELS = MODULE_X_SIZE * MODULE_Y_SIZE;
-const size_t PIXEL_N_BYTES = 2;
-const size_t MODULE_N_BYTES = MODULE_N_PIXELS * PIXEL_N_BYTES;
 
-// How many frames we store in each file.
-// Must be power of 10 and <= than FOLDER_MOD
-const size_t FILE_MOD = 1000;
-// How many frames go into each files folder.
-// Must be power of 10 and >= than FILE_MOD.
-const size_t FOLDER_MOD = 100000;
-// Extension of our file format.
-const std::string FILE_EXTENSION = ".bin";
-// Number of pulses between each statistics print out (buffer_writer, stream2vis...)
-const size_t STATS_MODULO = 1000;
 // Number of seconds after which statistics is print out (udp_recv)
 const size_t STATS_TIME = 10;
-// If the RB is empty, how much time to wait before trying to read it again.
-const size_t RB_READ_RETRY_INTERVAL_MS = 5;
-// How many frames to read at once from file.
-const size_t BUFFER_BLOCK_SIZE = 100;
-
 
 const size_t BUFFER_UDP_N_RECV_MSG = 128;
 // Size of UDP recv buffer
