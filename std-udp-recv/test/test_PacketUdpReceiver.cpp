@@ -6,27 +6,22 @@
 #include <thread>
 #include <chrono>
 
-#ifdef USE_EIGER
-  #include "eiger.hpp"
-#else
-  #include "jungfrau.hpp"
-#endif
+#include "jungfrau.hpp"
 
 using namespace std;
 
-const int N_PACKETS_PER_FRAME = 128;
 
 TEST(PacketUdpReceiver, receive_many)
 {
   auto n_msg_buffer = N_PACKETS_PER_FRAME;
-  det_packet recv_buffer[n_msg_buffer];
+  jungfrau_packet recv_buffer[n_msg_buffer];
   iovec recv_buff_ptr[n_msg_buffer];
   struct mmsghdr msgs[n_msg_buffer];
   struct sockaddr_in sockFrom[n_msg_buffer];
 
   for (int i = 0; i < n_msg_buffer; i++) {
     recv_buff_ptr[i].iov_base = (void*)&(recv_buffer[i]);
-    recv_buff_ptr[i].iov_len = sizeof(det_packet);
+    recv_buff_ptr[i].iov_len = sizeof(jungfrau_packet);
 
     msgs[i].msg_hdr.msg_iov = &recv_buff_ptr[i];
     msgs[i].msg_hdr.msg_iovlen = 1;
@@ -42,7 +37,7 @@ TEST(PacketUdpReceiver, receive_many)
   PacketUdpReceiver udp_receiver;
   udp_receiver.bind(udp_port);
 
-  det_packet send_udp_buffer;
+  jungfrau_packet send_udp_buffer;
 
   auto server_address = get_server_address(udp_port);
 
