@@ -14,6 +14,9 @@ RUN yum update -y \
         devtoolset-10-make \
         rpm-build \
         vim \
+        mpich-devel \
+        wget \
+        zeromq-devel\
     && yum clean all \
     && rm -rf /var/cache/yum
 
@@ -34,9 +37,21 @@ RUN curl https://repo.anaconda.com/miniconda/Miniconda3-py38_4.10.3-Linux-x86_64
     && ${CONDA_PREFIX}/bin/conda init --all
 
 ENV PATH=/${CONDA_PREFIX}/bin:$PATH
+ENV PATH="/usr/lib64/mpich/bin:${PATH}"
+ENV LD_LIBRARY_PATH="/usr/lib64/mpich/lib:${LD_LIBRARY_PATH}"
+
 RUN echo "source /opt/rh/devtoolset-10/enable" >> /etc/bashrc
 RUN echo "source activate" >> /etc/bashrc
 SHELL [ "/bin/bash", "-c", "-l" ]
+
+RUN wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.12/hdf5-1.12.0/src/hdf5-1.12.0.tar.gz && \
+    tar -xzf hdf5-1.12.0.tar.gz
+
+WORKDIR /hdf5-1.12.0
+RUN ./configure --enable-parallel && make install
+RUN ln -v -s `pwd`/hdf5/lib/* /usr/lib64/ && \
+    ln -v -s `pwd`/hdf5/include/* /usr/include/ && \
+    ln -v -s /usr/include/mpich-x86_64/* /usr/include/
 
 ARG UID=1000
 RUN useradd -m -u ${UID} -s /bin/bash builder
