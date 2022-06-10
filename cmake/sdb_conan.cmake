@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.17)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_BINARY_DIR}")
 
 if(NOT DEFINED ENV{CONAN_USER_HOME})
-    set(ENV{CONAN_USER_HOME} ${CMAKE_HOME_DIRECTORY}/.conan_cache)
+    set(ENV{CONAN_USER_HOME} /home/root/.conan_cache)
 endif()
 
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")

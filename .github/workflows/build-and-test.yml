@@ -17,7 +17,7 @@ jobs:
         run: |
           scl enable devtoolset-10 'cmake -B release -DCMAKE_BUILD_TYPE=Release -G Ninja'
           scl enable devtoolset-10 'cmake --build release'
-          ctest --test-dir release -VV
+#          ctest --test-dir release -VV
       - uses: mikepenz/action-junit-report@v3
         if: always()
         with:

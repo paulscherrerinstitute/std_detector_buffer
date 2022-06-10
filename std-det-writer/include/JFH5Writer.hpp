@@ -6,7 +6,7 @@
 #include <BufferUtils.hpp>
 #include <formats.hpp>
 
-#include <hdf5_hl.h>
+#include <hdf5.h>
 
 class JFH5Writer
 {
