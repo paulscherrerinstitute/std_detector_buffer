@@ -1,0 +1,24 @@
+name: build-and-test
+
+on: [ push, pull_request ]
+
+env:
+  CONAN_SYSREQUIRES_MODE: enabled
+  CONAN_USER_HOME: "${{ github.workspace }}/conan-cache"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container: paulscherrerinstitute/std_detector_buffer_base:2.0.0
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/conan-cache
+      - name: Build and test
+        run: |
+          scl enable devtoolset-10 'cmake -B release -DCMAKE_BUILD_TYPE=Release -G Ninja'
+          scl enable devtoolset-10 'cmake --build release'
+          ctest --test-dir release -VV
+      - uses: mikepenz/action-junit-report@v3
+        if: always()
+        with:
+          report_paths: "./release/*_tests.xml"
