@@ -7,6 +7,7 @@ RUN yum update -y \
     && yum install -y centos-release-scl epel-release \
     && yum -y install bzip2 \
         git \
+        zstd \
         openssh-clients \
         patch \
         centos-release-scl \
