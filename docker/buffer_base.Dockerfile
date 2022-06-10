@@ -52,7 +52,3 @@ RUN ./configure --enable-parallel && make install
 RUN ln -v -s `pwd`/hdf5/lib/* /usr/lib64/ && \
     ln -v -s `pwd`/hdf5/include/* /usr/include/ && \
     ln -v -s /usr/include/mpich-x86_64/* /usr/include/
-
-ARG UID=1000
-RUN useradd -m -u ${UID} -s /bin/bash builder
-USER builder
