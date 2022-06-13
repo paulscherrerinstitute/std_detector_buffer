@@ -17,6 +17,7 @@ jobs:
         run: |
           source /opt/rh/devtoolset-10/enable
           source /opt/rh/rh-python38/enable
+          source /etc/profile.d/modules.sh
           module load mpi
           cmake -B release -DCMAKE_BUILD_TYPE=Release -G Ninja
           cmake --build release
