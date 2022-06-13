@@ -3,16 +3,14 @@
 #include "FrameUdpReceiver.hpp"
 
 using namespace std;
-using namespace buffer_config;
 
-FrameUdpReceiver::FrameUdpReceiver(
-    const uint16_t port,
-    const int module_id) :
+template<typename T, size_t N_RECV_MSG>
+FrameUdpReceiver<T,N_RECV_MSG>::FrameUdpReceiver(const uint16_t port, const int module_id) :
     module_id_(module_id)
 {
   udp_receiver_.bind(port);
 
-  for (size_t i = 0; i < BUFFER_UDP_N_RECV_MSG; i++) {
+  for (size_t i = 0; i < N_RECV_MSG; i++) {
     recv_buff_ptr_[i].iov_base = (void*) &(packet_buffer_[i]);
     recv_buff_ptr_[i].iov_len = sizeof(jungfrau_packet);
 
@@ -23,11 +21,13 @@ FrameUdpReceiver::FrameUdpReceiver(
   }
 }
 
-FrameUdpReceiver::~FrameUdpReceiver() {
+template<typename T, size_t N_RECV_MSG>
+FrameUdpReceiver<T,N_RECV_MSG>::~FrameUdpReceiver() {
   udp_receiver_.disconnect();
 }
 
-inline void FrameUdpReceiver::init_frame(
+template<typename T, size_t N_RECV_MSG>
+inline void FrameUdpReceiver<T,N_RECV_MSG>::init_frame(
     ModuleFrame& frame_metadata, const int i_packet)
 {
   frame_metadata.pulse_id = static_cast<uint64_t>(packet_buffer_[i_packet].bunchid);
@@ -36,11 +36,11 @@ inline void FrameUdpReceiver::init_frame(
   frame_metadata.module_id = (int64_t) module_id_;
 }
 
-inline void FrameUdpReceiver::copy_packet_to_buffers(
+template<typename T, size_t N_RECV_MSG>
+inline void FrameUdpReceiver<T,N_RECV_MSG>::copy_packet_to_buffers(
     ModuleFrame& metadata, char* frame_buffer, const int i_packet)
 {
-  size_t frame_buffer_offset =
-      DATA_BYTES_PER_PACKET * packet_buffer_[i_packet].packetnum;
+  size_t frame_buffer_offset = DATA_BYTES_PER_PACKET * packet_buffer_[i_packet].packetnum;
   memcpy(
       (void*) (frame_buffer + frame_buffer_offset),
       packet_buffer_[i_packet].data,
@@ -49,14 +49,11 @@ inline void FrameUdpReceiver::copy_packet_to_buffers(
   metadata.n_recv_packets++;
 }
 
-inline uint64_t FrameUdpReceiver::process_packets(
-    const int start_offset,
-    ModuleFrame& metadata,
-    char* frame_buffer)
+template<typename T, size_t N_RECV_MSG>
+inline uint64_t FrameUdpReceiver<T,N_RECV_MSG>::process_packets(
+    const int start_offset, ModuleFrame& metadata, char* frame_buffer)
 {
-  for (int i_packet=start_offset;
-       i_packet < packet_buffer_n_packets_;
-       i_packet++) {
+  for (int i_packet=start_offset; i_packet < packet_buffer_n_packets_; i_packet++) {
 
     // First packet for this frame.
     if (metadata.pulse_id == 0) {
@@ -99,8 +96,8 @@ inline uint64_t FrameUdpReceiver::process_packets(
   return 0;
 }
 
-uint64_t FrameUdpReceiver::get_frame_from_udp(
-    ModuleFrame& metadata, char* frame_buffer)
+template<typename T, size_t N_RECV_MSG>
+uint64_t FrameUdpReceiver<T,N_RECV_MSG>::get_frame_from_udp(ModuleFrame& metadata, char* frame_buffer)
 {
   // Reset the metadata and frame buffer for the next frame.
   metadata.pulse_id = 0;
@@ -110,8 +107,7 @@ uint64_t FrameUdpReceiver::get_frame_from_udp(
   // Happens when last packet from previous frame was missed.
   if (packet_buffer_loaded_) {
 
-    auto pulse_id = process_packets(
-        packet_buffer_offset_, metadata, frame_buffer);
+    auto pulse_id = process_packets(packet_buffer_offset_, metadata, frame_buffer);
 
     if (pulse_id != 0) {
       return pulse_id;
@@ -119,16 +115,13 @@ uint64_t FrameUdpReceiver::get_frame_from_udp(
   }
 
   while (true) {
-
-    packet_buffer_n_packets_ = udp_receiver_.receive_many(
-        msgs_, BUFFER_UDP_N_RECV_MSG);
+    packet_buffer_n_packets_ = udp_receiver_.receive_many(msgs_, N_RECV_MSG);
 
     if (packet_buffer_n_packets_ == 0) {
       continue;
     }
 
     auto pulse_id = process_packets(0, metadata, frame_buffer);
-
     if (pulse_id != 0) {
       return pulse_id;
     }

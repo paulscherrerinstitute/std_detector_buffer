@@ -5,17 +5,17 @@
 #include "PacketUdpReceiver.hpp"
 #include "formats.hpp"
 #include "buffer_config.hpp"
-#include "jungfrau.hpp"
 
+template<typename T, size_t N_RECV_MSG>
 class FrameUdpReceiver {
   const int module_id_;
 
   PacketUdpReceiver udp_receiver_;
 
-  jungfrau_packet packet_buffer_[buffer_config::BUFFER_UDP_N_RECV_MSG];
-  iovec recv_buff_ptr_[buffer_config::BUFFER_UDP_N_RECV_MSG];
-  mmsghdr msgs_[buffer_config::BUFFER_UDP_N_RECV_MSG];
-  sockaddr_in sock_from_[buffer_config::BUFFER_UDP_N_RECV_MSG];
+  T packet_buffer_[N_RECV_MSG];
+  iovec recv_buff_ptr_[N_RECV_MSG];
+  mmsghdr msgs_[N_RECV_MSG];
+  sockaddr_in sock_from_[N_RECV_MSG];
 
   bool packet_buffer_loaded_ = false;
   int packet_buffer_n_packets_ = 0;
@@ -28,7 +28,7 @@ class FrameUdpReceiver {
       const int n_packets, ModuleFrame& metadata, char* frame_buffer);
 
 public:
-  FrameUdpReceiver(const uint16_t port, const int module_id);
+  FrameUdpReceiver(uint16_t port, int module_id);
   virtual ~FrameUdpReceiver();
   uint64_t get_frame_from_udp(ModuleFrame& metadata, char* frame_buffer);
 };
