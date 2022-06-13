@@ -16,8 +16,8 @@ const std::string DETECTOR_TYPE = "jungfrau";
 #define PIXEL_N_BYTES 2
 #define MODULE_N_BYTES 1048576
 
- #define N_PACKETS_PER_FRAME 128
- #define DATA_BYTES_PER_FRAME 1048576
+const size_t N_PACKETS_PER_FRAME = 128;
+#define DATA_BYTES_PER_FRAME 1048576
 
 #pragma pack(push)
 #pragma pack(1)

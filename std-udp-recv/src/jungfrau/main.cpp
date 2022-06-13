@@ -9,6 +9,8 @@
 #include "BufferUtils.hpp"
 #include "FrameStats.hpp"
 
+#include "jungfrau.hpp"
+
 using namespace std;
 using namespace chrono;
 using namespace buffer_config;
@@ -30,8 +32,10 @@ int main (int argc, char *argv[]) {
   const auto config = read_json_config(string(argv[1]));
   const int module_id = atoi(argv[2]);
 
-  const auto udp_port = config.start_udp_port + module_id;
-  FrameUdpReceiver receiver(udp_port, module_id);
+  const uint16_t udp_port = config.start_udp_port + module_id;
+
+  FrameUdpReceiver<jungfrau_packet, N_PACKETS_PER_FRAME> receiver(udp_port, module_id);
+
   RamBuffer buffer(config.detector_name, sizeof(jungfrau_packet),DATA_BYTES_PER_FRAME, config.n_modules);
   FrameStats stats(config.detector_name, module_id, N_PACKETS_PER_FRAME, STATS_TIME);
 
