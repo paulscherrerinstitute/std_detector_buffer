@@ -38,6 +38,7 @@ std::string ZmqLiveSender::_get_data_type_mapping(const int dtype) const
     return "uint32";
   else if (dtype == 8)
     return "uint64";
+  return "unknown";
 }
 
 void ZmqLiveSender::send(const ImageMetadata& meta, const char* data, const size_t image_n_bytes)

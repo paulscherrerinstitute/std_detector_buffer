@@ -26,7 +26,7 @@ TEST(BufferUdpReceiver, simple_recv)
 
   auto handle = async(launch::async, [&]() {
     for (int i_frame = 0; i_frame < n_frames; i_frame++) {
-      for (size_t i_packet = 0; i_packet < n_packets; i_packet++) {
+      for (int i_packet = 0; i_packet < n_packets; i_packet++) {
         jungfrau_packet send_udp_buffer;
         send_udp_buffer.packetnum = i_packet;
         send_udp_buffer.bunchid = i_frame + 1;
@@ -75,7 +75,7 @@ TEST(BufferUdpReceiver, missing_middle_packet)
 
   auto handle = async(launch::async, [&]() {
     for (int i_frame = 0; i_frame < n_frames; i_frame++) {
-      for (size_t i_packet = 0; i_packet < n_packets; i_packet++) {
+      for (int i_packet = 0; i_packet < n_packets; i_packet++) {
         // Skip some random middle packet.
         if (i_packet == 10) {
           continue;
@@ -129,7 +129,7 @@ TEST(BufferUdpReceiver, missing_first_packet)
 
   auto handle = async(launch::async, [&]() {
     for (int i_frame = 0; i_frame < n_frames; i_frame++) {
-      for (size_t i_packet = 0; i_packet < n_packets; i_packet++) {
+      for (int i_packet = 0; i_packet < n_packets; i_packet++) {
         // Skip first packet.
         if (i_packet == 0) {
           continue;
@@ -182,7 +182,7 @@ TEST(BufferUdpReceiver, missing_last_packet)
 
   auto handle = async(launch::async, [&]() {
     for (int i_frame = 0; i_frame < n_frames; i_frame++) {
-      for (size_t i_packet = 0; i_packet < n_packets; i_packet++) {
+      for (int i_packet = 0; i_packet < n_packets; i_packet++) {
         // Skip the last packet.
         if (i_packet == n_packets - 1) {
           continue;

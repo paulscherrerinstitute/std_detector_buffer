@@ -5,7 +5,6 @@
 #include <unistd.h>
 #include "mock/udp.hpp"
 
-
 #include "jungfrau.hpp"
 
 const int MAX_IMAGE_ID = 10000;
@@ -28,16 +27,12 @@ int main(int argc, char** argv)
   }
 
   const auto config = UdpRecvConfig::from_json_file(string(argv[1]));
-  const int bit_depth = atoi(argv[2]);
   const int ms_delay = atoi(argv[3]);
 
   if (DETECTOR_TYPE != config.detector_type) {
     throw runtime_error("UDP recv version for " + DETECTOR_TYPE + " but config for " +
                         config.detector_type);
   }
-
-  const size_t FRAME_N_BYTES = MODULE_N_PIXELS * bit_depth / 8;
-
   int sockets[config.n_modules];
   sockaddr_in send_address[config.n_modules];
 
@@ -79,6 +74,6 @@ int main(int argc, char** argv)
     // 10Hz == 100ms between images
     usleep(ms_delay * 1000);
 
-    image_id = ++image_id % MAX_IMAGE_ID;
+    image_id = (image_id + 1) % MAX_IMAGE_ID;
   }
 }

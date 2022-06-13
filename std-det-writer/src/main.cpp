@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
   char recv_buffer_data[4838400];
   bool open_run = false;
   bool header_in = false;
-  int last_run_id = -1;
+
   while (true) {
     auto nbytes = zmq_recv(receiver, &recv_buffer_meta, sizeof(recv_buffer_meta), 0);
     rapidjson::Document document;
@@ -61,11 +61,9 @@ int main(int argc, char* argv[])
     }
 
     const string output_file = document["output_file"].GetString();
-    const uint64_t image_id = document["image_id"].GetUint64();
     const int run_id = document["run_id"].GetInt();
     const int i_image = document["i_image"].GetInt();
     const int n_images = document["n_images"].GetInt();
-    const int user_id = document["user_id"].GetInt();
 
     const int status = document["status"].GetInt();
     const rapidjson::Value& a = document["shape"];

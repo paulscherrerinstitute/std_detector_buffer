@@ -54,7 +54,7 @@ TEST(PacketUdpReceiver, receive_many)
   auto n_msgs = udp_receiver.receive_many(msgs, N_PACKETS_PER_FRAME);
   ASSERT_EQ(n_msgs, 2);
 
-  for (size_t i = 0; i < n_msgs; i++) {
+  for (int i = 0; i < n_msgs; i++) {
     ASSERT_EQ(msgs[i].msg_len, BYTES_PER_PACKET);
     ASSERT_EQ(recv_buffer[i].bunchid, i);
   }

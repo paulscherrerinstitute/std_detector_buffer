@@ -14,7 +14,8 @@ using namespace chrono;
 using namespace buffer_config;
 using namespace BufferUtils;
 
-int main (int argc, char *argv[]) {
+int main(int argc, char* argv[])
+{
 
   if (argc != 3) {
     cout << endl;
@@ -32,7 +33,8 @@ int main (int argc, char *argv[]) {
 
   const auto udp_port = config.start_udp_port + module_id;
   FrameUdpReceiver receiver(udp_port, module_id);
-  RamBuffer buffer(config.detector_name, sizeof(jungfrau_packet),DATA_BYTES_PER_FRAME, config.n_modules);
+  RamBuffer buffer(config.detector_name, sizeof(jungfrau_packet), DATA_BYTES_PER_FRAME,
+                   config.n_modules);
   FrameStats stats(config.detector_name, module_id, N_PACKETS_PER_FRAME, STATS_TIME);
 
   auto ctx = zmq_ctx_new();
@@ -48,27 +50,20 @@ int main (int argc, char *argv[]) {
 
     auto pulse_id = receiver.get_frame_from_udp(meta, data);
 
-    bool bad_pulse_id = false;
-
-    if ( ( meta.frame_index != (frame_index_previous+1) ) ||
-        ( (pulse_id-pulse_id_previous) <= 0 ) ||
-        ( (pulse_id-pulse_id_previous) > 1000 ) ) {
-
-      bad_pulse_id = true;
-
-    } else {
+    if ((meta.frame_index != (frame_index_previous + 1)) || ((pulse_id - pulse_id_previous) <= 0) ||
+        ((pulse_id - pulse_id_previous) > 1000))
+    {}
+    else {
 
       buffer.write(meta.frame_index, (char*)(&meta), data);
 
       zmq_send(socket, &pulse_id, sizeof(pulse_id), 0);
-
     }
 
     stats.record_stats(N_PACKETS_PER_FRAME - meta.n_recv_packets);
 
     pulse_id_previous = pulse_id;
     frame_index_previous = meta.frame_index;
-
   }
 
   delete[] data;

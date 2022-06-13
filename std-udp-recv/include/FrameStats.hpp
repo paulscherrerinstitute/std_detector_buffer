@@ -12,7 +12,7 @@ class FrameStats
   const std::string detector_name_;
   const int module_id_;
   const size_t n_packets_per_frame_;
-  const size_t stats_time_;
+  const std::chrono::milliseconds stats_time_;
 
   int frames_counter_;
   int n_missed_packets_;

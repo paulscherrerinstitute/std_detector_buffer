@@ -30,7 +30,7 @@ void PacketUdpReceiver::bind(const uint16_t port)
     throw runtime_error("Cannot open socket.");
   }
 
-  sockaddr_in server_address = {0};
+  sockaddr_in server_address = {};
   server_address.sin_family = AF_INET;
   server_address.sin_addr.s_addr = INADDR_ANY;
   server_address.sin_port = htons(port);
