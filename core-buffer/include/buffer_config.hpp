@@ -9,7 +9,6 @@ namespace buffer_config {
 // Number of seconds after which statistics is print out (udp_recv)
 const size_t STATS_TIME = 10;
 
-const size_t BUFFER_UDP_N_RECV_MSG = 128;
 // Size of UDP recv buffer
 const int BUFFER_UDP_RCVBUF_N_SLOTS = 100;
 // 8246 bytes for each UDP packet.
