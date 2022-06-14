@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <zmq.h>
+#include <cstring>
 #include <RamBuffer.hpp>
 
 #include "formats.hpp"
