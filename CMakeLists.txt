@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 project(std_detector_buffer LANGUAGES CXX VERSION 0.1.0)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG_OUTPUT")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG_OUTPUT")
@@ -27,4 +27,5 @@ add_subdirectory("std-det-writer")
 add_subdirectory("std-stream-send")
 add_subdirectory("std-udp-recv")
 add_subdirectory("std-udp-sync")
+add_subdirectory("std-data-convert")
 add_subdirectory(external)

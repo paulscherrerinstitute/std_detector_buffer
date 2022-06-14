@@ -2,8 +2,8 @@
 #include <zmq.h>
 #include <chrono>
 #include <thread>
-#include <BufferUtils.hpp>
-#include <RamBuffer.hpp>
+#include <buffer_utils.hpp>
+#include <ram_buffer.hpp>
 
 #include "stream_config.hpp"
 #include "ZmqLiveSender.hpp"
@@ -27,14 +27,14 @@ int main(int argc, char* argv[])
     exit(-1);
   }
 
-  auto config = BufferUtils::read_json_config(string(argv[1]));
+  auto config = buffer_utils::read_json_config(string(argv[1]));
   const auto stream_address = string(argv[2]);
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, STREAM_ZMQ_IO_THREADS);
   ZmqLiveSender sender(ctx, config.detector_name, stream_address);
 
-  auto receiver_assembler = BufferUtils::connect_socket(ctx, config.detector_name, "assembler");
+  auto receiver_assembler = buffer_utils::connect_socket(ctx, config.detector_name, "assembler");
 
   const size_t IMAGE_N_BYTES = config.image_height * config.image_width * config.bit_depth / 8;
 

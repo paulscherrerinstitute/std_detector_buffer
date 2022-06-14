@@ -22,9 +22,9 @@ public:
   RamBuffer(std::string channel_name, size_t meta_n_bytes, size_t data_n_bytes, size_t n_slots);
   ~RamBuffer();
 
-  void write(uint64_t id, const char* src_meta, const char* src_data) const;
-  char* get_data(uint64_t id) const;
-  char* get_meta(uint64_t id) const;
+  void write(uint64_t id, const char* src_meta, const char* src_data);
+  char* get_data(uint64_t id);
+  char* get_meta(uint64_t id);
 };
 
 #endif // STD_DETECTOR_BUFFER_RAM_BUFFER_HPP

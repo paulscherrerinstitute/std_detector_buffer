@@ -20,7 +20,7 @@ ZmqLiveSender::ZmqLiveSender(void* ctx,
     , det_name_(det_name)
     , stream_address_(stream_address)
 {
-  socket_streamvis_ = BufferUtils::bind_socket(ctx_, det_name_, stream_address_);
+  socket_streamvis_ = buffer_utils::bind_socket(ctx_, det_name_, stream_address_);
 }
 
 ZmqLiveSender::~ZmqLiveSender()
@@ -38,6 +38,7 @@ std::string ZmqLiveSender::_get_data_type_mapping(const int dtype) const
     return "uint32";
   else if (dtype == 8)
     return "uint64";
+  return "unknown";
 }
 
 void ZmqLiveSender::send(const ImageMetadata& meta, const char* data, const size_t image_n_bytes)

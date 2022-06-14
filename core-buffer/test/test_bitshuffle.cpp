@@ -71,11 +71,11 @@ TEST(Bitshuffle, SeparateCompression)
   memcpy(&(sum_compressed_buffer[compressed_size_1]), &(compress_buffer_2[0]), compressed_size_2);
 
   // Verify that the memcpy was correct.
-  for (size_t i = 0; i < compressed_size_1; i++) {
+  for (size_t i = 0; i < static_cast<size_t>(compressed_size_1); i++) {
     ASSERT_EQ(sum_compressed_buffer[i], compress_buffer_1[i]);
   }
   auto offset = compressed_size_1;
-  for (size_t i = 0; i < compressed_size_2; i++) {
+  for (size_t i = 0; i < static_cast<size_t>(compressed_size_2); i++) {
     ASSERT_EQ(sum_compressed_buffer[offset + i], compress_buffer_2[i]);
   }
 
@@ -116,11 +116,11 @@ TEST(Bitshuffle, CompressionSpeed)
   auto start_time = steady_clock::now();
 
   for (int i = 0; i < n_iterations; i++) {
-    auto compressed_size = bshuf_compress_lz4(frame_buffer.get(),       // in
-                                              compression_buffer.get(), // out
-                                              n_pixels,                 // size
-                                              PIXEL_N_BYTES,            // elem_size
-                                              0);                       // block_size
+    bshuf_compress_lz4(frame_buffer.get(),       // in
+                       compression_buffer.get(), // out
+                       n_pixels,                 // size
+                       PIXEL_N_BYTES,            // elem_size
+                       0);                       // block_size
   }
 
   auto end_time = steady_clock::now();

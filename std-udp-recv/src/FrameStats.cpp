@@ -15,7 +15,7 @@ FrameStats::FrameStats(string detector_name,
     : detector_name_(move(detector_name))
     , module_id_(module_id)
     , n_packets_per_frame_(n_packets_per_frame)
-    , stats_time_(stats_time)
+    , stats_time_(stats_time * 1000)
 {
   reset_counters();
 }
@@ -37,10 +37,9 @@ void FrameStats::record_stats(const uint64_t n_missing_packets)
 
   frames_counter_++;
 
-  const auto time_passed =
-      duration_cast<milliseconds>(steady_clock::now() - stats_interval_start_).count();
+  const auto time_passed = duration_cast<milliseconds>(steady_clock::now() - stats_interval_start_);
 
-  if (time_passed >= stats_time_ * 1000) {
+  if (time_passed >= stats_time_) {
     print_stats();
     reset_counters();
   }

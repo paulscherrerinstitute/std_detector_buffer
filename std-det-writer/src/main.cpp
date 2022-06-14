@@ -7,7 +7,7 @@
 #include <rapidjson/writer.h>
 #include <date/date.h>
 
-#include "BufferUtils.hpp"
+#include "buffer_utils.hpp"
 #include "live_writer_config.hpp"
 #include "WriterStats.hpp"
 #include "JFH5Writer.hpp"
@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
     exit(-1);
   }
 
-  auto const config = DetWriterConfig::from_json_file(string(argv[1]));
+  auto const config = converter::from_json_file(string(argv[1]));
 
   MPI_Init(nullptr, nullptr);
 
@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, LIVE_ZMQ_IO_THREADS);
-  auto receiver = BufferUtils::connect_socket(ctx, config.detector_name, "sync");
+  auto receiver = buffer_utils::connect_socket(ctx, config.detector_name, "sync");
 
   const size_t IMAGE_N_BYTES = config.image_width * config.image_height * config.bit_depth / 8;
 
@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
   char recv_buffer_data[4838400];
   bool open_run = false;
   bool header_in = false;
-  int last_run_id = -1;
+
   while (true) {
     auto nbytes = zmq_recv(receiver, &recv_buffer_meta, sizeof(recv_buffer_meta), 0);
     rapidjson::Document document;
@@ -61,11 +61,9 @@ int main(int argc, char* argv[])
     }
 
     const string output_file = document["output_file"].GetString();
-    const uint64_t image_id = document["image_id"].GetUint64();
     const int run_id = document["run_id"].GetInt();
     const int i_image = document["i_image"].GetInt();
     const int n_images = document["n_images"].GetInt();
-    const int user_id = document["user_id"].GetInt();
 
     const int status = document["status"].GetInt();
     const rapidjson::Value& a = document["shape"];

@@ -5,7 +5,7 @@
 #include <vector>
 #include <ostream>
 
-namespace BufferUtils {
+namespace buffer_utils {
 
 struct DetectorConfig
 {
@@ -29,6 +29,6 @@ struct DetectorConfig
 void* bind_socket(void* ctx, const std::string& detector_name, const std::string& stream_name);
 void* connect_socket(void* ctx, const std::string& detector_name, const std::string& stream_name);
 DetectorConfig read_json_config(const std::string& filename);
-} // namespace BufferUtils
+} // namespace buffer_utils
 
 #endif // STD_DETECTOR_BUFFER_BUFFER_UTILS_HPP

@@ -1,4 +1,4 @@
-#include "RamBuffer.hpp"
+#include "ram_buffer.hpp"
 
 #include <sys/mman.h>
 #include <fcntl.h>
@@ -60,7 +60,7 @@ RamBuffer::~RamBuffer()
   shm_unlink(buffer_name_.c_str());
 }
 
-void RamBuffer::write(const uint64_t id, const char* src_meta, const char* src_data) const
+void RamBuffer::write(const uint64_t id, const char* src_meta, const char* src_data)
 {
   auto* dst_meta = get_meta(id);
   auto* dst_data = get_data(id);
@@ -72,17 +72,17 @@ void RamBuffer::write(const uint64_t id, const char* src_meta, const char* src_d
   cout << endl;
 #endif
 
-  memcpy(dst_meta, &src_meta, meta_bytes_);
+  memcpy(dst_meta, src_meta, meta_bytes_);
   memcpy(dst_data, src_data, data_bytes_);
 }
 
-char* RamBuffer::get_meta(const uint64_t id) const
+char* RamBuffer::get_meta(const uint64_t id)
 {
   const size_t slot_id = id % n_slots_;
   return buffer_ + (slot_id * slot_bytes_);
 }
 
-char* RamBuffer::get_data(const uint64_t id) const
+char* RamBuffer::get_data(const uint64_t id)
 {
   const size_t slot_id = id % n_slots_;
   return buffer_ + (slot_id * slot_bytes_) + meta_bytes_;

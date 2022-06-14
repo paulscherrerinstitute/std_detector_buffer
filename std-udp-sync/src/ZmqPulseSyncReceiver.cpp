@@ -1,5 +1,5 @@
 #include "ZmqPulseSyncReceiver.hpp"
-#include "BufferUtils.hpp"
+#include "buffer_utils.hpp"
 
 #include <zmq.h>
 #include <stdexcept>
@@ -23,7 +23,7 @@ ZmqPulseSyncReceiver::ZmqPulseSyncReceiver(void* ctx,
   sockets_.reserve(n_modules_);
 
   for (int i = 0; i < n_modules_; i++) {
-    sockets_.push_back(BufferUtils::connect_socket(ctx_, detector_name, to_string(i)));
+    sockets_.push_back(buffer_utils::connect_socket(ctx_, detector_name, to_string(i)));
   }
 }
 

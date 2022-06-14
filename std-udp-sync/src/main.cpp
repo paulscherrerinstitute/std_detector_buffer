@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <zmq.h>
-#include <BufferUtils.hpp>
+#include <buffer_utils.hpp>
 #include <SyncStats.hpp>
 
 #include "ZmqPulseSyncReceiver.hpp"
@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, 1);
 
-  auto sender = BufferUtils::bind_socket(ctx, config.detector_name, "sync");
+  auto sender = buffer_utils::bind_socket(ctx, config.detector_name, "sync");
 
   ZmqPulseSyncReceiver receiver(ctx, config.detector_name, config.n_modules);
   SyncStats stats(config.detector_name, STATS_TIME);

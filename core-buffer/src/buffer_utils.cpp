@@ -1,4 +1,4 @@
-#include "BufferUtils.hpp"
+#include "buffer_utils.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -13,12 +13,14 @@
 using namespace std;
 using namespace buffer_config;
 
-void* BufferUtils::connect_socket(void* ctx, const string& detector_name, const string& stream_name)
+void* buffer_utils::connect_socket(void* ctx,
+                                   const string& detector_name,
+                                   const string& stream_name)
 {
   string ipc_address = buffer_config::IPC_URL_BASE + detector_name + "-" + stream_name;
 
 #ifdef DEBUG_OUTPUT
-  cout << "[BufferUtils::connect_socket]";
+  cout << "[buffer_utils::connect_socket]";
   cout << " IPC address: " << ipc_address << endl;
 #endif
 
@@ -48,12 +50,12 @@ void* BufferUtils::connect_socket(void* ctx, const string& detector_name, const 
   return socket;
 }
 
-void* BufferUtils::bind_socket(void* ctx, const string& detector_name, const string& stream_name)
+void* buffer_utils::bind_socket(void* ctx, const string& detector_name, const string& stream_name)
 {
   string ipc_address = IPC_URL_BASE + detector_name + "-" + stream_name;
 
 #ifdef DEBUG_OUTPUT
-  cout << "[BufferUtils::bind_socket]";
+  cout << "[buffer_utils::bind_socket]";
   cout << " IPC address: " << ipc_address << endl;
 #endif
 
@@ -76,7 +78,7 @@ void* BufferUtils::bind_socket(void* ctx, const string& detector_name, const str
   return socket;
 }
 
-BufferUtils::DetectorConfig BufferUtils::read_json_config(const std::string& filename)
+buffer_utils::DetectorConfig buffer_utils::read_json_config(const std::string& filename)
 {
   std::ifstream ifs(filename);
   rapidjson::IStreamWrapper isw(ifs);

@@ -8,7 +8,7 @@
 class SyncStats
 {
   const std::string detector_name_;
-  const size_t stats_time_;
+  const std::chrono::milliseconds stats_time_;
 
   int image_counter_;
   int n_sync_lost_images_;
