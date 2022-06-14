@@ -2,6 +2,7 @@
 #define STD_DETECTOR_BUFFER_PACKET_UDP_RECEIVER_HPP
 
 #include <sys/socket.h>
+#include <netinet/in.h>
 
 class PacketUdpReceiver
 {
