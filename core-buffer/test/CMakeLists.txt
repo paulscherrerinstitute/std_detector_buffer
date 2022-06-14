@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.17)
 
+find_package(range-v3 REQUIRED)
 find_package(GTest REQUIRED)
 add_executable(${PROJECT_NAME}_tests)
 
@@ -15,6 +16,7 @@ target_link_libraries(${PROJECT_NAME}_tests
         detectors::detectors
         bitshuffle::bitshuffle
         GTest::GTest
+        range-v3::range-v3
         std_detector_buffer::settings
 )
 

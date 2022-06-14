@@ -9,5 +9,6 @@ class SBD(ConanFile):
         "rapidjson/cci.20211112",
         "lz4/1.9.3",
         "date/3.0.1",
+        "range-v3/0.11.0",
     ]
     default_options = {"date:header_only": True}
