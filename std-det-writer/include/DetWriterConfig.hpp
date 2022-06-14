@@ -8,9 +8,9 @@
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
 
-struct DetWriterConfig
+struct converter
 {
-  static DetWriterConfig from_json_file(const std::string& filename)
+  static converter from_json_file(const std::string& filename)
   {
     std::ifstream ifs(filename);
     rapidjson::IStreamWrapper isw(ifs);

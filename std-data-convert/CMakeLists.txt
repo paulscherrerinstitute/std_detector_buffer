@@ -1,0 +1,29 @@
+cmake_minimum_required(VERSION 3.17)
+project(std_data_convert)
+
+add_library(${PROJECT_NAME}_lib)
+add_library(${PROJECT_NAME}::${PROJECT_NAME}_lib ALIAS ${PROJECT_NAME}_lib)
+
+target_include_directories(${PROJECT_NAME}_lib PUBLIC include)
+
+target_link_libraries(${PROJECT_NAME}_lib
+    PRIVATE
+        std_detector_buffer::settings
+)
+
+target_sources(${PROJECT_NAME}_lib
+    PRIVATE
+        src/converter.cpp
+)
+
+add_executable(${PROJECT_NAME} src/main.cpp)
+
+target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+        ${PROJECT_NAME}_lib
+        std_detector_buffer::settings
+)
+
+if(BUILD_TESTING)
+    add_subdirectory(test)
+endif()

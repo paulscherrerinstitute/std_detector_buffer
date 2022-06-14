@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
     exit(-1);
   }
 
-  auto const config = DetWriterConfig::from_json_file(string(argv[1]));
+  auto const config = converter::from_json_file(string(argv[1]));
 
   MPI_Init(nullptr, nullptr);
 
