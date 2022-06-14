@@ -19,8 +19,6 @@ TEST(PacketUdpReceiver, receive_many)
   ASSERT_TRUE(send_socket_fd >= 0);
 
   PacketUdpReceiver udp_receiver(udp_port, sizeof(JFUdpPacket), 2);
-  udp_receiver.bind(udp_port);
-
   JFUdpPacket send_udp_buffer = {};
 
   auto server_address = get_server_address(udp_port);

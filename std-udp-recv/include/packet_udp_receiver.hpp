@@ -15,6 +15,8 @@ class PacketUdpReceiver
   mmsghdr* msgs_ = nullptr;
   sockaddr_in* sock_from_ = nullptr;
 
+  void bind(const uint16_t port);
+
 public:
   PacketUdpReceiver(uint16_t port, size_t n_bytes_packet, size_t n_recv_packets);
   virtual ~PacketUdpReceiver();
@@ -23,7 +25,6 @@ public:
   char* get_packet_buffer();
 
 
-  void bind(const uint16_t port);
   void disconnect();
 };
 
