@@ -64,6 +64,6 @@ int main(int argc, char** argv)
     // 10Hz == 100ms between images
     usleep(ms_delay * 1000);
 
-    image_id = ++image_id % MAX_IMAGE_ID;
+    image_id = (image_id + 1) % MAX_IMAGE_ID;
   }
 }
