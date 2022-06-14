@@ -38,7 +38,7 @@ struct EigerFrame
 // 48 bytes + 8192 bytes = 8240 bytes
 #pragma pack(push)
 #pragma pack(2)
-struct jungfrau_packet
+struct JFUdpPacket
 {
   uint64_t framenum;
   uint32_t exptime;
