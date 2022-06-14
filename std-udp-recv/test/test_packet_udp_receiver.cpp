@@ -41,7 +41,7 @@ TEST(PacketUdpReceiver, receive_many)
   const JFUdpPacket* const packet_buffer = reinterpret_cast<JFUdpPacket*>(
       udp_receiver.get_packet_buffer());
 
-  for (size_t i = 0; i < n_msgs; i++) {
+  for (int i = 0; i < n_msgs; i++) {
     ASSERT_EQ(packet_buffer[i].bunchid, i);
   }
 
