@@ -10,8 +10,13 @@
 
 using namespace std;
 
+class BufferUdpReceiverFixture : public testing::Test
+{
+protected:
+  void SetUp() override { GTEST_SKIP() << "skipping all tests for this fixture"; }
+};
 
-TEST(BufferUdpReceiver, simple_recv)
+TEST_F(BufferUdpReceiverFixture, SimpleRecv)
 {
   auto n_packets = 128;
   int module_id = 0;
@@ -60,7 +65,7 @@ TEST(BufferUdpReceiver, simple_recv)
   ::close(send_socket_fd);
 }
 
-TEST(BufferUdpReceiver, missing_middle_packet)
+TEST_F(BufferUdpReceiverFixture, MissingMiddlePacket)
 {
   auto n_packets = 128;
   int module_id = 1234;
@@ -114,7 +119,7 @@ TEST(BufferUdpReceiver, missing_middle_packet)
   ::close(send_socket_fd);
 }
 
-TEST(BufferUdpReceiver, missing_first_packet)
+TEST_F(BufferUdpReceiverFixture, MissingFirstPacket)
 {
   auto n_packets = 128;
   int module_id = 1234;
@@ -167,7 +172,7 @@ TEST(BufferUdpReceiver, missing_first_packet)
   ::close(send_socket_fd);
 }
 
-TEST(BufferUdpReceiver, missing_last_packet)
+TEST_F(BufferUdpReceiverFixture, MissingLastPacket)
 {
   auto n_packets = 128;
   int module_id = 1234;
