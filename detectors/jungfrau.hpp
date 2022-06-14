@@ -21,7 +21,7 @@ const size_t N_PACKETS_PER_FRAME = 128;
 
 #pragma pack(push)
 #pragma pack(1)
-struct EigerFrame
+struct JFFrame
 {
   uint64_t id;
   uint64_t pulse_id;
