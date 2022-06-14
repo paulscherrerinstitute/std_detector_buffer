@@ -5,14 +5,22 @@
 
 class PacketUdpReceiver
 {
-
+  const size_t n_recv_packets_;
+  const size_t n_bytes_packet_;
   int socket_fd_;
 
+  char* packet_buffer_ = nullptr;
+  iovec* recv_buff_ptr_ = nullptr;
+  mmsghdr* msgs_ = nullptr;
+  sockaddr_in* sock_from_ = nullptr;
+
 public:
-  PacketUdpReceiver();
+  PacketUdpReceiver(uint16_t port, size_t n_bytes_packet, size_t n_recv_packets);
   virtual ~PacketUdpReceiver();
 
-  int receive_many(mmsghdr* msgs, const size_t n_msgs);
+  int receive_many();
+  char* get_packet_buffer();
+
 
   void bind(const uint16_t port);
   void disconnect();

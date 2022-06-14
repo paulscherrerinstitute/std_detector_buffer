@@ -10,9 +10,30 @@
 using namespace std;
 using namespace buffer_config;
 
-PacketUdpReceiver::PacketUdpReceiver()
-    : socket_fd_(-1)
-{}
+PacketUdpReceiver::PacketUdpReceiver(
+    const uint16_t port, const size_t n_bytes_packet, const size_t n_recv_packets) :
+    n_recv_packets_(n_recv_packets),
+    n_bytes_packet_(n_bytes_packet),
+    socket_fd_(-1)
+{
+  bind(port);
+
+//TODO: Posix align this memory.
+  packet_buffer_ = new char[n_recv_packets_ * n_bytes_packet_];
+  recv_buff_ptr_ = new iovec[n_recv_packets_];
+  msgs_ = new mmsgdhr[n_recv_packets_];
+  sock_from_ = new sockaddr_in[n_recv_packets_];
+
+  for (size_t i = 0; i < n_recv_packets_; i++) {
+    recv_buff_ptr_[i].iov_base = (void*) &(packet_buffer_[i * n_bytes_packet_]);
+    recv_buff_ptr_[i].iov_len = n_bytes_packet_;
+
+    msgs_[i].msg_hdr.msg_iov = &recv_buff_ptr_[i];
+    msgs_[i].msg_hdr.msg_iovlen = 1;
+    msgs_[i].msg_hdr.msg_name = &sock_from_[i];
+    msgs_[i].msg_hdr.msg_namelen = sizeof(sockaddr_in);
+  }
+}
 
 PacketUdpReceiver::~PacketUdpReceiver()
 {
@@ -46,8 +67,8 @@ void PacketUdpReceiver::bind(const uint16_t port)
   if (setsockopt(socket_fd_, SOL_SOCKET, SO_RCVBUF, &BUFFER_UDP_RCVBUF_BYTES, sizeof(int)) == -1) {
     throw runtime_error("Cannot set SO_RCVBUF. " + string(strerror(errno)));
   };
-  // TODO: try to set SO_RCVLOWAT
 
+  // TODO: try to set SO_RCVLOWAT
   auto bind_result = ::bind(socket_fd_, reinterpret_cast<const sockaddr*>(&server_address),
                             sizeof(server_address));
 
@@ -56,13 +77,23 @@ void PacketUdpReceiver::bind(const uint16_t port)
   }
 }
 
-int PacketUdpReceiver::receive_many(mmsghdr* msgs, const size_t n_msgs)
+char* PacketUdpReceiver::get_packet_buffer()
 {
-  return recvmmsg(socket_fd_, msgs, n_msgs, 0, 0);
+  return packet_buffer_;
+}
+
+int PacketUdpReceiver::receive_many()
+{
+  return recvmmsg(socket_fd_, msgs_, n_recv_packets_, 0, 0);
 }
 
 void PacketUdpReceiver::disconnect()
 {
   close(socket_fd_);
   socket_fd_ = -1;
+
+  delete[] packet_buffer_;
+  delete[] recv_buff_ptr_;
+  delete[] msgs_;
+  delete[] sock_from_;
 }
