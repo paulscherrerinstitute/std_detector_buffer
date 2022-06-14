@@ -12,7 +12,7 @@
 using namespace std;
 using namespace chrono;
 using namespace buffer_config;
-using namespace BufferUtils;
+using namespace buffer_utils;
 
 int main(int argc, char* argv[])
 {
