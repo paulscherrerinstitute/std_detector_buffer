@@ -53,7 +53,7 @@ int main(int argc, char** argv)
         send_udp_buffer.packetnum = i_packet;
 
         send_udp_buffer.framenum = image_id + 100;
-        send_udp_buffer.bunchid = image_id;
+        send_udp_buffer.bunchid = static_cast<double>(image_id);
 
         ::sendto(sockets[i_module], &send_udp_buffer, BYTES_PER_PACKET, 0,
                  (sockaddr*)&send_address[i_module], sizeof(sockaddr_in));
