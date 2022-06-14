@@ -21,7 +21,7 @@ PacketUdpReceiver::PacketUdpReceiver(
 //TODO: Posix align this memory.
   packet_buffer_ = new char[n_recv_packets_ * n_bytes_packet_];
   recv_buff_ptr_ = new iovec[n_recv_packets_];
-  msgs_ = new mmsgdhr[n_recv_packets_];
+  msgs_ = new mmsghdr[n_recv_packets_];
   sock_from_ = new sockaddr_in[n_recv_packets_];
 
   for (size_t i = 0; i < n_recv_packets_; i++) {
@@ -51,7 +51,7 @@ void PacketUdpReceiver::bind(const uint16_t port)
     throw runtime_error("Cannot open socket.");
   }
 
-  sockaddr_in server_address = {0};
+  sockaddr_in server_address = {};
   server_address.sin_family = AF_INET;
   server_address.sin_addr.s_addr = INADDR_ANY;
   server_address.sin_port = htons(port);
