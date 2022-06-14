@@ -19,6 +19,7 @@ const std::string DETECTOR_TYPE = "jungfrau";
 const size_t N_PACKETS_PER_FRAME = 128;
 #define DATA_BYTES_PER_FRAME 1048576
 
+// 6*8 = 48 bytes of data + 12 bytes of padding == 64 bytes (cache line)
 #pragma pack(push)
 #pragma pack(1)
 struct JFFrame
@@ -29,9 +30,7 @@ struct JFFrame
   uint64_t daq_rec;
   uint64_t n_recv_packets;
   uint64_t module_id;
-  uint16_t bit_depth;
-  uint16_t pos_y;
-  uint16_t pos_x;
+  char __padding__[64-48];
 };
 #pragma pack(pop)
 
