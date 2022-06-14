@@ -11,7 +11,6 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME}_lib ALIAS ${PROJECT_NAME}_lib)
 target_sources(${PROJECT_NAME}_lib
     PRIVATE
         src/FrameStats.cpp
-        src/FrameUdpReceiver.cpp
         src/PacketUdpReceiver.cpp
 )
 
