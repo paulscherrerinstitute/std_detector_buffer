@@ -6,7 +6,7 @@ add_executable(${PROJECT_NAME}_tests)
 target_sources(${PROJECT_NAME}_tests
     PRIVATE
         test_bitshuffle.cpp
-        test_RamBuffer.cpp
+        test_ram_buffer.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}_tests

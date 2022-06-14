@@ -11,7 +11,7 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 target_sources(${PROJECT_NAME}
     PRIVATE
         src/buffer_utils.cpp
-        src/RamBuffer.cpp
+        src/ram_buffer.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)

@@ -3,7 +3,7 @@
 #include <chrono>
 #include <thread>
 #include <buffer_utils.hpp>
-#include <RamBuffer.hpp>
+#include <ram_buffer.hpp>
 
 #include "stream_config.hpp"
 #include "ZmqLiveSender.hpp"

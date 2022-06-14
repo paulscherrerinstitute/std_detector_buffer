@@ -1,4 +1,4 @@
-#include "RamBuffer.hpp"
+#include "ram_buffer.hpp"
 #include <gtest/gtest.h>
 
 #include "jungfrau.hpp"

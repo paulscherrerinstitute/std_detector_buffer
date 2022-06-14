@@ -1,4 +1,4 @@
-#include "RamBuffer.hpp"
+#include "ram_buffer.hpp"
 
 #include <sys/mman.h>
 #include <fcntl.h>

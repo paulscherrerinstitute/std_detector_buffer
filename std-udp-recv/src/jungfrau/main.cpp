@@ -1,7 +1,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <zmq.h>
-#include <RamBuffer.hpp>
+#include <ram_buffer.hpp>
 
 #include "formats.hpp"
 #include "buffer_config.hpp"
