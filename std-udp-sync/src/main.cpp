@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <zmq.h>
-#include <BufferUtils.hpp>
+#include <buffer_utils.hpp>
 #include <SyncStats.hpp>
 
 #include "ZmqPulseSyncReceiver.hpp"

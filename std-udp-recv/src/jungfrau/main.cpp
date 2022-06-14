@@ -6,7 +6,7 @@
 #include "formats.hpp"
 #include "buffer_config.hpp"
 #include "FrameUdpReceiver.hpp"
-#include "BufferUtils.hpp"
+#include "buffer_utils.hpp"
 #include "FrameStats.hpp"
 
 using namespace std;

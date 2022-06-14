@@ -2,7 +2,7 @@
 #include <zmq.h>
 #include <chrono>
 #include <thread>
-#include <BufferUtils.hpp>
+#include <buffer_utils.hpp>
 #include <RamBuffer.hpp>
 
 #include "stream_config.hpp"

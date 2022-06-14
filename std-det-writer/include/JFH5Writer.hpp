@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <string>
-#include <BufferUtils.hpp>
+#include <buffer_utils.hpp>
 #include <formats.hpp>
 
 #include <hdf5.h>

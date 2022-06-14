@@ -1,5 +1,5 @@
 #include "ZmqPulseSyncReceiver.hpp"
-#include "BufferUtils.hpp"
+#include "buffer_utils.hpp"
 
 #include <zmq.h>
 #include <stdexcept>
