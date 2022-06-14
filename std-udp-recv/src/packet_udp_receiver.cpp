@@ -1,7 +1,7 @@
 #include <netinet/in.h>
 #include <iostream>
 #include <stdexcept>
-#include "PacketUdpReceiver.hpp"
+#include "packet_udp_receiver.hpp"
 #include "jungfrau.hpp"
 #include <unistd.h>
 #include <cstring>

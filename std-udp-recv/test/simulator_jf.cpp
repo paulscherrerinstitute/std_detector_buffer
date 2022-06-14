@@ -1,6 +1,6 @@
 #include <cstdint>
 #include <iostream>
-#include "../include/UdpRecvConfig.hpp"
+#include "../include/udp_recv_config.hpp"
 #include <netinet/in.h>
 #include <unistd.h>
 #include "mock/udp.hpp"

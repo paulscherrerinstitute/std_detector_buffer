@@ -2,20 +2,20 @@
 #include <stdexcept>
 #include <zmq.h>
 #include <cstring>
-#include <RamBuffer.hpp>
+#include <ram_buffer.hpp>
 
 #include "formats.hpp"
 #include "buffer_config.hpp"
-#include "BufferUtils.hpp"
-#include "FrameStats.hpp"
+#include "buffer_utils.hpp"
+#include "frame_stat.hpp"
 
 #include "jungfrau.hpp"
-#include "PacketUdpReceiver.hpp"
+#include "packet_udp_receiver.hpp"
 
 using namespace std;
 using namespace chrono;
 using namespace buffer_config;
-using namespace BufferUtils;
+using namespace buffer_utils;
 
 int main (int argc, char *argv[]) {
 

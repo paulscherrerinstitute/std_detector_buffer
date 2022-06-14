@@ -10,8 +10,8 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME}_lib ALIAS ${PROJECT_NAME}_lib)
 
 target_sources(${PROJECT_NAME}_lib
     PRIVATE
-        src/FrameStats.cpp
-        src/PacketUdpReceiver.cpp
+        src/frame_stat.cpp
+        src/packet_udp_receiver.cpp
 )
 
 target_include_directories(${PROJECT_NAME}_lib PUBLIC include)

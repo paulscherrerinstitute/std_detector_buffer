@@ -1,7 +1,7 @@
 #include <netinet/in.h>
 #include "gtest/gtest.h"
 #include "mock/udp.hpp"
-#include "PacketUdpReceiver.hpp"
+#include "packet_udp_receiver.hpp"
 
 #include <thread>
 #include <chrono>
