@@ -17,26 +17,20 @@ int main(int argc, char** argv)
 
   if (argc != 4) {
     cout << endl;
-    cout << "Usage: std_udp_sim [detector_json_filename] [bit_depth] "
-            "[ms_delay]";
+    cout << "Usage: std_udp_sim_jf [detector_json_filename] [ms_delay]";
     cout << endl;
     cout << "\tdetector_json_filename: detector config file path." << endl;
-    cout << "\tbit_depth: bit depth of the incoming udp packets." << endl;
     cout << "\tms_delay: delay in milliseconds between images." << endl;
     cout << endl;
     exit(-1);
   }
 
   const auto config = UdpRecvConfig::from_json_file(string(argv[1]));
-  const int bit_depth = atoi(argv[2]);
-  const int ms_delay = atoi(argv[3]);
+  const int ms_delay = stoi(argv[3]);
 
   if (DETECTOR_TYPE != config.detector_type) {
-    throw runtime_error("UDP recv version for " + DETECTOR_TYPE + " but config for " +
-                        config.detector_type);
+    throw runtime_error("Simulator for " + DETECTOR_TYPE + ", config for " + config.detector_type);
   }
-
-  const size_t FRAME_N_BYTES = MODULE_N_PIXELS * bit_depth / 8;
 
   int sockets[config.n_modules];
   sockaddr_in send_address[config.n_modules];
@@ -55,20 +49,11 @@ int main(int argc, char** argv)
     for (size_t i_packet = 0; i_packet < N_PACKETS_PER_FRAME; i_packet++) {
       for (int i_module = 0; i_module < config.n_modules; i_module++) {
 
-        jungfrau_packet send_udp_buffer;
+        JFUdpPacket send_udp_buffer = {};
         send_udp_buffer.packetnum = i_packet;
 
-        // framenum as image_id for the Eiger and bunchid for the JF
-#ifdef USE_EIGER
-        send_udp_buffer.framenum = image_id;
-        send_udp_buffer.bunchid = image_id + 100;
-
-        send_udp_buffer.row = i_module / 2;
-        send_udp_buffer.column = i_module % 2;
-#else
         send_udp_buffer.framenum = image_id + 100;
         send_udp_buffer.bunchid = image_id;
-#endif
 
         ::sendto(sockets[i_module], &send_udp_buffer, BYTES_PER_PACKET, 0,
                  (sockaddr*)&send_address[i_module], sizeof(sockaddr_in));

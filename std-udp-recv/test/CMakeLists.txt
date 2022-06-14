@@ -21,8 +21,8 @@ sbd_add_uts(${PROJECT_NAME}_tests)
 
 find_package(RapidJSON REQUIRED)
 
-add_executable(std_udp_sim simulator.cpp)
-target_link_libraries(std_udp_sim
+add_executable(std_udp_sim_jf simulator_jf.cpp)
+target_link_libraries(std_udp_sim_jf
     PRIVATE
         core_buffer::core_buffer
         detectors::detectors
