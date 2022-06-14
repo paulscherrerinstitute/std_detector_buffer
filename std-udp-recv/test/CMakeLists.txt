@@ -6,7 +6,6 @@ add_executable(${PROJECT_NAME}_tests)
 
 target_sources(${PROJECT_NAME}_tests
     PRIVATE
-        test_FrameUdpReceiver.cpp
         test_PacketUdpReceiver.cpp
 )
 
