@@ -20,7 +20,7 @@ ZmqLiveSender::ZmqLiveSender(void* ctx,
     , det_name_(det_name)
     , stream_address_(stream_address)
 {
-  socket_streamvis_ = buffer_utils::bind_socket(ctx_, det_name_, stream_address_);
+  socket_streamvis_ = buffer_utils::bind_socket(ctx_, det_name_ + stream_address);
 }
 
 ZmqLiveSender::~ZmqLiveSender()
