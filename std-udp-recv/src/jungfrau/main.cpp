@@ -3,6 +3,7 @@
 #include <zmq.h>
 #include <cstring>
 #include <ram_buffer.hpp>
+#include "zmq_sender.h"
 
 #include "formats.hpp"
 #include "buffer_config.hpp"
@@ -12,6 +13,7 @@
 #include "jungfrau.hpp"
 #include "packet_udp_receiver.hpp"
 
+JFFrame& getFrame(RamBuffer& buffer, void* socket, JFFrame& meta, const char* frame_buffer);
 using namespace std;
 using namespace chrono;
 using namespace buffer_config;
@@ -29,18 +31,19 @@ int main (int argc, char *argv[]) {
 
     exit(-1);
   }
-
   const auto config = read_json_config(string(argv[1]));
-  const int module_id = stoi(argv[2]);
+  const uint16_t module_id = stoi(argv[2]);
 
-  const uint16_t udp_port = config.start_udp_port + module_id;
+  ZmqSender sender{{
+      config.detector_name + std::to_string(module_id),
+      BYTES_PER_PACKET,
+      DATA_BYTES_PER_PACKET,
+      N_PACKETS_PER_FRAME,
+      RAM_BUFFER_N_SLOTS
+  }};
 
-  PacketUdpReceiver receiver(udp_port, sizeof(JFUdpPacket), N_PACKETS_PER_FRAME);
-  RamBuffer buffer(config.detector_name, sizeof(JFUdpPacket),DATA_BYTES_PER_FRAME, RAM_BUFFER_N_SLOTS);
+  PacketUdpReceiver receiver(config.start_udp_port + module_id, sizeof(JFUdpPacket), N_PACKETS_PER_FRAME);
   FrameStats stats(config.detector_name, module_id, N_PACKETS_PER_FRAME, STATS_TIME);
-
-  auto ctx = zmq_ctx_new();
-  auto socket = bind_socket(ctx, config.detector_name, to_string(module_id));
 
   const JFUdpPacket* const packet_buffer = reinterpret_cast<JFUdpPacket*>(receiver.get_packet_buffer());
   JFFrame meta = {};
@@ -65,9 +68,7 @@ int main (int argc, char *argv[]) {
         // Copy frame_buffer to ram_buffer and send pulse_id over zmq if last packet in frame.
         // TODO: Check comparison between size_t and uint32_t
         if (packet.packetnum == N_PACKETS_PER_FRAME - 1) {
-          buffer.write(meta.pulse_id, reinterpret_cast<char*>(&meta), frame_buffer);
-          zmq_send(socket, &meta.pulse_id, sizeof(meta.pulse_id), 0);
-
+          sender.send(meta.pulse_id, reinterpret_cast<char*>(&meta), frame_buffer);
           stats.record_stats(N_PACKETS_PER_FRAME - meta.n_recv_packets);
           // Invalidate the current buffer - we already send data out for this one.
           meta.frame_index = INVALID_FRAME_INDEX;
@@ -75,8 +76,7 @@ int main (int argc, char *argv[]) {
       } else {
         // The buffer was not flushed because the last packet from the previous frame was missing.
         if (meta.frame_index != INVALID_FRAME_INDEX) {
-          buffer.write(meta.pulse_id, reinterpret_cast<char*>(&meta), frame_buffer);
-          zmq_send(socket, &meta.pulse_id, sizeof(meta.pulse_id), 0);
+          sender.send(meta.pulse_id, reinterpret_cast<char*>(&meta), frame_buffer);
           stats.record_stats(N_PACKETS_PER_FRAME - meta.n_recv_packets);
         }
 
