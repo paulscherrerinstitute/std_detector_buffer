@@ -2,26 +2,25 @@
 #define STD_DETECTOR_BUFFER_JUNGFRAU_HPP
 
 #include <cstdint>
-#include <string>
+#include <string_view>
 
-const std::string DETECTOR_TYPE = "jungfrau";
+constexpr inline std::string_view DETECTOR_TYPE{"jungfrau"};
 
-#define N_MODULES 32
-#define BYTES_PER_PACKET 8240
-#define DATA_BYTES_PER_PACKET 8192
+constexpr inline auto N_MODULES = 32u;
+constexpr inline auto BYTES_PER_PACKET = 8240u;
+constexpr inline auto DATA_BYTES_PER_PACKET = 8192u;
 
-#define MODULE_X_SIZE 1024
-#define MODULE_Y_SIZE 512
-#define MODULE_N_PIXELS 524288
-#define PIXEL_N_BYTES 2
-#define MODULE_N_BYTES 1048576
+constexpr inline auto MODULE_X_SIZE = 1024u;
+constexpr inline auto MODULE_Y_SIZE = 512u;
+constexpr inline auto MODULE_N_PIXELS = 524288u;
+constexpr inline auto PIXEL_N_BYTES = 2u;
+constexpr inline auto MODULE_N_BYTES = 1048576u;
 
-const size_t N_PACKETS_PER_FRAME = 128;
-#define DATA_BYTES_PER_FRAME 1048576
+constexpr inline auto N_PACKETS_PER_FRAME = 128u;
+constexpr inline auto DATA_BYTES_PER_FRAME = 1048576u;
 
 // 6*8 = 48 bytes of data + 12 bytes of padding == 64 bytes (cache line)
-#pragma pack(push)
-#pragma pack(1)
+#pragma pack(push, 1)
 struct JFFrame
 {
   uint64_t id;
@@ -35,8 +34,7 @@ struct JFFrame
 #pragma pack(pop)
 
 // 48 bytes + 8192 bytes = 8240 bytes
-#pragma pack(push)
-#pragma pack(2)
+#pragma pack(push, 2)
 struct JFUdpPacket
 {
   uint64_t framenum;
@@ -58,5 +56,9 @@ struct JFUdpPacket
   char data[DATA_BYTES_PER_PACKET];
 };
 #pragma pack(pop)
+
+// Test correctness of structure size
+static_assert(sizeof(JFUdpPacket) == 8240u);
+static_assert(sizeof(JFFrame) == 64u);
 
 #endif // STD_DETECTOR_BUFFER_JUNGFRAU_HPP

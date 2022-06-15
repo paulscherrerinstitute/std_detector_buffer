@@ -2,6 +2,6 @@
 
 int main()
 {
-  Converter c;
+  sdc::Converter c;
   return sizeof(c);
 }
