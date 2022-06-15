@@ -50,9 +50,9 @@ void* buffer_utils::connect_socket(void* ctx,
   return socket;
 }
 
-void* buffer_utils::bind_socket(void* ctx, const string& detector_name, const string& stream_name)
+void* buffer_utils::bind_socket(void* ctx, const string& buffer_name)
 {
-  string ipc_address = IPC_URL_BASE + detector_name + "-" + stream_name;
+  string ipc_address = IPC_URL_BASE + buffer_name;
 
 #ifdef DEBUG_OUTPUT
   cout << "[buffer_utils::bind_socket]";
