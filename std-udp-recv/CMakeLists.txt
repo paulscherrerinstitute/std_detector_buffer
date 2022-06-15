@@ -12,6 +12,7 @@ target_sources(${PROJECT_NAME}_lib
     PRIVATE
         src/frame_stat.cpp
         src/packet_udp_receiver.cpp
+        src/zmq_sender.cpp
 )
 
 target_include_directories(${PROJECT_NAME}_lib PUBLIC include)
