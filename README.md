@@ -53,38 +53,13 @@ terminology definitions should be followed:
 inclusive range (both start and stop ids are included) of images.
 
 ## Build
-When building the DAQ you will have to specify the DETECTOR variable either 
-in the Dockerfile build arguments (if you are using Docker to build) or in 
-the Cmake options.
-
-Currently valid DETECTOR values:
-- gigafrost
-- jungfrau
-- eiger
-- jfjoch
+TODO
 
 ### In docker
-Building and testing with docker does not require you to modify your host, 
-and it is the suggested way to build and test your applications.
-
-Running the **Dockerfile** in the project root copies the current repo folder 
-inside the docker container and builds all the targets. You will need to pass 
-build-arg to the Dockerfile in order to specify for which detector you are 
-building the DAQ. This can be done like this:
-
-```bash
-docker build --build-arg DETECTOR=[detector_name]
-```
-
-Please refer to the beginning of the **Build** section for valid DETECTOR 
-values.
-
+TODO
 ### On host
 
-To compile this repo you will need to install the following packages:
-- zeromq-devel
-- hdf5-devel
-- mpich-devel
+TODO
 
 On RH7:
 ```bash
