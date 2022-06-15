@@ -1,13 +1,15 @@
-FROM paulscherrerinstitute/std-daq-buffer-base:1.0.4
+FROM paulscherrerinstitute/std_detector_buffer_base:2.1.2
 
-COPY . /std_daq_buffer/
+COPY . /std_detector_buffer/
+ENV CONAN_USER_HOME=/connan_cache
 
-RUN mkdir /std_daq_buffer/build && \
-    cd /std_daq_buffer/build && \
-    # Build the project for a specific detector.
-    cmake3 .. && \
-    make
+RUN mkdir /build && \
+    cd /std_detector_buffer && \
+    cmake -B /build -DCMAKE_BUILD_TYPE=Debug && \
+    cd /build && \
+    make && \
+    ctest
 
-WORKDIR /std_daq_buffer/build
+WORKDIR /build
 
 CMD ["bash"]
