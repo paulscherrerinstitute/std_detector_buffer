@@ -1,10 +1,13 @@
-#include <cstdint>
-#include <iostream>
-#include "../include/udp_recv_config.hpp"
 #include <netinet/in.h>
 #include <unistd.h>
-#include "mock/udp.hpp"
 
+#include <cstdint>
+#include <iostream>
+
+#include <fmt/core.h>
+
+#include "../include/udp_recv_config.hpp"
+#include "mock/udp.hpp"
 
 #include "jungfrau.hpp"
 
@@ -28,9 +31,9 @@ int main(int argc, char** argv)
   const auto config = UdpRecvConfig::from_json_file(string(argv[1]));
   const int ms_delay = stoi(argv[3]);
 
-  if (DETECTOR_TYPE != config.detector_type) {
-    throw runtime_error("Simulator for " + DETECTOR_TYPE + ", config for " + config.detector_type);
-  }
+  if (DETECTOR_TYPE != config.detector_type)
+    throw runtime_error(
+        fmt::format("Simulator for {} != Config for {}", DETECTOR_TYPE, config.detector_type));
 
   int sockets[config.n_modules];
   sockaddr_in send_address[config.n_modules];
