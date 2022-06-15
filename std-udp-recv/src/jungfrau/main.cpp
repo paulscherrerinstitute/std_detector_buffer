@@ -43,7 +43,7 @@ int main (int argc, char *argv[]) {
   }};
 
   PacketUdpReceiver receiver(config.start_udp_port + module_id, sizeof(JFUdpPacket), N_PACKETS_PER_FRAME);
-  FrameStats stats(config.detector_name, module_id, N_PACKETS_PER_FRAME, STATS_TIME);
+  FrameStats stats(config.detector_name, module_id, STATS_TIME);
 
   const JFUdpPacket* const packet_buffer = reinterpret_cast<JFUdpPacket*>(receiver.get_packet_buffer());
   JFFrame meta = {};
