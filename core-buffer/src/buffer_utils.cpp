@@ -92,6 +92,6 @@ buffer_utils::DetectorConfig buffer_utils::read_json_config(const std::string& f
       config_parameters["bit_depth"].GetInt(),
       config_parameters["image_height"].GetInt(),
       config_parameters["image_width"].GetInt(),
-      config_parameters["start_udp_port"].GetInt(),
+      static_cast<uint16_t>(config_parameters["start_udp_port"].GetUint())
   };
 }
