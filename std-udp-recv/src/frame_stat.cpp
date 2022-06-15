@@ -3,18 +3,13 @@
 #include <iostream>
 #include <utility>
 
-#include <date/date.h>
 
 using namespace std;
 using namespace chrono;
 
-FrameStats::FrameStats(string detector_name,
-                       const int module_id,
-                       const size_t n_packets_per_frame,
-                       const size_t stats_time)
+FrameStats::FrameStats(string detector_name, const uint16_t module_id, const size_t stats_time)
     : detector_name_(move(detector_name))
     , module_id_(module_id)
-    , n_packets_per_frame_(n_packets_per_frame)
     , stats_time_(stats_time * 1000)
 {
   reset_counters();
