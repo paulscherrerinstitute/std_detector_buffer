@@ -38,6 +38,11 @@ PacketUdpReceiver::PacketUdpReceiver(
 PacketUdpReceiver::~PacketUdpReceiver()
 {
   disconnect();
+
+  delete[] packet_buffer_;
+  delete[] recv_buff_ptr_;
+  delete[] msgs_;
+  delete[] sock_from_;
 }
 
 void PacketUdpReceiver::bind(const uint16_t port)
@@ -91,9 +96,4 @@ void PacketUdpReceiver::disconnect()
 {
   close(socket_fd_);
   socket_fd_ = -1;
-
-  delete[] packet_buffer_;
-  delete[] recv_buff_ptr_;
-  delete[] msgs_;
-  delete[] sock_from_;
 }
