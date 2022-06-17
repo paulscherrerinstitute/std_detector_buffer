@@ -64,4 +64,8 @@ struct GigafrostFrame
   int8_t __padding__[64 - 16 - 24 - 5];
 };
 #pragma pack(pop)
+
+static_assert(sizeof(GigafrostUdpPacket) == BYTES_PER_PACKET);
+static_assert(sizeof(GigafrostFrame) == 64u);
+
 #endif // STD_DETECTOR_BUFFER_GIGAFROST_HPP

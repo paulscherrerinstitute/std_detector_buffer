@@ -12,9 +12,9 @@ constexpr inline auto DATA_BYTES_PER_PACKET = 8192u;
 
 constexpr inline auto MODULE_X_SIZE = 1024u;
 constexpr inline auto MODULE_Y_SIZE = 512u;
-constexpr inline auto MODULE_N_PIXELS = 524288u;
+constexpr inline auto MODULE_N_PIXELS = MODULE_Y_SIZE * MODULE_X_SIZE;
 constexpr inline auto PIXEL_N_BYTES = 2u;
-constexpr inline auto MODULE_N_BYTES = 1048576u;
+constexpr inline auto MODULE_N_BYTES = PIXEL_N_BYTES * MODULE_N_PIXELS;
 
 constexpr inline auto N_PACKETS_PER_FRAME = 128u;
 constexpr inline auto DATA_BYTES_PER_FRAME = 1048576u;
@@ -58,7 +58,7 @@ struct JFUdpPacket
 #pragma pack(pop)
 
 // Test correctness of structure size
-static_assert(sizeof(JFUdpPacket) == 8240u);
+static_assert(sizeof(JFUdpPacket) == BYTES_PER_PACKET);
 static_assert(sizeof(JFFrame) == 64u);
 
 #endif // STD_DETECTOR_BUFFER_JUNGFRAU_HPP
