@@ -23,20 +23,24 @@ Converter::Converter(const parameters& g, const parameters& p)
 
 std::span<float> Converter::convert_data(std::span<const uint16_t> data)
 {
-  using namespace std;
-  test_data_size_consistency(data);
   clear_previous_data();
+  test_data_size_consistency(data);
+  convert(data);
+  return converted;
+}
 
+void Converter::convert(std::span<const uint16_t> data)
+{
+  using namespace std;
   for (auto i = 0u; i < N_GAINS; i++) {
-    transform(execution::par_unseq, begin(data), end(data), begin(gains_and_pedestals[i]),
+    transform(std::execution::par_unseq, begin(data), end(data), begin(gains_and_pedestals[i]),
               begin(calculations), [i](auto data, auto g_p) {
                 return (i == data >> 14) * ((data & 0x3FFF) - g_p.second) * g_p.first;
               });
 
-    transform(execution::par_unseq, begin(calculations), end(calculations), begin(converted),
-              begin(converted), plus{});
+    transform(std::execution::par_unseq, begin(calculations), end(calculations), begin(converted),
+              begin(converted), std::plus{});
   }
-  return converted;
 }
 
 void Converter::clear_previous_data()

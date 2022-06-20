@@ -23,6 +23,7 @@ public:
 private:
   void clear_previous_data();
   void test_data_size_consistency(std::span<const uint16_t> data) const;
+  void convert(std::span<const uint16_t> data);
 
   parameters_pairs gains_and_pedestals;
   std::vector<float> converted;
