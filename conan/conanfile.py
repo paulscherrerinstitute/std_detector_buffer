@@ -11,5 +11,6 @@ class SBD(ConanFile):
         "date/3.0.1",
         "range-v3/0.11.0",
         "fmt/8.1.1",
+        "benchmark/1.6.1",
     ]
     default_options = {"date:header_only": True}
