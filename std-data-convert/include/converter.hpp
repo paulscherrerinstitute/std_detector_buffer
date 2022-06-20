@@ -12,19 +12,21 @@ static_assert(sizeof(float) == 4u, "float must comply to IEEE-754 standard for f
 
 constexpr inline std::size_t N_GAINS = 4u;
 using parameters = std::array<std::vector<float>, N_GAINS>;
+using parameters_pairs = std::array<std::vector<std::pair<float, float>>, N_GAINS>;
 
 class Converter
 {
 public:
-  explicit Converter(parameters g, parameters p);
+  explicit Converter(const parameters& g, const parameters& p);
   std::span<float> convert_data(std::span<const uint16_t> data);
 
 private:
+  void clear_previous_data();
   void test_data_size_consistency(std::span<const uint16_t> data) const;
 
-  parameters gains;
-  parameters pedestals;
+  parameters_pairs gains_and_pedestals;
   std::vector<float> converted;
+  std::vector<float> calculations;
 };
 
 } // namespace sdc
