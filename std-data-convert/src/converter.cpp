@@ -25,11 +25,10 @@ std::span<float> Converter::convert_data(std::span<const uint16_t> data)
 {
   clear_previous_data();
   test_data_size_consistency(data);
-  convert(data);
-  return converted;
+  return convert(data);
 }
 
-void Converter::convert(std::span<const uint16_t> data)
+std::span<float> Converter::convert(std::span<const uint16_t> data)
 {
   using namespace std;
   for (auto i = 0u; i < N_GAINS; i++) {
@@ -41,6 +40,7 @@ void Converter::convert(std::span<const uint16_t> data)
     transform(std::execution::par_unseq, begin(calculations), end(calculations), begin(converted),
               begin(converted), std::plus{});
   }
+  return converted;
 }
 
 void Converter::clear_previous_data()
