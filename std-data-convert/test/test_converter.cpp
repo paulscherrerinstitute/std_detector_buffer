@@ -24,8 +24,8 @@ sdc::parameters prepare_params(float default_value = 0)
 TEST(Converter, ShouldThrowWhenDataSizeIsInconsistentWithConfiguredGains)
 {
   sdc::Converter converter{prepare_params(), prepare_params()};
-  uint16_t data[] = {1, 2, 3};
-  EXPECT_THROW(converter.convert_data(data), std::invalid_argument);
+  uint16_t invalid_data[] = {1, 2, 3};
+  EXPECT_THROW(converter.convert_data(invalid_data), std::invalid_argument);
 }
 
 TEST(Converter, ShouldReturnSameOutputAsInputDataWhenPedestalIs0AndGain1)
