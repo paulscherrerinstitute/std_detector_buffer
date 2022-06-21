@@ -19,7 +19,8 @@ using namespace chrono;
 using namespace buffer_config;
 using namespace buffer_utils;
 
-int main (int argc, char *argv[]) {
+int main(int argc, char* argv[])
+{
 
   if (argc != 3) {
     cout << endl;
@@ -34,18 +35,15 @@ int main (int argc, char *argv[]) {
   const auto config = read_json_config(string(argv[1]));
   const uint16_t module_id = stoi(argv[2]);
 
-  ZmqSender sender{{
-      config.detector_name + std::to_string(module_id),
-      BYTES_PER_PACKET,
-      DATA_BYTES_PER_PACKET,
-      N_PACKETS_PER_FRAME,
-      RAM_BUFFER_N_SLOTS
-  }};
+  ZmqSender sender{{config.detector_name + std::to_string(module_id), BYTES_PER_PACKET,
+                    DATA_BYTES_PER_PACKET, N_PACKETS_PER_FRAME, RAM_BUFFER_N_SLOTS}};
 
-  PacketUdpReceiver receiver(config.start_udp_port + module_id, sizeof(JFUdpPacket), N_PACKETS_PER_FRAME);
+  PacketUdpReceiver receiver(config.start_udp_port + module_id, sizeof(JFUdpPacket),
+                             N_PACKETS_PER_FRAME);
   FrameStats stats(config.detector_name, module_id, STATS_TIME);
 
-  const JFUdpPacket* const packet_buffer = reinterpret_cast<JFUdpPacket*>(receiver.get_packet_buffer());
+  const JFUdpPacket* const packet_buffer =
+      reinterpret_cast<JFUdpPacket*>(receiver.get_packet_buffer());
   JFFrame meta = {};
   meta.frame_index = INVALID_FRAME_INDEX;
 
@@ -55,14 +53,14 @@ int main (int argc, char *argv[]) {
     // Load n_packets into the packet_buffer.
     const auto n_packets = receiver.receive_many();
 
-    for (int i_packet=0; i_packet<n_packets; i_packet++) {
+    for (int i_packet = 0; i_packet < n_packets; i_packet++) {
       const auto& packet = packet_buffer[i_packet];
 
       // Packet belongs to the frame we are currently processing.
       if (meta.frame_index == packet.framenum) {
         // Accumulate packets data into the frame buffer.
         const size_t frame_buffer_offset = packet.packetnum * DATA_BYTES_PER_PACKET;
-        memcpy(frame_buffer + frame_buffer_offset,packet.data,DATA_BYTES_PER_PACKET);
+        memcpy(frame_buffer + frame_buffer_offset, packet.data, DATA_BYTES_PER_PACKET);
         meta.n_recv_packets += 1;
 
         // Copy frame_buffer to ram_buffer and send pulse_id over zmq if last packet in frame.
@@ -73,7 +71,8 @@ int main (int argc, char *argv[]) {
           // Invalidate the current buffer - we already send data out for this one.
           meta.frame_index = INVALID_FRAME_INDEX;
         }
-      } else {
+      }
+      else {
         // The buffer was not flushed because the last packet from the previous frame was missing.
         if (meta.frame_index != INVALID_FRAME_INDEX) {
           sender.send(meta.pulse_id, reinterpret_cast<char*>(&meta), frame_buffer);
@@ -89,7 +88,7 @@ int main (int argc, char *argv[]) {
 
         // Accumulate packets data into the frame buffer.
         const size_t frame_buffer_offset = packet.packetnum * DATA_BYTES_PER_PACKET;
-        memcpy(frame_buffer + frame_buffer_offset,packet.data,DATA_BYTES_PER_PACKET);
+        memcpy(frame_buffer + frame_buffer_offset, packet.data, DATA_BYTES_PER_PACKET);
         meta.n_recv_packets += 1;
       }
     }

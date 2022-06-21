@@ -24,7 +24,6 @@ public:
   int receive_many();
   char* get_packet_buffer();
 
-
   void disconnect();
 };
 

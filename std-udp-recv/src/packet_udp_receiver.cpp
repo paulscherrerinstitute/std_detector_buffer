@@ -10,22 +10,23 @@
 using namespace std;
 using namespace buffer_config;
 
-PacketUdpReceiver::PacketUdpReceiver(
-    const uint16_t port, const size_t n_bytes_packet, const size_t n_recv_packets) :
-    n_recv_packets_(n_recv_packets),
-    n_bytes_packet_(n_bytes_packet),
-    socket_fd_(-1)
+PacketUdpReceiver::PacketUdpReceiver(const uint16_t port,
+                                     const size_t n_bytes_packet,
+                                     const size_t n_recv_packets)
+    : n_recv_packets_(n_recv_packets)
+    , n_bytes_packet_(n_bytes_packet)
+    , socket_fd_(-1)
 {
   bind(port);
 
-//TODO: Posix align this memory.
+  // TODO: Posix align this memory.
   packet_buffer_ = new char[n_recv_packets_ * n_bytes_packet_];
   recv_buff_ptr_ = new iovec[n_recv_packets_];
   msgs_ = new mmsghdr[n_recv_packets_];
   sock_from_ = new sockaddr_in[n_recv_packets_];
 
   for (size_t i = 0; i < n_recv_packets_; i++) {
-    recv_buff_ptr_[i].iov_base = (void*) &(packet_buffer_[i * n_bytes_packet_]);
+    recv_buff_ptr_[i].iov_base = (void*)&(packet_buffer_[i * n_bytes_packet_]);
     recv_buff_ptr_[i].iov_len = n_bytes_packet_;
 
     msgs_[i].msg_hdr.msg_iov = &recv_buff_ptr_[i];
