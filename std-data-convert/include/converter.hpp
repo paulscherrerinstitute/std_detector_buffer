@@ -21,7 +21,6 @@ public:
   std::span<float> convert_data(std::span<const uint16_t> data);
 
 private:
-  void clear_previous_data();
   void test_data_size_consistency(std::span<const uint16_t> data) const;
   std::span<float> convert(std::span<const uint16_t> data);
 
