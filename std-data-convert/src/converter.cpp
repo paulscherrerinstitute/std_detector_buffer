@@ -2,7 +2,6 @@
 
 #include <cassert>
 #include <algorithm>
-#include <execution>
 
 #include <fmt/core.h>
 
@@ -10,7 +9,6 @@ namespace sdc {
 
 Converter::Converter(const parameters& g, const parameters& p)
     : converted(g[0].size())
-    , calculations(g[0].size())
 {
   assert(g[0].size() == p[0].size());
 

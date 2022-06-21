@@ -26,7 +26,6 @@ private:
 
   parameters_pairs gains_and_pedestals;
   std::vector<float> converted;
-  std::vector<float> calculations;
 };
 
 } // namespace sdc
