@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.17)
 project(std_data_convert)
 
 find_package(fmt REQUIRED)
+find_package(RapidJSON REQUIRED)
 
 add_library(${PROJECT_NAME}_lib)
 add_library(${PROJECT_NAME}::${PROJECT_NAME}_lib ALIAS ${PROJECT_NAME}_lib)
@@ -24,6 +25,8 @@ add_executable(${PROJECT_NAME} src/main.cpp)
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         ${PROJECT_NAME}_lib
+        fmt::fmt
+        RapidJSON::RapidJSON
         std_detector_buffer::settings
 )
 
