@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, STREAM_ZMQ_IO_THREADS);
   ZmqLiveSender sender(ctx, config.detector_name, stream_address);
 
-  auto receiver_assembler = buffer_utils::connect_socket(ctx, config.detector_name, "assembler");
+  auto receiver_assembler = buffer_utils::connect_socket(ctx, config.detector_name + "-assembler");
 
   const size_t IMAGE_N_BYTES = config.image_height * config.image_width * config.bit_depth / 8;
 

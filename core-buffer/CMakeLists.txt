@@ -13,6 +13,7 @@ target_sources(${PROJECT_NAME}
         src/buffer_utils.cpp
         src/ram_buffer.cpp
         src/sender.cpp
+        src/receiver.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC include PRIVATE include/${PROJECT_NAME})

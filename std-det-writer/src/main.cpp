@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, LIVE_ZMQ_IO_THREADS);
-  auto receiver = buffer_utils::connect_socket(ctx, config.detector_name, "sync");
+  auto receiver = buffer_utils::connect_socket(ctx, config.detector_name + "-sync");
 
   const size_t IMAGE_N_BYTES = config.image_width * config.image_height * config.bit_depth / 8;
 

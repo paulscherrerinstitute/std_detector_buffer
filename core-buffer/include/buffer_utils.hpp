@@ -27,7 +27,7 @@ struct DetectorConfig
 };
 
 void* bind_socket(void* ctx, const std::string& buffer_name);
-void* connect_socket(void* ctx, const std::string& detector_name, const std::string& stream_name);
+void* connect_socket(void* ctx, const std::string& buffer_name);
 DetectorConfig read_json_config(const std::string& filename);
 } // namespace buffer_utils
 
