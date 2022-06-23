@@ -12,9 +12,10 @@ target_sources(${PROJECT_NAME}
     PRIVATE
         src/buffer_utils.cpp
         src/ram_buffer.cpp
+        src/sender.cpp
 )
 
-target_include_directories(${PROJECT_NAME} PUBLIC include)
+target_include_directories(${PROJECT_NAME} PUBLIC include PRIVATE include/${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         bitshuffle::bitshuffle

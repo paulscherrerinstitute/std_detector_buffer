@@ -6,6 +6,8 @@
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/document.h>
 
+#include "buffer_utils.hpp"
+
 sdc::parameters decode_parameters(const rapidjson::Value& array_3d)
 {
   sdc::parameters params;
@@ -20,12 +22,14 @@ sdc::parameters decode_parameters(const rapidjson::Value& array_3d)
 
 int main(int argc, char* argv[])
 {
-  if (argc != 2) {
-    fmt::print("Usage: std_data_convert [gains_and_pedestals_json]\n\n"
-               "\tgains_and_pedestals_json: Json file containing gains .\n");
+  if (argc != 3) {
+    fmt::print("Usage: std_data_convert [detector_json_filename] [module_id]\n\n"
+               "\tdetector_json_filename: detector config file path.\n"
+               "\tmodule_id: id of the module for this process.\n");
     exit(-1);
   }
 
+  const auto config = buffer_utils::read_json_config(std::string(argv[1]));
   std::ifstream ifs(argv[1]);
   rapidjson::IStreamWrapper isw(ifs);
   rapidjson::Document json_data;

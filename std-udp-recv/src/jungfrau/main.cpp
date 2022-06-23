@@ -1,19 +1,16 @@
 #include <iostream>
-#include <stdexcept>
 #include <zmq.h>
 #include <cstring>
-#include <ram_buffer.hpp>
-#include "zmq_sender.h"
 
 #include "formats.hpp"
 #include "buffer_config.hpp"
 #include "buffer_utils.hpp"
+#include "core_buffer/sender.hpp"
 #include "frame_stat.hpp"
 
 #include "jungfrau.hpp"
 #include "packet_udp_receiver.hpp"
 
-JFFrame& getFrame(RamBuffer& buffer, void* socket, JFFrame& meta, const char* frame_buffer);
 using namespace std;
 using namespace chrono;
 using namespace buffer_config;
@@ -21,7 +18,6 @@ using namespace buffer_utils;
 
 int main(int argc, char* argv[])
 {
-
   if (argc != 3) {
     cout << endl;
     cout << "Usage: std_udp_recv_jf [detector_json_filename] [module_id]";
@@ -35,8 +31,10 @@ int main(int argc, char* argv[])
   const auto config = read_json_config(string(argv[1]));
   const uint16_t module_id = stoi(argv[2]);
 
-  ZmqSender sender{{config.detector_name + std::to_string(module_id), BYTES_PER_PACKET,
-                    DATA_BYTES_PER_PACKET, N_PACKETS_PER_FRAME, RAM_BUFFER_N_SLOTS}};
+  auto ctx = zmq_ctx_new();
+  cb::Sender sender{{config.detector_name + std::to_string(module_id), BYTES_PER_PACKET,
+                     DATA_BYTES_PER_PACKET, N_PACKETS_PER_FRAME, RAM_BUFFER_N_SLOTS},
+                    ctx};
 
   PacketUdpReceiver receiver(config.start_udp_port + module_id, sizeof(JFUdpPacket),
                              N_PACKETS_PER_FRAME);
