@@ -10,9 +10,9 @@ constexpr std::size_t data_elements = 512 * 1024;
 
 sdc::parameters prepare_params(float default_value = 0)
 {
-  return sdc::parameters{
-      std::vector(data_elements, default_value), std::vector(data_elements, default_value),
-      std::vector(data_elements, default_value), std::vector(data_elements, default_value)};
+  return sdc::parameters{std::vector(data_elements, default_value),
+                         std::vector(data_elements, default_value),
+                         std::vector(data_elements, default_value)};
 }
 
 } // namespace

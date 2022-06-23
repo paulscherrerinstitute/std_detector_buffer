@@ -14,9 +14,9 @@ const auto iota_data = iota_view<uint16_t>(0) |
 
 sdc::parameters prepare_params(float default_value = 0)
 {
-  return sdc::parameters{
-      std::vector(data_elements, default_value), std::vector(data_elements, default_value),
-      std::vector(data_elements, default_value), std::vector(data_elements, default_value)};
+  return sdc::parameters{std::vector(data_elements, default_value),
+                         std::vector(data_elements, default_value),
+                         std::vector(data_elements, default_value)};
 }
 
 } // namespace
