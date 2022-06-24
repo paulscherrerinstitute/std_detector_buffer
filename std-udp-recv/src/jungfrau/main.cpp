@@ -80,10 +80,10 @@ int main(int argc, char* argv[])
 
         // Initialize new frame metadata from first seen packet.
         meta.pulse_id = static_cast<uint64_t>(packet.bunchid);
+        meta.n_missing_packets = N_PACKETS_PER_FRAME;
         meta.frame_index = packet.framenum;
         meta.daq_rec = packet.debug;
         meta.module_id = module_id;
-        meta.n_missing_packets = N_PACKETS_PER_FRAME;
 
         // Accumulate packets data into the frame buffer.
         const size_t frame_buffer_offset = packet.packetnum * DATA_BYTES_PER_PACKET;
