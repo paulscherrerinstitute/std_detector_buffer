@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <stdint.h>
+#include <string>
 
 #define IS_BOTTOM(n) ((n % 2 != 0) ? -1 : 1)
 
@@ -35,7 +36,7 @@ const std::string DETECTOR_TYPE = "eiger";
 
 #pragma pack(push)
 #pragma pack(1)
-struct EigerFrame
+struct EGFrame
 {
   uint64_t id;
   uint64_t pulse_id;
@@ -51,7 +52,7 @@ struct EigerFrame
 
 #pragma pack(push)
 #pragma pack(2)
-struct EigerUdpPacket
+struct EGUdpPacket
 {
   uint64_t framenum;
   uint32_t exptime;
