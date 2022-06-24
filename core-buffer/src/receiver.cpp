@@ -7,10 +7,7 @@
 namespace cb {
 
 Receiver::Receiver(const SendReceiveConfig& config, void* zmq_context)
-    : buffer(config.buffer_name,
-             config.n_bytes_meta,
-             config.n_bytes_data * config.n_packets_frame,
-             config.n_buffer_slots)
+    : buffer(config.buffer_name, config.n_bytes_meta, config.n_bytes_data, config.n_buffer_slots)
 {
   socket = buffer_utils::connect_socket(zmq_context, config.buffer_name);
 }
