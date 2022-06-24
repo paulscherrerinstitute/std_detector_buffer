@@ -23,13 +23,17 @@ constexpr inline auto DATA_BYTES_PER_FRAME = 1048576u;
 #pragma pack(push, 1)
 struct JFFrame
 {
-  uint64_t id;
+  // 16 bytes.
   uint64_t pulse_id;
+  uint64_t n_missing_packets;
+
+  // 32 bytes.
+  uint64_t id;
   uint64_t frame_index;
   uint64_t daq_rec;
-  uint64_t n_recv_packets;
   uint64_t module_id;
-  char __padding__[64-48];
+
+  char __padding__[64 - 16 - 32];
 };
 #pragma pack(pop)
 

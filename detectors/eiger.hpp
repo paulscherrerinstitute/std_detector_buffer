@@ -38,15 +38,22 @@ const std::string DETECTOR_TYPE = "eiger";
 #pragma pack(1)
 struct EGFrame
 {
-  uint64_t id;
-  uint64_t pulse_id;
+  // 16 bytes
   uint64_t frame_index;
-  uint64_t daq_rec;
-  uint64_t n_recv_packets;
-  uint64_t module_id;
+  uint64_t n_missing_packets;
+
+  //
+  uint16_t module_id;
   uint16_t bit_depth;
   uint16_t pos_y;
   uint16_t pos_x;
+
+  // 16 bytes
+  uint32_t exptime;
+  double bunchid;
+  uint32_t debug;
+
+  char __padding__[64-16-16];
 };
 #pragma pack(pop)
 
@@ -73,5 +80,9 @@ struct EGUdpPacket
   char data[DATA_BYTES_PER_PACKET];
 };
 #pragma pack(pop)
+
+// Test correctness of structure size
+static_assert(sizeof(EGUdpPacket) == BYTES_PER_PACKET);
+static_assert(sizeof(EGFrame) == 64u);
 
 #endif // STD_DETECTOR_BUFFER_EIGER_HPP

@@ -42,8 +42,11 @@ struct GFUdpPacket
 struct GFFrame
 {
   // 16 bytes
+  uint64_t frame_id;
+  uint64_t n_missing_packets;
+
+  // 12 bytes
   uint32_t scan_id;
-  uint32_t frame_id;
   uint32_t size_x;
   uint32_t size_y;
 
@@ -61,7 +64,7 @@ struct GFFrame
   uint8_t do_not_store;
 
   // The struct size needs to be 64 bytes to fit into a cache line.
-  int8_t __padding__[64 - 16 - 24 - 5];
+  int8_t __padding__[64 - 16 - 12 - 24 - 5];
 };
 #pragma pack(pop)
 
