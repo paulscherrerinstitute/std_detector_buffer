@@ -42,7 +42,7 @@ struct GFUdpPacket
 struct GFFrame
 {
   // 16 bytes
-  uint64_t frame_id;
+  uint64_t frame_index;
   uint64_t n_missing_packets;
 
   // 12 bytes
