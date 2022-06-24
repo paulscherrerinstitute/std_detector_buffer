@@ -56,7 +56,26 @@ inclusive range (both start and stop ids are included) of images.
 TODO
 
 ### In docker
-TODO
+For building and developing in docker you need to start a base container on your machine from the root of the project
+
+```bash
+docker run -it -v $(pwd):/std_detector_buffer -e CONAN_USER_HOME=/tmp --name build paulscherrerinstitute/std_detector_buffer_base:latest
+```
+For your first build, inside the docker container, run:
+
+```bash
+cmake -S /std_detector_buffer/ -B /build -DCMAKE_BUILD_TYPE=Debug -G Ninja; cd /build
+```
+
+From now on you are able to build and test the project by running:
+```bash
+ninja
+ninja test
+```
+ADVICE: Do not delete the container after you finished with it - just stop it and later re-start it. 
+The first build always takes a long time as it has to build all the dependencies, but once built they are cached 
+in the /tmp folder.
+
 ### On host
 
 TODO
