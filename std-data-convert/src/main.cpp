@@ -1,39 +1,15 @@
-#include "converter.hpp"
-
-#include <fstream>
-
 #include <zmq.h>
 #include <fmt/core.h>
-#include <rapidjson/istreamwrapper.h>
-#include <rapidjson/document.h>
+
+#include "converter.hpp"
+#include "read_gains_and_pedestals.hpp"
+
+#include "jungfrau.hpp"
 
 #include "buffer_utils.hpp"
 #include "buffer_config.hpp"
-#include "jungfrau.hpp"
 #include "core_buffer/sender.hpp"
 #include "core_buffer/receiver.hpp"
-
-sdc::parameters decode_parameters(const rapidjson::Value& array_3d)
-{
-  sdc::parameters params;
-  for (auto i = 0u; i < params.size(); i++) {
-    auto& params_line = params[i];
-    for (const auto& array_1d : array_3d[i].GetArray())
-      for (const auto& value : array_1d.GetArray())
-        params_line.push_back(value.GetFloat()); // currently these are saved as doubles
-  }
-  return params;
-}
-
-std::tuple<sdc::parameters, sdc::parameters> read_gains_and_pedestals(std::string_view filename)
-{
-  std::ifstream ifs(filename.data());
-  rapidjson::IStreamWrapper isw(ifs);
-  rapidjson::Document json_data;
-  json_data.ParseStream(isw);
-
-  return {decode_parameters(json_data["gains"]), decode_parameters(json_data["pedestals"])};
-}
 
 cb::Receiver create_receiver(uint16_t module_id,
                              const buffer_utils::DetectorConfig& config,
@@ -53,7 +29,7 @@ cb::Sender create_sender(uint16_t module_id, const buffer_utils::DetectorConfig&
                     ctx};
 }
 
-int main(int argc, char* argv[])
+void check_number_of_arguments(int argc)
 {
   if (argc != 4) {
     fmt::print("Usage: std_data_convert [detector_json_filename] [gains_and_pedestals_json] "
@@ -63,12 +39,22 @@ int main(int argc, char* argv[])
                "\tmodule_id: id of the module for this process.\n");
     exit(-1);
   }
+}
 
-  const uint16_t module_id = std::stoi(argv[2]);
+sdc::Converter create_converter(std::string_view filename)
+{
+  const auto [gains, pedestals] = sdc::read_gains_and_pedestals(filename);
+  return sdc::Converter{gains, pedestals};
+}
+
+int main(int argc, char* argv[])
+{
+  check_number_of_arguments(argc);
+
   const auto config = buffer_utils::read_json_config(std::string(argv[1]));
+  const uint16_t module_id = std::stoi(argv[3]);
 
-  auto [gains, pedestals] = read_gains_and_pedestals(argv[2]);
-  sdc::Converter converter(gains, pedestals);
+  auto converter = create_converter(argv[2]);
 
   auto ctx = zmq_ctx_new();
   auto receiver = create_receiver(module_id, config, ctx);
