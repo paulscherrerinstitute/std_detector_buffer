@@ -60,13 +60,13 @@ int main(int argc, char* argv[])
         // Accumulate packets data into the frame buffer.
         const size_t frame_buffer_offset = packet.packetnum * DATA_BYTES_PER_PACKET;
         memcpy(frame_buffer + frame_buffer_offset, packet.data, DATA_BYTES_PER_PACKET);
-        meta.n_recv_packets += 1;
+        meta.n_missing_packets -= 1;
 
         // Copy frame_buffer to ram_buffer and send pulse_id over zmq if last packet in frame.
         // TODO: Check comparison between size_t and uint32_t
         if (packet.packetnum == N_PACKETS_PER_FRAME - 1) {
           sender.send(meta.pulse_id, reinterpret_cast<char*>(&meta), frame_buffer);
-          stats.record_stats(N_PACKETS_PER_FRAME - meta.n_recv_packets);
+          stats.record_stats(meta.n_missing_packets);
           // Invalidate the current buffer - we already send data out for this one.
           meta.frame_index = INVALID_FRAME_INDEX;
         }
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
         // The buffer was not flushed because the last packet from the previous frame was missing.
         if (meta.frame_index != INVALID_FRAME_INDEX) {
           sender.send(meta.pulse_id, reinterpret_cast<char*>(&meta), frame_buffer);
-          stats.record_stats(N_PACKETS_PER_FRAME - meta.n_recv_packets);
+          stats.record_stats(meta.n_missing_packets);
         }
 
         // Initialize new frame metadata from first seen packet.
@@ -83,12 +83,12 @@ int main(int argc, char* argv[])
         meta.frame_index = packet.framenum;
         meta.daq_rec = packet.debug;
         meta.module_id = module_id;
-        meta.n_recv_packets = 0;
+        meta.n_missing_packets = N_PACKETS_PER_FRAME;
 
         // Accumulate packets data into the frame buffer.
         const size_t frame_buffer_offset = packet.packetnum * DATA_BYTES_PER_PACKET;
         memcpy(frame_buffer + frame_buffer_offset, packet.data, DATA_BYTES_PER_PACKET);
-        meta.n_recv_packets += 1;
+        meta.n_missing_packets -= 1;
       }
     }
   }
