@@ -12,7 +12,7 @@ const std::string DETECTOR_TYPE = "gigafrost";
 
 #pragma pack(push)
 #pragma pack(1)
-struct GigafrostUdpPacket
+struct GFUdpPacket
 {
   uint8_t protocol_id;                   // Fixed to 0xCB
   uint8_t quadrant_row_length_in_blocks; // Length of quadrant row in 12 pixel blocks -> 24 .. 1008
@@ -39,7 +39,7 @@ struct GigafrostUdpPacket
 
 #pragma pack(push)
 #pragma pack(1)
-struct GigafrostFrame
+struct GFFrame
 {
   // 16 bytes
   uint32_t scan_id;
@@ -65,7 +65,7 @@ struct GigafrostFrame
 };
 #pragma pack(pop)
 
-static_assert(sizeof(GigafrostUdpPacket) == BYTES_PER_PACKET);
-static_assert(sizeof(GigafrostFrame) == 64u);
+static_assert(sizeof(GFUdpPacket) == BYTES_PER_PACKET);
+static_assert(sizeof(GFFrame) == 64u);
 
 #endif // STD_DETECTOR_BUFFER_GIGAFROST_HPP
