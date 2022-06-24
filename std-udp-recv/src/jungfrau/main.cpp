@@ -32,8 +32,9 @@ int main(int argc, char* argv[])
   const uint16_t module_id = stoi(argv[2]);
 
   auto ctx = zmq_ctx_new();
-  cb::Sender sender{{config.detector_name + std::to_string(module_id), BYTES_PER_PACKET,
-                     DATA_BYTES_PER_PACKET, N_PACKETS_PER_FRAME, RAM_BUFFER_N_SLOTS},
+  cb::Sender sender{{config.detector_name + std::to_string(module_id),
+                     BYTES_PER_PACKET - DATA_BYTES_PER_PACKET,
+                     DATA_BYTES_PER_PACKET * N_PACKETS_PER_FRAME, RAM_BUFFER_N_SLOTS},
                     ctx};
 
   PacketUdpReceiver receiver(config.start_udp_port + module_id, sizeof(JFUdpPacket),

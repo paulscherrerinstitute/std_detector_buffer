@@ -5,9 +5,8 @@ namespace cb {
 struct SendReceiveConfig
 {
   const std::string buffer_name;
-  const size_t n_bytes_packet;
-  const size_t n_bytes_data_packet;
-  const size_t n_packets_frame;
+  const size_t n_bytes_meta;
+  const size_t n_bytes_data;
   const size_t n_buffer_slots;
 };
 } // namespace cb

@@ -12,7 +12,7 @@ class Receiver
 {
 public:
   explicit Receiver(const SendReceiveConfig& config, void* zmq_context);
-  std::tuple<char*, char*> receive();
+  std::tuple<uint64_t, char*, char*> receive();
 
 private:
   RamBuffer buffer;

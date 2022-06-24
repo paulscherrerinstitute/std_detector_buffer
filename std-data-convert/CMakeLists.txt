@@ -28,6 +28,7 @@ target_link_libraries(${PROJECT_NAME}
         fmt::fmt
         RapidJSON::RapidJSON
         core_buffer::core_buffer
+        detectors::detectors
         std_detector_buffer::settings
 )
 

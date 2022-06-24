@@ -18,10 +18,11 @@ target_sources(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME} PUBLIC include PRIVATE include/${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME}
+    PUBLIC
+        ZeroMQ::ZeroMQ
     PRIVATE
         bitshuffle::bitshuffle
         date::date
-        ZeroMQ::ZeroMQ
         RapidJSON::RapidJSON
         detectors::detectors
         std_detector_buffer::settings
