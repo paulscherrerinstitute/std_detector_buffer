@@ -36,6 +36,16 @@ target_link_libraries(${PROJECT_NAME}_jf
         std_detector_buffer::settings
 )
 
+add_executable(${PROJECT_NAME}_gf src/gigafrost/main.cpp)
+target_link_libraries(${PROJECT_NAME}_gf
+        PRIVATE
+        ${PROJECT_NAME}_lib
+        ZeroMQ::ZeroMQ
+        core_buffer::core_buffer
+        rt
+        std_detector_buffer::settings
+        )
+
 if(BUILD_TESTING)
     add_subdirectory(test)
 endif()
