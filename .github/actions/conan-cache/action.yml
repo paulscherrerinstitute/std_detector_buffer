@@ -10,4 +10,4 @@ runs:
         path: |
           ${{ env.CONAN_USER_HOME }}
           venv
-        key: ${{ hashFiles('./conan/conanfile.py')}}-${{ hashFiles('./requirements.txt')}}
+        key: ${{ hashFiles('./conan/conanfile.py')}}-${{ hashFiles('./testing/requirements.txt')}}
