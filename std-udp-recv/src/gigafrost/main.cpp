@@ -1,6 +1,8 @@
 #include <iostream>
 #include <zmq.h>
 #include <cstring>
+#include <cmath>
+#include <algorithm>
 
 #include "formats.hpp"
 #include "buffer_config.hpp"
@@ -15,7 +17,6 @@ using namespace std;
 using namespace chrono;
 using namespace buffer_config;
 using namespace buffer_utils;
-
 
 // Initialize new frame metadata from first seen packet.
 inline void init_frame_metadata(const uint32_t module_size_x,
@@ -35,12 +36,12 @@ inline void init_frame_metadata(const uint32_t module_size_x,
   meta.sync_time = packet.sync_time;
   // Check struct GFUdpPacket comments for more details.
   meta.frame_timestamp = (packet.image_timing & 0x000000FFFFFFFFFF);
-  meta.exposure_time   = (packet.image_timing & 0xFFFFFF0000000000) >> 40;
+  meta.exposure_time = (packet.image_timing & 0xFFFFFF0000000000) >> 40;
 
   meta.swapped_rows = packet.quadrant_rows & 0b1;
   meta.quadrant_id = (packet.status_flags & 0b11000000) >> 6;
-  meta.link_id     = (packet.status_flags & 0b00100000) >> 5;
-  meta.corr_mode   = (packet.status_flags & 0b00011100) >> 2;
+  meta.link_id = (packet.status_flags & 0b00100000) >> 5;
+  meta.corr_mode = (packet.status_flags & 0b00011100) >> 2;
 
   meta.do_not_store = packet.image_status_flags & 0x8000 >> 15;
 }
@@ -61,13 +62,16 @@ int main(int argc, char* argv[])
   const uint16_t module_id = stoi(argv[2]);
 
   // TODO: Unify naming for bytes and pixels -> module_size tells you nothing.
+  // Each line of final image is composed by 2 quadrants side by side.
   const uint32_t module_size_x = config.image_width / 2;
-  const uint32_t module_size_y = config.image_height / 2;
+  // Each quadrant is composed by 2 modules streaming interleaved image lines.
+  const uint32_t module_size_y = config.image_height / 2 / 2;
   // Each pixel has 12 bytes -> pixel to bytes multiplier is 1.5
   const auto MODULE_N_BYTES = static_cast<size_t>(module_size_x * module_size_y * 1.5);
 
-  // TODO: Calculate this from the config file, somehow.
-  const size_t N_PACKETS_PER_FRAME = 0;
+  const size_t n_rows_per_datagram =
+      std::min(static_cast<uint32_t>(DATA_BYTES_PER_PACKET / 1.5 / module_size_x), module_size_y);
+  const size_t N_PACKETS_PER_FRAME = std::ceil(module_size_y / n_rows_per_datagram);
 
   auto ctx = zmq_ctx_new();
   cb::Sender sender{{config.detector_name + std::to_string(module_id),
