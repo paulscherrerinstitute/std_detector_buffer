@@ -34,6 +34,11 @@ int main(int argc, char* argv[])
   // TODO: Unify naming for bytes and pixels -> module_size tells you nothing.
   const uint32_t module_size_x = config.image_width / 2;
   const uint32_t module_size_y = config.image_height / 2;
+  // Each pixel has 12 bytes -> pixel to bytes multiplier is 1.5
+  const auto MODULE_N_BYTES = static_cast<size_t>(module_size_x * module_size_y * 1.5);
+
+  // TODO: Calculate this from the config file, somehow.
+  const size_t N_PACKETS_PER_FRAME = 0;
 
   auto ctx = zmq_ctx_new();
   cb::Sender sender{{config.detector_name + std::to_string(module_id),
