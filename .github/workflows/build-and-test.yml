@@ -2,9 +2,14 @@ name: build-and-test
 
 on: [ push, pull_request ]
 
+defaults:
+  run:
+    shell: bash -l {0}
+
 env:
   CONAN_SYSREQUIRES_MODE: enabled
   CONAN_USER_HOME: "${{ github.workspace }}/conan-cache"
+  BASH_ENV: ".github/bashenv"
 
 jobs:
   test:
@@ -15,10 +20,6 @@ jobs:
       - uses: ./.github/actions/conan-cache
       - name: Build and test
         run: |
-          source /opt/rh/devtoolset-10/enable
-          source /opt/rh/rh-python38/enable
-          source /etc/profile.d/modules.sh
-          module load mpi
           cmake -B release -DCMAKE_BUILD_TYPE=Release -G Ninja
           cmake --build release
           ctest --test-dir release -VV
@@ -26,3 +27,17 @@ jobs:
         if: always()
         with:
           report_paths: "./release/*_tests.xml"
+      - name: python3 environment
+        run: |
+          [[ ! -d venv ]] && python3 -m venv venv
+          source venv/bin/activate
+          python3 -m pip install -r testing/requirements.txt
+      - name: pytest
+        run: |
+          source venv/bin/activate
+          pytest -v --emoji --md=pytest_report.md testing
+      - name: pytest summary
+        if: always()
+        run: |
+          sed -i 's/# Test Report/## Integration tests/' pytest_report.md
+          cat pytest_report.md >> $GITHUB_STEP_SUMMARY

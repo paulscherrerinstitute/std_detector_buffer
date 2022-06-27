@@ -48,3 +48,6 @@ cmake-build-*/
 *.app
 
 .conan_cache
+
+.pytest_cache
+__pycache__
