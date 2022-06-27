@@ -97,16 +97,19 @@ int main(int argc, char* argv[])
     for (int i_packet = 0; i_packet < n_packets; i_packet++) {
       const auto& packet = packet_buffer[i_packet];
 
+      // TODO: Extract the actual packet number.
+      const uint64_t packet_num = 0;
+      // TODO: This is very probably wrong for GF.
+      const size_t frame_buffer_offset = packet_num * DATA_BYTES_PER_PACKET;
+
       // Packet belongs to the frame we are currently processing.
       if (meta.frame_index == packet.frame_index) {
         // Accumulate packets data into the frame buffer.
-        const size_t frame_buffer_offset = packet.packetnum * DATA_BYTES_PER_PACKET;
         memcpy(frame_buffer + frame_buffer_offset, packet.data, DATA_BYTES_PER_PACKET);
         meta.n_missing_packets -= 1;
 
         // Copy frame_buffer to ram_buffer and send pulse_id over zmq if last packet in frame.
-        // TODO: Check comparison between size_t and uint32_t
-        if (packet.packetnum == N_PACKETS_PER_FRAME - 1) {
+        if (packet_num == N_PACKETS_PER_FRAME - 1) {
           sender.send(meta.frame_index, reinterpret_cast<char*>(&meta), frame_buffer);
           stats.record_stats(meta.n_missing_packets);
           // Invalidate the current buffer - we already send data out for this one.
@@ -123,7 +126,6 @@ int main(int argc, char* argv[])
         init_frame_metadata(module_size_x, module_size_y, N_PACKETS_PER_FRAME, packet, meta);
 
         // Accumulate packets data into the frame buffer.
-        const size_t frame_buffer_offset = packet.packetnum * DATA_BYTES_PER_PACKET;
         memcpy(frame_buffer + frame_buffer_offset, packet.data, DATA_BYTES_PER_PACKET);
         meta.n_missing_packets -= 1;
       }
