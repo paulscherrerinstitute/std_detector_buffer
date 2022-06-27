@@ -20,7 +20,7 @@ struct GFUdpPacket
   // bit[6-7] == quadrant_id 	GF_NE=3 GF_NW=2 GF_SE=1 GF_SW=0
   // bit[5] == link_id, [0, 1]
   // bit[2-4] == corr_mode,
-  // bit[0-1] == unknown?!
+  // bit[0-1] == ???
   uint8_t status_flags;
   uint32_t scan_id; // Unique ID of the scan.
   // Up to here everything is static per socket and scan.
@@ -55,15 +55,16 @@ struct GFFrame
   uint64_t frame_timestamp;
   uint64_t exposure_time;
 
-  // 5 bytes
-  uint8_t quadrant_id;
+  // 6 bytes
+  uint8_t swapped_rows;
   uint8_t link_id;
   uint8_t corr_mode;
+  uint8_t quadrant_id;
   uint8_t rpf; // TODO: No idea what this does.
   uint8_t do_not_store;
 
   // The struct size needs to be 64 bytes to fit into a cache line.
-  int8_t __padding__[64 - 16 - 12 - 24 - 5];
+  int8_t __padding__[64 - 16 - 12 - 24 - 6];
 };
 #pragma pack(pop)
 
