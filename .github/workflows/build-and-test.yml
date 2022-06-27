@@ -39,5 +39,5 @@ jobs:
       - name: pytest summary
         if: always()
         run: |
-          sed -i 's/# Test Report/## Integration tests/' pytest_report.md
+          sed -i 's/# Test Report/# Integration Test Report:/' pytest_report.md
           cat pytest_report.md >> $GITHUB_STEP_SUMMARY
