@@ -89,10 +89,19 @@ int main(int argc, char* argv[])
         meta.scan_id = packet.scan_id;
         meta.size_x = module_size_x;
         meta.size_y = module_size_y;
-        meta.sync_time = packet.sync_time;
+
         meta.scan_time = packet.scan_time;
-        meta.frame_timestamp = 0;
-        meta.exposure_time = 0;
+        meta.sync_time = packet.sync_time;
+        // Check struct GFUdpPacket comments for more details.
+        meta.frame_timestamp = (packet.image_timing & 0x000000FFFFFFFFFF);
+        meta.exposure_time   = (packet.image_timing & 0xFFFFFF0000000000) >> 40;
+
+        meta.swapped_rows = packet.quadrant_rows & 0b1;
+        meta.quadrant_id = (packet.status_flags & 0b11000000) >> 6;
+        meta.link_id     = (packet.status_flags & 0b00100000) >> 5;
+        meta.corr_mode   = (packet.status_flags & 0b00011100) >> 2;
+
+        meta.do_not_store = packet.image_status_flags & 0x8000 >> 15;
 
         // Accumulate packets data into the frame buffer.
         const size_t frame_buffer_offset = packet.packetnum * DATA_BYTES_PER_PACKET;
