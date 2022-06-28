@@ -32,18 +32,18 @@ cb::Sender create_sender(uint16_t module_id, const buffer_utils::DetectorConfig&
 void check_number_of_arguments(int argc)
 {
   if (argc != 4) {
-    fmt::print("Usage: std_data_convert [detector_json_filename] [gains_and_pedestals_json] "
+    fmt::print("Usage: std_data_convert [detector_json_filename] [gains_and_pedestal_h5_filename] "
                "[module_id]\n\n"
                "\tdetector_json_filename: detector config file path.\n"
-               "\tgains_and_pedestals_json: gains and pedestals json path.\n"
+               "\tgains_and_pedestal_h5_filename: gains and pedestals h5 path.\n"
                "\tmodule_id: id of the module for this process.\n");
     exit(-1);
   }
 }
 
-sdc::Converter create_converter(std::string_view filename)
+sdc::Converter create_converter(const std::string& filename, std::size_t image_size)
 {
-  const auto [gains, pedestals] = sdc::read_gains_and_pedestals(filename);
+  const auto [gains, pedestals] = sdc::read_gains_and_pedestals(filename, image_size);
   return sdc::Converter{gains, pedestals};
 }
 
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
   const auto config = buffer_utils::read_json_config(std::string(argv[1]));
   const uint16_t module_id = std::stoi(argv[3]);
 
-  auto converter = create_converter(argv[2]);
+  auto converter = create_converter(argv[2], config.image_height * config.image_width);
 
   auto ctx = zmq_ctx_new();
   auto receiver = create_receiver(module_id, config, ctx);

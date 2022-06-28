@@ -11,6 +11,11 @@ def executable() -> Path:
     assert False
 
 
+def build_command(detector_json_filename: str, gains_and_pedestals: str, module_id: int) -> str:
+    testing_path = Path(__file__).parent.absolute() / 'test_files'
+    return f'{executable()} {testing_path / detector_json_filename} {testing_path / gains_and_pedestals} {module_id} '
+
+
 def run_command(command: str, env=None) -> (int, str, str):
     try:
         args = shlex.split(command)

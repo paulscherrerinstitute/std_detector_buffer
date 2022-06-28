@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.17)
 project(std_data_convert)
 
 find_package(fmt REQUIRED)
-find_package(RapidJSON REQUIRED)
+find_package(MPI REQUIRED)
+find_package(HDF5 REQUIRED)
 
 add_library(${PROJECT_NAME}_lib)
 add_library(${PROJECT_NAME}::${PROJECT_NAME}_lib ALIAS ${PROJECT_NAME}_lib)
@@ -12,7 +13,8 @@ target_include_directories(${PROJECT_NAME}_lib PUBLIC include)
 target_link_libraries(${PROJECT_NAME}_lib
     PRIVATE
         fmt::fmt
-        RapidJSON::RapidJSON
+        MPI::MPI_CXX
+        hdf5::hdf5
         std_detector_buffer::settings
 )
 

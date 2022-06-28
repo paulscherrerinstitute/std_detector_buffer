@@ -2,12 +2,13 @@
 #define STD_DETECTOR_BUFFER_READ_GAINS_AND_PEDESTALS_HPP
 
 #include <tuple>
-#include <string_view>
+#include <string>
 
 #include "parameters.hpp"
 
 namespace sdc {
-std::tuple<parameters, parameters> read_gains_and_pedestals(std::string_view filename);
+std::tuple<parameters, parameters> read_gains_and_pedestals(const std::string& filename,
+                                                            std::size_t image_size);
 }
 
 #endif // STD_DETECTOR_BUFFER_READ_GAINS_AND_PEDESTALS_HPP
