@@ -7,7 +7,7 @@
     [[ ! -d .venv ]] && python3 -m venv .venv
     source .venv/bin/activate
     python3 -m pip install -r testing/requirements.txt
-    pytest testing --junitxml=integration_tests.xml
+    pytest testing --junitxml=release/integration_tests.xml
   artifacts:
     when: always
     expire_in: 1 week
