@@ -73,6 +73,9 @@ int main(int argc, char* argv[])
       std::min(static_cast<uint32_t>(DATA_BYTES_PER_PACKET / 1.5 / module_size_x), module_size_y);
   const size_t N_PACKETS_PER_FRAME = std::ceil(module_size_y / n_rows_per_datagram);
 
+  // TODO: Calculate this.
+  const uint16_t LAST_FRAME_PACKET_START_ROW = 0;
+
   auto ctx = zmq_ctx_new();
   cb::Sender sender{{config.detector_name + std::to_string(module_id),
                      BYTES_PER_PACKET - DATA_BYTES_PER_PACKET,
@@ -97,10 +100,8 @@ int main(int argc, char* argv[])
     for (int i_packet = 0; i_packet < n_packets; i_packet++) {
       const auto& packet = packet_buffer[i_packet];
 
-      // TODO: Extract the actual packet number.
-      const uint64_t packet_num = 0;
-      // TODO: This is very probably wrong for GF.
-      const size_t frame_buffer_offset = packet_num * DATA_BYTES_PER_PACKET;
+      // Offset in bytes =  number of rows * row size in pixels * 1.5 (12bit pixels)
+      const size_t frame_buffer_offset = packet.packet_starting_row * module_size_x * 1.5;
 
       // Packet belongs to the frame we are currently processing.
       if (meta.frame_index == packet.frame_index) {
@@ -109,7 +110,7 @@ int main(int argc, char* argv[])
         meta.n_missing_packets -= 1;
 
         // Copy frame_buffer to ram_buffer and send pulse_id over zmq if last packet in frame.
-        if (packet_num == N_PACKETS_PER_FRAME - 1) {
+        if (packet.packet_starting_row == LAST_FRAME_PACKET_START_ROW) {
           sender.send(meta.frame_index, reinterpret_cast<char*>(&meta), frame_buffer);
           stats.record_stats(meta.n_missing_packets);
           // Invalidate the current buffer - we already send data out for this one.
