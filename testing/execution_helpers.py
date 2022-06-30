@@ -4,9 +4,9 @@ from pathlib import Path
 from contextlib import contextmanager
 
 
-def executable() -> Path:
+def executable(name='std_data_convert') -> Path:
     binary_path = Path(__file__).parent.parent.absolute()
-    for file in binary_path.rglob("std_data_convert"):
+    for file in binary_path.rglob(name):
         if file.is_file():
             return file
     assert False
