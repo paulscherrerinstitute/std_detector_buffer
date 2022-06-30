@@ -19,8 +19,8 @@ struct converter
 
     return {
         config_parameters["detector_name"].GetString(),
-        config_parameters["image_height"].GetInt(),
-        config_parameters["image_width"].GetInt(),
+        config_parameters["image_pixel_height"].GetInt(),
+        config_parameters["image_pixel_width"].GetInt(),
         config_parameters["bit_depth"].GetInt(),
     };
   }

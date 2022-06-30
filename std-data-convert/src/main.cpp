@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
   const auto config = buffer_utils::read_json_config(std::string(argv[1]));
   const uint16_t module_id = std::stoi(argv[3]);
 
-  auto converter = create_converter(argv[2], config.image_height * config.image_width);
+  auto converter = create_converter(argv[2], config.image_pixel_height * config.image_pixel_width);
 
   auto ctx = zmq_ctx_new();
   auto receiver = create_receiver(module_id, config, ctx);
