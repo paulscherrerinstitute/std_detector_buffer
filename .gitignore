@@ -11,9 +11,6 @@ cmake-build-*/
 .DS_store
 .idea
 
-# Any test H5 files
-*.h5
-
 # Prerequisites
 *.d
 
