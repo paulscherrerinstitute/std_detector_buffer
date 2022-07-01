@@ -31,7 +31,7 @@ def test_converter_startup_shutdown():
             time.sleep(1)
             with open_shared_memory(name=f'jungfrau{module_id}-converted', size=512 * 1024 * 4) as output_buffer:
                 sent_data = np.ndarray((5,), dtype='b', buffer=input_buffer)
-                sent_data[:] = np.fromstring('hello', dtype='b')
+                sent_data[:] = np.frombuffer(b'hello', dtype='b')
                 zmq_send_socket.send(np.array([0], dtype='i8'))
 
                 time.sleep(0.1)
