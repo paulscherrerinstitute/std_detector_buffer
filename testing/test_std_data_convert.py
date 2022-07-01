@@ -24,7 +24,7 @@ def test_converter_startup_shutdown():
 
     ctx = zmq.Context()
     zmq_send_socket = ctx.socket(zmq.PUB)
-    zmq_send_socket.bind('ipc:///tmp/std-daq-jungfrau1:50023')
+    zmq_send_socket.bind(f'ipc:///tmp/std-daq-jungfrau1:{50020 + module_id}')
 
     with open_shared_memory(name=f'jungfrau{module_id}', create=True, size=512 * 1024 * 2) as input_buffer:
         with run_command_in_parallel(command):
