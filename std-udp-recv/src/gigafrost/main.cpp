@@ -13,11 +13,6 @@
 #include "gigafrost.hpp"
 #include "packet_udp_receiver.hpp"
 
-using namespace std;
-using namespace chrono;
-using namespace buffer_config;
-using namespace buffer_utils;
-
 // Initialize new frame metadata from first seen packet.
 inline void init_frame_metadata(const uint32_t module_size_x,
                                 const uint32_t module_size_y,
@@ -49,17 +44,17 @@ inline void init_frame_metadata(const uint32_t module_size_x,
 int main(int argc, char* argv[])
 {
   if (argc != 3) {
-    cout << endl;
-    cout << "Usage: std_udp_recv_gf [detector_json_filename] [module_id]";
-    cout << endl;
-    cout << "\tdetector_json_filename: detector config file path." << endl;
-    cout << "\tmodule_id: id of the module for this process." << endl;
-    cout << endl;
+    std::cout << std::endl;
+    std::cout << "Usage: std_udp_recv_gf [detector_json_filename] [module_id]";
+    std::cout << std::endl;
+    std::cout << "\tdetector_json_filename: detector config file path." << std::endl;
+    std::cout << "\tmodule_id: id of the module for this process." << std::endl;
+    std::cout << std::endl;
 
     exit(-1);
   }
-  const auto config = read_json_config(string(argv[1]));
-  const uint16_t module_id = stoi(argv[2]);
+  const auto config = buffer_utils::read_json_config(std::string(argv[1]));
+  const uint16_t module_id = std::stoi(argv[2]);
 
   // TODO: Unify naming for bytes and pixels -> module_size tells you nothing.
   // Each line of final image is composed by 2 quadrants side by side.
@@ -70,19 +65,22 @@ int main(int argc, char* argv[])
   const auto MODULE_N_BYTES = static_cast<size_t>(module_size_x * module_size_y * 1.5);
 
   const size_t n_rows_per_datagram =
-      std::min(static_cast<uint32_t>(DATA_BYTES_PER_PACKET / 1.5 / module_size_x), module_size_y);
-  const size_t N_PACKETS_PER_FRAME = std::ceil(module_size_y / n_rows_per_datagram);
+      std::min(static_cast<uint32_t>(DATA_BYTES_PER_PACKET / 1.5 / module_size_x),
+               module_size_y);
+  const size_t N_PACKETS_PER_FRAME =
+          std::ceil(module_size_y / n_rows_per_datagram);
 
   auto ctx = zmq_ctx_new();
   cb::Sender sender{{config.detector_name + std::to_string(module_id),
                      BYTES_PER_PACKET - DATA_BYTES_PER_PACKET,
-                     DATA_BYTES_PER_PACKET * N_PACKETS_PER_FRAME, RAM_BUFFER_N_SLOTS,
+                     DATA_BYTES_PER_PACKET * N_PACKETS_PER_FRAME,
+                     buffer_config::RAM_BUFFER_N_SLOTS,
                      static_cast<uint16_t>(config.start_udp_port + module_id)},
                     ctx};
 
   PacketUdpReceiver receiver(config.start_udp_port + module_id, sizeof(GFUdpPacket),
                              N_PACKETS_PER_FRAME);
-  FrameStats stats(config.detector_name, module_id, STATS_TIME);
+  FrameStats stats(config.detector_name, module_id, buffer_config::STATS_TIME);
 
   const GFUdpPacket* const packet_buffer =
       reinterpret_cast<GFUdpPacket*>(receiver.get_packet_buffer());
