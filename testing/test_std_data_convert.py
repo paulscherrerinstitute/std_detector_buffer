@@ -52,7 +52,7 @@ async def test_converter_send_simple_data_for_packet_with_0_id():
             with start_subscriber_communication(ctx, JungfrauConfigConverter) as (output_buffer, sub_socket):
                 sent_data = push_to_buffer(input_buffer, b'hello')
                 msg = sub_socket.recv()
-                pub_socket.send(np.array([0], dtype='i8'))
+                await pub_socket.send(np.array([0], dtype='i8'))
 
                 msg = await msg
                 assert np.frombuffer(msg, dtype='i8') == 0
