@@ -12,8 +12,12 @@ from testing.execution_helpers import executable, run_command, build_command, ru
 class JungfrauConfigUdp:
     id = 1
     name = f'jungfrau{id}'
-    buffer_size = 512 * 1024 * 2
     udp_port_base = 50020
+    bytes_per_packet = 8240
+    data_bytes_per_packet = 8192
+    meta_bytes_per_packet = bytes_per_packet - data_bytes_per_packet
+    slots = 1000
+    buffer_size = bytes_per_packet * slots
 
 
 class JungfrauConfigConverter:
@@ -56,6 +60,34 @@ async def test_converter_send_simple_data_for_packet_with_0_id():
 
                 msg = await msg
                 assert np.frombuffer(msg, dtype='i8') == 0
+                received_data = np.ndarray((5,), dtype='b', buffer=output_buffer)
+
+                assert np.array_equal(received_data, sent_data)
+
+
+@pytest.mark.asyncio
+async def test_converter_send_real_image_with_custom_slot():
+    slot = 3
+    command = build_command(detector_json_filename='detector.json',
+                            gains_and_pedestals='gains_1_pedestals_0.h5',
+                            module_id=JungfrauConfigUdp.id)
+
+    ctx = zmq.Context()
+
+    with start_publisher_communication(ctx, JungfrauConfigUdp) as (input_buffer, pub_socket):
+        with run_command_in_parallel(command):
+            time.sleep(1)  # time for the std_data_convert executable to startup
+            with start_subscriber_communication(ctx, JungfrauConfigConverter) as (output_buffer, sub_socket):
+                # fill data array with incremented data
+                sent_data = np.ndarray((int(JungfrauConfigUdp.buffer_size / 2),), dtype='i2', buffer=input_buffer)
+                for i in range(int(JungfrauConfigUdp.data_bytes_per_packet / 2)):
+                    sent_data[
+                        i + slot * JungfrauConfigUdp.bytes_per_packet + JungfrauConfigUdp.meta_bytes_per_packet] = i
+
+                pub_socket.send(np.array([slot], dtype='i8'))
+
+                msg = sub_socket.recv()
+                assert np.frombuffer(msg, dtype='i8') == slot
                 received_data = np.ndarray((5,), dtype='b', buffer=output_buffer)
 
                 assert np.array_equal(received_data, sent_data)
