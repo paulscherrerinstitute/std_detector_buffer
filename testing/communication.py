@@ -2,10 +2,11 @@ from contextlib import contextmanager
 from multiprocessing import shared_memory
 
 import zmq
+import zmq.asyncio
 
 
 @contextmanager
-def start_publisher_communication(zmq_context: zmq.Context, config):
+def start_publisher_communication(zmq_context: zmq.asyncio.Context, config):
     socket = zmq_context.socket(zmq.PUB)
     socket.bind(f'ipc:///tmp/std-daq-{config.name}:{config.udp_port_base + config.id}')
 
@@ -18,7 +19,7 @@ def start_publisher_communication(zmq_context: zmq.Context, config):
 
 
 @contextmanager
-def start_subscriber_communication(zmq_context: zmq.Context, config):
+def start_subscriber_communication(zmq_context: zmq.asyncio.Context, config):
     socket = zmq_context.socket(zmq.SUB)
     socket.connect(f'ipc:///tmp/std-daq-{config.name}:{config.udp_port_base + config.id}')
     socket.subscribe('')
