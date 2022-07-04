@@ -24,7 +24,7 @@ class JungfrauConfigConverter:
 
 
 def push_to_buffer(input_buffer, data):
-    sent_data = np.ndarray((5,), dtype='b', buffer=input_buffer)
+    sent_data = np.ndarray((len(data),), dtype='b', buffer=input_buffer)
     sent_data[:] = np.frombuffer(data, dtype='b')
     return sent_data
 
@@ -48,12 +48,13 @@ async def test_converter_send_simple_data_for_packet_with_0_id():
 
     with start_publisher_communication(ctx, JungfrauConfigUdp) as (input_buffer, pub_socket):
         with run_command_in_parallel(command):
-            time.sleep(1)  # time for the std_data_convert executable to startup
+            time.sleep(2)  # time for the std_data_convert executable to startup
             with start_subscriber_communication(ctx, JungfrauConfigConverter) as (output_buffer, sub_socket):
                 sent_data = push_to_buffer(input_buffer, b'hello')
                 msg = sub_socket.recv()
+                time.sleep(0.1)
                 await pub_socket.send(np.array([0], dtype='i8'))
-
+                time.sleep(0.1)
                 msg = await msg
                 assert np.frombuffer(msg, dtype='i8') == 0
                 received_data = np.ndarray((5,), dtype='b', buffer=output_buffer)
