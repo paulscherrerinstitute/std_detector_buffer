@@ -52,20 +52,20 @@ int main(int argc, char* argv[])
     cout << endl;
     cout << "Usage: std_udp_recv_gf [detector_json_filename] [module_id]";
     cout << endl;
-    cout << "\tdetector_json_filename: detector config file path." << endl;
+    cout << "\tdetector_json_filename: detector detector_config file path." << endl;
     cout << "\tmodule_id: id of the module for this process." << endl;
     cout << endl;
 
     exit(-1);
   }
-  const auto config = read_json_config(string(argv[1]));
+  const auto detector_config = read_json_config(string(argv[1]));
   const uint16_t module_id = stoi(argv[2]);
 
   // Each line of final image is composed by 2 quadrants side by side.
-  const uint32_t MODULE_N_X_PIXEL = config.image_pixel_width / 2;
+  const uint32_t MODULE_N_X_PIXEL = detector_config.image_pixel_width / 2;
   // The column is composed by 2 quadrants and each quadrant is divided into 2 udp streams that
   // send interleaved rows - each udp stream sends half of the lines from one quadrant.
-  const uint32_t MODULE_N_Y_PIXEL = config.image_pixel_height / 2 / 2;
+  const uint32_t MODULE_N_Y_PIXEL = detector_config.image_pixel_height / 2 / 2;
   // Each pixel has 12 bytes -> pixel to bytes multiplier is 1.5
   const auto MODULE_N_DATA_BYTES = static_cast<size_t>(MODULE_N_X_PIXEL * MODULE_N_Y_PIXEL * 1.5);
   // Maximum udp packet payload divided by the module row size in bytes or module Y size if smaller.
@@ -88,15 +88,19 @@ int main(int argc, char* argv[])
   // Get offset of last packet in frame to know when to commit frame.
   const size_t LAST_PACKET_STARTING_ROW = MODULE_N_Y_PIXEL - LAST_PACKET_N_ROWS;
 
+  const cb::SendReceiveConfig module_config = {
+      detector_config.detector_name + std::to_string(module_id),
+      BYTES_PER_PACKET - PACKET_N_DATA_BYTES,
+      PACKET_N_DATA_BYTES * FRAME_N_PACKETS,
+      RAM_BUFFER_N_SLOTS,
+      static_cast<uint16_t>(detector_config.start_udp_port + module_id)
+  };
 
   auto ctx = zmq_ctx_new();
-  cb::Sender sender{{config.detector_name + std::to_string(module_id),
-                     BYTES_PER_PACKET - PACKET_N_DATA_BYTES, PACKET_N_DATA_BYTES * FRAME_N_PACKETS, RAM_BUFFER_N_SLOTS},
-                    ctx};
-
-  PacketUdpReceiver receiver(config.start_udp_port + module_id, sizeof(GFUdpPacket),
+  cb::Sender sender{module_config, ctx};
+  PacketUdpReceiver receiver(detector_config.start_udp_port + module_id, sizeof(GFUdpPacket),
                              FRAME_N_PACKETS);
-  FrameStats stats(config.detector_name, module_id, STATS_TIME);
+  FrameStats stats(detector_config.detector_name, module_id, STATS_TIME);
 
   const GFUdpPacket* const packet_buffer =
       reinterpret_cast<GFUdpPacket*>(receiver.get_packet_buffer());
