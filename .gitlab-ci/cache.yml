@@ -1,0 +1,11 @@
+variables:
+  CONAN_USER_HOME: $CI_PROJECT_DIR/.conan_cache
+
+cache:
+  key:
+    files:
+      - conan/conanfile.py
+      - testing/requirements.txt
+  paths:
+    - $CONAN_USER_HOME
+    - .venv

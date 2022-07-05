@@ -1,3 +1,6 @@
 pytest
 pytest-md
 pytest-emoji
+pytest-asyncio
+pyzmq
+numpy

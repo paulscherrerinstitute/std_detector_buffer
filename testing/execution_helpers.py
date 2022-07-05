@@ -1,11 +1,12 @@
 import shlex
 import subprocess
 from pathlib import Path
+from contextlib import contextmanager
 
 
-def executable() -> Path:
+def executable(name='std_data_convert') -> Path:
     binary_path = Path(__file__).parent.parent.absolute()
-    for file in binary_path.rglob("std_data_convert"):
+    for file in binary_path.rglob(name):
         if file.is_file():
             return file
     assert False
@@ -14,6 +15,18 @@ def executable() -> Path:
 def build_command(detector_json_filename: str, gains_and_pedestals: str, module_id: int) -> str:
     testing_path = Path(__file__).parent.absolute() / 'test_files'
     return f'{executable()} {testing_path / detector_json_filename} {testing_path / gains_and_pedestals} {module_id} '
+
+
+@contextmanager
+def run_command_in_parallel(command: str):
+    args = shlex.split(command)
+    process = None
+    try:
+        process = subprocess.Popen(args=args, cwd=Path(__file__).parent)
+        yield
+    finally:
+        if process:
+            process.terminate()
 
 
 def run_command(command: str, env=None) -> (int, str, str):
