@@ -23,6 +23,7 @@ void StatsCollector::processing_started()
 {
   processing_start = steady_clock::now();
 }
+
 void StatsCollector::processing_finished()
 {
   const auto now = steady_clock::now();
@@ -31,7 +32,8 @@ void StatsCollector::processing_finished()
 
   if (10s > now - last_flush_time) {
     fmt::print("std_data_convert,detector_name={},module_id={} "
-               "average_process_time_ns={},number_of_processed_packets={} {}",
+               "average_process_time_ns={},number_of_processed_packets={} "
+               "{}\n",
                detector_name, module_id, (stats.first / stats.second).count(), stats.second,
                timestamp());
 
