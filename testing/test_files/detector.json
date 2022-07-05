@@ -3,7 +3,7 @@
   "detector_type": "jungfrau",
   "n_modules": 4,
   "bit_depth": 4,
-  "image_height": 1024,
-  "image_width": 512,
+  "image_pixel_height": 1024,
+  "image_pixel_width": 512,
   "start_udp_port": 50020
 }
