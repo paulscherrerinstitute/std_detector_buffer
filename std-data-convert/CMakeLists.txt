@@ -22,6 +22,7 @@ target_sources(${PROJECT_NAME}_lib
     PRIVATE
         src/converter.cpp
         src/read_gains_and_pedestals.cpp
+        src/stats_collector.cpp
 )
 
 add_executable(${PROJECT_NAME} src/main.cpp)

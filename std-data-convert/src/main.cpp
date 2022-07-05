@@ -3,9 +3,9 @@
 
 #include "converter.hpp"
 #include "read_gains_and_pedestals.hpp"
+#include "stats_collector.hpp"
 
 #include "jungfrau.hpp"
-
 #include "buffer_utils.hpp"
 #include "buffer_config.hpp"
 #include "core_buffer/sender.hpp"
@@ -55,6 +55,7 @@ int main(int argc, char* argv[])
 
   const auto config = buffer_utils::read_json_config(std::string(argv[1]));
   const uint16_t module_id = std::stoi(argv[3]);
+  sdc::StatsCollector stats_collector(config.detector_name, module_id);
 
   auto converter = create_converter(argv[2], config.image_height * config.image_width);
 
@@ -64,8 +65,13 @@ int main(int argc, char* argv[])
 
   while (true) {
     auto [id, meta, image] = receiver.receive();
+
+    stats_collector.processing_started();
+    // I treat sending of the message as part of processing for now
     auto converted = converter.convert_data({(uint16_t*)image, MODULE_N_PIXELS});
     sender.send(id, meta, (char*)converted.data());
+
+    stats_collector.processing_finished();
   }
 
   return 0;
