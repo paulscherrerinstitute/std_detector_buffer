@@ -8,7 +8,7 @@ const std::string DETECTOR_TYPE = "gigafrost";
 
 // 32 bytes header + 7400 max payload
 #define BYTES_PER_PACKET 7400 + 32
-#define DATA_BYTES_PER_PACKET 7400
+#define PACKET_N_DATA_BYTES_MAX 7400
 
 #pragma pack(push)
 #pragma pack(1)
@@ -32,7 +32,7 @@ struct GFUdpPacket
   uint32_t sync_time;           // No idea
   uint32_t scan_time;           // No Idea
 
-  char data[DATA_BYTES_PER_PACKET];
+  char data[PACKET_N_DATA_BYTES_MAX];
 };
 #pragma pack(pop)
 
