@@ -78,7 +78,7 @@ async def test_converter_send_simple_data_for_packet_with_0_id():
 
     with start_publisher_communication(ctx, JungfrauConfigUdp) as (input_buffer, pub_socket):
         with run_command_in_parallel(command):
-            time.sleep(10)  # time for the std_data_convert executable to startup
+            time.sleep(1)  # time for the std_data_convert executable to startup
             with start_subscriber_communication(ctx, JungfrauConfigConverter) as (output_buffer, sub_socket):
                 # send msg and await reply from converter
                 sent_data = push_to_buffer(input_buffer, b'hello')
