@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
 
   auto receiver_assembler = buffer_utils::connect_socket(ctx, config.detector_name + "-assembler");
 
-  const size_t IMAGE_N_BYTES = config.image_height * config.image_width * config.bit_depth / 8;
+  const size_t IMAGE_N_BYTES = config.image_pixel_height * config.image_pixel_width * config.bit_depth / 8;
 
   RamBuffer image_buffer(config.detector_name + "_assembler", sizeof(ImageMetadata), IMAGE_N_BYTES,
                          RAM_BUFFER_N_SLOTS);

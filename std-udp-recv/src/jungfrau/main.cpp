@@ -56,10 +56,11 @@ int main(int argc, char* argv[])
     for (int i_packet = 0; i_packet < n_packets; i_packet++) {
       const auto& packet = packet_buffer[i_packet];
 
+      const size_t frame_buffer_offset = packet.packetnum * DATA_BYTES_PER_PACKET;
+
       // Packet belongs to the frame we are currently processing.
       if (meta.frame_index == packet.framenum) {
         // Accumulate packets data into the frame buffer.
-        const size_t frame_buffer_offset = packet.packetnum * DATA_BYTES_PER_PACKET;
         memcpy(frame_buffer + frame_buffer_offset, packet.data, DATA_BYTES_PER_PACKET);
         meta.n_missing_packets -= 1;
 
@@ -87,7 +88,6 @@ int main(int argc, char* argv[])
         meta.module_id = module_id;
 
         // Accumulate packets data into the frame buffer.
-        const size_t frame_buffer_offset = packet.packetnum * DATA_BYTES_PER_PACKET;
         memcpy(frame_buffer + frame_buffer_offset, packet.data, DATA_BYTES_PER_PACKET);
         meta.n_missing_packets -= 1;
       }

@@ -22,8 +22,8 @@ struct UdpRecvConfig
         config_parameters["detector_type"].GetString(),
         config_parameters["n_modules"].GetInt(),
         config_parameters["bit_depth"].GetInt(),
-        config_parameters["image_height"].GetInt(),
-        config_parameters["image_width"].GetInt(),
+        config_parameters["image_pixel_height"].GetInt(),
+        config_parameters["image_pixel_width"].GetInt(),
         config_parameters["start_udp_port"].GetInt(),
     };
   }
