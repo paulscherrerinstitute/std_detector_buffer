@@ -6,14 +6,15 @@
 
 #include <fmt/core.h>
 
-#include "../include/udp_recv_config.hpp"
-#include "mock/udp.hpp"
+#include "../../std-udp-recv/include/udp_recv_config.hpp"
+#include "../../std-udp-recv/test/mock/udp.hpp"
 
 #include "jungfrau.hpp"
 
 const int MAX_IMAGE_ID = 10000;
 
 using namespace std;
+
 
 int main(int argc, char** argv)
 {
