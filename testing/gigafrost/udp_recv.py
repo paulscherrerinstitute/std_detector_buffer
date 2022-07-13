@@ -101,7 +101,7 @@ def calculate_frame_info(image_pixel_width, image_pixel_height):
     # Get offset of last packet in frame to know when to commit frame.
     last_packet_starting_row = module_n_y_pixel - last_packet_n_rows
 
-    return packet_n_data_bytes, last_packet_starting_row, frame_n_packets
+    return packet_n_data_bytes, last_packet_starting_row, frame_n_packets, packet_n_rows, last_packet_n_rows
 
 
 def calculate_frame_info_original(image_width, image_height, link_id=0):
@@ -130,24 +130,28 @@ def calculate_frame_info_original(image_width, image_height, link_id=0):
     else:
         last_packet_offset = (module_size_y - module_size_y % nrows) * stride + link_id
 
-    return int(payload), int(last_packet_offset), int(nrows)
+    return int(payload), int(last_packet_offset), -1, int(nrows), -1
 
 
 if __name__ == '__main__':
-    bin_files = Path(__file__).parent.absolute() / 'udp_dumps'
+    # for y in range(4, 2016, 4):
+    #     for x in range(48, 2016, 48):
+    #         print(x, y, calculate_frame_info(x, y))
+    image_pixel_width = 528
+    image_pixel_height = 512
+
+    bin_files = Path(__file__).parent.absolute() / 'udp_dumps' / f'{image_pixel_width}_{image_pixel_height}'
     files = [
-        open(f'{bin_files}/10.0.0.100_2000.dat', 'rb'),
-        open(f'{bin_files}/10.0.0.100_2001.dat', 'rb'),
-        open(f'{bin_files}/10.0.0.100_2002.dat', 'rb'),
-        open(f'{bin_files}/10.0.0.100_2003.dat', 'rb'),
-        open(f'{bin_files}/10.4.0.100_2004.dat', 'rb'),
-        open(f'{bin_files}/10.4.0.100_2005.dat', 'rb'),
-        open(f'{bin_files}/10.4.0.100_2006.dat', 'rb'),
-        open(f'{bin_files}/10.4.0.100_2007.dat', 'rb'),
+        open(f'{bin_files}/0.0.0.0_2000.dat', 'rb'),
+        open(f'{bin_files}/0.0.0.0_2001.dat', 'rb'),
+        open(f'{bin_files}/0.0.0.0_2002.dat', 'rb'),
+        open(f'{bin_files}/0.0.0.0_2003.dat', 'rb'),
+        open(f'{bin_files}/0.0.0.0_2004.dat', 'rb'),
+        open(f'{bin_files}/0.0.0.0_2005.dat', 'rb'),
+        open(f'{bin_files}/0.0.0.0_2006.dat', 'rb'),
+        open(f'{bin_files}/0.0.0.0_2007.dat', 'rb'),
     ]
 
-    image_pixel_height = 2016
-    image_pixel_width = 2016
     module_n_x_pixel = image_pixel_width // 2
     module_n_y_pixel = image_pixel_height // 2 // 2
 
@@ -178,7 +182,6 @@ if __name__ == '__main__':
             data = input_file.read(packet_n_bytes)
             packet = GfUdpPacket.from_buffer_copy(data)
             frame = gf_udp_packet_to_frame(packet, module_n_x_pixel, module_n_y_pixel, frame_n_packets)
-
             key = (frame.frame_index, frame.quadrant_id, frame.link_id, input_file.name)
             cache[key].update({
                 'quadrant_id': frame.quadrant_id,
