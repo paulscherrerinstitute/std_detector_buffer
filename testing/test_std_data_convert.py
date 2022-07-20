@@ -70,7 +70,7 @@ def test_converter_should_return_without_needed_arguments():
 
 @pytest.mark.asyncio
 async def test_converter_send_simple_data_for_packet_with_0_id():
-    command = build_command(detector_json_filename='detector.json',
+    command = build_command(detector_json_filename='jungfrau_detector.json',
                             gains_and_pedestals='gains_1_pedestals_0.h5',
                             module_id=JungfrauConfigUdp.id)
 
@@ -94,7 +94,7 @@ async def test_converter_send_simple_data_for_packet_with_0_id():
 @pytest.mark.asyncio
 async def test_converter_send_real_image_with_custom_slot():
     slot = 3
-    command = build_command(detector_json_filename='detector.json',
+    command = build_command(detector_json_filename='jungfrau_detector.json',
                             gains_and_pedestals='gains_1_pedestals_0.h5',
                             module_id=JungfrauConfigUdp.id)
 
@@ -118,7 +118,7 @@ async def test_converter_send_real_image_with_custom_slot():
 @pytest.mark.asyncio
 async def test_converter_modifying_image_with_gains_and_pedestals():
     slot = 7
-    command = build_command(detector_json_filename='detector.json',
+    command = build_command(detector_json_filename='jungfrau_detector.json',
                             gains_and_pedestals='gains_2_pedestals_minus1.h5',
                             module_id=JungfrauConfigUdp.id)
 
