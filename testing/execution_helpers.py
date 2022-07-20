@@ -12,10 +12,8 @@ def executable(name) -> Path:
     assert False
 
 
-def build_command(detector_json_filename: str, gains_and_pedestals: str, module_id: int, executable_name: str) -> str:
-    testing_path = Path(__file__).parent.absolute() / 'test_files'
-    return f'{executable(executable_name)} {testing_path / detector_json_filename}' \
-           f' {testing_path / gains_and_pedestals} {module_id} '
+def build_command(executable_name: str, *args) -> str:
+    return f'{executable(executable_name)} ' + ' '.join([str(arg) for arg in args])
 
 
 @contextmanager
