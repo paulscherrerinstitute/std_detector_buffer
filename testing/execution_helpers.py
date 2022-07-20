@@ -4,7 +4,7 @@ from pathlib import Path
 from contextlib import contextmanager
 
 
-def executable(name='std_data_convert') -> Path:
+def executable(name) -> Path:
     binary_path = Path(__file__).parent.parent.absolute()
     for file in binary_path.rglob(name):
         if file.is_file():
@@ -12,9 +12,10 @@ def executable(name='std_data_convert') -> Path:
     assert False
 
 
-def build_command(detector_json_filename: str, gains_and_pedestals: str, module_id: int) -> str:
+def build_command(detector_json_filename: str, gains_and_pedestals: str, module_id: int, executable_name: str) -> str:
     testing_path = Path(__file__).parent.absolute() / 'test_files'
-    return f'{executable()} {testing_path / detector_json_filename} {testing_path / gains_and_pedestals} {module_id} '
+    return f'{executable(executable_name)} {testing_path / detector_json_filename}' \
+           f' {testing_path / gains_and_pedestals} {module_id} '
 
 
 @contextmanager
