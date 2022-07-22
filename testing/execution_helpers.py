@@ -1,5 +1,6 @@
 import shlex
 import subprocess
+import time
 from pathlib import Path
 from contextlib import contextmanager
 
@@ -17,11 +18,12 @@ def build_command(executable_name: str, *args) -> str:
 
 
 @contextmanager
-def run_command_in_parallel(command: str):
+def run_command_in_parallel(command: str, sleep=1):
     args = shlex.split(command)
     process = None
     try:
         process = subprocess.Popen(args=args, cwd=Path(__file__).parent)
+        time.sleep(sleep)
         yield
     finally:
         if process:
