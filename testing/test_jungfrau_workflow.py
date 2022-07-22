@@ -35,7 +35,7 @@ async def test_udp_receiver_with_converter(test_path, cleanup_jungfrau_shared_me
     with run_command_in_parallel(receiver_command), run_command_in_parallel(converter_command):
         client_socket = socket(AF_INET, SOCK_DGRAM)
         with start_subscriber_communication(ctx, JungfrauConfigConverter) as (output_buffer, sub_socket):
-            msg = sub_socket.recv()
+            msg = sub_socket.recv()  # future for the asynchronous message receive
 
             # send via UDP 128 packets to std_udp_recv_jf
             for i in range(JungfrauConfigUdp.packets_per_frame):
