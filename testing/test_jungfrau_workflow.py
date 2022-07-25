@@ -29,26 +29,27 @@ async def test_udp_receiver_with_converter(test_path, cleanup_jungfrau_shared_me
 
     ctx = zmq.asyncio.Context()
     packet = UdpPacket()
-    packet.framenum = 2
-    packet.bunchid = 5.0
 
     with run_command_in_parallel(receiver_command), run_command_in_parallel(converter_command):
         client_socket = socket(AF_INET, SOCK_DGRAM)
         with start_subscriber_communication(ctx, JungfrauConfigConverter) as (output_buffer, sub_socket):
-            msg = sub_socket.recv()  # future for the asynchronous message receive
+            for id in range(10):  # send 10 frames
+                packet.framenum = 2 + id
+                packet.bunchid = 5.0 + id
+                msg = sub_socket.recv()  # future for the asynchronous message receive
 
-            # send via UDP 128 packets to std_udp_recv_jf
-            for i in range(JungfrauConfigUdp.packets_per_frame):
-                packet.packetnum = i
-                for j in range(len(packet.data)):
-                    packet.data[j] = i
-                client_socket.sendto(packet, jungfrau_socket_address())
+                # send via UDP 128 packets to std_udp_recv_jf
+                for i in range(JungfrauConfigUdp.packets_per_frame):
+                    packet.packetnum = i
+                    for j in range(len(packet.data)):
+                        packet.data[j] = i
+                    client_socket.sendto(packet, jungfrau_socket_address())
 
-            # await trigger from std_data_convert after data has been successfully converted
-            received_id = await msg
-            assert np.frombuffer(received_id, dtype='i8') == packet.bunchid
+                # await trigger from std_data_convert after data has been successfully converted
+                received_id = await msg
+                assert np.frombuffer(received_id, dtype='i8') == packet.bunchid
 
-            converted_data = get_converter_packet_array(output_buffer, int(packet.bunchid))
-            for i in range(JungfrauConfigUdp.packets_per_frame):
-                for j in range(len(packet.data)):
-                    assert converted_data[i * len(packet.data) + j] == i
+                converted_data = get_converter_packet_array(output_buffer, int(packet.bunchid))
+                for i in range(JungfrauConfigUdp.packets_per_frame):
+                    for j in range(len(packet.data)):
+                        assert converted_data[i * len(packet.data) + j] == i
