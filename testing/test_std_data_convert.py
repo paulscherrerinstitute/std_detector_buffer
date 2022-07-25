@@ -5,31 +5,10 @@ import pytest
 import zmq
 import zmq.asyncio
 
+from testing.fixtures import test_path
 from testing.communication import start_publisher_communication, start_subscriber_communication
 from testing.execution_helpers import executable, run_command, build_command, run_command_in_parallel
-
-
-class JungfrauConfigUdp:
-    id = 1
-    name = f'jungfrau{id}'
-    udp_port_base = 50020
-    meta_bytes_per_packet = 48
-    data_bytes_per_packet = 8192 * 128
-    bytes_per_packet = meta_bytes_per_packet + data_bytes_per_packet
-    packets_per_frame = 128
-    slots = 10  # should be 1000 but for testing purposes 10 is enough
-    buffer_size = bytes_per_packet * slots
-
-
-class JungfrauConfigConverter:
-    id = JungfrauConfigUdp.id
-    name = f'jungfrau{id}-converted'
-    data_bytes_per_packet = JungfrauConfigUdp.data_bytes_per_packet * 2
-    udp_port_base = JungfrauConfigUdp.udp_port_base
-    slots = JungfrauConfigUdp.slots
-    meta_bytes_per_packet = JungfrauConfigUdp.meta_bytes_per_packet
-    bytes_per_packet = meta_bytes_per_packet + data_bytes_per_packet
-    buffer_size = bytes_per_packet * slots
+from testing.jungfrau.data import JungfrauConfigUdp, JungfrauConfigConverter
 
 
 def get_udp_packet_array(input_buffer: memoryview, slot: int) -> np.ndarray:
@@ -59,8 +38,13 @@ def push_to_buffer(input_buffer, data):
     return sent_data
 
 
+def build_jungfrau_converter_command(test_path, pedestals='gains_1_pedestals_0.h5') -> str:
+    return build_command('std_data_convert', test_path / 'jungfrau_detector.json', test_path / pedestals,
+                         JungfrauConfigUdp.id)
+
+
 def test_converter_should_return_without_needed_arguments():
-    command = f'{executable()}'
+    command = f'{executable(name="std_data_convert")}'
     rc, s, e = run_command(command)
 
     assert rc == 255
@@ -69,16 +53,13 @@ def test_converter_should_return_without_needed_arguments():
 
 
 @pytest.mark.asyncio
-async def test_converter_send_simple_data_for_packet_with_0_id():
-    command = build_command(detector_json_filename='detector.json',
-                            gains_and_pedestals='gains_1_pedestals_0.h5',
-                            module_id=JungfrauConfigUdp.id)
+async def test_converter_send_simple_data_for_packet_with_0_id(test_path):
+    command = build_jungfrau_converter_command(test_path)
 
     ctx = zmq.asyncio.Context()
 
     with start_publisher_communication(ctx, JungfrauConfigUdp) as (input_buffer, pub_socket):
         with run_command_in_parallel(command):
-            time.sleep(1)  # time for the std_data_convert executable to startup
             with start_subscriber_communication(ctx, JungfrauConfigConverter) as (output_buffer, sub_socket):
                 # send msg and await reply from converter
                 sent_data = push_to_buffer(input_buffer, b'hello')
@@ -92,17 +73,14 @@ async def test_converter_send_simple_data_for_packet_with_0_id():
 
 
 @pytest.mark.asyncio
-async def test_converter_send_real_image_with_custom_slot():
+async def test_converter_send_real_image_with_custom_slot(test_path):
     slot = 3
-    command = build_command(detector_json_filename='detector.json',
-                            gains_and_pedestals='gains_1_pedestals_0.h5',
-                            module_id=JungfrauConfigUdp.id)
+    command = build_jungfrau_converter_command(test_path)
 
     ctx = zmq.asyncio.Context()
 
     with start_publisher_communication(ctx, JungfrauConfigUdp) as (input_buffer, pub_socket):
         with run_command_in_parallel(command):
-            time.sleep(1)  # time for the std_data_convert executable to startup
             with start_subscriber_communication(ctx, JungfrauConfigConverter) as (output_buffer, sub_socket):
                 # fill data array with incremented data
                 sent_data = get_udp_packet_array(input_buffer, slot)
@@ -116,17 +94,14 @@ async def test_converter_send_real_image_with_custom_slot():
 
 
 @pytest.mark.asyncio
-async def test_converter_modifying_image_with_gains_and_pedestals():
+async def test_converter_modifying_image_with_gains_and_pedestals(test_path):
     slot = 7
-    command = build_command(detector_json_filename='detector.json',
-                            gains_and_pedestals='gains_2_pedestals_minus1.h5',
-                            module_id=JungfrauConfigUdp.id)
+    command = build_jungfrau_converter_command(test_path, 'gains_2_pedestals_minus1.h5')
 
     ctx = zmq.asyncio.Context()
 
     with start_publisher_communication(ctx, JungfrauConfigUdp) as (input_buffer, pub_socket):
         with run_command_in_parallel(command):
-            time.sleep(1)  # time for the std_data_convert executable to startup
             with start_subscriber_communication(ctx, JungfrauConfigConverter) as (output_buffer, sub_socket):
                 # fill data array with incremented data
                 sent_data = get_udp_packet_array(input_buffer, slot)

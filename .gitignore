@@ -48,3 +48,6 @@ cmake-build-*/
 
 .pytest_cache
 __pycache__
+
+# Detector binary dumps
+testing/gigafrost/**/*.dat
