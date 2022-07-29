@@ -3,6 +3,7 @@ from collections import defaultdict
 from ctypes import Structure, c_uint8, c_uint32, c_uint16, c_uint64
 from math import ceil
 from pathlib import Path
+import struct
 
 GF_MAX_PAYLOAD = 7400
 
@@ -137,33 +138,33 @@ if __name__ == '__main__':
     # for y in range(4, 2016, 4):
     #     for x in range(48, 2016, 48):
     #         print(x, y, calculate_frame_info(x, y))
-    image_pixel_width = 528
-    image_pixel_height = 512
+    image_pixel_width = 672
+    image_pixel_height = 128
 
     bin_files = Path(__file__).parent.absolute() / 'udp_dumps' / f'{image_pixel_width}_{image_pixel_height}'
     files = [
-        open(f'{bin_files}/0.0.0.0_2000.dat', 'rb'),
-        open(f'{bin_files}/0.0.0.0_2001.dat', 'rb'),
-        open(f'{bin_files}/0.0.0.0_2002.dat', 'rb'),
-        open(f'{bin_files}/0.0.0.0_2003.dat', 'rb'),
-        open(f'{bin_files}/0.0.0.0_2004.dat', 'rb'),
-        open(f'{bin_files}/0.0.0.0_2005.dat', 'rb'),
-        open(f'{bin_files}/0.0.0.0_2006.dat', 'rb'),
-        open(f'{bin_files}/0.0.0.0_2007.dat', 'rb'),
+        open(f'{bin_files}/2000.dat', 'rb'),
+        open(f'{bin_files}/2001.dat', 'rb'),
+        open(f'{bin_files}/2002.dat', 'rb'),
+        open(f'{bin_files}/2003.dat', 'rb'),
+        open(f'{bin_files}/2004.dat', 'rb'),
+        open(f'{bin_files}/2005.dat', 'rb'),
+        open(f'{bin_files}/2006.dat', 'rb'),
+        open(f'{bin_files}/2007.dat', 'rb'),
     ]
 
     module_n_x_pixel = image_pixel_width // 2
     module_n_y_pixel = image_pixel_height // 2 // 2
 
-    frame_info = calculate_frame_info(image_pixel_height, image_pixel_width)
-    frame_info_original = calculate_frame_info_original(image_pixel_height, image_pixel_width)
+    frame_info = calculate_frame_info(image_pixel_width, image_pixel_height)
+    frame_info_original = calculate_frame_info_original(image_pixel_width, image_pixel_height)
 
     # Check if both frame_info routines give you the same numbers.
     for i in range(len(frame_info)):
         print(frame_info[i], frame_info_original[i])
         # assert frame_info[i] == frame_info_original[i]
 
-    packet_n_data_bytes, last_packet_starting_row, frame_n_packets = frame_info
+    packet_n_data_bytes, last_packet_starting_row, frame_n_packets, _, _ = frame_info
     # 32 bytes UDP header.
     packet_n_bytes = packet_n_data_bytes + 32
     print(
@@ -178,8 +179,11 @@ if __name__ == '__main__':
     for i in range(frame_n_packets*2):
 
         for input_file in files:
+            # uint64_t with the number of bytes per packet.
+            n_bytes_to_read = struct.unpack('Q', input_file.read(8))[0]
+            assert(n_bytes_to_read, packet_n_bytes)
 
-            data = input_file.read(packet_n_bytes)
+            data = input_file.read(n_bytes_to_read)
             packet = GfUdpPacket.from_buffer_copy(data)
             frame = gf_udp_packet_to_frame(packet, module_n_x_pixel, module_n_y_pixel, frame_n_packets)
             key = (frame.frame_index, frame.quadrant_id, frame.link_id, input_file.name)
@@ -188,6 +192,7 @@ if __name__ == '__main__':
                 'quadrant_row_length_in_blocks': packet.quadrant_row_length_in_blocks,
                 'last_packet_starting_row': packet.packet_starting_row
             })
+            print(n_bytes_to_read, packet.packet_starting_row)
 
             if 'n_packets' not in cache[key]:
                 cache[key]['n_packets'] = 0
