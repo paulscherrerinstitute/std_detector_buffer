@@ -3,12 +3,12 @@
   script: |
     cmake -B release -DCMAKE_BUILD_TYPE=Debug -G Ninja
     cmake --build release
+    cp -r release /ioc/modules/patro_m
     ctest --test-dir release -VV
     [[ ! -d .venv ]] && python3 -m venv .venv
     source .venv/bin/activate
     python3 -m pip install -r testing/requirements.txt
     pytest testing --junitxml=release/integration_tests.xml
-    cp -r release /ioc/modules/patro_m
   artifacts:
     when: always
     expire_in: 1 week
