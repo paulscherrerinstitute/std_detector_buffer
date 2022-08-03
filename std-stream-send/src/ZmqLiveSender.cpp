@@ -1,18 +1,13 @@
 #include "ZmqLiveSender.hpp"
 
-#include <iostream>
 #include <stdexcept>
-
 #include <zmq.h>
-#include <fmt/core.h>
 
 #include "stream_config.hpp"
 using namespace std;
 using namespace stream_config;
 
-ZmqLiveSender::ZmqLiveSender(void* ctx,
-                             const std::string& det_name,
-                             const std::string& stream_address)
+ZmqLiveSender::ZmqLiveSender(void* ctx, const std::string& stream_address)
 {
   socket = zmq_socket(ctx, ZMQ_PUB);
 

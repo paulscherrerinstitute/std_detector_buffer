@@ -13,10 +13,10 @@ private:
   std::string _get_data_type_mapping(int dtype) const;
 
 public:
-  ZmqLiveSender(void* ctx, const std::string& det_name, const std::string& stream_address);
+  ZmqLiveSender(void* ctx, const std::string& stream_address);
   ~ZmqLiveSender();
 
-  void send(const ImageMetadata& meta, const char* data, const size_t image_n_bytes);
+  void send(const ImageMetadata& meta, const char* data, size_t image_n_bytes);
 };
 
 #endif // STD_DETECTOR_BUFFER_ZMQ_LIVE_SENDER_HPP
