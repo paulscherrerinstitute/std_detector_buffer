@@ -7,11 +7,7 @@
 
 class ZmqLiveSender
 {
-  void* ctx_;
-  const std::string& det_name_;
-  const std::string& stream_address_;
-
-  void* socket_streamvis_;
+  void* socket;
 
 private:
   std::string _get_data_type_mapping(int dtype) const;
