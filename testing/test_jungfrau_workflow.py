@@ -22,6 +22,7 @@ def get_converter_packet_array(output_buffer: memoryview, slot: int) -> np.ndarr
 
 
 @pytest.mark.asyncio
+@pytest.mark.timeout(60)
 async def test_udp_receiver_with_converter(test_path, cleanup_jungfrau_shared_memory):
     receiver_command = build_command('std_udp_recv_jf', test_path / 'jungfrau_detector.json', JungfrauConfigUdp.id)
     converter_command = build_command('std_data_convert', test_path / 'jungfrau_detector.json',

@@ -53,6 +53,7 @@ def test_converter_should_return_without_needed_arguments():
 
 
 @pytest.mark.asyncio
+@pytest.mark.timeout(60)
 async def test_converter_send_simple_data_for_packet_with_0_id(test_path):
     command = build_jungfrau_converter_command(test_path)
 
@@ -73,6 +74,7 @@ async def test_converter_send_simple_data_for_packet_with_0_id(test_path):
 
 
 @pytest.mark.asyncio
+@pytest.mark.timeout(60)
 async def test_converter_send_real_image_with_custom_slot(test_path):
     slot = 3
     command = build_jungfrau_converter_command(test_path)
@@ -94,6 +96,7 @@ async def test_converter_send_real_image_with_custom_slot(test_path):
 
 
 @pytest.mark.asyncio
+@pytest.mark.timeout(60)
 async def test_converter_modifying_image_with_gains_and_pedestals(test_path):
     slot = 7
     command = build_jungfrau_converter_command(test_path, 'gains_2_pedestals_minus1.h5')
