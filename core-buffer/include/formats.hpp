@@ -21,10 +21,17 @@ struct ModuleFrame
 };
 #pragma pack(pop)
 
-// ImageMetadata status convention
-// 0 good image
-// 1 frames with missing packets
-// 2 frames with different ids
+enum ImageMetadataDtype {
+  uint8=1, uint16=2, uint32=4, uint64=8,
+  int8=11, int16=12, int32=14, int64=18,
+  float16=22, float32=24, float64=28
+};
+
+enum ImageMetadataStatus {
+  good_image=0,
+  missing_packets=1,
+  id_missmatch=2
+};
 
 #pragma pack(push)
 #pragma pack(1)
@@ -34,7 +41,6 @@ struct ImageMetadata
   uint64_t height;
   uint64_t width;
   uint16_t dtype;
-  uint16_t encoding;
   uint16_t status;
   uint16_t source_id;
 };
