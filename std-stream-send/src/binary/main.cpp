@@ -2,9 +2,11 @@
 #include <zmq.h>
 #include <buffer_utils.hpp>
 #include <ram_buffer.hpp>
-
-#include "stream_config.hpp"
 #include <algorithm>
+
+#include "jungfrau.hpp"
+#include "stream_config.hpp"
+#include "core_buffer/receiver.hpp"
 
 using namespace std;
 using namespace stream_config;
@@ -59,23 +61,38 @@ int main(int argc, char* argv[])
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, STREAM_ZMQ_IO_THREADS);
   auto socket = bind_socket(ctx, stream_address);
 
-  auto receiver = buffer_utils::connect_socket(ctx, config.detector_name + "-assembler");
+  // TODO: The module_id here is temporary.
+  auto const module_id = 0;
+  auto receiver = cb::Receiver{
+      {config.detector_name + std::to_string(module_id),
+       BYTES_PER_PACKET - DATA_BYTES_PER_PACKET,
+       DATA_BYTES_PER_PACKET * N_PACKETS_PER_FRAME,
+       buffer_config::RAM_BUFFER_N_SLOTS,
+       static_cast<uint16_t>(config.start_udp_port + module_id)},
+      ctx};
 
-  const size_t IMAGE_N_BYTES = config.image_pixel_height * config.image_pixel_width * config.bit_depth / 8;
+  // TODO: This is temporary. * 4 is because of float32 (after conversion).
+  const size_t IMAGE_N_BYTES = config.image_pixel_height * config.image_pixel_width * 4;
 
-  RamBuffer image_buffer(config.detector_name + "_assembler", sizeof(ImageMetadata), IMAGE_N_BYTES,
-                         RAM_BUFFER_N_SLOTS);
-
-  ImageMetadata meta;
+  ImageMetadata image_meta;
+  image_meta.dtype = ImageMetadataDtype::float32;
+  image_meta.height = config.image_pixel_height;
+  image_meta.width = config.image_pixel_width;
 
   while (true) {
 
-    // Receive the image id to forward.
-    zmq_recv(receiver, &meta, sizeof(meta), 0);
-    // gets the image data
-    char* dst_data = image_buffer.get_data(meta.id);
+    auto [image_id, meta_buffer, data_buffer] = receiver.receive();
 
-    zmq_send(socket, &meta, sizeof(meta), ZMQ_SNDMORE);
-    zmq_send(socket, dst_data, IMAGE_N_BYTES, 0);
+    image_meta.id = image_id;
+    auto frame_meta = reinterpret_cast<JFFrame*>(meta_buffer);
+
+    if (frame_meta->n_missing_packets == 0) {
+      image_meta.status = ImageMetadataStatus::good_image;
+    } else {
+      image_meta.status = ImageMetadataStatus::missing_packets;
+    }
+
+    zmq_send(socket, &image_meta, sizeof(image_meta), ZMQ_SNDMORE);
+    zmq_send(socket, data_buffer, IMAGE_N_BYTES, 0);
   }
 }
