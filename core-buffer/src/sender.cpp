@@ -9,7 +9,7 @@ namespace cb {
 Sender::Sender(const SendReceiveConfig& config, void* zmq_context)
     : buffer(config.buffer_name, config.n_bytes_meta, config.n_bytes_data, config.n_buffer_slots)
 {
-  auto port_name = config.buffer_name + ":" + std::to_string(config.udp_port);
+  auto port_name = config.buffer_name;
   socket = buffer_utils::bind_socket(zmq_context, port_name);
 }
 

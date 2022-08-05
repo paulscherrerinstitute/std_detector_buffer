@@ -40,7 +40,7 @@ class Frame(Structure):
 
 class JungfrauConfigUdp:
     id = 1
-    name = f'jungfrau{id}'
+    name = f'jungfrau-{id}'
     udp_port_base = 50020
     meta_bytes_per_packet = 48
     data_bytes_per_packet = 8192 * 128
@@ -52,7 +52,7 @@ class JungfrauConfigUdp:
 
 class JungfrauConfigConverter:
     id = JungfrauConfigUdp.id
-    name = f'jungfrau{id}-converted'
+    name = f'jungfrau-{id}-converted'
     data_bytes_per_packet = JungfrauConfigUdp.data_bytes_per_packet * 2
     udp_port_base = JungfrauConfigUdp.udp_port_base
     slots = JungfrauConfigUdp.slots

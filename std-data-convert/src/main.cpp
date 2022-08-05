@@ -16,7 +16,7 @@ cb::Receiver create_receiver(uint16_t module_id,
                              void* ctx)
 {
   return cb::Receiver{
-      {config.detector_name + std::to_string(module_id), BYTES_PER_PACKET - DATA_BYTES_PER_PACKET,
+      {config.detector_name + "-" + std::to_string(module_id), BYTES_PER_PACKET - DATA_BYTES_PER_PACKET,
        DATA_BYTES_PER_PACKET * N_PACKETS_PER_FRAME, buffer_config::RAM_BUFFER_N_SLOTS,
        static_cast<uint16_t>(config.start_udp_port + module_id)},
       ctx};
@@ -24,7 +24,7 @@ cb::Receiver create_receiver(uint16_t module_id,
 
 cb::Sender create_sender(uint16_t module_id, const buffer_utils::DetectorConfig& config, void* ctx)
 {
-  return cb::Sender{{config.detector_name + std::to_string(module_id) + "-converted",
+  return cb::Sender{{config.detector_name + "-" + std::to_string(module_id) + "-converted",
                      BYTES_PER_PACKET - DATA_BYTES_PER_PACKET, MODULE_N_PIXELS * sizeof(float),
                      buffer_config::RAM_BUFFER_N_SLOTS,
                      static_cast<uint16_t>(config.start_udp_port + module_id)},

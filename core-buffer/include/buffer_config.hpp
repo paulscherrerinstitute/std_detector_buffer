@@ -20,7 +20,7 @@ const int BUFFER_ZMQ_SNDHWM = 100;
 // HWM for live stream from buffer.
 const int BUFFER_ZMQ_RCVHWM = 100;
 // IPC address of the live stream.
-const std::string IPC_URL_BASE = "ipc:///tmp/std-daq-";
+const std::string IPC_URL_BASE = "ipc:///tmp/";
 // Number of image slots in ram buffer - 10 seconds should be enough
 const int RAM_BUFFER_N_SLOTS = 100 * 10;
 } // namespace buffer_config

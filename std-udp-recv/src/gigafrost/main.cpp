@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
   const size_t LAST_PACKET_STARTING_ROW = MODULE_N_Y_PIXEL - LAST_PACKET_N_ROWS;
 
   const cb::SendReceiveConfig module_config = {
-      detector_config.detector_name + std::to_string(module_id),
+      detector_config.detector_name + "-" + std::to_string(module_id),
       BYTES_PER_PACKET - PACKET_N_DATA_BYTES,
       PACKET_N_DATA_BYTES * FRAME_N_PACKETS,
       RAM_BUFFER_N_SLOTS,
