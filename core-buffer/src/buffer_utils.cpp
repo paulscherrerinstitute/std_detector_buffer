@@ -15,7 +15,7 @@ using namespace buffer_config;
 
 void* buffer_utils::connect_socket(void* ctx, const string& buffer_name)
 {
-  string ipc_address = buffer_config::IPC_URL_BASE + buffer_name;
+  string ipc_address = std::string("ipc:///tmp/") + buffer_name;
 
 #ifdef DEBUG_OUTPUT
   cout << "[buffer_utils::connect_socket]";

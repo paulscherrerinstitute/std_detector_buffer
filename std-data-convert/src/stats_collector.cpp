@@ -30,7 +30,7 @@ void StatsCollector::processing_finished()
   stats.first += now - processing_start;
   stats.second++;
 
-  if (10s > now - last_flush_time) {
+  if (10s < now - last_flush_time) {
     fmt::print("std_data_convert,detector_name={},module_id={} "
                "average_process_time_ns={},number_of_processed_packets={} "
                "{}\n",

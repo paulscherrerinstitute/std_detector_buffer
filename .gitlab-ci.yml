@@ -14,6 +14,6 @@ default:
 
 test:unit_tests:
   extends: [ .build_and_test ]
-  tags: [ standard-docker ]
+  tags: [ sf-docker ]
   variables:
     DOCKER_IMAGE: paulscherrerinstitute/std_detector_buffer_base:latest

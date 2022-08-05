@@ -3,6 +3,7 @@
   script: |
     cmake -B release -DCMAKE_BUILD_TYPE=Release -G Ninja
     cmake --build release
+    cp -r release /ioc/modules/patro_m
     ctest --test-dir release -VV
     [[ ! -d .venv ]] && python3 -m venv .venv
     source .venv/bin/activate
