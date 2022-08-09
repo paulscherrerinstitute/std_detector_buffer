@@ -30,12 +30,8 @@ class ImageMetadata(Structure):
         return self.status_mapping[self.status]
 
     def __str__(self):
-        return f"id: {self.id}; " \
-               f"height: {(self.height >> 1) << 1}; " \
-               f"width: {self.width}; " \
-               f"dtype: {self.dtype}; " \
-               f"status: {self.status}; " \
-               f"source_id: {self.source_id}; "
+        return f"id: {self.id}; height: {self.height}; width: {self.width}; " \
+               f"dtype: {self.dtype}; status: {self.status}; source_id: {self.source_id};"
 
 
 class StdStreamRecvBinary(object):
