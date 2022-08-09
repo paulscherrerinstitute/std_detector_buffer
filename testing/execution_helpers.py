@@ -1,4 +1,5 @@
 import shlex
+import shutil
 import subprocess
 import time
 from pathlib import Path
@@ -10,6 +11,11 @@ def executable(name) -> Path:
     for file in binary_path.rglob(name):
         if file.is_file():
             return file
+
+    filename = shutil.which(name)
+    if filename:
+        return filename
+
     assert False
 
 
