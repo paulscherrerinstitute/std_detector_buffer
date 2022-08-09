@@ -35,9 +35,9 @@ class ImageMetadata(Structure):
 
 
 class StdStreamRecvBinary(object):
-    def __init__(self, input_stream_address, recv_timeout):
+    def __init__(self, input_stream_address, recv_timeout_ms=500):
         self.input_stream_address = input_stream_address
-        self.recv_timeout = recv_timeout
+        self.recv_timeout_ms = recv_timeout_ms
 
         self.ctx = None
         self.receiver = None
@@ -48,12 +48,13 @@ class StdStreamRecvBinary(object):
 
         self.ctx = zmq.Context()
         self.receiver = self.ctx.socket(zmq.SUB)
+        self.receiver.RCVTIMEO = self.recv_timeout_ms
         self.receiver.connect(self.input_stream_address)
         self.receiver.subscribe("")
 
     def disconnect(self):
         try:
-            self.receiver.disconnect()
+            self.receiver.close()
             self.ctx.term()
         finally:
             pass
@@ -67,8 +68,8 @@ class StdStreamRecvBinary(object):
 
     @staticmethod
     def _deserializer(multipart_bytes):
-        meta = ImageMetadata.from_buffer(multipart_bytes[0])
-        data = np.frombuffer(multipart_bytes[1], dtype=meta.get_dtype_description(), shape=(meta.height, meta.width))
+        meta = ImageMetadata.from_buffer_copy(multipart_bytes[0])
+        data = np.frombuffer(multipart_bytes[1], dtype=meta.get_dtype_description()).reshape((meta.height, meta.width))
 
         return meta, data
 
