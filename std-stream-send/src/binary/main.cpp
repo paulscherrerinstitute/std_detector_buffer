@@ -64,9 +64,9 @@ int main(int argc, char* argv[])
   // TODO: The module_id here is temporary.
   auto const module_id = 0;
   auto receiver = cb::Receiver{
-      {config.detector_name + std::to_string(module_id),
+      {config.detector_name + "-" + std::to_string(module_id) + "-converted",
        BYTES_PER_PACKET - DATA_BYTES_PER_PACKET,
-       DATA_BYTES_PER_PACKET * N_PACKETS_PER_FRAME,
+       config.image_pixel_width * config.image_pixel_height * sizeof(float),
        buffer_config::RAM_BUFFER_N_SLOTS,
        static_cast<uint16_t>(config.start_udp_port + module_id)},
       ctx};
