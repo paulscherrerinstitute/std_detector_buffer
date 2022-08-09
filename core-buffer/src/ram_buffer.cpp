@@ -30,10 +30,10 @@ RamBuffer::RamBuffer(string channel_name,
   using namespace date;
   cout << "[" << system_clock::now() << "]";
   cout << " [RamBuffer::RamBuffer] ";
-  cout << " buffer_name_ " << buffer_name_;
-  cout << " || n_slots_ " << n_slots_;
-  cout << " || meta_bytes_" << meta_bytes_;
-  cout << " || data_bytes_" << data_bytes_;
+  cout << " buffer_name " << buffer_name_;
+  cout << " || n_slots " << n_slots_;
+  cout << " || meta_bytes " << meta_bytes_;
+  cout << " || data_bytes " << data_bytes_;
   cout << endl;
 #endif
 
