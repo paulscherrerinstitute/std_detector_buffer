@@ -1,0 +1,25 @@
+package:
+  name: std_buffer
+  version: 1.0.0
+
+source:
+  path: ..
+
+requirements:
+  build:
+    - python
+  run:
+    - python
+    - pyzmq
+    - numpy
+    - h5py
+
+
+build:
+  number: 0
+  entry_points:
+
+
+about:
+  home: https://github.com/paulscherrerinstitute/std_detector_buffer
+
