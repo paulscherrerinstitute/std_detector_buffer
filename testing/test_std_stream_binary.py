@@ -1,13 +1,12 @@
 import json
 from socket import socket, AF_INET, SOCK_DGRAM
-from time import sleep
 
 import pytest as pytest
 import numpy as np
 
 from testing.execution_helpers import build_command, run_command_in_parallel
 from testing.jungfrau.data import JungfrauConfigUdp, UdpPacket
-from tools.std_stream_recv_binary import StdStreamRecvBinary
+from tools.stream_binary import StdStreamRecvBinary
 from testing.fixtures import test_path
 
 

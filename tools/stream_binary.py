@@ -75,3 +75,33 @@ class StdStreamRecvBinary(object):
 
     def recv(self):
         return self.receiver.recv_serialized(self._deserializer)
+
+
+class StdStreamSendBinary(object):
+    def __init__(self, output_stream_address):
+        self.output_stream_address = output_stream_address
+
+        self.ctx = None
+        self.sender = None
+
+    def bind(self):
+        self.ctx = zmq.Context()
+        self.sender = self.ctx.socket(zmq.PUB)
+        self.sender.bind(self.input_stream_address)
+
+    def close(self):
+        try:
+            self.sender.close()
+            self.ctx.term()
+        finally:
+            pass
+
+    def __enter__(self):
+        self.bind()
+        return self
+
+    def __exit__(self):
+        self.close()
+
+    def send(self, meta: ImageMetadata, data: np.ndarray):
+        self.sender.send_multipart((bytes(meta), data.tobytes()))
