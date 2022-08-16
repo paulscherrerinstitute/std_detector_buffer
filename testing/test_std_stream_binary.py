@@ -35,7 +35,7 @@ async def test_std_stream_send_binary_with_recv(test_path):
     with run_command_in_parallel(recv_cmd), \
          run_command_in_parallel(converter_command), \
          run_command_in_parallel(stream_cmd):
-        with StdStreamRecvBinary('ipc://send_binary_test') as input_stream:
+        with StdStreamRecvBinary('ipc://send_binary_test', recv_timeout_ms=2000) as input_stream:
             with socket(AF_INET, SOCK_DGRAM) as udp_socket:
                 # send via UDP 128 packets to std_udp_recv_jf
                 for i_packet in range(JungfrauConfigUdp.packets_per_frame):
