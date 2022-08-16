@@ -26,22 +26,30 @@ def process_module(filename: str, module_id: int, detector_data: dict):
                                data=f['pixel_mask'][(module_id - 1) * width:module_id * width])
 
 
-parser = argparse.ArgumentParser(description='Extract from h5 file data values for single module')
-parser.add_argument('detector_file', type=str,
-                    help='input h5 file with all module gains and pedestals values')
-parser.add_argument('h5_file', type=str, help='input h5 file with all module gains and pedestals values')
-parser.add_argument('-m', '--module_id', type=int,
-                    help='id of module to be extracted, indexed from 1, (0 = all modules)',
-                    default=0)
+def main():
+    parser = argparse.ArgumentParser(description='Extract from h5 file data values for single module')
+    parser.add_argument('detector_file', type=str,
+                        help='input h5 file with all module gains and pedestals values')
+    parser.add_argument('h5_file', type=str, help='input h5 file with all module gains and pedestals values')
+    parser.add_argument('-m', '--module_id', type=int,
+                        help='id of module to be extracted, indexed from 1, (0 = all modules)',
+                        default=0)
 
-arguments = parser.parse_args(sys.argv[1:])
-data = json.loads(Path(arguments.detector_file).read_text())
+    arguments = parser.parse_args(sys.argv[1:])
+    data = json.loads(Path(arguments.detector_file).read_text())
 
-if arguments.module_id < 0 or arguments.module_id > data['n_modules']:
-    raise ValueError(f'Provided {arguments.module_id=} must be greater be within range [0,{data["n_modules"]}]')
+    if arguments.module_id < 0 or arguments.module_id > data['n_modules']:
+        raise ValueError(f'Provided {arguments.module_id=} must be greater be within range [0,{data["n_modules"]}]')
 
-if arguments.module_id != 0:
-    process_module(arguments.h5_file, arguments.module_id, data)
-else:
-    for i in range(data['n_modules']):
-        process_module(arguments.h5_file, i + 1, data)
+    if arguments.module_id != 0:
+        process_module(arguments.h5_file, arguments.module_id, data)
+    else:
+        for i in range(data['n_modules']):
+            process_module(arguments.h5_file, i + 1, data)
+
+
+if __name__ == '__main__':
+    main()
+
+
+

@@ -24,6 +24,7 @@ build:
 
   entry_points:
     - std_stream_binary_jf_sim = std_buffer.jungfrau.stream_binary_jf_sim:main
+    - std_extract_jf_gains_and_pedestals = std_buffer.jungfrau.extract_gains_and_pedestals_for_module:main
 
 about:
   home: https://github.com/paulscherrerinstitute/std_detector_buffer
