@@ -16,12 +16,14 @@ requirements:
     - numpy
     - h5py
 
-
 build:
   noarch: python
   number: 0
   preserve_egg_dir: True
   script: python setup.py install
+
+  entry_points:
+    - sim_stream_binary_jf = std_buffer.jungfrau.sim_stream_binary_jf:main
 
 about:
   home: https://github.com/paulscherrerinstitute/std_detector_buffer
