@@ -1,8 +1,9 @@
+#!/usr/bin/python3
 import argparse
 from time import sleep, time
 import numpy
 
-from tools.stream_binary import StdStreamSendBinary, ImageMetadata
+from ..stream_binary import StdStreamSendBinary, ImageMetadata
 
 
 def generate_simulated_image(image_shape, beam_shape, noise, dtype):

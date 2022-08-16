@@ -7,7 +7,7 @@ import zmq.asyncio
 from testing.fixtures import test_path, cleanup_jungfrau_shared_memory
 from testing.communication import start_subscriber_communication
 from testing.execution_helpers import build_command, run_command_in_parallel
-from testing.jungfrau.data import UdpPacket, JungfrauConfigUdp, JungfrauConfigConverter
+from std_buffer.jungfrau.data import UdpPacket, JungfrauConfigUdp, JungfrauConfigConverter
 
 
 def jungfrau_socket_address() -> tuple:

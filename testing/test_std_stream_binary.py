@@ -5,8 +5,8 @@ import pytest as pytest
 import numpy as np
 
 from testing.execution_helpers import build_command, run_command_in_parallel
-from testing.jungfrau.data import JungfrauConfigUdp, UdpPacket
-from tools.stream_binary import StdStreamRecvBinary
+from std_buffer.jungfrau.data import JungfrauConfigUdp, UdpPacket
+from std_buffer.stream_binary import StdStreamRecvBinary
 from testing.fixtures import test_path
 
 

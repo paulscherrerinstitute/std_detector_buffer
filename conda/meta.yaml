@@ -23,7 +23,7 @@ build:
   script: python setup.py install
 
   entry_points:
-    - sim_stream_binary_jf = std_buffer.jungfrau.sim_stream_binary_jf:main
+    - std_stream_binary_jf_sim = std_buffer.jungfrau.stream_binary_jf_sim:main
 
 about:
   home: https://github.com/paulscherrerinstitute/std_detector_buffer

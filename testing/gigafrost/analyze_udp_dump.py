@@ -3,7 +3,7 @@ from collections import defaultdict
 from math import ceil
 from pathlib import Path
 import struct
-from testing.gigafrost.data import GFFrame, GF_MAX_PAYLOAD, GfUdpPacket
+from std_buffer.gigafrost.data import GFFrame, GF_MAX_PAYLOAD, GfUdpPacket
 
 
 
