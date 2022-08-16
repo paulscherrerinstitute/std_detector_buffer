@@ -1,6 +1,8 @@
+{% set data = load_setup_py_data(setup_file='../setup.py', from_recipe_dir=True) %}
+
 package:
   name: std_buffer
-  version: 1.0.0
+  version: {{ data.get('version') }}
 
 source:
   path: ..
@@ -16,9 +18,10 @@ requirements:
 
 
 build:
-  number: 0
-  entry_points:
-
+  noarch: python
+  number: 4
+  preserve_egg_dir: True
+  script: python setup.py install
 
 about:
   home: https://github.com/paulscherrerinstitute/std_detector_buffer
