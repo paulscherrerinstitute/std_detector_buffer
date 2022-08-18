@@ -39,7 +39,8 @@ def generate_jf_binary_stream(output_stream_address, rep_rate=10,
     """
     time_to_sleep = 1/rep_rate
 
-    meta = ImageMetadata(height=1024, width=512, dtype=ImageMetadata.map_dtype_description_to_value(dtype))
+    meta = ImageMetadata(height=image_shape[0], width=image_shape[1],
+                         dtype=ImageMetadata.map_dtype_description_to_value(dtype))
     meta.status = 0
     meta.source_id = 0
 
