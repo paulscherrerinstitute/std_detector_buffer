@@ -68,23 +68,38 @@ int main(int argc, char* argv[])
   const uint32_t MODULE_N_Y_PIXEL = detector_config.image_pixel_height / 2 / 2;
   // Each pixel has 12 bytes -> pixel to bytes multiplier is 1.5
   const auto MODULE_N_DATA_BYTES = static_cast<size_t>(MODULE_N_X_PIXEL * MODULE_N_Y_PIXEL * 1.5);
-  // Maximum udp packet payload divided by the module row size in bytes or module Y size if smaller.
-  const size_t PACKET_N_ROWS = std::min(
-      static_cast<uint32_t>(PACKET_N_DATA_BYTES_MAX / (MODULE_N_X_PIXEL * 1.5)), MODULE_N_Y_PIXEL);
+
+  // Calculate the number of rows in each packet.
+  // Do NOT optimize these expressions. The exact form of this calculation is important due to rounding.
+  const uint32_t n_12pixel_blocks = MODULE_N_X_PIXEL / 12;
+  const uint32_t n_cache_line_blocks =
+      (PACKET_N_DATA_BYTES_MAX / (36 * n_12pixel_blocks)) * n_12pixel_blocks / 2;
+  // Each cachel line block (64 bytes) has 48 pixels (12 bit pixels)
+  const uint32_t PACKET_N_ROWS = std::min(n_cache_line_blocks * 48 / MODULE_N_X_PIXEL,
+                                          MODULE_N_Y_PIXEL);
+
   // Calculate the number of data bytes per packet.
   auto PACKET_N_DATA_BYTES = static_cast<size_t>(MODULE_N_X_PIXEL * PACKET_N_ROWS * 1.5);
-  // TODO: Code from old backend -> isn't X always divisible by 48?
   if (PACKET_N_ROWS % 2 == 1 && MODULE_N_X_PIXEL % 48 != 0) {
     PACKET_N_DATA_BYTES += 36;
   }
-  // Number of rows in a frame divided by the number of rows in a packet.
+
+  // Calculate the number of packets in a single frame.
   const size_t FRAME_N_PACKETS = std::ceil(MODULE_N_Y_PIXEL / PACKET_N_ROWS);
+
   // Calculate if the last packet has the same number of rows as the rest of the packets.
   auto LAST_PACKET_N_ROWS = static_cast<size_t>(MODULE_N_Y_PIXEL % PACKET_N_ROWS);
   // If there is no reminder the last packet has the same number of rows as others.
   if (LAST_PACKET_N_ROWS == 0) {
     LAST_PACKET_N_ROWS = PACKET_N_ROWS;
   }
+
+  // Number of data bytes in the last packet.
+  auto LAST_PACKET_N_DATA_BYTES = static_cast<size_t>(MODULE_N_X_PIXEL * LAST_PACKET_N_ROWS * 1.5);
+  if ((LAST_PACKET_N_ROWS % 2 == 1) && (MODULE_N_X_PIXEL % 48 != 0)) {
+      LAST_PACKET_N_DATA_BYTES += 36;
+    }
+
   // Get offset of last packet in frame to know when to commit frame.
   const size_t LAST_PACKET_STARTING_ROW = MODULE_N_Y_PIXEL - LAST_PACKET_N_ROWS;
 
