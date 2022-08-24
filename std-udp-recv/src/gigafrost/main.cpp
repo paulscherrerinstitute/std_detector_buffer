@@ -163,7 +163,6 @@ int main(int argc, char* argv[])
       const auto& packet = packet_buffer[i_packet];
 
       // Offset in bytes =  number of rows * row size in pixels * 1.5 (12bit pixels)
-      // TODO: This one is probably invalid.
       const size_t frame_buffer_offset = packet.packet_starting_row * MODULE_N_X_PIXEL * 1.5;
 
       // Packet belongs to the frame we are currently processing.
