@@ -3,33 +3,7 @@ from collections import defaultdict
 from math import ceil
 from pathlib import Path
 import struct
-from std_buffer.gigafrost.data import GFFrame, GF_MAX_PAYLOAD, GfUdpPacket
-
-
-
-def gf_udp_packet_to_frame(packet, module_n_x_pixels, module_n_y_pixels, frame_n_packets):
-    meta = GFFrame()
-
-    meta.n_missing_packets = frame_n_packets
-    meta.size_x = module_n_x_pixels
-    meta.size_y = module_n_y_pixels
-
-    meta.frame_index = packet.frame_index
-    meta.scan_id = packet.scan_id
-    meta.scan_time = packet.scan_time
-    meta.sync_time = packet.sync_time
-
-    meta.frame_timestamp = (packet.image_timing & 0x000000FFFFFFFFFF)
-    meta.exposure_time = (packet.image_timing & 0xFFFFFF0000000000) >> 40
-
-    meta.swapped_rows = packet.quadrant_rows & 0b1
-    meta.quadrant_id = (packet.status_flags & 0b11000000) >> 6
-    meta.link_id = (packet.status_flags & 0b00100000) >> 5
-    meta.corr_mode = (packet.status_flags & 0b00011100) >> 2
-
-    meta.do_not_store = packet.image_status_flags & 0x8000 >> 15
-
-    return meta
+from std_buffer.gigafrost.data import GF_MAX_PAYLOAD, GfUdpPacket, gf_udp_packet_to_frame
 
 
 def calculate_frame_info(image_pixel_width, image_pixel_height):
@@ -124,7 +98,7 @@ if __name__ == '__main__':
     bin_files = Path(__file__).parent.absolute() / 'udp_dumps' / f'{image_pixel_width}_{image_pixel_height}'
     files = [
         open(f'{bin_files}/2000.dat', 'rb'),
-        open(f'{bin_files}/2001.dat', 'rb'),
+        # open(f'{bin_files}/2001.dat', 'rb'),
         # open(f'{bin_files}/2002.dat', 'rb'),
         # open(f'{bin_files}/2003.dat', 'rb'),
         # open(f'{bin_files}/2004.dat', 'rb'),
