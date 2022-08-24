@@ -73,7 +73,7 @@ def gf_udp_packet_to_frame(packet, module_n_x_pixels, module_n_y_pixels, frame_n
     return meta
 
 
-def calculate_udp_packet_info(image_pixel_width, image_pixel_height):
+def calculate_udp_packet_info(image_pixel_height, image_pixel_width):
     # Each line of final image is composed by 2 quadrants side by side.
     module_n_x_pixel = image_pixel_width // 2
 

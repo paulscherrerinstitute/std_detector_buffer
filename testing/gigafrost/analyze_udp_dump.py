@@ -5,7 +5,7 @@ import struct
 from std_buffer.gigafrost.data import GF_MAX_PAYLOAD, GfUdpPacket, gf_udp_packet_to_frame, calculate_udp_packet_info
 
 
-def calculate_frame_info_original(image_width, image_height, link_id=0):
+def calculate_udp_packet_info_original(image_height, image_width, link_id=0):
     # Each line of final image is composed by 2 quadrants side by side.
     module_size_x = image_width // 2
     # Each quadrant is composed by 2 modules streaming interleaved image lines.
@@ -37,8 +37,8 @@ def calculate_frame_info_original(image_width, image_height, link_id=0):
 if __name__ == '__main__':
     for y in range(4, 2016, 4):
         for x in range(48, 2016, 12):
-            new_info = calculate_udp_packet_info(x, y)
-            old_info = calculate_frame_info_original(x, y)
+            new_info = calculate_udp_packet_info(y, x)
+            old_info = calculate_udp_packet_info_original(y, x)
 
             n_bytes_old, n_bytes_new =old_info[0], new_info['packet_n_data_bytes']
             starting_old, starting_new = old_info[1]/2, new_info['last_packet_starting_row']
@@ -65,14 +65,14 @@ if __name__ == '__main__':
     module_n_x_pixel = image_pixel_width // 2
     module_n_y_pixel = image_pixel_height // 2 // 2
 
-    frame_info = calculate_udp_packet_info(image_pixel_width, image_pixel_height)
+    frame_info = calculate_udp_packet_info(image_pixel_height, image_pixel_width)
     print(frame_info)
-    frame_info_original = calculate_frame_info_original(image_pixel_width, image_pixel_height)
+    frame_info_original = calculate_udp_packet_info_original(image_pixel_height, image_pixel_width)
 
-    # Check if both frame_info routines give you the same numbers.
+    # # Check if both frame_info routines give you the same numbers.
     # for i in range(len(frame_info)):
     #     print(frame_info[i], frame_info_original[i])
-    #     # assert frame_info[i] == frame_info_original[i]
+    #     assert frame_info[i] == frame_info_original[i]
 
     cache = defaultdict(dict)
 
