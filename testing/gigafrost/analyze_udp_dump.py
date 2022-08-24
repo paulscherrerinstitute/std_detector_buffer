@@ -1,53 +1,8 @@
 import json
 from collections import defaultdict
-from math import ceil
 from pathlib import Path
 import struct
-from std_buffer.gigafrost.data import GF_MAX_PAYLOAD, GfUdpPacket, gf_udp_packet_to_frame
-
-
-def calculate_frame_info(image_pixel_width, image_pixel_height):
-    # Each line of final image is composed by 2 quadrants side by side.
-    module_n_x_pixel = image_pixel_width // 2
-
-    # Each quadrant is composed by 2 modules streaming interleaved image lines.
-    module_n_y_pixel = image_pixel_height // 2 // 2
-
-    # Maximum udp packet payload divided by the module row size in bytes or module Y size if smaller.
-    # packet_n_rows = int(min(GF_MAX_PAYLOAD / 1.5 / module_n_x_pixel, module_n_y_pixel))
-
-    # Do NOT optimize these expressions. The exact form of this calculation is important due to rounding.
-    n_12pixel_blocks = module_n_x_pixel // 12
-    n_cache_line_blocks = int((GF_MAX_PAYLOAD / (36 * n_12pixel_blocks)) * n_12pixel_blocks / 2)
-    # Each cachel line block (64 bytes) has 48 pixels (12 bit pixels)
-    packet_n_rows = int(min(n_cache_line_blocks * 48 / module_n_x_pixel, module_n_y_pixel))
-
-    # Calculate the number of data bytes per packet.
-    packet_n_data_bytes = int(module_n_x_pixel * packet_n_rows * 1.5)
-    if packet_n_rows % 2 == 1 and module_n_x_pixel % 48 != 0:
-        # Add bytes for 24 pixels (24 * 1.5) padding.
-        packet_n_data_bytes += 36
-
-    # Number of rows in a frame divided by the number of rows in a packet.
-    frame_n_packets = ceil(module_n_y_pixel / packet_n_rows)
-
-    # Calculate if the last packet has the same number of rows as the rest of the packets.
-    last_packet_n_rows = module_n_y_pixel % packet_n_rows or packet_n_rows
-
-    last_packet_n_data_bytes = int(module_n_x_pixel * last_packet_n_rows * 1.5)
-    if last_packet_n_rows % 2 == 1 and module_n_x_pixel % 48 != 0:
-        # Add bytes for 24 pixels (24 * 1.5) padding.
-        last_packet_n_data_bytes += 36
-
-    # Get offset of last packet in frame to know when to commit frame.
-    last_packet_starting_row = module_n_y_pixel - last_packet_n_rows
-
-    return {'packet_n_data_bytes': packet_n_data_bytes,
-            'last_packet_starting_row': last_packet_starting_row,
-            'frame_n_packets': frame_n_packets,
-            'packet_n_rows': packet_n_rows,
-            'last_packet_n_rows': last_packet_n_rows,
-            'last_packet_n_data_bytes': last_packet_n_data_bytes}
+from std_buffer.gigafrost.data import GF_MAX_PAYLOAD, GfUdpPacket, gf_udp_packet_to_frame, calculate_udp_packet_info
 
 
 def calculate_frame_info_original(image_width, image_height, link_id=0):
@@ -82,7 +37,7 @@ def calculate_frame_info_original(image_width, image_height, link_id=0):
 if __name__ == '__main__':
     for y in range(4, 2016, 4):
         for x in range(48, 2016, 12):
-            new_info = calculate_frame_info(x, y)
+            new_info = calculate_udp_packet_info(x, y)
             old_info = calculate_frame_info_original(x, y)
 
             n_bytes_old, n_bytes_new =old_info[0], new_info['packet_n_data_bytes']
@@ -110,7 +65,7 @@ if __name__ == '__main__':
     module_n_x_pixel = image_pixel_width // 2
     module_n_y_pixel = image_pixel_height // 2 // 2
 
-    frame_info = calculate_frame_info(image_pixel_width, image_pixel_height)
+    frame_info = calculate_udp_packet_info(image_pixel_width, image_pixel_height)
     print(frame_info)
     frame_info_original = calculate_frame_info_original(image_pixel_width, image_pixel_height)
 
