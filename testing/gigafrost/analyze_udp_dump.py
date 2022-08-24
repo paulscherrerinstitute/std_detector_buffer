@@ -118,19 +118,19 @@ if __name__ == '__main__':
             if n_bytes_new != n_bytes_old or starting_old != starting_new or n_row_old != n_row_new:
                 print(x, y, 'bytes', n_bytes_old, n_bytes_new, 'start', starting_old,starting_new, 'n_rows', n_row_old, n_row_new)
 
-    image_pixel_width = 48
-    image_pixel_height = 960
+    image_pixel_width = 672
+    image_pixel_height = 128
 
     bin_files = Path(__file__).parent.absolute() / 'udp_dumps' / f'{image_pixel_width}_{image_pixel_height}'
     files = [
         open(f'{bin_files}/2000.dat', 'rb'),
         open(f'{bin_files}/2001.dat', 'rb'),
-        open(f'{bin_files}/2002.dat', 'rb'),
-        open(f'{bin_files}/2003.dat', 'rb'),
-        open(f'{bin_files}/2004.dat', 'rb'),
-        open(f'{bin_files}/2005.dat', 'rb'),
-        open(f'{bin_files}/2006.dat', 'rb'),
-        open(f'{bin_files}/2007.dat', 'rb'),
+        # open(f'{bin_files}/2002.dat', 'rb'),
+        # open(f'{bin_files}/2003.dat', 'rb'),
+        # open(f'{bin_files}/2004.dat', 'rb'),
+        # open(f'{bin_files}/2005.dat', 'rb'),
+        # open(f'{bin_files}/2006.dat', 'rb'),
+        # open(f'{bin_files}/2007.dat', 'rb'),
     ]
 
     module_n_x_pixel = image_pixel_width // 2
@@ -159,6 +159,12 @@ if __name__ == '__main__':
             packet = GfUdpPacket.from_buffer_copy(data)
             frame = gf_udp_packet_to_frame(packet, module_n_x_pixel, module_n_y_pixel, frame_info['frame_n_packets'])
             key = (frame.frame_index, frame.quadrant_id, frame.link_id, input_file.name)
+
+            # # Print frame offset data points
+            # frame_offset = packet.packet_starting_row * module_n_x_pixel * 1.5
+            # print('starting_row', packet.packet_starting_row,
+            #       'frame_offset', frame_offset,
+            #       'i_packet', frame_offset/frame_info['packet_n_data_bytes'])
 
             if key not in cache:
                 cache[key] = defaultdict(dict)
