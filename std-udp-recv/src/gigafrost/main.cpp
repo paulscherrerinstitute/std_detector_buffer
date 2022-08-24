@@ -46,6 +46,39 @@ inline void init_frame_metadata(const uint32_t module_size_x,
   meta.do_not_store = packet.image_status_flags & 0x8000 >> 15;
 }
 
+inline void send_image_id(GFFrame& meta, char* frame_buffer, cb::Sender& sender, FrameStats& stats)
+{
+  sender.send(meta.frame_index, reinterpret_cast<char*>(&meta), frame_buffer);
+  stats.record_stats(meta.n_missing_packets);
+  // Invalidate the current buffer - we already send data out for this one.
+  meta.frame_index = INVALID_FRAME_INDEX;
+}
+
+inline void process_packet(GFFrame& meta,
+                           const GFUdpPacket& packet,
+                           char* frame_buffer,
+                           const size_t frame_buffer_offset,
+                           cb::Sender& sender,
+                           FrameStats& stats,
+                           size_t PACKET_N_DATA_BYTES,
+                           size_t LAST_PACKET_N_DATA_BYTES,
+                           const size_t LAST_PACKET_STARTING_ROW)
+{
+  // Record we have received this packet.
+  meta.n_missing_packets -= 1;
+
+  // If not the last packet just accumulate data in frame_buffer.
+  if (packet.packet_starting_row != LAST_PACKET_STARTING_ROW) {
+    memcpy(frame_buffer + frame_buffer_offset, packet.data, PACKET_N_DATA_BYTES);
+  }
+  else {
+    memcpy(frame_buffer + frame_buffer_offset, packet.data, LAST_PACKET_N_DATA_BYTES);
+
+    // Copy frame_buffer to ram_buffer and send pulse_id over zmq if last packet in frame.
+    send_image_id(meta, frame_buffer, sender, stats);
+  }
+}
+
 int main(int argc, char* argv[])
 {
   if (argc != 3) {
@@ -70,13 +103,14 @@ int main(int argc, char* argv[])
   const auto MODULE_N_DATA_BYTES = static_cast<size_t>(MODULE_N_X_PIXEL * MODULE_N_Y_PIXEL * 1.5);
 
   // Calculate the number of rows in each packet.
-  // Do NOT optimize these expressions. The exact form of this calculation is important due to rounding.
+  // Do NOT optimize these expressions. The exact form of this calculation is important due to
+  // rounding.
   const uint32_t n_12pixel_blocks = MODULE_N_X_PIXEL / 12;
   const uint32_t n_cache_line_blocks =
       (PACKET_N_DATA_BYTES_MAX / (36 * n_12pixel_blocks)) * n_12pixel_blocks / 2;
   // Each cachel line block (64 bytes) has 48 pixels (12 bit pixels)
-  const uint32_t PACKET_N_ROWS = std::min(n_cache_line_blocks * 48 / MODULE_N_X_PIXEL,
-                                          MODULE_N_Y_PIXEL);
+  const uint32_t PACKET_N_ROWS =
+      std::min(n_cache_line_blocks * 48 / MODULE_N_X_PIXEL, MODULE_N_Y_PIXEL);
 
   // Calculate the number of data bytes per packet.
   auto PACKET_N_DATA_BYTES = static_cast<size_t>(MODULE_N_X_PIXEL * PACKET_N_ROWS * 1.5);
@@ -97,19 +131,16 @@ int main(int argc, char* argv[])
   // Number of data bytes in the last packet.
   auto LAST_PACKET_N_DATA_BYTES = static_cast<size_t>(MODULE_N_X_PIXEL * LAST_PACKET_N_ROWS * 1.5);
   if ((LAST_PACKET_N_ROWS % 2 == 1) && (MODULE_N_X_PIXEL % 48 != 0)) {
-      LAST_PACKET_N_DATA_BYTES += 36;
-    }
+    LAST_PACKET_N_DATA_BYTES += 36;
+  }
 
   // Get offset of last packet in frame to know when to commit frame.
   const size_t LAST_PACKET_STARTING_ROW = MODULE_N_Y_PIXEL - LAST_PACKET_N_ROWS;
 
   const cb::SendReceiveConfig module_config = {
       detector_config.detector_name + "-" + std::to_string(module_id),
-      BYTES_PER_PACKET - PACKET_N_DATA_BYTES,
-      PACKET_N_DATA_BYTES * FRAME_N_PACKETS,
-      RAM_BUFFER_N_SLOTS,
-      static_cast<uint16_t>(detector_config.start_udp_port + module_id)
-  };
+      BYTES_PER_PACKET - PACKET_N_DATA_BYTES, PACKET_N_DATA_BYTES * FRAME_N_PACKETS,
+      RAM_BUFFER_N_SLOTS, static_cast<uint16_t>(detector_config.start_udp_port + module_id)};
 
   auto ctx = zmq_ctx_new();
   cb::Sender sender{module_config, ctx};
@@ -132,35 +163,24 @@ int main(int argc, char* argv[])
       const auto& packet = packet_buffer[i_packet];
 
       // Offset in bytes =  number of rows * row size in pixels * 1.5 (12bit pixels)
-      //TODO: This one is probably invalid.
+      // TODO: This one is probably invalid.
       const size_t frame_buffer_offset = packet.packet_starting_row * MODULE_N_X_PIXEL * 1.5;
 
       // Packet belongs to the frame we are currently processing.
       if (meta.frame_index == packet.frame_index) {
-        // Accumulate packets data into the frame buffer.
-        memcpy(frame_buffer + frame_buffer_offset, packet.data, PACKET_N_DATA_BYTES);
-        meta.n_missing_packets -= 1;
-
-        // Copy frame_buffer to ram_buffer and send pulse_id over zmq if last packet in frame.
-        if (packet.packet_starting_row == LAST_PACKET_STARTING_ROW) {
-          sender.send(meta.frame_index, reinterpret_cast<char*>(&meta), frame_buffer);
-          stats.record_stats(meta.n_missing_packets);
-          // Invalidate the current buffer - we already send data out for this one.
-          meta.frame_index = INVALID_FRAME_INDEX;
-        }
+        process_packet(meta, packet, frame_buffer, frame_buffer_offset, sender, stats,
+                       PACKET_N_DATA_BYTES, LAST_PACKET_N_DATA_BYTES, LAST_PACKET_STARTING_ROW);
       }
       else {
         // The buffer was not flushed because the last packet from the previous frame was missing.
         if (meta.frame_index != INVALID_FRAME_INDEX) {
-          sender.send(meta.frame_index, reinterpret_cast<char*>(&meta), frame_buffer);
-          stats.record_stats(meta.n_missing_packets);
+          send_image_id(meta, frame_buffer, sender, stats);
         }
 
         init_frame_metadata(MODULE_N_X_PIXEL, MODULE_N_Y_PIXEL, FRAME_N_PACKETS, packet, meta);
 
-        // Accumulate packets data into the frame buffer.
-        memcpy(frame_buffer + frame_buffer_offset, packet.data, PACKET_N_DATA_BYTES);
-        meta.n_missing_packets -= 1;
+        process_packet(meta, packet, frame_buffer, frame_buffer_offset, sender, stats,
+                       PACKET_N_DATA_BYTES, LAST_PACKET_N_DATA_BYTES, LAST_PACKET_STARTING_ROW);
       }
     }
   }
