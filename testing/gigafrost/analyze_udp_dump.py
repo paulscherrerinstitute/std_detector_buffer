@@ -47,19 +47,20 @@ if __name__ == '__main__':
             if n_bytes_new != n_bytes_old or starting_old != starting_new or n_row_old != n_row_new:
                 print(x, y, 'bytes', n_bytes_old, n_bytes_new, 'start', starting_old,starting_new, 'n_rows', n_row_old, n_row_new)
 
-    image_pixel_width = 672
-    image_pixel_height = 128
+    image_pixel_width = 2016
+    image_pixel_height = 2016
+    n_images = 2
 
     bin_files = Path(__file__).parent.absolute() / 'udp_dumps' / f'{image_pixel_width}_{image_pixel_height}'
     files = [
         open(f'{bin_files}/2000.dat', 'rb'),
-        # open(f'{bin_files}/2001.dat', 'rb'),
-        # open(f'{bin_files}/2002.dat', 'rb'),
-        # open(f'{bin_files}/2003.dat', 'rb'),
-        # open(f'{bin_files}/2004.dat', 'rb'),
-        # open(f'{bin_files}/2005.dat', 'rb'),
-        # open(f'{bin_files}/2006.dat', 'rb'),
-        # open(f'{bin_files}/2007.dat', 'rb'),
+        open(f'{bin_files}/2001.dat', 'rb'),
+        open(f'{bin_files}/2002.dat', 'rb'),
+        open(f'{bin_files}/2003.dat', 'rb'),
+        open(f'{bin_files}/2004.dat', 'rb'),
+        open(f'{bin_files}/2005.dat', 'rb'),
+        open(f'{bin_files}/2006.dat', 'rb'),
+        open(f'{bin_files}/2007.dat', 'rb'),
     ]
 
     module_n_x_pixel = image_pixel_width // 2
@@ -76,7 +77,7 @@ if __name__ == '__main__':
 
     cache = defaultdict(dict)
 
-    for i in range(frame_info['frame_n_packets']*2):
+    for i in range(frame_info['frame_n_packets'] * n_images):
 
         for input_file in files:
             # uint64_t with the number of bytes per packet.
@@ -99,7 +100,9 @@ if __name__ == '__main__':
                 cache[key] = defaultdict(dict)
 
             cache[key][n_data_bytes].update({
-                'packet_starting_row': packet.packet_starting_row
+                'packet_starting_row': packet.packet_starting_row,
+                'swap': frame.swapped_rows,
+                'status_flags': packet.status_flags
             })
             # print(n_data_bytes, packet.packet_starting_row)
 
