@@ -52,6 +52,10 @@ terminology definitions should be followed:
 - start_image_id and stop_image_id is used to determine the 
 inclusive range (both start and stop ids are included) of images.
 
+## More documentation
+
+- [Detectors integration](detectors/README.md)
+
 ## Build
 TODO
 
