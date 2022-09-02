@@ -103,7 +103,7 @@ provide a link to the packet analyzer that was used to verify the Gigafrost prot
 
 - [Gigafrost packet analyzer](https://github.com/paulscherrerinstitute/std_detector_buffer/blob/master/testing/gigafrost/analyze_udp_dump.py)
 
-### Writing a detector simulator
+#### Writing a detector simulator
 
 You will need an intimate knowledge of the detector produced streams under all edge cases. The packet analyzer, 
 together with the detector documentation, should have clarified that.
