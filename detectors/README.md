@@ -45,7 +45,7 @@ The procedure below can be followed as a step-by-step guide that includes:
 - Writing a packet analyzer to characterize the UDP packets and verify that the provided detector documentation is correct.
 - Write a detector simulator that generates the correct UDP packets and validate them by comparing them with the dumped 
 packets from the detector.
-- Based on the UDP packet analyzer data and detector documentation implement the first version of your UDP receivers.
+- Implement the first version of your UDP receivers.
 - Implement integration tests with the detector simulator and udp receivers.
 - Performance test your UDP receivers on the real detector. 
 
