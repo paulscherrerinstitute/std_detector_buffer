@@ -1,12 +1,14 @@
 from ctypes import Structure, c_uint32, c_uint64, c_uint16, c_uint8
 from math import ceil
 
-from std_buffer.utils import ComparableStructure
 
 GF_MAX_PAYLOAD = 7400
 
 
-class GfUdpPacket(ComparableStructure):
+class GfUdpPacket(Structure):
+    _comparable_fields = ['protocol_id', 'quadrant_row_length_in_blocks', 'quadrant_rows',
+                          'status_flags', 'frame_index', 'image_status_flags', 'packet_starting_row']
+
     _pack_ = 1
     _fields_ = [("protocol_id", c_uint8),
                 ("quadrant_row_length_in_blocks", c_uint8),
@@ -21,13 +23,19 @@ class GfUdpPacket(ComparableStructure):
                 ("scan_time", c_uint32)]
 
     def __str__(self):
-        return f"frame_index: {self.frame_index}; " \
-               f"quadrant_rows: {(self.quadrant_rows >>1) << 1}; " \
-               f"quadrant_row_length_in_blocks: {self.quadrant_row_length_in_blocks}; " \
-               f"packet_starting_row: {self.packet_starting_row}; "
+        output_string = ''
+        for field_name in self._comparable_fields:
+            output_string += f'{field_name}: {getattr(self, field_name)}; '
+        return output_string
+
+    def __eq__(self, other):
+        for field_name in self._comparable_fields:
+            if getattr(self, field_name) != getattr(other, field_name):
+                return False
+        return True
 
 
-class GFFrame(ComparableStructure):
+class GFFrame(Structure):
     _pack_ = 1
     _fields_ = [("frame_index", c_uint64),
                 ("n_missing_packets", c_uint64),
