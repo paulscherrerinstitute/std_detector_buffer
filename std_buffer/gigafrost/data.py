@@ -1,10 +1,12 @@
 from ctypes import Structure, c_uint32, c_uint64, c_uint16, c_uint8
 from math import ceil
 
+from std_buffer.utils import ComparableStructure
+
 GF_MAX_PAYLOAD = 7400
 
 
-class GfUdpPacket(Structure):
+class GfUdpPacket(ComparableStructure):
     _pack_ = 1
     _fields_ = [("protocol_id", c_uint8),
                 ("quadrant_row_length_in_blocks", c_uint8),
@@ -25,7 +27,7 @@ class GfUdpPacket(Structure):
                f"packet_starting_row: {self.packet_starting_row}; "
 
 
-class GFFrame(Structure):
+class GFFrame(ComparableStructure):
     _pack_ = 1
     _fields_ = [("frame_index", c_uint64),
                 ("n_missing_packets", c_uint64),
