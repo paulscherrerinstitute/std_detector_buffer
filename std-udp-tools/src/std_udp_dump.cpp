@@ -79,8 +79,8 @@ void receive_and_dump(uint16_t udp_port, atomic_bool& run)
     n_packets += 1;
     fmt::print("[{}] Received {} packets.\n", udp_port, n_packets);
 
-    const uint64_t header = n_recv_bytes;
-    file.write(reinterpret_cast<const char*>(&header), sizeof(header));
+    const uint64_t udp_total_bytes = n_recv_bytes;
+    file.write(reinterpret_cast<const char*>(&udp_total_bytes), sizeof(udp_total_bytes));
     file.write(buffer, n_recv_bytes);
     file.flush();
   }
