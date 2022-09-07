@@ -20,7 +20,7 @@ struct GFUdpPacket
   // bit[6-7] == quadrant_id 	GF_NE=3 GF_NW=2 GF_SE=1 GF_SW=0
   // bit[5] == link_id, [0, 1]
   // bit[2-4] == corr_mode,
-  // bit[0-1] == ???
+  // bit[0-1] == quadrant_rows bit 8 and 9
   uint8_t status_flags;
   uint32_t scan_id; // Unique ID of the scan.
   // Up to here everything is static per socket and scan.
