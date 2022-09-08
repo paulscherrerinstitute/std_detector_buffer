@@ -30,6 +30,7 @@ def adjust_packet_for_module(udp_packet, i_module, image_height):
     quadrant_id = i_module // 2
     link_id = i_module % 2
     swap = 1 if quadrant_id % 2 == 0 else 0
+    quadrant_height = image_height // 2
     # No idea what this means - its just what we dumped when recording the detector.
     corr_mode = 5
 
@@ -38,8 +39,10 @@ def adjust_packet_for_module(udp_packet, i_module, image_height):
     udp_packet.status_flags |= (link_id << 5)
     udp_packet.status_flags |= (corr_mode << 2)
 
+    udp_packet.status_flags |= quadrant_height >> 8
+
     # The last bit in the 'quadrant_row' is the 'swap' bit.
-    udp_packet.quadrant_rows = (image_height // 2) + swap
+    udp_packet.quadrant_rows = (quadrant_height & 0xFF) + swap
 
 
 def generate_jf_udp_stream(output_address, start_udp_port, rep_rate=0.1,
@@ -71,10 +74,10 @@ def generate_jf_udp_stream(output_address, start_udp_port, rep_rate=0.1,
                     adjust_packet_for_module(udp_packet, i_module, image_height)
                     udp_socket.sendto(bytes(udp_packet)+data, (output_address, start_udp_port + i_module))
                     # Needed in case you cannot set rmem_max (docker)
-                    sleep(0.001)
+                    sleep(0.01)
 
             # Last packet (may have different size and  number of lines)
-            udp_packet.packet_starting_row += udp_packet_info['packet_n_rows'] * (n_packets-1)
+            udp_packet.packet_starting_row = udp_packet_info['last_packet_starting_row']
             for i_module in range(GF_N_MODULES):
                 adjust_packet_for_module(udp_packet, i_module, image_height)
                 udp_socket.sendto(bytes(udp_packet)+data, (output_address, start_udp_port + i_module))
