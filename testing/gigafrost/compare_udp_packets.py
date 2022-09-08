@@ -67,8 +67,9 @@ def main(dumped_folder, generated_folder):
 
 
 if __name__ == '__main__':
-    dumped_folder = '48_960'
+    dumped_folder = '2016_2016'
     generated_folder = f'gen_{dumped_folder}'
 
-    main(dumped_folder, generated_folder)
+    main(dumped_folder=dumped_folder,
+         generated_folder=generated_folder)
 
