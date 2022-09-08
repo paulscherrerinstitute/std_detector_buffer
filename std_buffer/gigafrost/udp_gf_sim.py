@@ -55,8 +55,10 @@ def generate_jf_udp_stream(output_address, start_udp_port, rep_rate=0.1,
     udp_packet_info = calculate_udp_packet_info(image_height, image_width)
     n_packets = udp_packet_info['frame_n_packets']
     n_data_bytes = udp_packet_info['packet_n_data_bytes']
+    n_data_bytes_last_packet = udp_packet_info['last_packet_n_data_bytes']
 
     data = bytearray(n_data_bytes)
+    last_packet_data = bytearray(n_data_bytes_last_packet)
 
     if not n_images:
         n_images = float('inf')
@@ -80,7 +82,7 @@ def generate_jf_udp_stream(output_address, start_udp_port, rep_rate=0.1,
             udp_packet.packet_starting_row = udp_packet_info['last_packet_starting_row']
             for i_module in range(GF_N_MODULES):
                 adjust_packet_for_module(udp_packet, i_module, image_height)
-                udp_socket.sendto(bytes(udp_packet)+data, (output_address, start_udp_port + i_module))
+                udp_socket.sendto(bytes(udp_packet)+last_packet_data, (output_address, start_udp_port + i_module))
 
             iteration_end = time()
             time_left_to_sleep = max(0.0, time_to_sleep - (iteration_end - iteration_start))
