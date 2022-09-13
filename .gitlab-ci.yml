@@ -7,6 +7,8 @@ default:
   before_script:
     - |
       source /opt/rh/devtoolset-10/enable
+      CC=/opt/rh/devtoolset-10/root/usr/bin/cc
+      CXX=/opt/rh/devtoolset-10/root/usr/bin/c++
       source /opt/rh/rh-python38/enable
       source /etc/profile.d/modules.sh
       module load mpi
