@@ -64,11 +64,10 @@ int main(int argc, char* argv[])
   // TODO: The module_id here is temporary.
   auto const module_id = 0;
   auto receiver = cb::Receiver{
-      {config.detector_name + "-" + std::to_string(module_id) + "-converted",
+      {config.detector_name + "-" + std::to_string(module_id) + "-3-converted",
        BYTES_PER_PACKET - DATA_BYTES_PER_PACKET,
        config.image_pixel_width * config.image_pixel_height * sizeof(float),
-       buffer_config::RAM_BUFFER_N_SLOTS,
-       static_cast<uint16_t>(config.start_udp_port + module_id)},
+       buffer_config::RAM_BUFFER_N_SLOTS},
       ctx};
 
   // TODO: This is temporary. * 4 is because of float32 (after conversion).

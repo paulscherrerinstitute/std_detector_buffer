@@ -8,7 +8,6 @@ struct SendReceiveConfig
   const size_t n_bytes_meta;
   const size_t n_bytes_data;
   const size_t n_buffer_slots;
-  const uint16_t udp_port;
 };
 } // namespace cb
 

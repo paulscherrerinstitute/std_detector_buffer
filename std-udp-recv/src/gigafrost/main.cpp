@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
   const cb::SendReceiveConfig module_config = {
       detector_config.detector_name + "-" + std::to_string(module_id),
       BYTES_PER_PACKET - PACKET_N_DATA_BYTES, PACKET_N_DATA_BYTES * FRAME_N_PACKETS,
-      RAM_BUFFER_N_SLOTS, static_cast<uint16_t>(detector_config.start_udp_port + module_id)};
+      RAM_BUFFER_N_SLOTS};
 
   auto ctx = zmq_ctx_new();
   cb::Sender sender{module_config, ctx};

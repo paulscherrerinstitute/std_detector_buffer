@@ -52,7 +52,8 @@ class JungfrauConfigUdp:
 
 class JungfrauConfigConverter:
     id = JungfrauConfigUdp.id
-    name = f'jungfrau-{id}-converted'
+    converter_index = 3
+    name = f'jungfrau-{id}-converted-{converter_index}'
     data_bytes_per_packet = JungfrauConfigUdp.data_bytes_per_packet * 2
     udp_port_base = JungfrauConfigUdp.udp_port_base
     slots = JungfrauConfigUdp.slots

@@ -6,18 +6,19 @@
 #include <string>
 #include <string_view>
 
+#include "identifier.hpp"
+
 namespace sdc {
 
 class StatsCollector
 {
 public:
-  explicit StatsCollector(std::string_view name, uint16_t id);
+  explicit StatsCollector(sdc::Identifier converter_id);
   void processing_started();
   void processing_finished();
 
 private:
-  const std::string detector_name;
-  const uint16_t module_id;
+  const sdc::Identifier id;
   std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds> last_flush_time =
       std::chrono::steady_clock::now();
   std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds> processing_start;
