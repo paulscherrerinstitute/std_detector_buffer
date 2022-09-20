@@ -34,3 +34,18 @@ package_project:
   stage: package
   extends: [ .package ]
   tags: [ sf-docker ]
+
+upload_project:
+  stage: upload
+  extends: [ .upload ]
+  tags: [ sf-docker ]
+  needs:
+    - job: package_project
+      artifacts: true
+
+release_project:
+  stage: release
+  extends: [ .release ]
+  tags: [ sf-docker ]
+  needs:
+    - job: upload_project
