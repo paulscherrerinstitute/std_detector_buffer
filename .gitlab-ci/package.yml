@@ -1,6 +1,6 @@
 .package:
   image: $DOCKER_IMAGE
-#  only: [ tags ]
+  only: [ tags ]
   script:
     |
       echo ">>>>> Release build:"
@@ -8,9 +8,9 @@
       cmake --build release --target all
       echo ">>>>> Create Package"
       cmake --build release --target package
-#  artifacts:
-#    when: on_success
-#    expire_in: 1 week
-#    paths:
-#      - release/bsread_receiver*.rpm
-#      - release/bsread_receiver*.tar.gz
+  artifacts:
+    when: on_success
+    expire_in: 1 week
+    paths:
+      - release/std_detector_buffer*.rpm
+      - release/std_detector_buffer*.tar.gz
