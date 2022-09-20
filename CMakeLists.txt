@@ -8,8 +8,13 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG_OUTPUT")
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
+set(CPACK_PACKAGE_VENDOR "Paul Scherrer Institute")
+set(CPACK_GENERATOR "TGZ;RPM")
+include(CPack)
+
 include(sdb_settings)
 include(sdb_conan)
+include(sdb_packaging)
 
 conan_config_install(ITEM ${CMAKE_HOME_DIRECTORY}/conan/settings.yml)
 conan_cmake_autodetect(DETECTED_SETTINGS)

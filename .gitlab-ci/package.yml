@@ -1,0 +1,16 @@
+.package:
+  image: $DOCKER_IMAGE
+#  only: [ tags ]
+  script:
+    |
+      echo ">>>>> Release build:"
+      cmake -B release -DCMAKE_BUILD_TYPE=Release -G Ninja
+      cmake --build release --target all
+      echo ">>>>> Create Package"
+      cmake --build release --target package
+#  artifacts:
+#    when: on_success
+#    expire_in: 1 week
+#    paths:
+#      - release/bsread_receiver*.rpm
+#      - release/bsread_receiver*.tar.gz
