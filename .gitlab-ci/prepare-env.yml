@@ -1,0 +1,8 @@
+.prepare_env:
+  before_script:
+    - |
+      source /opt/rh/devtoolset-10/enable
+      source /opt/rh/rh-python38/enable
+      source /etc/profile.d/modules.sh
+      module load mpi
+      [ [ -d .venv ] ] && source venv/bin/activate
