@@ -59,6 +59,8 @@ def generate_data_for_packet(i_module, i_packet, n_rows_packet, n_cols_packet, n
             pixel_value |= quadrant_id << 10
             # Bit 9 == link_id
             pixel_value |= link_id << 9
+            # Bit 8 == i_packet % 2
+            pixel_value |= (i_packet % 2) << 8
             # Bit 7,6,5,4 == module_row % 16
             pixel_value |= (i_module_row % 16) << 4
             # Bit 3,2,1,0 == module_col % 16
