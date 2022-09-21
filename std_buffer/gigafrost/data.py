@@ -1,13 +1,14 @@
 from ctypes import Structure, c_uint32, c_uint64, c_uint16, c_uint8
 from math import ceil
-
+import numpy as np
 
 GF_MAX_PAYLOAD = 7400
 
 
 class GfUdpPacket(Structure):
     _comparable_fields = ['protocol_id', 'quadrant_row_length_in_blocks', 'quadrant_rows',
-                          'status_flags', 'frame_index', 'image_status_flags', 'packet_starting_row']
+                          'status_flags', 'frame_index', 'image_status_flags',
+                          'packet_starting_row']
 
     _pack_ = 1
     _fields_ = [("protocol_id", c_uint8),
@@ -90,13 +91,13 @@ def calculate_udp_packet_info(image_pixel_height, image_pixel_width):
     # Each quadrant is composed by 2 modules streaming interleaved image lines.
     module_n_y_pixel = image_pixel_height // 2 // 2
 
-    # Maximum udp packet payload divided by the module row size in bytes or module Y size if smaller.
+    # Max udp packet payload divided by the module row size in bytes or module Y size if smaller.
     # packet_n_rows = int(min(GF_MAX_PAYLOAD / 1.5 / module_n_x_pixel, module_n_y_pixel))
 
-    # Do NOT optimize these expressions. The exact form of this calculation is important due to rounding.
+    # Do NOT optimize these expressions due to rounding.
     n_12pixel_blocks = module_n_x_pixel // 12
     n_cache_line_blocks = int((GF_MAX_PAYLOAD / (36 * n_12pixel_blocks)) * n_12pixel_blocks / 2)
-    # Each cachel line block (64 bytes) has 48 pixels (12 bit pixels)
+    # Each cache line block (64 bytes) has 48 pixels (12 bit pixels)
     packet_n_rows = int(min(n_cache_line_blocks * 48 / module_n_x_pixel, module_n_y_pixel))
 
     # Calculate the number of data bytes per packet.
