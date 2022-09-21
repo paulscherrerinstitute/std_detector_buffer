@@ -8,6 +8,8 @@ find_package(RapidJSON REQUIRED)
 find_package(fmt REQUIRED)
 
 add_executable(${PROJECT_NAME}_dump src/std_udp_dump.cpp)
+sdb_package(${PROJECT_NAME}_dump)
+
 target_link_libraries(${PROJECT_NAME}_dump
     PRIVATE
         ZeroMQ::ZeroMQ

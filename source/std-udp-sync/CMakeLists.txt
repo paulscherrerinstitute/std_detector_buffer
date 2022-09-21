@@ -27,6 +27,7 @@ target_link_libraries(${PROJECT_NAME}_lib
 )
 
 add_executable(${PROJECT_NAME} src/main.cpp)
+sdb_package(${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
