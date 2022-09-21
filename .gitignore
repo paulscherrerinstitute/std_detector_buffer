@@ -51,3 +51,4 @@ __pycache__
 
 # Detector binary dumps
 testing/gigafrost/**/*.dat
+/dist/
