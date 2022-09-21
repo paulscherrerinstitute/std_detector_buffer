@@ -27,6 +27,7 @@ target_link_libraries(${PROJECT_NAME}_lib
 )
 
 add_executable(${PROJECT_NAME}_jf src/jungfrau/main.cpp)
+sdb_package(${PROJECT_NAME}_jf)
 target_link_libraries(${PROJECT_NAME}_jf
     PRIVATE
         ${PROJECT_NAME}_lib
@@ -37,6 +38,7 @@ target_link_libraries(${PROJECT_NAME}_jf
 )
 
 add_executable(${PROJECT_NAME}_gf src/gigafrost/main.cpp)
+sdb_package(${PROJECT_NAME}_gf)
 target_link_libraries(${PROJECT_NAME}_gf
         PRIVATE
         ${PROJECT_NAME}_lib

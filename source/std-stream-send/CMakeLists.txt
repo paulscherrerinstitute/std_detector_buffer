@@ -6,6 +6,7 @@ find_package(ZeroMQ REQUIRED)
 find_package(RapidJSON REQUIRED)
 
 add_executable(${PROJECT_NAME}_binary src/binary/main.cpp)
+sdb_package(${PROJECT_NAME}_binary)
 target_include_directories(${PROJECT_NAME}_binary PUBLIC include)
 target_link_libraries(${PROJECT_NAME}_binary
     PRIVATE
