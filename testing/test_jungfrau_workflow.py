@@ -7,7 +7,7 @@ import zmq.asyncio
 from testing.fixtures import test_path, cleanup_jungfrau_shared_memory
 from testing.communication import start_subscriber_communication
 from testing.execution_helpers import build_command, run_command_in_parallel
-from testing.jungfrau.data import UdpPacket, JungfrauConfigUdp, JungfrauConfigConverter
+from std_buffer.jungfrau.data import UdpPacket, JungfrauConfigUdp, JungfrauConfigConverter
 
 
 def jungfrau_socket_address() -> tuple:
@@ -25,7 +25,8 @@ def get_converter_packet_array(output_buffer: memoryview, slot: int) -> np.ndarr
 async def test_udp_receiver_with_converter(test_path, cleanup_jungfrau_shared_memory):
     receiver_command = build_command('std_udp_recv_jf', test_path / 'jungfrau_detector.json', JungfrauConfigUdp.id)
     converter_command = build_command('std_data_convert', test_path / 'jungfrau_detector.json',
-                                      test_path / 'gains_1_pedestals_0.h5', JungfrauConfigUdp.id)
+                                      test_path / 'gains_1_pedestals_0.h5', JungfrauConfigUdp.id,
+                                      JungfrauConfigConverter.converter_index)
 
     ctx = zmq.asyncio.Context()
     packet = UdpPacket()

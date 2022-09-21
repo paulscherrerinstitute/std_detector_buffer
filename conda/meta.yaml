@@ -1,0 +1,31 @@
+{% set data = load_setup_py_data(setup_file='../setup.py', from_recipe_dir=True) %}
+
+package:
+  name: std_buffer
+  version: {{ data.get('version') }}
+
+source:
+  path: ..
+
+requirements:
+  build:
+    - python
+  run:
+    - python
+    - pyzmq
+    - numpy
+    - h5py
+
+build:
+  noarch: python
+  number: 0
+  preserve_egg_dir: True
+  script: python setup.py install
+
+  entry_points:
+    - std_stream_binary_jf_sim = std_buffer.jungfrau.stream_binary_jf_sim:main
+    - std_extract_jf_gains_and_pedestals = std_buffer.jungfrau.extract_gains_and_pedestals_for_module:main
+
+about:
+  home: https://github.com/paulscherrerinstitute/std_detector_buffer
+

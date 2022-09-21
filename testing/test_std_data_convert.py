@@ -8,7 +8,7 @@ import zmq.asyncio
 from testing.fixtures import test_path
 from testing.communication import start_publisher_communication, start_subscriber_communication
 from testing.execution_helpers import executable, run_command, build_command, run_command_in_parallel
-from testing.jungfrau.data import JungfrauConfigUdp, JungfrauConfigConverter
+from std_buffer.jungfrau.data import JungfrauConfigUdp, JungfrauConfigConverter
 
 
 def get_udp_packet_array(input_buffer: memoryview, slot: int) -> np.ndarray:
@@ -40,7 +40,7 @@ def push_to_buffer(input_buffer, data):
 
 def build_jungfrau_converter_command(test_path, pedestals='gains_1_pedestals_0.h5') -> str:
     return build_command('std_data_convert', test_path / 'jungfrau_detector.json', test_path / pedestals,
-                         JungfrauConfigUdp.id)
+                         JungfrauConfigUdp.id, JungfrauConfigConverter.converter_index)
 
 
 def test_converter_should_return_without_needed_arguments():

@@ -1,19 +1,45 @@
 include:
   - template: 'Workflows/MergeRequest-Pipelines.gitlab-ci.yml'
-  - local: '.gitlab-ci/build-and-test.yml'
   - local: '.gitlab-ci/cache.yml'
+  - local: '.gitlab-ci/prepare-env.yml'
+  - local: '.gitlab-ci/build-and-test.yml'
+  - local: '.gitlab-ci/package.yml'
+  - local: '.gitlab-ci/upload.yml'
+  - local: '.gitlab-ci/release.yml'
 
-default:
-  before_script:
-    - |
-      source /opt/rh/devtoolset-10/enable
-      source /opt/rh/rh-python38/enable
-      source /etc/profile.d/modules.sh
-      module load mpi
-      [ [ -d .venv ] ] && source venv/bin/activate
+stages:
+  - test
+  - package
+  - upload
+  - release
 
-test:unit_tests:
-  extends: [ .build_and_test ]
+variables:
+  PACKAGE_REGISTRY_URL: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/std_detector_buffer/${CI_COMMIT_TAG}
+  PACKAGE_RPM: std_detector_buffer-${CI_COMMIT_TAG}-Linux.rpm
+  PACKAGE_TARGZ: std_detector_buffer-${CI_COMMIT_TAG}-Linux.tar.gz
+  DOCKER_IMAGE: paulscherrerinstitute/std_detector_buffer_base:2.1.3
+
+test_project:
+  stage: test
+  extends: [ .prepare_env, .build_and_test ]
   tags: [ sf-docker ]
-  variables:
-    DOCKER_IMAGE: paulscherrerinstitute/std_detector_buffer_base:latest
+
+package_project:
+  stage: package
+  extends: [ .prepare_env, .package ]
+  tags: [ sf-docker ]
+
+upload_project:
+  stage: upload
+  extends: [ .upload ]
+  tags: [ sf-docker ]
+  needs:
+    - job: package_project
+      artifacts: true
+
+release_project:
+  stage: release
+  extends: [ .release ]
+  tags: [ sf-docker ]
+  needs:
+    - job: upload_project
