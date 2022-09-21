@@ -51,4 +51,8 @@ __pycache__
 
 # Detector binary dumps
 testing/gigafrost/**/*.dat
-/dist/
+
+# pyinstaller
+/*/dist/
+/*/build
+*.spec
