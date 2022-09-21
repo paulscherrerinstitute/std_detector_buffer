@@ -45,6 +45,31 @@ def adjust_packet_for_module(udp_packet, i_module, image_height):
     udp_packet.quadrant_rows = (quadrant_height & 0xFF) + swap
 
 
+def generate_data_for_packet(i_module, i_packet, n_rows_packet, n_cols_packet, n_packet_bytes):
+    quadrant_id = i_module // 2
+    link_id = i_module % 2
+
+    packet_bytes = 0
+    i_pixel = 0
+
+    for i_module_row in range(n_rows_packet):
+        for i_module_col in range(n_cols_packet):
+            pixel_value = 0
+            # Bit 11,10 == module_id
+            pixel_value |= quadrant_id << 10
+            # Bit 9 == link_id
+            pixel_value |= link_id << 9
+            # Bit 7,6,5,4 == module_row % 16
+            pixel_value |= (i_module_row % 16) << 4
+            # Bit 3,2,1,0 == module_col % 16
+            pixel_value |= (i_module_col % 16)
+
+            packet_bytes |= pixel_value << (i_pixel * 12)
+            i_pixel += 1
+
+    return packet_bytes.to_bytes(n_packet_bytes, 'little')
+
+
 def generate_jf_udp_stream(output_address, start_udp_port, rep_rate=0.1,
                            image_height=2016, image_width=2016, n_images=None):
     time_to_sleep = 1 / rep_rate
@@ -56,9 +81,9 @@ def generate_jf_udp_stream(output_address, start_udp_port, rep_rate=0.1,
     n_packets = udp_packet_info['frame_n_packets']
     n_data_bytes = udp_packet_info['packet_n_data_bytes']
     n_data_bytes_last_packet = udp_packet_info['last_packet_n_data_bytes']
+    n_rows_packet = udp_packet_info['packet_n_rows']
+    n_rows_last_packet = udp_packet_info['last_packet_n_rows']
 
-    data = bytearray(n_data_bytes)
-    last_packet_data = bytearray(n_data_bytes_last_packet)
 
     if not n_images:
         n_images = float('inf')
@@ -74,7 +99,13 @@ def generate_jf_udp_stream(output_address, start_udp_port, rep_rate=0.1,
 
                 for i_module in range(GF_N_MODULES):
                     adjust_packet_for_module(udp_packet, i_module, image_height)
-                    udp_socket.sendto(bytes(udp_packet)+data, (output_address, start_udp_port + i_module))
+                    data = generate_data_for_packet(i_module, i_packet,
+                                                    n_rows_packet=n_rows_packet,
+                                                    n_cols_packet=image_width//2,
+                                                    n_packet_bytes=n_data_bytes)
+
+                    udp_socket.sendto(bytes(udp_packet)+data,
+                                      (output_address, start_udp_port + i_module))
                     # Needed in case you cannot set rmem_max (docker)
                     sleep(0.01)
 
@@ -82,7 +113,13 @@ def generate_jf_udp_stream(output_address, start_udp_port, rep_rate=0.1,
             udp_packet.packet_starting_row = udp_packet_info['last_packet_starting_row']
             for i_module in range(GF_N_MODULES):
                 adjust_packet_for_module(udp_packet, i_module, image_height)
-                udp_socket.sendto(bytes(udp_packet)+last_packet_data, (output_address, start_udp_port + i_module))
+                last_packet_data = generate_data_for_packet(i_module, n_packets-1,
+                                                            n_rows_packet=n_rows_last_packet,
+                                                            n_cols_packet=image_width//2,
+                                                            n_packet_bytes=n_data_bytes_last_packet)
+
+                udp_socket.sendto(bytes(udp_packet)+last_packet_data,
+                                  (output_address, start_udp_port + i_module))
 
             iteration_end = time()
             time_left_to_sleep = max(0.0, time_to_sleep - (iteration_end - iteration_start))
