@@ -1,0 +1,8 @@
+/////////////////////////////////////////////////////////////////////
+// Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
+/////////////////////////////////////////////////////////////////////
+
+#ifndef STD_DETECTOR_BUFFER_ASSEMBLER_HPP
+#define STD_DETECTOR_BUFFER_ASSEMBLER_HPP
+
+#endif // STD_DETECTOR_BUFFER_ASSEMBLER_HPP
