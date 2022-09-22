@@ -36,8 +36,6 @@ std::span<uint16_t> Assembler::convert(std::span<char> input)
     converted[j + 3] = conversion[i].p4;
   }
 
-  if(const auto )
-
   return converted;
 }
 
