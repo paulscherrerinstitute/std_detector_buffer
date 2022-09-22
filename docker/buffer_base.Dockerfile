@@ -22,7 +22,7 @@ RUN yum update -y \
     && rm -rf /var/cache/yum
 
 RUN scl enable rh-python38 "python3 -m pip install --upgrade pip"
-RUN scl enable rh-python38 "python3 -m pip install cmake conan ninja"
+RUN scl enable rh-python38 "python3 -m pip install cmake conan ninja pyinstaller"
 
 RUN echo "source /opt/rh/devtoolset-10/enable" >> /etc/bashrc
 RUN echo "source /opt/rh/rh-python38/enable" >> /etc/bashrc

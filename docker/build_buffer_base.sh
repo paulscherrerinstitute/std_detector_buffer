@@ -1,7 +1,7 @@
 #!/bin/bash
 
 NAME="paulscherrerinstitute/std_detector_buffer_base"
-VERSION=2.1.3
+VERSION=2.2.0
 
 docker build --no-cache -f buffer_base.Dockerfile -t ${NAME} .
 docker tag ${NAME} ${NAME}:${VERSION}
