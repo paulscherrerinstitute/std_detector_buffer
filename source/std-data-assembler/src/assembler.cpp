@@ -4,8 +4,6 @@
 
 #include "assembler.hpp"
 
-#include <immintrin.h>
-
 namespace sda {
 
 namespace {
