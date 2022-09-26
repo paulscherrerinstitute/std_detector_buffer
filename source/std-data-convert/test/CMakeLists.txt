@@ -16,7 +16,6 @@ target_link_libraries(${PROJECT_NAME}_tests
         range-v3::range-v3
         std_detector_buffer::settings
 )
-
 sbd_add_uts(${PROJECT_NAME}_tests)
 
 find_package(benchmark REQUIRED)

@@ -4,16 +4,19 @@
 
 #include "assembler.hpp"
 
+#include <immintrin.h>
+
 namespace sda {
 
 namespace {
+
 #pragma pack(1)
 struct conversion_handle
 {
-  uint16_t p1 : 12;
-  uint16_t p2 : 12;
-  uint16_t p3 : 12;
-  uint16_t p4 : 12;
+  int p11 : 8;
+  int p21 : 4;
+  int p12 : 4;
+  int p22 : 8;
 };
 #pragma pack()
 } // namespace
@@ -29,11 +32,9 @@ std::span<uint16_t> Assembler::convert(std::span<char> input)
   const std::span<conversion_handle> conversion(reinterpret_cast<conversion_handle*>(input.data()),
                                                 input.size() / sizeof(conversion_handle));
 
-  for (auto i = 0u, j = 0u; i < conversion.size(); i++, j += 4) {
-    converted[j] = conversion[i].p1;
-    converted[j + 1] = conversion[i].p2;
-    converted[j + 2] = conversion[i].p3;
-    converted[j + 3] = conversion[i].p4;
+  for (auto i = 0u, j = 0u; i < conversion.size(); i++, j += 2) {
+    converted[j] = (conversion[i].p11 << 4) | conversion[i].p12;
+    converted[j + 1] = (conversion[i].p21 << 8) | conversion[i].p22;
   }
 
   return converted;
