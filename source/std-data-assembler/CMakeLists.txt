@@ -25,6 +25,8 @@ sdb_package(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         ${PROJECT_NAME}_lib
+        core_buffer::core_buffer
+        fmt::fmt
         std_detector_buffer::settings
 )
 
