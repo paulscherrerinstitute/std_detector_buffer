@@ -7,12 +7,13 @@
 
 #include <cstdint>
 #include <string>
+#include <cmath>
 
 const std::string DETECTOR_TYPE = "gigafrost";
 
+constexpr inline auto PACKET_N_DATA_BYTES_MAX = 7400u;
 // 32 bytes header + 7400 max payload
-#define BYTES_PER_PACKET 7400 + 32
-#define PACKET_N_DATA_BYTES_MAX 7400
+constexpr inline auto BYTES_PER_PACKET = PACKET_N_DATA_BYTES_MAX + 32u;
 
 #pragma pack(push)
 #pragma pack(1)
@@ -74,5 +75,63 @@ struct GFFrame
 
 static_assert(sizeof(GFUdpPacket) == BYTES_PER_PACKET);
 static_assert(sizeof(GFFrame) == 64u);
+
+namespace gf {
+
+uint32_t module_n_x_pixels(int image_pixel_width)
+{
+  // Each line of final image is composed by 2 quadrants side by side.
+  return image_pixel_width / 2;
+}
+
+uint32_t module_n_y_pixels(int image_pixel_height)
+{
+  // The column is composed by 2 quadrants and each quadrant is divided into 2 udp streams that
+  // send interleaved rows - each udp stream sends half of the lines from one quadrant.
+  return image_pixel_height / 2 / 2;
+}
+
+std::size_t module_n_data_bytes(int image_pixel_height, int image_pixel_width)
+{
+  // Each pixel has 12 bytes -> pixel to bytes multiplier is 1.5
+  return static_cast<std::size_t>(module_n_x_pixels(image_pixel_width) *
+                                  module_n_y_pixels(image_pixel_height) * 1.5);
+}
+
+uint32_t n_rows_per_packet(int image_pixel_height, int image_pixel_width)
+{
+  auto MODULE_N_X_PIXEL = module_n_x_pixels(image_pixel_width);
+  auto MODULE_N_Y_PIXEL = module_n_y_pixels(image_pixel_height);
+
+  // Calculate the number of rows in each packet.
+  // Do NOT optimize these expressions. The exact form of this calculation is important due to
+  // rounding.
+  const uint32_t n_12pixel_blocks = MODULE_N_X_PIXEL / 12;
+  const uint32_t n_cache_line_blocks =
+      (PACKET_N_DATA_BYTES_MAX / (36 * n_12pixel_blocks)) * n_12pixel_blocks / 2;
+  // Each cache line block (64 bytes) has 48 pixels (12 bit pixels)
+  return std::min(n_cache_line_blocks * 48 / MODULE_N_X_PIXEL, MODULE_N_Y_PIXEL);
+}
+
+std::size_t n_data_bytes_per_packet(int image_pixel_height, int image_pixel_width)
+{
+  const auto PACKET_N_ROWS = n_rows_per_packet(image_pixel_height, image_pixel_width);
+  const auto MODULE_N_X_PIXEL = module_n_x_pixels(image_pixel_width);
+
+  // Calculate the number of data bytes per packet.
+  auto PACKET_N_DATA_BYTES = static_cast<size_t>(MODULE_N_X_PIXEL * PACKET_N_ROWS * 1.5);
+  if (PACKET_N_ROWS % 2 == 1 && MODULE_N_X_PIXEL % 48 != 0) {
+    PACKET_N_DATA_BYTES += 36;
+  }
+  return PACKET_N_DATA_BYTES;
+}
+
+std::size_t n_packets_per_frame(int image_pixel_height, int image_pixel_width)
+{
+  return std::ceil(module_n_y_pixels(image_pixel_height) /
+                   n_rows_per_packet(image_pixel_height, image_pixel_width));
+}
+
+} // namespace gf
 
 #endif // STD_DETECTOR_BUFFER_GIGAFROST_HPP

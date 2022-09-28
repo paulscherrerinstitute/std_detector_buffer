@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.17)
 project(std_data_assembler)
 
 find_package(fmt REQUIRED)
+find_package(ZeroMQ REQUIRED)
 
 add_library(${PROJECT_NAME}_lib)
 add_library(${PROJECT_NAME}::${PROJECT_NAME}_lib ALIAS ${PROJECT_NAME}_lib)
@@ -26,7 +27,9 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE
         ${PROJECT_NAME}_lib
         core_buffer::core_buffer
+        detectors::detectors
         fmt::fmt
+        ZeroMQ::ZeroMQ
         std_detector_buffer::settings
 )
 

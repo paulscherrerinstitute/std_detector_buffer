@@ -21,6 +21,7 @@ using namespace std;
 using namespace chrono;
 using namespace buffer_config;
 using namespace buffer_utils;
+using namespace gf;
 
 // Initialize new frame metadata from first seen packet.
 inline void init_frame_metadata(const uint32_t module_size_x,
@@ -98,32 +99,16 @@ int main(int argc, char* argv[])
   const auto detector_config = read_json_config(string(argv[1]));
   const uint16_t module_id = stoi(argv[2]);
 
-  // Each line of final image is composed by 2 quadrants side by side.
-  const uint32_t MODULE_N_X_PIXEL = detector_config.image_pixel_width / 2;
-  // The column is composed by 2 quadrants and each quadrant is divided into 2 udp streams that
-  // send interleaved rows - each udp stream sends half of the lines from one quadrant.
-  const uint32_t MODULE_N_Y_PIXEL = detector_config.image_pixel_height / 2 / 2;
-  // Each pixel has 12 bytes -> pixel to bytes multiplier is 1.5
-  const auto MODULE_N_DATA_BYTES = static_cast<size_t>(MODULE_N_X_PIXEL * MODULE_N_Y_PIXEL * 1.5);
-
-  // Calculate the number of rows in each packet.
-  // Do NOT optimize these expressions. The exact form of this calculation is important due to
-  // rounding.
-  const uint32_t n_12pixel_blocks = MODULE_N_X_PIXEL / 12;
-  const uint32_t n_cache_line_blocks =
-      (PACKET_N_DATA_BYTES_MAX / (36 * n_12pixel_blocks)) * n_12pixel_blocks / 2;
-  // Each cachel line block (64 bytes) has 48 pixels (12 bit pixels)
+  const uint32_t MODULE_N_X_PIXEL = module_n_x_pixels(detector_config.image_pixel_width);
+  const uint32_t MODULE_N_Y_PIXEL = module_n_y_pixels(detector_config.image_pixel_height);
+  const auto MODULE_N_DATA_BYTES =
+      module_n_data_bytes(detector_config.image_pixel_height, detector_config.image_pixel_width);
   const uint32_t PACKET_N_ROWS =
-      std::min(n_cache_line_blocks * 48 / MODULE_N_X_PIXEL, MODULE_N_Y_PIXEL);
-
-  // Calculate the number of data bytes per packet.
-  auto PACKET_N_DATA_BYTES = static_cast<size_t>(MODULE_N_X_PIXEL * PACKET_N_ROWS * 1.5);
-  if (PACKET_N_ROWS % 2 == 1 && MODULE_N_X_PIXEL % 48 != 0) {
-    PACKET_N_DATA_BYTES += 36;
-  }
-
-  // Calculate the number of packets in a single frame.
-  const size_t FRAME_N_PACKETS = std::ceil(MODULE_N_Y_PIXEL / PACKET_N_ROWS);
+      n_rows_per_packet(detector_config.image_pixel_height, detector_config.image_pixel_width);
+  auto PACKET_N_DATA_BYTES = n_data_bytes_per_packet(
+      detector_config.image_pixel_height, detector_config.image_pixel_width);
+  const size_t FRAME_N_PACKETS = n_packets_per_frame(
+      detector_config.image_pixel_height, detector_config.image_pixel_width);
 
   // Calculate if the last packet has the same number of rows as the rest of the packets.
   auto LAST_PACKET_N_ROWS = static_cast<size_t>(MODULE_N_Y_PIXEL % PACKET_N_ROWS);
