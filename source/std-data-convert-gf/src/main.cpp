@@ -6,11 +6,12 @@
 
 #include <zmq.h>
 #include <fmt/core.h>
-#include <cassert>
 
 #include "buffer_utils.hpp"
 #include "core_buffer/receiver.hpp"
 #include "gigafrost.hpp"
+
+using namespace gf;
 
 namespace {
 void check_number_of_arguments(int argc)
@@ -33,9 +34,9 @@ int main(int argc, char* argv[])
   const uint16_t module_id = std::stoi(argv[3]);
 
   const auto PACKET_N_DATA_BYTES =
-      gf::n_data_bytes_per_packet(config.image_pixel_height, config.image_pixel_width);
+      n_data_bytes_per_packet(config.image_pixel_height, config.image_pixel_width);
   const auto FRAME_N_PACKETS =
-      gf::n_packets_per_frame(config.image_pixel_height, config.image_pixel_width);
+      n_packets_per_frame(config.image_pixel_height, config.image_pixel_width);
 
   auto ctx = zmq_ctx_new();
 

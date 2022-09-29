@@ -9,7 +9,7 @@
 
 #include <fmt/core.h>
 
-namespace sdc::jf {
+namespace jf::sdc {
 
 Converter::Converter(const parameters& g, const parameters& p)
     : converted(g[0].size())
@@ -47,4 +47,4 @@ void Converter::test_data_size_consistency(std::span<const uint16_t> data) const
                     gains_and_pedestals.size(), data.size()));
 }
 
-} // namespace sdc::jf
+} // namespace jf::sdc

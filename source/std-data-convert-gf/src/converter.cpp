@@ -4,7 +4,7 @@
 
 #include "converter.hpp"
 
-namespace sdc::gf {
+namespace gf::sdc {
 
 namespace {
 
@@ -38,4 +38,4 @@ std::span<uint16_t> Converter::convert(std::span<char> input)
   return converted;
 }
 
-} // namespace sdc::gf
+} // namespace gf::sdc

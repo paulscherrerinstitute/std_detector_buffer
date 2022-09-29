@@ -11,7 +11,7 @@ TEST(ConverterGf, CheckConversionFrom12bitTo16bit)
   const std::size_t pixels = 4;
   char array[] = {0b00100000, 0b00010010, 0b00000010,
                   0b00100000, 0b00110010, 0b00000100}; // 513, 514, 515, 516
-  sdc::gf::Converter converter(pixels);
+  gf::sdc::Converter converter(pixels);
 
   auto converted = converter.convert(array);
 

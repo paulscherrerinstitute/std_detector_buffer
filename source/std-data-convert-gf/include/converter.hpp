@@ -9,7 +9,7 @@
 #include <vector>
 #include <span>
 
-namespace sdc::gf {
+namespace gf::sdc {
 
 class Converter
 {
@@ -20,6 +20,6 @@ private:
   std::vector<uint16_t> converted;
 };
 
-} // namespace sdc::gf
+} // namespace gf::sdc
 
 #endif // STD_DETECTOR_BUFFER_CONVERTER_HPP

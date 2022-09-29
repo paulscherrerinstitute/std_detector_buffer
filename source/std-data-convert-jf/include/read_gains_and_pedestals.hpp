@@ -10,7 +10,7 @@
 
 #include "parameters.hpp"
 
-namespace sdc::jf {
+namespace jf::sdc {
 std::tuple<parameters, parameters> read_gains_and_pedestals(const std::string& filename,
                                                             std::size_t image_size);
 }
