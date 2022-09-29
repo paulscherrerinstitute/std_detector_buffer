@@ -12,7 +12,7 @@ def init_gf_udp_packet(image_width):
 
     udp_packet.frame_index = 0
     udp_packet.protocol_id = 203
-    udp_packet.scan_id = 42
+    udp_packet.scan_id = 0
     udp_packet.scan_time = 100000
     udp_packet.sync_time = 200000
     udp_packet.image_timing = 300000
