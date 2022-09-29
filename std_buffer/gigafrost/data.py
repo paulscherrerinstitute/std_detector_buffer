@@ -1,6 +1,5 @@
 from ctypes import Structure, c_uint32, c_uint64, c_uint16, c_uint8
 from math import ceil
-import numpy as np
 
 GF_MAX_PAYLOAD = 7400
 

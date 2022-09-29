@@ -1,3 +1,7 @@
+/////////////////////////////////////////////////////////////////////
+// Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
+/////////////////////////////////////////////////////////////////////
+
 #include <zmq.h>
 #include <fmt/core.h>
 
@@ -31,7 +35,7 @@ void check_number_of_arguments(int argc)
 {
   if (argc != 5) {
     fmt::print("Usage: std_data_convert [detector_json_filename] [gains_and_pedestal_h5_filename] "
-               "[module_id]\n\n"
+               "[module_id] [converter_index]\n\n"
                "\tdetector_json_filename: detector config file path.\n"
                "\tgains_and_pedestal_h5_filename: gains and pedestals h5 path.\n"
                "\tmodule_id: id of the module for this process.\n"
