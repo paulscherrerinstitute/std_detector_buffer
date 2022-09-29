@@ -34,7 +34,7 @@ void StatsCollector::processing_finished()
   stats.second++;
 
   if (10s < now - last_flush_time) {
-    fmt::print("std_data_convert,converter_id={},"
+    fmt::print("std_data_convert_jf,converter_id={},"
                "average_process_time_ns={},number_of_processed_packets={} "
                "{}\n",
                id.converter_name(), (stats.first / stats.second).count(), stats.second,

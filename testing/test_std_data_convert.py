@@ -39,17 +39,17 @@ def push_to_buffer(input_buffer, data):
 
 
 def build_jungfrau_converter_command(test_path, pedestals='gains_1_pedestals_0.h5') -> str:
-    return build_command('std_data_convert', test_path / 'jungfrau_detector.json', test_path / pedestals,
+    return build_command('std_data_convert_jf', test_path / 'jungfrau_detector.json', test_path / pedestals,
                          JungfrauConfigUdp.id, JungfrauConfigConverter.converter_index)
 
 
 def test_converter_should_return_without_needed_arguments():
-    command = f'{executable(name="std_data_convert")}'
+    command = f'{executable(name="std_data_convert_jf")}'
     rc, s, e = run_command(command)
 
     assert rc == 255
     assert len(e) == 0
-    assert s.startswith('Usage: std_data_convert')
+    assert s.startswith('Usage: std_data_convert_jf')
 
 
 @pytest.mark.asyncio

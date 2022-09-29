@@ -27,7 +27,7 @@ async def test_std_stream_send_binary_with_recv(test_path):
     frame_num = 100
 
     recv_cmd = build_command('std_udp_recv_jf', det_config_filename, module_id)
-    converter_command = build_command('std_data_convert', test_path / 'jungfrau_detector.json',
+    converter_command = build_command('std_data_convert_jf', test_path / 'jungfrau_detector.json',
                                       test_path / 'gains_1_pedestals_0.h5', module_id, converter_index)
     stream_cmd = build_command('std_stream_send_binary', det_config_filename, 'ipc://send_binary_test')
 

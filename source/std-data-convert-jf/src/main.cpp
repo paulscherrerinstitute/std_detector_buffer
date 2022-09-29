@@ -34,7 +34,7 @@ cb::Sender create_sender(std::string name, void* ctx)
 void check_number_of_arguments(int argc)
 {
   if (argc != 5) {
-    fmt::print("Usage: std_data_convert [detector_json_filename] [gains_and_pedestal_h5_filename] "
+    fmt::print("Usage: std_data_convert_jf [detector_json_filename] [gains_and_pedestal_h5_filename] "
                "[module_id] [converter_index]\n\n"
                "\tdetector_json_filename: detector config file path.\n"
                "\tgains_and_pedestal_h5_filename: gains and pedestals h5 path.\n"
