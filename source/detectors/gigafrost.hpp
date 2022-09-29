@@ -78,6 +78,24 @@ static_assert(sizeof(GFFrame) == 64u);
 
 namespace gf {
 
+enum class quadrant : std::size_t {
+  SW = 0,
+  SE,
+  NW,
+  NE
+};
+
+// copies are fine
+inline constexpr bool operator==(quadrant lhs, std::size_t rhs)
+{
+  return static_cast<std::size_t>(lhs) == rhs;
+}
+
+inline constexpr bool operator!=(quadrant lhs, std::size_t rhs)
+{
+  return !(lhs == rhs);
+}
+
 uint32_t module_n_x_pixels(int image_pixel_width)
 {
   // Each line of final image is composed by 2 quadrants side by side.
