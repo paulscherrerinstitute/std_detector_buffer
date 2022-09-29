@@ -4,7 +4,7 @@ add_subdirectory(external)
 
 add_subdirectory("core-buffer")
 add_subdirectory("detectors")
-add_subdirectory("std-data-assembler")
+add_subdirectory("std-data-converter-gf")
 add_subdirectory("std-data-convert-jf")
 add_subdirectory("std-det-writer")
 add_subdirectory("std-stream-send")

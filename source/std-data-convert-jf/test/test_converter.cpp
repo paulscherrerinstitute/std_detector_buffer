@@ -25,14 +25,14 @@ sdc::jf::parameters prepare_params(float default_value = 0)
 
 } // namespace
 
-TEST(Converter, ShouldThrowWhenDataSizeIsInconsistentWithConfiguredGains)
+TEST(ConverterJf, ShouldThrowWhenDataSizeIsInconsistentWithConfiguredGains)
 {
   sdc::jf::Converter converter{prepare_params(), prepare_params()};
   uint16_t invalid_data[] = {1, 2, 3};
   EXPECT_THROW(converter.convert_data(invalid_data), std::invalid_argument);
 }
 
-TEST(Converter, ShouldReturnSameOutputAsInputDataWhenPedestalIs0AndGain1)
+TEST(ConverterJf, ShouldReturnSameOutputAsInputDataWhenPedestalIs0AndGain1)
 {
   sdc::jf::Converter converter{prepare_params(1), prepare_params(0)};
   using namespace ranges;
@@ -41,14 +41,14 @@ TEST(Converter, ShouldReturnSameOutputAsInputDataWhenPedestalIs0AndGain1)
   EXPECT_TRUE(equal(iota_data, converted | views::transform(convert_to<uint16_t>{})));
 }
 
-TEST(Converter, ShouldMultiplyTheInputDataViaGain)
+TEST(ConverterJf, ShouldMultiplyTheInputDataViaGain)
 {
   sdc::jf::Converter converter{prepare_params(2), prepare_params(0)};
   auto converted = converter.convert_data(iota_data);
   EXPECT_TRUE(equal(iota_data | views::transform([](auto a) { return 2.f * a; }), converted));
 }
 
-TEST(Converter, ShouldCalculateValuesUsingGainAndPedestal)
+TEST(ConverterJf, ShouldCalculateValuesUsingGainAndPedestal)
 {
   sdc::jf::Converter converter{prepare_params(2), prepare_params(-1)};
   auto converted = converter.convert_data(iota_data);

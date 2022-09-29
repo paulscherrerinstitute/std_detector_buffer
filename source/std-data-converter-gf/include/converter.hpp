@@ -2,24 +2,24 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_ASSEMBLER_HPP
-#define STD_DETECTOR_BUFFER_ASSEMBLER_HPP
+#ifndef STD_DETECTOR_BUFFER_CONVERTER_HPP
+#define STD_DETECTOR_BUFFER_CONVERTER_HPP
 
 #include <cstdint>
 #include <vector>
 #include <span>
 
-namespace sda {
+namespace sdc::gf {
 
-class Assembler
+class Converter
 {
 public:
-  explicit Assembler(std::size_t pixels_number);
+  explicit Converter(std::size_t pixels_number);
   std::span<uint16_t> convert(std::span<char> data);
 private:
   std::vector<uint16_t> converted;
 };
 
-} // namespace sda
+} // namespace sdc::gf
 
-#endif // STD_DETECTOR_BUFFER_ASSEMBLER_HPP
+#endif // STD_DETECTOR_BUFFER_CONVERTER_HPP

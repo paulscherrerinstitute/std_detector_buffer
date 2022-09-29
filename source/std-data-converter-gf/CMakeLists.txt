@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(std_data_assembler)
+project(std_data_converter_gf)
 
 find_package(fmt REQUIRED)
 find_package(ZeroMQ REQUIRED)
@@ -17,7 +17,7 @@ target_link_libraries(${PROJECT_NAME}_lib
 
 target_sources(${PROJECT_NAME}_lib
     PRIVATE
-        src/assembler.cpp
+        src/converter.cpp
 )
 
 add_executable(${PROJECT_NAME} src/main.cpp)

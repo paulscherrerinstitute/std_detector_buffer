@@ -2,9 +2,9 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#include "assembler.hpp"
+#include "converter.hpp"
 
-namespace sda {
+namespace sdc::gf {
 
 namespace {
 
@@ -19,11 +19,11 @@ struct conversion_handle
 #pragma pack()
 } // namespace
 
-Assembler::Assembler(std::size_t pixels_number)
+Converter::Converter(std::size_t pixels_number)
     : converted(pixels_number)
 {}
 
-std::span<uint16_t> Assembler::convert(std::span<char> input)
+std::span<uint16_t> Converter::convert(std::span<char> input)
 {
   // in theory the pixels number should be divisible by 4 - so there should be no problem with
   // alignment of conversion_handle
@@ -38,4 +38,4 @@ std::span<uint16_t> Assembler::convert(std::span<char> input)
   return converted;
 }
 
-} // namespace sda
+} // namespace sdc::gf
