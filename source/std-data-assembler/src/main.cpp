@@ -30,8 +30,6 @@ int main(int argc, char* argv[])
   check_number_of_arguments(argc);
 
   const auto config = buffer_utils::read_json_config(std::string(argv[1]));
-  const uint16_t quadrant_id = std::stoi(argv[2]);
-  assert(quadrant_id == gf::quadrant::SW); // TODO: support other quadrants
   const uint16_t module_id = std::stoi(argv[3]);
 
   const auto PACKET_N_DATA_BYTES =
