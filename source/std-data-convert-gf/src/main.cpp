@@ -16,7 +16,7 @@ namespace {
 void check_number_of_arguments(int argc)
 {
   if (argc != 4) {
-    fmt::print("Usage: std_data_converter_gf [detector_json_filename] \n\n"
+    fmt::print("Usage: std_data_convert_gf [detector_json_filename] \n\n"
                "\tdetector_json_filename: detector config file path.\n"
                "\tquadrant_id: Supported quadrant_id\n"
                "\tmodule_id: module id - data source\n");

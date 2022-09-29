@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(std_data_converter_gf)
+project(std_data_convert_gf)
 
 find_package(fmt REQUIRED)
 find_package(ZeroMQ REQUIRED)
