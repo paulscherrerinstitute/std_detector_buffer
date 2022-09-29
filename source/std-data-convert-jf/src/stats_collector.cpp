@@ -9,7 +9,7 @@
 using namespace std::chrono;
 using namespace std::chrono_literals;
 
-namespace sdc {
+namespace sdc::jf {
 
 namespace {
 auto timestamp()
@@ -18,7 +18,7 @@ auto timestamp()
 }
 } // namespace
 
-StatsCollector::StatsCollector(sdc::Identifier converter_id)
+StatsCollector::StatsCollector(sdc::jf::Identifier converter_id)
     : id(std::move(converter_id))
 {}
 
@@ -45,4 +45,4 @@ void StatsCollector::processing_finished()
   }
 }
 
-} // namespace sdc
+} // namespace sdc::jf

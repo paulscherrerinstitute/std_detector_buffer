@@ -10,7 +10,7 @@
 #include <hdf5.h>
 #include <fmt/core.h>
 
-namespace sdc {
+namespace sdc::jf {
 namespace {
 
 parameters decode_parameters(hid_t file_id, const std::string& id, std::size_t image_size)
@@ -47,4 +47,4 @@ std::tuple<parameters, parameters> read_gains_and_pedestals(const std::string& f
 
   return {gains, pedestals};
 }
-} // namespace sdc
+} // namespace sdc::jf

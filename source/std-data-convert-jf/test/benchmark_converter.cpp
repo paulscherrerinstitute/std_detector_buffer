@@ -12,9 +12,9 @@ using namespace ranges;
 namespace {
 constexpr std::size_t data_elements = 512 * 1024;
 
-sdc::parameters prepare_params(float default_value = 0)
+sdc::jf::parameters prepare_params(float default_value = 0)
 {
-  return sdc::parameters{std::vector(data_elements, default_value),
+  return sdc::jf::parameters{std::vector(data_elements, default_value),
                          std::vector(data_elements, default_value),
                          std::vector(data_elements, default_value)};
 }
@@ -24,7 +24,7 @@ sdc::parameters prepare_params(float default_value = 0)
 static void BM_Convertion(benchmark::State& state)
 {
   auto input_data = std::vector<uint16_t>(data_elements, 0);
-  sdc::Converter converter{prepare_params(2), prepare_params(-1)};
+  sdc::jf::Converter converter{prepare_params(2), prepare_params(-1)};
   for (auto _ : state) {
     state.PauseTiming();
     ranges::transform(input_data, begin(input_data),

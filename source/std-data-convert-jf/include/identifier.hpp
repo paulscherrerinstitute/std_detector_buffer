@@ -8,7 +8,7 @@
 #include <string_view>
 #include <fmt/core.h>
 
-namespace sdc {
+namespace sdc::jf {
 class Identifier
 {
 public:
@@ -23,6 +23,6 @@ private:
   std::string repr;
   std::string source;
 };
-} // namespace sdc
+} // namespace sdc::jf
 
 #endif // STD_DETECTOR_BUFFER_IDENTIFIER_HPP

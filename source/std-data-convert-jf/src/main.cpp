@@ -44,10 +44,10 @@ void check_number_of_arguments(int argc)
   }
 }
 
-sdc::Converter create_converter(const std::string& filename, std::size_t image_size)
+sdc::jf::Converter create_converter(const std::string& filename, std::size_t image_size)
 {
-  const auto [gains, pedestals] = sdc::read_gains_and_pedestals(filename, image_size);
-  return sdc::Converter{gains, pedestals};
+  const auto [gains, pedestals] = sdc::jf::read_gains_and_pedestals(filename, image_size);
+  return sdc::jf::Converter{gains, pedestals};
 }
 
 int main(int argc, char* argv[])
@@ -57,8 +57,8 @@ int main(int argc, char* argv[])
   const auto config = buffer_utils::read_json_config(std::string(argv[1]));
   const uint16_t module_id = std::stoi(argv[3]);
   const uint16_t converter_index = std::stoi(argv[4]);
-  const sdc::Identifier converter_id(config.detector_name, module_id, converter_index);
-  sdc::StatsCollector stats_collector(converter_id);
+  const sdc::jf::Identifier converter_id(config.detector_name, module_id, converter_index);
+  sdc::jf::StatsCollector stats_collector(converter_id);
 
   auto converter = create_converter(argv[2], config.image_pixel_height * config.image_pixel_width);
 
