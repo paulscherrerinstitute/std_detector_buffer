@@ -172,6 +172,8 @@ int main(int argc, char* argv[])
                        PACKET_N_DATA_BYTES, LAST_PACKET_N_DATA_BYTES, LAST_PACKET_STARTING_ROW);
       }
     }
+
+    stats.process_stats();
   }
 
   delete[] frame_buffer;

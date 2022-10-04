@@ -34,9 +34,11 @@ void FrameStats::record_stats(const uint64_t n_missing_packets)
   }
 
   frames_counter_++;
+}
 
+void FrameStats::process_stats()
+{
   const auto time_passed = duration_cast<milliseconds>(steady_clock::now() - stats_interval_start_);
-
   if (time_passed >= stats_time_) {
     print_stats();
     reset_counters();

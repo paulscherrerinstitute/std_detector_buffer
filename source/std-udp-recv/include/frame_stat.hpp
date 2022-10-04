@@ -28,6 +28,7 @@ class FrameStats
 public:
   FrameStats(std::string detector_name, uint16_t module_id, size_t stats_time);
   void record_stats(uint64_t n_missing_packets);
+  void process_stats();
 };
 
 #endif // STD_DETECTOR_BUFFER_FRAME_STATS_HPP
