@@ -76,7 +76,9 @@ void RamBuffer::write(const uint64_t id, const char* src_meta, const char* src_d
   cout << endl;
 #endif
 
-  memcpy(dst_meta, src_meta, meta_bytes_);
+  // when writer is not owning responsibility for metadata src_meta can be nullptr
+  if(src_meta != nullptr)
+    memcpy(dst_meta, src_meta, meta_bytes_);
   memcpy(dst_data, src_data, data_bytes_);
 }
 

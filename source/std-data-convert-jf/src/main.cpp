@@ -34,7 +34,7 @@ cb::Sender create_sender(std::string name, void* ctx)
 void check_number_of_arguments(int argc)
 {
   if (argc != 5) {
-    fmt::print("Usage: std_data_convert [detector_json_filename] [gains_and_pedestal_h5_filename] "
+    fmt::print("Usage: std_data_convert_jf [detector_json_filename] [gains_and_pedestal_h5_filename] "
                "[module_id] [converter_index]\n\n"
                "\tdetector_json_filename: detector config file path.\n"
                "\tgains_and_pedestal_h5_filename: gains and pedestals h5 path.\n"
@@ -44,10 +44,10 @@ void check_number_of_arguments(int argc)
   }
 }
 
-sdc::Converter create_converter(const std::string& filename, std::size_t image_size)
+jf::sdc::Converter create_converter(const std::string& filename, std::size_t image_size)
 {
-  const auto [gains, pedestals] = sdc::read_gains_and_pedestals(filename, image_size);
-  return sdc::Converter{gains, pedestals};
+  const auto [gains, pedestals] = jf::sdc::read_gains_and_pedestals(filename, image_size);
+  return jf::sdc::Converter{gains, pedestals};
 }
 
 int main(int argc, char* argv[])
@@ -57,8 +57,8 @@ int main(int argc, char* argv[])
   const auto config = buffer_utils::read_json_config(std::string(argv[1]));
   const uint16_t module_id = std::stoi(argv[3]);
   const uint16_t converter_index = std::stoi(argv[4]);
-  const sdc::Identifier converter_id(config.detector_name, module_id, converter_index);
-  sdc::StatsCollector stats_collector(converter_id);
+  const jf::sdc::Identifier converter_id(config.detector_name, module_id, converter_index);
+  jf::sdc::StatsCollector stats_collector(converter_id);
 
   auto converter = create_converter(argv[2], config.image_pixel_height * config.image_pixel_width);
 

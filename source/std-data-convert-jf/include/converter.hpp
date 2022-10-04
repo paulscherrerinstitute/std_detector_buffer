@@ -11,7 +11,7 @@
 
 #include "parameters.hpp"
 
-namespace sdc {
+namespace jf::sdc {
 
 class Converter
 {
@@ -27,6 +27,6 @@ private:
   std::vector<float> converted;
 };
 
-} // namespace sdc
+} // namespace jf::sdc
 
 #endif // STD_DETECTOR_BUFFER_CONVERTER_HPP

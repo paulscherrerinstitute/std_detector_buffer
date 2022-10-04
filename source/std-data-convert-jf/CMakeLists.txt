@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(std_data_convert)
+project(std_data_convert_jf)
 
 find_package(fmt REQUIRED)
 find_package(MPI REQUIRED)

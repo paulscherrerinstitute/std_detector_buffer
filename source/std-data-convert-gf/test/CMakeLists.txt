@@ -5,7 +5,7 @@ add_executable(${PROJECT_NAME}_tests)
 
 target_sources(${PROJECT_NAME}_tests
     PRIVATE
-        test_assembler.cpp
+        test_converter.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}_tests

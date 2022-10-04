@@ -9,7 +9,7 @@
 using namespace std::chrono;
 using namespace std::chrono_literals;
 
-namespace sdc {
+namespace jf::sdc {
 
 namespace {
 auto timestamp()
@@ -18,7 +18,7 @@ auto timestamp()
 }
 } // namespace
 
-StatsCollector::StatsCollector(sdc::Identifier converter_id)
+StatsCollector::StatsCollector(jf::sdc::Identifier converter_id)
     : id(std::move(converter_id))
 {}
 
@@ -34,7 +34,7 @@ void StatsCollector::processing_finished()
   stats.second++;
 
   if (10s < now - last_flush_time) {
-    fmt::print("std_data_convert,converter_id={},"
+    fmt::print("std_data_convert_jf,converter_id={},"
                "average_process_time_ns={},number_of_processed_packets={} "
                "{}\n",
                id.converter_name(), (stats.first / stats.second).count(), stats.second,
@@ -45,4 +45,4 @@ void StatsCollector::processing_finished()
   }
 }
 
-} // namespace sdc
+} // namespace jf::sdc
