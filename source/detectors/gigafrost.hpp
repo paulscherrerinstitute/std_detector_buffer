@@ -78,7 +78,8 @@ static_assert(sizeof(GFFrame) == 64u);
 
 namespace gf {
 
-enum class quadrant : std::size_t {
+enum class quadrant : std::size_t
+{
   SW = 0,
   SE,
   NW,
@@ -148,6 +149,13 @@ std::size_t n_packets_per_frame(int image_pixel_height, int image_pixel_width)
 {
   return std::ceil(module_n_y_pixels(image_pixel_height) /
                    n_rows_per_packet(image_pixel_height, image_pixel_width));
+}
+
+std::size_t last_packet_n_bytes(int image_pixel_height, int image_pixel_width)
+{
+  return (module_n_y_pixels(image_pixel_height) %
+         n_rows_per_packet(image_pixel_height, image_pixel_width)) *
+         module_n_x_pixels(image_pixel_width) * 3 / 2;
 }
 
 } // namespace gf

@@ -7,7 +7,8 @@ import zmq.asyncio
 
 from testing.fixtures import test_path
 from testing.communication import start_publisher_communication, start_subscriber_communication
-from testing.execution_helpers import executable, run_command, build_command, run_command_in_parallel
+from testing.execution_helpers import executable, run_command, build_command, run_command_in_parallel, push_to_buffer, \
+    send_receive
 from std_buffer.jungfrau.data import JungfrauConfigUdp, JungfrauConfigConverter
 
 
@@ -22,20 +23,6 @@ def get_converter_packet_array(output_buffer: memoryview, slot: int) -> np.ndarr
     data_of_slot = output_buffer[slot_start:slot_start + JungfrauConfigConverter.data_bytes_per_packet]
     return np.ndarray((int(JungfrauConfigConverter.data_bytes_per_packet / 4),), dtype='f4',
                       buffer=data_of_slot)
-
-
-async def send_receive(pub_socket: zmq.asyncio.Socket, slot: int, sub_socket: zmq.asyncio.Socket):
-    msg = sub_socket.recv()
-    time.sleep(0.1)
-    await pub_socket.send(np.array([slot], dtype='i8'))
-    time.sleep(0.1)
-    return await msg
-
-
-def push_to_buffer(input_buffer, data):
-    sent_data = np.ndarray((len(data),), dtype='b', buffer=input_buffer)
-    sent_data[:] = np.frombuffer(data, dtype='b')
-    return sent_data
 
 
 def build_jungfrau_converter_command(test_path, pedestals='gains_1_pedestals_0.h5') -> str:

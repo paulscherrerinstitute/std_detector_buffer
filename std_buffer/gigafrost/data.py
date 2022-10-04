@@ -125,3 +125,31 @@ def calculate_udp_packet_info(image_pixel_height, image_pixel_width):
             'packet_n_rows': packet_n_rows,
             'last_packet_n_rows': last_packet_n_rows,
             'last_packet_n_data_bytes': last_packet_n_data_bytes}
+
+
+class GigafrostConfigUdp:
+    quadrant_id = 0
+    id = 1
+    name = f'GF2-{id}'
+    udp_port_base = 50020
+    image_pixel_height = 2016
+    image_pixel_width = 2016
+    meta_bytes_per_packet = 64
+    data_bytes_per_packet = calculate_udp_packet_info(image_pixel_height, image_pixel_width)['packet_n_data_bytes']
+    data_bytes_last_packet = calculate_udp_packet_info(image_pixel_height, image_pixel_width)[
+        'last_packet_n_data_bytes']
+    bytes_per_packet = meta_bytes_per_packet + data_bytes_per_packet
+    packets_per_frame = calculate_udp_packet_info(image_pixel_height, image_pixel_width)['frame_n_packets']
+    slots = 10  # should be 1000 but for testing purposes 10 is enough
+    buffer_size = bytes_per_packet * slots
+
+
+class GigafrostConfigConverter:
+    id = GigafrostConfigUdp.id
+    name = GigafrostConfigUdp.name + '-converted'
+    udp_port_base = GigafrostConfigUdp.udp_port_base
+    slots = GigafrostConfigUdp.slots
+    data_bytes_per_packet = GigafrostConfigUdp.data_bytes_per_packet * 4 / 3
+    meta_bytes_per_packet = GigafrostConfigUdp.meta_bytes_per_packet
+    bytes_per_packet = meta_bytes_per_packet + data_bytes_per_packet
+    buffer_size = bytes_per_packet * slots
