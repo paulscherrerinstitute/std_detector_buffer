@@ -128,7 +128,8 @@ int main(int argc, char* argv[])
 
   const cb::SendReceiveConfig module_config = {
       detector_config.detector_name + "-" + std::to_string(module_id),
-      BYTES_PER_PACKET - PACKET_N_DATA_BYTES, PACKET_N_DATA_BYTES * FRAME_N_PACKETS,
+      sizeof(GFFrame),
+      (PACKET_N_DATA_BYTES * (FRAME_N_PACKETS-1)) + LAST_PACKET_N_DATA_BYTES,
       RAM_BUFFER_N_SLOTS};
 
   auto ctx = zmq_ctx_new();
