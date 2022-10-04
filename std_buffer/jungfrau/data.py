@@ -42,7 +42,7 @@ class JungfrauConfigUdp:
     id = 1
     name = f'jungfrau-{id}'
     udp_port_base = 50020
-    meta_bytes_per_packet = 48
+    meta_bytes_per_packet = 64
     data_bytes_per_packet = 8192 * 128
     bytes_per_packet = meta_bytes_per_packet + data_bytes_per_packet
     packets_per_frame = 128

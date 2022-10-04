@@ -18,7 +18,7 @@
 
 cb::Receiver create_receiver(std::string name, void* ctx)
 {
-  return cb::Receiver{{std::move(name), BYTES_PER_PACKET - DATA_BYTES_PER_PACKET,
+  return cb::Receiver{{std::move(name), sizeof(JFFrame),
                        DATA_BYTES_PER_PACKET * N_PACKETS_PER_FRAME,
                        buffer_config::RAM_BUFFER_N_SLOTS},
                       ctx};
@@ -26,7 +26,7 @@ cb::Receiver create_receiver(std::string name, void* ctx)
 
 cb::Sender create_sender(std::string name, void* ctx)
 {
-  return cb::Sender{{std::move(name), BYTES_PER_PACKET - DATA_BYTES_PER_PACKET,
+  return cb::Sender{{std::move(name), sizeof(JFFrame),
                      MODULE_N_PIXELS * sizeof(float), buffer_config::RAM_BUFFER_N_SLOTS},
                     ctx};
 }
