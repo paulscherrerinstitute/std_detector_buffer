@@ -54,7 +54,6 @@ int main(int argc, char* argv[])
 
   while (true) {
     auto [id, meta, image] = receiver.receive();
-    fmt::print("WOAH {},{}", (int)meta[0],(int)meta[1] );
     sender.send(id, meta, image);
   }
   return 0;

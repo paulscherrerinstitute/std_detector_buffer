@@ -153,9 +153,11 @@ std::size_t n_packets_per_frame(int image_pixel_height, int image_pixel_width)
 
 std::size_t last_packet_n_bytes(int image_pixel_height, int image_pixel_width)
 {
-  return (module_n_y_pixels(image_pixel_height) %
-         n_rows_per_packet(image_pixel_height, image_pixel_width)) *
-         module_n_x_pixels(image_pixel_width) * 3 / 2;
+  auto last_packet_n_rows = module_n_y_pixels(image_pixel_height) %
+                            n_rows_per_packet(image_pixel_height, image_pixel_width);
+  if (last_packet_n_rows == 0)
+    last_packet_n_rows = n_rows_per_packet(image_pixel_height, image_pixel_width);
+  return last_packet_n_rows * module_n_x_pixels(image_pixel_width) * 3 / 2;
 }
 
 } // namespace gf
