@@ -16,7 +16,7 @@ from std_buffer.jungfrau.data import JungfrauConfigUdp, JungfrauConfigConverter
 def get_udp_packet_array(input_buffer: memoryview, slot: int) -> np.ndarray:
     slot_start = slot * GigafrostConfigUdp.bytes_per_packet + GigafrostConfigUdp.meta_bytes_per_packet
     data_of_slot = input_buffer[slot_start:slot_start + GigafrostConfigUdp.data_bytes_per_packet]
-    return np.ndarray((int(GigafrostConfigUdp.data_bytes_per_packet / 2),), dtype='i2', buffer=data_of_slot)
+    return np.ndarray((int(GigafrostConfigUdp.data_bytes_per_packet),), dtype='i1', buffer=data_of_slot)
 
 
 @pytest.mark.asyncio
@@ -53,8 +53,13 @@ async def test_converter_send_real_image_with_custom_slot(test_path):
             with start_subscriber_communication(ctx, GigafrostConfigConverter) as (output_buffer, sub_socket):
                 # fill data array with incremented data
                 sent_data = get_udp_packet_array(input_buffer, slot)
-                for i in range(len(sent_data)):
-                    sent_data[i] = (i+1) % 1000
+                # 513, 514, 515, 516 - 4 pixels
+                sent_data[0] = 0b00100000
+                sent_data[1] = 0b00010010
+                sent_data[2] = 0b00000010
+                sent_data[3] = 0b00100000
+                sent_data[4] = 0b00110010
+                sent_data[5] = 0b00000100
 
                 msg = await send_receive(pub_socket=pub_socket, sub_socket=sub_socket, slot=slot)
 
