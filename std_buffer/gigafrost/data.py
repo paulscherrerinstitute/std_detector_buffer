@@ -149,7 +149,7 @@ class GigafrostConfigConverter:
     name = GigafrostConfigUdp.name + '-converted'
     udp_port_base = GigafrostConfigUdp.udp_port_base
     slots = GigafrostConfigUdp.slots
-    data_bytes_per_packet = GigafrostConfigUdp.data_bytes_per_packet * 4 / 3
+    data_bytes_per_packet = GigafrostConfigUdp.image_pixel_width * GigafrostConfigUdp.image_pixel_height * 2
     meta_bytes_per_packet = GigafrostConfigUdp.meta_bytes_per_packet
     bytes_per_packet = meta_bytes_per_packet + data_bytes_per_packet
     buffer_size = bytes_per_packet * slots

@@ -160,6 +160,11 @@ std::size_t last_packet_n_bytes(int image_pixel_height, int image_pixel_width)
   return last_packet_n_rows * module_n_x_pixels(image_pixel_width) * 3 / 2;
 }
 
+std::size_t converted_image_n_bytes(int image_pixel_height, int image_pixel_width)
+{
+  return image_pixel_width * image_pixel_height * 2;
+}
+
 } // namespace gf
 
 #endif // STD_DETECTOR_BUFFER_GIGAFROST_HPP
