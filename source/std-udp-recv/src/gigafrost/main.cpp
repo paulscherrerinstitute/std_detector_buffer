@@ -143,7 +143,11 @@ int main(int argc, char* argv[])
   GFFrame meta = {};
   meta.frame_index = INVALID_FRAME_INDEX;
 
-  char* frame_buffer = new char[MODULE_N_DATA_BYTES];
+  // TODO: Make 64 a const somewhere or read it programmatically (cache line size)
+  char* frame_buffer = static_cast<char*>(aligned_alloc(64, MODULE_N_DATA_BYTES));
+  if (frame_buffer == nullptr) {
+    throw runtime_error("Cannot allocate frame_buffer.");
+  }
 
   while (true) {
     // Load n_packets into the packet_buffer.
@@ -176,5 +180,5 @@ int main(int argc, char* argv[])
     stats.process_stats();
   }
 
-  delete[] frame_buffer;
+  free(frame_buffer);
 }
