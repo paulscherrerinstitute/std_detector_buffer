@@ -22,8 +22,7 @@ class ZmqPulseSyncReceiver
 
   void* ctx_;
   const int n_modules_;
-
-  std::vector<void*> sockets_;
+  void* socket_;
 
 public:
   ZmqPulseSyncReceiver(void* ctx, const std::string& detector_name, int n_modules);
