@@ -15,6 +15,7 @@ class Sender
 public:
   explicit Sender(const SendReceiveConfig& config, void* zmq_context);
   void send(uint64_t id, char* meta, char* data);
+  char* get_data(uint64_t id);
 
 private:
   RamBuffer buffer;

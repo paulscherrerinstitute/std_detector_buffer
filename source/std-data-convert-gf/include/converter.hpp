@@ -15,9 +15,9 @@ class Converter
 {
 public:
   explicit Converter(std::size_t pixels_number);
-  std::span<uint16_t> convert(std::span<char> data);
+  void convert(std::span<char> input_data, std::span<char> output_buffer);
 private:
-  std::vector<uint16_t> converted;
+  std::size_t pixels;
 };
 
 } // namespace gf::sdc
