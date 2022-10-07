@@ -31,13 +31,13 @@ int main(int argc, char* argv[])
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, 1);
 
-  auto sender = buffer_utils::bind_socket(ctx, config.detector_name + "sync");
-
   ZmqPulseSyncReceiver receiver(ctx, config.detector_name, config.n_modules);
+  auto sender = buffer_utils::bind_socket(ctx, config.detector_name + "-image");
+
   SyncStats stats(config.detector_name, STATS_TIME);
 
   while (true) {
-    auto meta = receiver.get_next_pulse_id();
+    auto meta = receiver.get_next_image_id();
 
     zmq_send(sender, &meta.image_id, sizeof(meta.image_id), 0);
 

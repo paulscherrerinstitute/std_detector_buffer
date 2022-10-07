@@ -38,7 +38,7 @@ ZmqPulseSyncReceiver::~ZmqPulseSyncReceiver()
   }
 }
 
-PulseAndSync ZmqPulseSyncReceiver::get_next_pulse_id() const
+ImageAndSync ZmqPulseSyncReceiver::get_next_image_id() const
 {
   uint64_t ids[n_modules_];
 
@@ -57,7 +57,7 @@ PulseAndSync ZmqPulseSyncReceiver::get_next_pulse_id() const
 #ifdef DEBUG_OUTPUT
       using namespace date;
       cout << "[" << std::chrono::system_clock::now() << "]";
-      cout << " [ZmqPulseSyncReceiver::get_next_pulse_id]";
+      cout << " [ZmqPulseSyncReceiver::get_next_image_id]";
       cout << " Modules in sync (";
       cout << " pulse_id " << ids[0] << ").";
       cout << endl;
@@ -68,7 +68,7 @@ PulseAndSync ZmqPulseSyncReceiver::get_next_pulse_id() const
 #ifdef DEBUG_OUTPUT
     using namespace date;
     cout << "[" << std::chrono::system_clock::now() << "]";
-    cout << " [ZmqPulseSyncReceiver::get_next_pulse_id]";
+    cout << " [ZmqPulseSyncReceiver::get_next_image_id]";
     cout << " Modules out of sync:" << endl;
     for (int i = 0; i < n_modules_; i++) {
       cout << " module" << i << ":" << ids[i];
@@ -78,7 +78,7 @@ PulseAndSync ZmqPulseSyncReceiver::get_next_pulse_id() const
   }
 
   stringstream err_msg;
-  err_msg << "[ZmqPulseSyncReceiver::get_next_pulse_id]";
+  err_msg << "[ZmqPulseSyncReceiver::get_next_image_id]";
   err_msg << " SYNC_RETRY_LIMIT exceeded. State:";
   for (int i = 0; i < n_modules_; i++) {
     err_msg << " module" << i << ":" << ids[i];

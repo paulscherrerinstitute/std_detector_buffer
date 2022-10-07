@@ -11,7 +11,7 @@
 
 #include "formats.hpp"
 
-struct PulseAndSync
+struct ImageAndSync
 {
   const uint64_t image_id;
   const uint32_t n_lost_pulses;
@@ -29,7 +29,7 @@ public:
   ZmqPulseSyncReceiver(void* ctx, const std::string& detector_name, int n_modules);
   ~ZmqPulseSyncReceiver();
 
-  PulseAndSync get_next_pulse_id() const;
+  ImageAndSync get_next_image_id() const;
 };
 
 #endif // STD_DETECTOR_BUFFER_ZMQ_PULSE_SYNC_RECEIVER_HPP
