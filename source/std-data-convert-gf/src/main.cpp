@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
   auto sender = cb::Sender{
       {converter_name, sizeof(GFFrame), converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS}, ctx};
 
-  auto converter = sdc::Converter(config.image_pixel_width * config.image_pixel_height);
+  auto converter = sdc::Converter(config.image_pixel_height, config.image_pixel_width);
 
   while (true) {
     auto [id, meta, image] = receiver.receive();

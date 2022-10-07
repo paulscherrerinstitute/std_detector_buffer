@@ -57,7 +57,6 @@ async def test_converter_send_real_image_with_custom_slot(test_path):
     with start_publisher_communication(ctx, GigafrostConfigUdp) as (input_buffer, pub_socket):
         with run_command_in_parallel(command):
             with start_subscriber_communication(ctx, GigafrostConfigConverter) as (output_buffer, sub_socket):
-                # fill data array with incremented data
                 sent_data = get_udp_packet_array(input_buffer, slot)
                 # 513, 514, 515, 516 - 4 pixels
                 sent_data[0] = 0b00100000

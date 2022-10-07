@@ -14,10 +14,13 @@ namespace gf::sdc {
 class Converter
 {
 public:
-  explicit Converter(std::size_t pixels_number);
+  explicit Converter(std::size_t image_height, std::size_t image_width);
   void convert(std::span<char> input_data, std::span<char> output_buffer);
+
 private:
-  std::size_t pixels;
+  const std::size_t height;
+  const std::size_t width;
+  const std::size_t pixels;
 };
 
 } // namespace gf::sdc
