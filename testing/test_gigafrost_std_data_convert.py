@@ -30,8 +30,7 @@ def get_converter_buffer_data(output_buffer, slot):
 @pytest.mark.asyncio
 async def test_converter_send_simple_data_for_packet_with_0_id(test_path):
     command = build_command('std_data_convert_gf', test_path / 'gigafrost_detector.json',
-                            GigafrostConfigUdp.quadrant_id,
-                            GigafrostConfigUdp.id)
+                            GigafrostConfigUdp.id, GigafrostConfigUdp.quadrant_id)
 
     ctx = zmq.asyncio.Context()
 
@@ -51,8 +50,7 @@ async def test_converter_send_simple_data_for_packet_with_0_id(test_path):
 async def test_converter_send_real_image_with_custom_slot(test_path):
     slot = 3
     command = build_command('std_data_convert_gf', test_path / 'gigafrost_detector.json',
-                            GigafrostConfigUdp.quadrant_id,
-                            GigafrostConfigUdp.id)
+                            GigafrostConfigUdp.id, GigafrostConfigUdp.quadrant_id)
 
     ctx = zmq.asyncio.Context()
 

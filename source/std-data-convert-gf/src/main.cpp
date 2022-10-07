@@ -23,8 +23,8 @@ void check_number_of_arguments(int argc)
   if (argc != 4) {
     fmt::print("Usage: std_data_convert_gf [detector_json_filename] \n\n"
                "\tdetector_json_filename: detector config file path.\n"
-               "\tquadrant_id: Supported quadrant_id\n"
-               "\tmodule_id: module id - data source\n");
+               "\tmodule_id: module id - data source\n"
+               "\tquadrant_id: Supported quadrant_id\n");
     exit(-1);
   }
 }
@@ -48,13 +48,13 @@ int main(int argc, char* argv[])
   check_number_of_arguments(argc);
 
   const auto config = buffer_utils::read_json_config(std::string(argv[1]));
-  const uint16_t module_id = std::stoi(argv[3]);
+  const uint16_t module_id = std::stoi(argv[2]);
   const auto converter_name = fmt::format("{}-{}-converted", config.detector_name, module_id);
   const auto [module_bytes, converted_bytes] = calculate_data_sizes(config);
 
   auto ctx = zmq_ctx_new();
 
-  sdc::StatsCollector stats_collector(converter_name, std::stoi(argv[2]));
+  sdc::StatsCollector stats_collector(converter_name, std::stoi(argv[3]));
   auto receiver = cb::Receiver{{fmt::format("{}-{}", config.detector_name, module_id),
                                 sizeof(GFFrame), module_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
                                ctx};
