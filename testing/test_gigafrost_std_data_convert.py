@@ -47,7 +47,6 @@ async def test_converter_send_simple_data_for_packet_with_0_id(test_path):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="Maciej make me work!")
 async def test_converter_send_real_image_with_custom_slot(test_path):
     slot = 3
     command = build_command('std_data_convert_gf', test_path / 'gigafrost_detector.json',
@@ -71,7 +70,8 @@ async def test_converter_send_real_image_with_custom_slot(test_path):
 
                 assert np.frombuffer(msg, dtype='i8') == slot
                 data = get_converter_buffer_data(output_buffer, slot)
-                assert data[0] == 513
-                assert data[1] == 514
-                assert data[2] == 515
-                assert data[3] == 516
+                start_index = int(GigafrostConfigUdp.image_pixel_height * GigafrostConfigUdp.image_pixel_width / 2)
+                assert data[start_index] == 513
+                assert data[start_index + 1] == 514
+                assert data[start_index + 2] == 515
+                assert data[start_index + 3] == 516
