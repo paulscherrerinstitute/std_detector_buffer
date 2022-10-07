@@ -57,7 +57,7 @@ ImageAndSync ZmqPulseSyncReceiver::get_next_image_id() const
     bool modules_in_sync = true;
     for (int i = 0; i < n_modules_; i++) {
 
-      zmq_recv(sockets_[i], &ids[i], sizeof(uint64_t), 0);
+//      zmq_recv(sockets_[i], &ids[i], sizeof(uint64_t), 0);
 
       if (ids[0] != ids[i]) {
         modules_in_sync = false;
