@@ -23,4 +23,9 @@ void Sender::send(uint64_t id, char* meta, char* data)
   zmq_send(socket, &id, sizeof(id), 0);
 }
 
+char* Sender::get_data(uint64_t id)
+{
+  return buffer.get_data(id);
+}
+
 } // namespace cb

@@ -20,22 +20,23 @@ struct conversion_handle
 } // namespace
 
 Converter::Converter(std::size_t pixels_number)
-    : converted(pixels_number)
+    : pixels(pixels_number)
 {}
 
-std::span<uint16_t> Converter::convert(std::span<char> input)
+void Converter::convert(std::span<char> input, std::span<char> output_buffer)
 {
   // in theory the pixels number should be divisible by 4 - so there should be no problem with
   // alignment of conversion_handle
   const std::span<conversion_handle> conversion(reinterpret_cast<conversion_handle*>(input.data()),
                                                 input.size() / sizeof(conversion_handle));
 
-  for (auto i = 0u, j = 0u; i < conversion.size(); i++, j += 2) {
-    converted[j] = (conversion[i].p11 << 4) | conversion[i].p12;
-    converted[j + 1] = (conversion[i].p21 << 8) | conversion[i].p22;
-  }
+  std::span<uint16_t> output(reinterpret_cast<uint16_t *>(output_buffer.data()),
+                                      output_buffer.size() / sizeof(uint16_t));
 
-  return converted;
+  for (auto i = 0u, j = 0u; i < conversion.size(); i++, j += 2) {
+    output[j] = (conversion[i].p11 << 4) | conversion[i].p12;
+    output[j + 1] = (conversion[i].p21 << 8) | conversion[i].p22;
+  }
 }
 
 } // namespace gf::sdc

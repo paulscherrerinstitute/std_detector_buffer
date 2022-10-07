@@ -1,3 +1,4 @@
+import asyncio
 import time
 
 import numpy as np
@@ -17,6 +18,13 @@ def get_udp_packet_array(input_buffer: memoryview, slot: int) -> np.ndarray:
     slot_start = slot * GigafrostConfigUdp.bytes_per_packet + GigafrostConfigUdp.meta_bytes_per_packet
     data_of_slot = input_buffer[slot_start:slot_start + GigafrostConfigUdp.data_bytes_per_packet]
     return np.ndarray((int(GigafrostConfigUdp.data_bytes_per_packet),), dtype='i1', buffer=data_of_slot)
+
+
+def get_converter_buffer_data(output_buffer, slot):
+    slot_start = slot * GigafrostConfigConverter.bytes_per_packet + GigafrostConfigConverter.meta_bytes_per_packet
+    data_of_slot = output_buffer[slot_start:slot_start + GigafrostConfigConverter.data_bytes_per_packet]
+    return np.ndarray((int(GigafrostConfigConverter.data_bytes_per_packet / 2),), dtype='u2',
+                      buffer=data_of_slot)
 
 
 @pytest.mark.asyncio
@@ -64,4 +72,8 @@ async def test_converter_send_real_image_with_custom_slot(test_path):
                 msg = await send_receive(pub_socket=pub_socket, sub_socket=sub_socket, slot=slot)
 
                 assert np.frombuffer(msg, dtype='i8') == slot
-                # assert np.array_equal(get_converter_packet_array(output_buffer, slot), sent_data)
+                data = get_converter_buffer_data(output_buffer, slot)
+                assert data[0] == 513
+                assert data[1] == 514
+                assert data[2] == 515
+                assert data[3] == 516

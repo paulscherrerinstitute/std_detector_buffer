@@ -2,6 +2,7 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
+#include <span>
 #include <cstdlib>
 
 #include <zmq.h>
@@ -12,6 +13,7 @@
 #include "core_buffer/sender.hpp"
 #include "gigafrost.hpp"
 #include "stats_collector.hpp"
+#include "converter.hpp"
 
 using namespace gf;
 
@@ -60,10 +62,14 @@ int main(int argc, char* argv[])
   auto sender = cb::Sender{
       {converter_name, sizeof(GFFrame), converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS}, ctx};
 
+  auto converter = sdc::Converter(config.image_pixel_width * config.image_pixel_height);
+
   while (true) {
     auto [id, meta, image] = receiver.receive();
     stats_collector.processing_started();
-    sender.send(id, meta, image);
+    std::span<char> data(sender.get_data(id), converted_bytes);
+    converter.convert(std::span<char>(image, module_bytes), data);
+    sender.send(id, meta, nullptr);
     stats_collector.processing_finished();
   }
   return 0;
