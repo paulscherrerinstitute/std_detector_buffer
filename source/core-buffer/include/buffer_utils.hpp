@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <ostream>
+#include <zmq.h>
 
 namespace buffer_utils {
 
@@ -30,8 +31,10 @@ struct DetectorConfig
   }
 };
 
-void* bind_socket(void* ctx, const std::string& buffer_name);
-void* connect_socket(void* ctx, const std::string& buffer_name);
+void* bind_socket(void* ctx, const std::string& buffer_name, int zmq_socket_type = ZMQ_PUB);
+void* connect_socket(void* ctx, const std::string& buffer_name, int zmq_socket_type = ZMQ_SUB);
+void* create_socket(void* ctx, int zmq_socket_type);
+
 DetectorConfig read_json_config(const std::string& filename);
 } // namespace buffer_utils
 
