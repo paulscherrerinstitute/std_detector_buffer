@@ -2,11 +2,11 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_SEND_RECEIVE_CONFIG_HPP
-#define STD_DETECTOR_BUFFER_SEND_RECEIVE_CONFIG_HPP
+#ifndef STD_DETECTOR_BUFFER_RAM_BUFFER_CONFIG_HPP
+#define STD_DETECTOR_BUFFER_RAM_BUFFER_CONFIG_HPP
 
 namespace cb {
-struct SendReceiveConfig
+struct RamBufferConfig
 {
   const std::string buffer_name;
   const size_t n_bytes_meta;
@@ -15,4 +15,4 @@ struct SendReceiveConfig
 };
 } // namespace cb
 
-#endif // STD_DETECTOR_BUFFER_SEND_RECEIVE_CONFIG_HPP
+#endif // STD_DETECTOR_BUFFER_RAM_BUFFER_CONFIG_HPP

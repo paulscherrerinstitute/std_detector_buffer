@@ -12,8 +12,7 @@ target_sources(${PROJECT_NAME}
     PRIVATE
         src/buffer_utils.cpp
         src/ram_buffer.cpp
-        src/sender.cpp
-        src/receiver.cpp
+        src/communicator.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC include PRIVATE include/${PROJECT_NAME})

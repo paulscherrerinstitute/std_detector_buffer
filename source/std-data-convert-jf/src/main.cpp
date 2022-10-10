@@ -13,33 +13,33 @@
 #include "jungfrau.hpp"
 #include "buffer_utils.hpp"
 #include "buffer_config.hpp"
-#include "core_buffer/sender.hpp"
-#include "core_buffer/receiver.hpp"
+#include "core_buffer/communicator.hpp"
 
-cb::Receiver create_receiver(std::string name, void* ctx)
+cb::Communicator create_receiver(std::string name, void* ctx)
 {
-  return cb::Receiver{{std::move(name), sizeof(JFFrame),
-                       DATA_BYTES_PER_PACKET * N_PACKETS_PER_FRAME,
-                       buffer_config::RAM_BUFFER_N_SLOTS},
-                      ctx};
+  return cb::Communicator{{std::move(name), sizeof(JFFrame),
+                           DATA_BYTES_PER_PACKET * N_PACKETS_PER_FRAME,
+                           buffer_config::RAM_BUFFER_N_SLOTS},
+                          {ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
 }
 
-cb::Sender create_sender(std::string name, void* ctx)
+cb::Communicator create_sender(std::string name, void* ctx)
 {
-  return cb::Sender{{std::move(name), sizeof(JFFrame),
-                     MODULE_N_PIXELS * sizeof(float), buffer_config::RAM_BUFFER_N_SLOTS},
-                    ctx};
+  return cb::Communicator{{std::move(name), sizeof(JFFrame), MODULE_N_PIXELS * sizeof(float),
+                           buffer_config::RAM_BUFFER_N_SLOTS},
+                          {ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
 }
 
 void check_number_of_arguments(int argc)
 {
   if (argc != 5) {
-    fmt::print("Usage: std_data_convert_jf [detector_json_filename] [gains_and_pedestal_h5_filename] "
-               "[module_id] [converter_index]\n\n"
-               "\tdetector_json_filename: detector config file path.\n"
-               "\tgains_and_pedestal_h5_filename: gains and pedestals h5 path.\n"
-               "\tmodule_id: id of the module for this process.\n"
-               "\tconverter_index: index of converter used to determine the output.\n");
+    fmt::print(
+        "Usage: std_data_convert_jf [detector_json_filename] [gains_and_pedestal_h5_filename] "
+        "[module_id] [converter_index]\n\n"
+        "\tdetector_json_filename: detector config file path.\n"
+        "\tgains_and_pedestal_h5_filename: gains and pedestals h5 path.\n"
+        "\tmodule_id: id of the module for this process.\n"
+        "\tconverter_index: index of converter used to determine the output.\n");
     exit(-1);
   }
 }

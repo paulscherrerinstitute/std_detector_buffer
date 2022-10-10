@@ -11,7 +11,7 @@
 #include "formats.hpp"
 #include "buffer_config.hpp"
 #include "buffer_utils.hpp"
-#include "core_buffer/sender.hpp"
+#include "core_buffer/communicator.hpp"
 #include "frame_stat.hpp"
 
 #include "gigafrost.hpp"
@@ -51,7 +51,7 @@ inline void init_frame_metadata(const uint32_t module_size_x,
   meta.do_not_store = packet.image_status_flags & 0x8000 >> 15;
 }
 
-inline void send_image_id(GFFrame& meta, char* frame_buffer, cb::Sender& sender, FrameStats& stats)
+inline void send_image_id(GFFrame& meta, char* frame_buffer, cb::Communicator& sender, FrameStats& stats)
 {
   sender.send(meta.frame_index, reinterpret_cast<char*>(&meta), frame_buffer);
   stats.record_stats(meta.n_missing_packets);
@@ -63,7 +63,7 @@ inline void process_packet(GFFrame& meta,
                            const GFUdpPacket& packet,
                            char* frame_buffer,
                            const size_t frame_buffer_offset,
-                           cb::Sender& sender,
+                           cb::Communicator& sender,
                            FrameStats& stats,
                            size_t PACKET_N_DATA_BYTES,
                            size_t LAST_PACKET_N_DATA_BYTES,
@@ -126,14 +126,14 @@ int main(int argc, char* argv[])
   // Get offset of last packet in frame to know when to commit frame.
   const size_t LAST_PACKET_STARTING_ROW = MODULE_N_Y_PIXEL - LAST_PACKET_N_ROWS;
 
-  const cb::SendReceiveConfig module_config = {
+  const cb::RamBufferConfig module_config = {
       detector_config.detector_name + "-" + std::to_string(module_id),
       sizeof(GFFrame),
       (PACKET_N_DATA_BYTES * (FRAME_N_PACKETS-1)) + LAST_PACKET_N_DATA_BYTES,
       RAM_BUFFER_N_SLOTS};
 
   auto ctx = zmq_ctx_new();
-  cb::Sender sender{module_config, ctx};
+  cb::Communicator sender{module_config, {ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
   PacketUdpReceiver receiver(detector_config.start_udp_port + module_id, sizeof(GFUdpPacket),
                              FRAME_N_PACKETS);
   FrameStats stats(detector_config.detector_name, module_id, STATS_TIME);

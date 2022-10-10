@@ -10,7 +10,7 @@
 
 #include "jungfrau.hpp"
 #include "stream_config.hpp"
-#include "core_buffer/receiver.hpp"
+#include "core_buffer/communicator.hpp"
 
 using namespace std;
 using namespace stream_config;
@@ -42,8 +42,7 @@ tuple<buffer_utils::DetectorConfig, std::string> read_arguments(int argc, char* 
   if (argc != 3) {
     cout << endl;
 
-    cout << "Usage: std_stream_send_binary [detector_json_filename] [stream_address]"
-         << endl;
+    cout << "Usage: std_stream_send_binary [detector_json_filename] [stream_address]" << endl;
     cout << "\tdetector_json_filename: detector config file path." << endl;
     cout << "\tstream_address: address to bind the output stream." << endl;
     cout << endl;
@@ -67,12 +66,12 @@ int main(int argc, char* argv[])
 
   // TODO: The module_id here is temporary.
   auto const module_id = 0;
-  auto receiver = cb::Receiver{
-      {config.detector_name + "-" + std::to_string(module_id) + "-3-converted",
-       BYTES_PER_PACKET - DATA_BYTES_PER_PACKET,
-       config.image_pixel_width * config.image_pixel_height * sizeof(float),
-       buffer_config::RAM_BUFFER_N_SLOTS},
-      ctx};
+  auto receiver =
+      cb::Communicator{{config.detector_name + "-" + std::to_string(module_id) + "-3-converted",
+                        BYTES_PER_PACKET - DATA_BYTES_PER_PACKET,
+                        config.image_pixel_width * config.image_pixel_height * sizeof(float),
+                        buffer_config::RAM_BUFFER_N_SLOTS},
+                       {ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
 
   // TODO: This is temporary. * 4 is because of float32 (after conversion).
   const size_t IMAGE_N_BYTES = config.image_pixel_height * config.image_pixel_width * 4;
@@ -91,7 +90,8 @@ int main(int argc, char* argv[])
 
     if (frame_meta->n_missing_packets == 0) {
       image_meta.status = ImageMetadataStatus::good_image;
-    } else {
+    }
+    else {
       image_meta.status = ImageMetadataStatus::missing_packets;
     }
 
