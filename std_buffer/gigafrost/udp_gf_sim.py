@@ -72,7 +72,7 @@ def generate_data_for_packet(i_module, i_packet, n_rows_packet, n_cols_packet, n
     return packet_bytes.to_bytes(n_packet_bytes, 'little')
 
 
-def generate_jf_udp_stream(output_address, start_udp_port, rep_rate=0.1,
+def generate_gf_udp_stream(output_address, start_udp_port, rep_rate=0.1,
                            image_height=2016, image_width=2016, n_images=None):
     time_to_sleep = 1 / rep_rate
 
@@ -157,7 +157,7 @@ def main():
           f'with start_udp_port {start_udp_port} and image_shape {(image_height, image_width)} '
           f'for {n_images_str} images.')
 
-    generate_jf_udp_stream(output_stream, start_udp_port, rep_rate, image_height, image_width, n_images)
+    generate_gf_udp_stream(output_stream, start_udp_port, rep_rate, image_height, image_width, n_images)
 
     print('Stopping simulated stream.')
 
