@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
   const auto config = buffer_utils::read_json_config(std::string(argv[1]));
   const uint16_t module_id = std::stoi(argv[2]);
   const auto converter_name = fmt::format("{}-{}-converted", config.detector_name, module_id);
-  const auto sync_name = fmt::format("{}-sync", config.detector_name, module_id);
+  const auto sync_name = fmt::format("{}-sync", config.detector_name);
   const auto [module_bytes, converted_bytes] = calculate_data_sizes(config);
 
   auto ctx = zmq_ctx_new();
@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
 
   auto sender = cb::Communicator{
       {sync_name, sizeof(GFFrame), converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
-      {ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
+      {ctx, cb::CONN_TYPE_CONNECT, ZMQ_PUSH}};
 
   auto converter = sdc::Converter(config.image_pixel_height, config.image_pixel_width);
 
