@@ -15,7 +15,7 @@ class Converter
 {
 public:
   explicit Converter(std::size_t image_height, std::size_t image_width);
-  void convert(std::span<char> input_data, std::span<char> output_buffer);
+  void convert(std::span<char> input_data, std::span<char> output_buffer, int module);
 
 private:
   const std::size_t height;

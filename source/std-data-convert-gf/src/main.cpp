@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
     auto [id, meta, image] = receiver.receive();
     stats_collector.processing_started();
     std::span<char> data(sender.get_data(id), converted_bytes);
-    converter.convert(std::span<char>(image, module_bytes), data);
+    converter.convert(std::span<char>(image, module_bytes), data, module_id);
     sender.send(id, meta, nullptr);
     stats_collector.processing_finished();
   }

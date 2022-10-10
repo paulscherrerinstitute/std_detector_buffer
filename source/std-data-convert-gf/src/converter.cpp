@@ -25,9 +25,9 @@ Converter::Converter(std::size_t image_height, std::size_t image_width)
     , pixels(image_width * image_height)
 {}
 
-void Converter::convert(std::span<char> input, std::span<char> output_buffer)
+void Converter::convert(std::span<char> input, std::span<char> output_buffer, int module)
 {
-  const auto start_index = height / 2 * width;
+  const auto start_index = height / 2 * width + (module % 2 == 0) * width;
   const auto row_jump = width * 2;
   // in theory the pixels number should be divisible by 4 - so there should be no problem with
   // alignment of conversion_handle
