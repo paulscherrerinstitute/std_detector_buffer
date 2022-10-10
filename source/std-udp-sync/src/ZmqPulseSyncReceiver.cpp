@@ -4,7 +4,6 @@
 
 #include "ZmqPulseSyncReceiver.hpp"
 #include "buffer_utils.hpp"
-#include "buffer_config.hpp"
 
 #include <zmq.h>
 #include <stdexcept>
@@ -25,23 +24,7 @@ ZmqPulseSyncReceiver::ZmqPulseSyncReceiver(void* ctx,
     : ctx_(ctx)
     , n_modules_(n_modules)
 {
-  string ipc_address = buffer_config::IPC_URL_BASE + detector_name + "-sync";
-
-#ifdef DEBUG_OUTPUT
-  cout << "[ZmqPulseSyncReceiver::ZmqPulseSyncReceiver]";
-  cout << " IPC address: " << ipc_address << endl;
-#endif
-
-  void* socket = zmq_socket(ctx, ZMQ_PULL);
-
-  const int sndhwm = buffer_config::BUFFER_ZMQ_RCVHWM;
-  if (zmq_setsockopt(socket, ZMQ_RCVHWM, &sndhwm, sizeof(sndhwm)) != 0) {
-    throw runtime_error(zmq_strerror(errno));
-  }
-
-  if (zmq_bind(socket, ipc_address.c_str()) != 0) {
-    throw runtime_error(zmq_strerror(errno));
-  }
+  socket_ = buffer_utils::bind_socket(ctx_, detector_name + "-sync", ZMQ_PULL);
 }
 
 ZmqPulseSyncReceiver::~ZmqPulseSyncReceiver()
