@@ -38,7 +38,7 @@ void Converter::convert(std::span<char> input, std::span<char> output_buffer, in
                              output_buffer.size() / sizeof(uint16_t));
 
   for (auto i = 0u, row = 0u; row < height / 4; row++) {
-    const auto start_row = start_index_for_module + (row_jump * i);
+    const auto start_row = start_index_for_module + (row_jump * row);
     const auto end_row = start_row + width / 2;
 
     for (auto j = start_row; j < end_row; i++, j += 2) {
