@@ -87,10 +87,10 @@ TEST(ConverterGf, CheckConversionFrom12bitTo16bitForSouthWest_4x8)
   converter->convert(example_data_2, std::span(reinterpret_cast<char*>(output), pixels));
   // clang-format off
   const uint16_t expected_2[] = {
-   0,    0,    0,    0,    0, 0, 0, 0,
-   0,    0,    0,    0,    0, 0, 0, 0,
-   513,  514,  515,  516,  0, 0, 0, 0,
-   1538, 1539, 1540, 1541, 0, 0, 0, 0
+    0,    0,    0,    0,    0, 0, 0, 0,
+    0,    0,    0,    0,    0, 0, 0, 0,
+    513,  514,  515,  516,  0, 0, 0, 0,
+    1538, 1539, 1540, 1541, 0, 0, 0, 0
   };
   // clang-format on
   EXPECT_TRUE(equal(expected_2, output));
@@ -165,10 +165,10 @@ TEST(ConverterGf, CheckConversionFrom12bitTo16bitForSouthEast_4x8)
   converter->convert(example_data_2, std::span(reinterpret_cast<char*>(output), pixels));
   // clang-format off
   const uint16_t expected_2[] = {
-   0, 0, 0, 0, 0,    0,    0,    0,
-   0, 0, 0, 0, 0,    0,    0,    0,
-   0, 0, 0, 0, 513,  514,  515,  516,
-   0, 0, 0, 0, 1538, 1539, 1540, 1541
+    0, 0, 0, 0, 0,    0,    0,    0,
+    0, 0, 0, 0, 0,    0,    0,    0,
+    0, 0, 0, 0, 513,  514,  515,  516,
+    0, 0, 0, 0, 1538, 1539, 1540, 1541
   };
   // clang-format on
   EXPECT_TRUE(equal(expected_2, output));
@@ -204,14 +204,14 @@ TEST(ConverterGf, CheckConversionFrom12bitTo16bitForNorthWest_8x4)
   converter->convert(example_data_2, std::span(reinterpret_cast<char*>(output), pixels));
   // clang-format off
   const uint16_t expected_2[] = {
-   1540, 1541, 0, 0,
-   515,  516,  0, 0,
-   1538, 1539, 0, 0,
-   513,  514,  0, 0,
-   0,    0,    0, 0,
-   0,    0,    0, 0,
-   0,    0,    0, 0,
-   0,    0,    0, 0
+    1540, 1541, 0, 0,
+    515,  516,  0, 0,
+    1538, 1539, 0, 0,
+    513,  514,  0, 0,
+    0,    0,    0, 0,
+    0,    0,    0, 0,
+    0,    0,    0, 0,
+    0,    0,    0, 0
   };
   // clang-format on
   EXPECT_TRUE(equal(expected_2, output));
