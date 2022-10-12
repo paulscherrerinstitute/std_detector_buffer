@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 
   auto ctx = zmq_ctx_new();
 
-  sdc::StatsCollector stats_collector(converter_name, std::stoi(argv[3]));
+  sdc::StatsCollector stats_collector(converter_name, static_cast<int>(quadrant));
   auto receiver =
       cb::Communicator{{fmt::format("{}-{}", config.detector_name, module_id), sizeof(GFFrame),
                         module_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
