@@ -56,3 +56,4 @@ testing/gigafrost/**/*.dat
 /*/dist/
 /*/build
 *.spec
+*-checkpoint.ipynb
