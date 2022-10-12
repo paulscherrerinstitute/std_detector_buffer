@@ -19,11 +19,10 @@ using namespace gf;
 namespace {
 void check_number_of_arguments(int argc)
 {
-  if (argc != 4) {
+  if (argc != 3) {
     fmt::print("Usage: std_data_convert_gf [detector_json_filename] \n\n"
                "\tdetector_json_filename: detector config file path.\n"
-               "\tmodule_id: module id - data source\n"
-               "\tquadrant_id: Supported quadrant_id\n");
+               "\tmodule_id: module id - data source\n");
     exit(-1);
   }
 }
@@ -48,10 +47,10 @@ int main(int argc, char* argv[])
 
   const auto config = buffer_utils::read_json_config(std::string(argv[1]));
   const uint16_t module_id = std::stoi(argv[2]);
+  const auto quadrant = static_cast<quadrant_id>(module_id / 2);
   const auto converter_name = fmt::format("{}-{}-converted", config.detector_name, module_id);
   const auto sync_name = fmt::format("{}-sync", config.detector_name);
   const auto [module_bytes, converted_bytes] = calculate_data_sizes(config);
-  const auto quadrant = static_cast<quadrant_id>(std::stoi(argv[3]));
 
   auto ctx = zmq_ctx_new();
 
@@ -65,13 +64,16 @@ int main(int argc, char* argv[])
       {sync_name, sizeof(GFFrame), converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
       {ctx, cb::CONN_TYPE_CONNECT, ZMQ_PUSH}};
 
-  auto converter = sdc::Converter(config.image_pixel_height, config.image_pixel_width, quadrant);
+  auto converter =
+      sdc::Converter(config.image_pixel_height, config.image_pixel_width, quadrant, module_id);
 
   while (true) {
     auto [id, meta, image] = receiver.receive();
     stats_collector.processing_started();
-    std::span<char> data(sender.get_data(id), converted_bytes);
-    converter.convert(std::span<char>(image, module_bytes), data, module_id);
+
+    converter.convert(std::span<char>(image, module_bytes),
+                      std::span<char>(sender.get_data(id), converted_bytes));
+
     sender.send(id, meta, nullptr);
     stats_collector.processing_finished();
   }

@@ -31,12 +31,11 @@ TEST(ConverterGf, CheckConversionFrom12bitTo16bitForSouthWest_8x4)
   const auto height = 8;
   const auto module = 1;
   const std::size_t pixels = width * height;
-
   uint16_t output[pixels] = {};
-  gf::sdc::Converter converter(height, width, gf::quadrant_id::SW);
 
   // first module
-  converter.convert(example_data_1, std::span(reinterpret_cast<char*>(output), pixels), module);
+  auto converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::SW, module);
+  converter->convert(example_data_1, std::span(reinterpret_cast<char*>(output), pixels));
   // clang-format off
   const uint16_t expected_1[] = {
     0,   0,   0, 0,
@@ -50,8 +49,10 @@ TEST(ConverterGf, CheckConversionFrom12bitTo16bitForSouthWest_8x4)
   };
   // clang-format on
   EXPECT_TRUE(equal(expected_1, output));
+
   // second module
-  converter.convert(example_data_2, std::span(reinterpret_cast<char*>(output), pixels), module + 1);
+  converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::SW, module + 1);
+  converter->convert(example_data_2, std::span(reinterpret_cast<char*>(output), pixels));
   // clang-format off
   const uint16_t expected_2[] = {
     0,    0,    0, 0,
@@ -73,12 +74,11 @@ TEST(ConverterGf, CheckConversionFrom12bitTo16bitForSouthWest_4x8)
   const auto height = 4;
   const auto module = 1;
   const std::size_t pixels = width * height;
-
   uint16_t output[pixels] = {};
-  gf::sdc::Converter converter(height, width, gf::quadrant_id::SW);
 
   // first module
-  converter.convert(example_data_1, std::span(reinterpret_cast<char*>(output), pixels), module);
+  auto converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::SW, module);
+  converter->convert(example_data_1, std::span(reinterpret_cast<char*>(output), pixels));
   // clang-format off
   const uint16_t expected_1[] = {
     0,   0,   0,   0,   0, 0, 0, 0,
@@ -90,7 +90,8 @@ TEST(ConverterGf, CheckConversionFrom12bitTo16bitForSouthWest_4x8)
   EXPECT_TRUE(equal(expected_1, output));
 
   // second module
-  converter.convert(example_data_2, std::span(reinterpret_cast<char*>(output), pixels), module + 1);
+  converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::SW, module + 1);
+  converter->convert(example_data_2, std::span(reinterpret_cast<char*>(output), pixels));
   // clang-format off
   const uint16_t expected_2[] = {
    0,    0,    0,    0,    0, 0, 0, 0,
@@ -108,12 +109,11 @@ TEST(ConverterGf, CheckConversionFrom12bitTo16bitForSouthEast_8x4)
   const auto height = 8;
   const auto module = 1;
   const std::size_t pixels = width * height;
-
   uint16_t output[pixels] = {};
-  gf::sdc::Converter converter(height, width, gf::quadrant_id::SE);
 
   // first module
-  converter.convert(example_data_1, std::span(reinterpret_cast<char*>(output), pixels), module);
+  auto converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::SE, module);
+  converter->convert(example_data_1, std::span(reinterpret_cast<char*>(output), pixels));
   // clang-format off
   const uint16_t expected_1[] = {
     0, 0, 0,   0,
@@ -127,8 +127,10 @@ TEST(ConverterGf, CheckConversionFrom12bitTo16bitForSouthEast_8x4)
   };
   // clang-format on
   EXPECT_TRUE(equal(expected_1, output));
+
   // second module
-  converter.convert(example_data_2, std::span(reinterpret_cast<char*>(output), pixels), module + 1);
+  converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::SE, module + 1);
+  converter->convert(example_data_2, std::span(reinterpret_cast<char*>(output), pixels));
   // clang-format off
   const uint16_t expected_2[] = {
     0, 0, 0,    0,
@@ -150,12 +152,11 @@ TEST(ConverterGf, CheckConversionFrom12bitTo16bitForSouthEast_4x8)
   const auto height = 4;
   const auto module = 1;
   const std::size_t pixels = width * height;
-
   uint16_t output[pixels] = {};
-  gf::sdc::Converter converter(height, width, gf::quadrant_id::SE);
 
   // first module
-  converter.convert(example_data_1, std::span(reinterpret_cast<char*>(output), pixels), module);
+  auto converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::SE, module);
+  converter->convert(example_data_1, std::span(reinterpret_cast<char*>(output), pixels));
   // clang-format off
   const uint16_t expected_1[] = {
     0, 0, 0, 0, 0,   0,   0,   0,
@@ -167,7 +168,8 @@ TEST(ConverterGf, CheckConversionFrom12bitTo16bitForSouthEast_4x8)
   EXPECT_TRUE(equal(expected_1, output));
 
   // second module
-  converter.convert(example_data_2, std::span(reinterpret_cast<char*>(output), pixels), module + 1);
+  converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::SE, module + 1);
+  converter->convert(example_data_2, std::span(reinterpret_cast<char*>(output), pixels));
   // clang-format off
   const uint16_t expected_2[] = {
    0, 0, 0, 0, 0,    0,    0,    0,
@@ -185,12 +187,11 @@ TEST(ConverterGf, CheckConversionFrom12bitTo16bitForNorthWest_8x4)
   const auto height = 8;
   const auto module = 1;
   const std::size_t pixels = width * height;
-
   uint16_t output[pixels] = {};
-  gf::sdc::Converter converter(height, width, gf::quadrant_id::NW);
 
   // first module
-  converter.convert(example_data_1, std::span(reinterpret_cast<char*>(output), pixels), module);
+  auto converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::NW, module);
+  converter->convert(example_data_1, std::span(reinterpret_cast<char*>(output), pixels));
   // clang-format off
   const uint16_t expected_1[] = {
     0,   0,   0, 0,
@@ -204,8 +205,10 @@ TEST(ConverterGf, CheckConversionFrom12bitTo16bitForNorthWest_8x4)
   };
   // clang-format on
   EXPECT_TRUE(equal(expected_1, output));
+
   // second module
-  converter.convert(example_data_2, std::span(reinterpret_cast<char*>(output), pixels), module + 1);
+  converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::NW, module + 1);
+  converter->convert(example_data_2, std::span(reinterpret_cast<char*>(output), pixels));
   // clang-format off
   const uint16_t expected_2[] = {
    1540, 1541, 0, 0,
@@ -227,12 +230,11 @@ TEST(ConverterGf, CheckConversionFrom12bitTo16bitForNorthWest_4x8)
   const auto height = 4;
   const auto module = 1;
   const std::size_t pixels = width * height;
-
   uint16_t output[pixels] = {};
-  gf::sdc::Converter converter(height, width, gf::quadrant_id::NW);
 
   // first module
-  converter.convert(example_data_1, std::span(reinterpret_cast<char*>(output), pixels), module);
+  auto converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::NW, module);
+  converter->convert(example_data_1, std::span(reinterpret_cast<char*>(output), pixels));
   // clang-format off
   const uint16_t expected_1[] = {
     0,   0,   0,   0,   0, 0, 0, 0,
@@ -244,7 +246,8 @@ TEST(ConverterGf, CheckConversionFrom12bitTo16bitForNorthWest_4x8)
   EXPECT_TRUE(equal(expected_1, output));
 
   // second module
-  converter.convert(example_data_2, std::span(reinterpret_cast<char*>(output), pixels), module + 1);
+  converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::NW, module + 1);
+  converter->convert(example_data_2, std::span(reinterpret_cast<char*>(output), pixels));
   // clang-format off
   const uint16_t expected_2[] = {
     1538, 1539, 1540, 1541, 0, 0, 0, 0,
@@ -262,12 +265,11 @@ TEST(ConverterGf, CheckConversionFrom12bitTo16bitForNorthEast_8x4)
   const auto height = 8;
   const auto module = 1;
   const std::size_t pixels = width * height;
-
   uint16_t output[pixels] = {};
-  gf::sdc::Converter converter(height, width, gf::quadrant_id::NE);
 
   // first module
-  converter.convert(example_data_1, std::span(reinterpret_cast<char*>(output), pixels), module);
+  auto converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::NE, module);
+  converter->convert(example_data_1, std::span(reinterpret_cast<char*>(output), pixels));
   // clang-format off
   const uint16_t expected_1[] = {
      0, 0, 0,   0,
@@ -281,8 +283,10 @@ TEST(ConverterGf, CheckConversionFrom12bitTo16bitForNorthEast_8x4)
   };
   // clang-format on
   EXPECT_TRUE(equal(expected_1, output));
+
   // second module
-  converter.convert(example_data_2, std::span(reinterpret_cast<char*>(output), pixels), module + 1);
+  converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::NE, module + 1);
+  converter->convert(example_data_2, std::span(reinterpret_cast<char*>(output), pixels));
   // clang-format off
   const uint16_t expected_2[] = {
     0, 0, 1540, 1541,
@@ -304,12 +308,11 @@ TEST(ConverterGf, CheckConversionFrom12bitTo16bitForNorthEast_4x8)
   const auto height = 4;
   const auto module = 1;
   const std::size_t pixels = width * height;
-
   uint16_t output[pixels] = {};
-  gf::sdc::Converter converter(height, width, gf::quadrant_id::NE);
 
   // first module
-  converter.convert(example_data_1, std::span(reinterpret_cast<char*>(output), pixels), module);
+  auto converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::NE, module);
+  converter->convert(example_data_1, std::span(reinterpret_cast<char*>(output), pixels));
   // clang-format off
   const uint16_t expected_1[] = {
      0, 0, 0, 0, 0,   0,   0,   0,
@@ -321,7 +324,8 @@ TEST(ConverterGf, CheckConversionFrom12bitTo16bitForNorthEast_4x8)
   EXPECT_TRUE(equal(expected_1, output));
 
   // second module
-  converter.convert(example_data_2, std::span(reinterpret_cast<char*>(output), pixels), module + 1);
+  converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::NE, module + 1);
+  converter->convert(example_data_2, std::span(reinterpret_cast<char*>(output), pixels));
   // clang-format off
   const uint16_t expected_2[] = {
     0, 0, 0, 0, 1538, 1539, 1540, 1541,
@@ -353,6 +357,6 @@ TEST(ConverterGf, CheckConversionFromGeneratedBytes)
   output_buffer[0] = 0;
   output_buffer[output_buffer.size()-1] = 0;
 
-  gf::sdc::Converter converter(height, width, gf::quadrant_id::SE);
-  converter.convert(input_buffer, output_buffer, 0);
+  gf::sdc::Converter converter(height, width, gf::quadrant_id::SE, 0);
+  converter.convert(input_buffer, output_buffer);
 }
