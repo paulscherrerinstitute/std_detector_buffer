@@ -20,8 +20,8 @@ constexpr inline auto BYTES_PER_PACKET = PACKET_N_DATA_BYTES_MAX + 32u;
 struct GFUdpPacket
 {
   uint8_t protocol_id;                   // Fixed to 0xCB
-  uint8_t quadrant_row_length_in_blocks; // Length of quadrant row in 12 pixel blocks -> 24 .. 1008
-  uint8_t quadrant_rows; // N rows in each quadrant. quadrant_rows[0] == SWAP bit. -> 2 .. 1008
+  uint8_t quadrant_row_length_in_blocks; // Length of quadrant_id row in 12 pixel blocks -> 24 .. 1008
+  uint8_t quadrant_rows; // N rows in each quadrant_id. quadrant_rows[0] == SWAP bit. -> 2 .. 1008
   // bit[6-7] == quadrant_id 	GF_NE=3 GF_NW=2 GF_SE=1 GF_SW=0
   // bit[5] == link_id, [0, 1]
   // bit[2-4] == corr_mode,
@@ -78,7 +78,7 @@ static_assert(sizeof(GFFrame) == 64u);
 
 namespace gf {
 
-enum class quadrant : std::size_t
+enum class quadrant_id : std::size_t
 {
   SW = 0,
   SE,
@@ -87,37 +87,37 @@ enum class quadrant : std::size_t
 };
 
 // copies are fine
-inline constexpr bool operator==(quadrant lhs, std::size_t rhs)
+inline constexpr bool operator==(quadrant_id lhs, std::size_t rhs)
 {
   return static_cast<std::size_t>(lhs) == rhs;
 }
 
-inline constexpr bool operator!=(quadrant lhs, std::size_t rhs)
+inline constexpr bool operator!=(quadrant_id lhs, std::size_t rhs)
 {
   return !(lhs == rhs);
 }
 
-uint32_t module_n_x_pixels(int image_pixel_width)
+inline uint32_t module_n_x_pixels(int image_pixel_width)
 {
   // Each line of final image is composed by 2 quadrants side by side.
   return image_pixel_width / 2;
 }
 
-uint32_t module_n_y_pixels(int image_pixel_height)
+inline uint32_t module_n_y_pixels(int image_pixel_height)
 {
-  // The column is composed by 2 quadrants and each quadrant is divided into 2 udp streams that
-  // send interleaved rows - each udp stream sends half of the lines from one quadrant.
+  // The column is composed by 2 quadrants and each quadrant_id is divided into 2 udp streams that
+  // send interleaved rows - each udp stream sends half of the lines from one quadrant_id.
   return image_pixel_height / 2 / 2;
 }
 
-std::size_t module_n_data_bytes(int image_pixel_height, int image_pixel_width)
+inline std::size_t module_n_data_bytes(int image_pixel_height, int image_pixel_width)
 {
   // Each pixel has 12 bytes -> pixel to bytes multiplier is 1.5
   return static_cast<std::size_t>(module_n_x_pixels(image_pixel_width) *
                                   module_n_y_pixels(image_pixel_height) * 1.5);
 }
 
-uint32_t n_rows_per_packet(int image_pixel_height, int image_pixel_width)
+inline uint32_t n_rows_per_packet(int image_pixel_height, int image_pixel_width)
 {
   auto MODULE_N_X_PIXEL = module_n_x_pixels(image_pixel_width);
   auto MODULE_N_Y_PIXEL = module_n_y_pixels(image_pixel_height);
@@ -132,7 +132,7 @@ uint32_t n_rows_per_packet(int image_pixel_height, int image_pixel_width)
   return std::min(n_cache_line_blocks * 48 / MODULE_N_X_PIXEL, MODULE_N_Y_PIXEL);
 }
 
-std::size_t n_data_bytes_per_packet(int image_pixel_height, int image_pixel_width)
+inline std::size_t n_data_bytes_per_packet(int image_pixel_height, int image_pixel_width)
 {
   const auto PACKET_N_ROWS = n_rows_per_packet(image_pixel_height, image_pixel_width);
   const auto MODULE_N_X_PIXEL = module_n_x_pixels(image_pixel_width);
@@ -145,13 +145,13 @@ std::size_t n_data_bytes_per_packet(int image_pixel_height, int image_pixel_widt
   return PACKET_N_DATA_BYTES;
 }
 
-std::size_t n_packets_per_frame(int image_pixel_height, int image_pixel_width)
+inline std::size_t n_packets_per_frame(int image_pixel_height, int image_pixel_width)
 {
   return std::ceil(module_n_y_pixels(image_pixel_height) /
                    n_rows_per_packet(image_pixel_height, image_pixel_width));
 }
 
-std::size_t last_packet_n_bytes(int image_pixel_height, int image_pixel_width)
+inline std::size_t last_packet_n_bytes(int image_pixel_height, int image_pixel_width)
 {
   auto last_packet_n_rows = module_n_y_pixels(image_pixel_height) %
                             n_rows_per_packet(image_pixel_height, image_pixel_width);
@@ -160,7 +160,7 @@ std::size_t last_packet_n_bytes(int image_pixel_height, int image_pixel_width)
   return last_packet_n_rows * module_n_x_pixels(image_pixel_width) * 3 / 2;
 }
 
-std::size_t converted_image_n_bytes(int image_pixel_height, int image_pixel_width)
+inline std::size_t converted_image_n_bytes(int image_pixel_height, int image_pixel_width)
 {
   return image_pixel_width * image_pixel_height * 2;
 }

@@ -9,18 +9,24 @@
 #include <vector>
 #include <span>
 
+#include "gigafrost.hpp"
+
 namespace gf::sdc {
 
 class Converter
 {
 public:
-  explicit Converter(std::size_t image_height, std::size_t image_width);
-  void convert(std::span<char> input_data, std::span<char> output_buffer);
+  explicit Converter(std::size_t image_height, std::size_t image_width, quadrant_id q);
+  void convert(std::span<char> input_data, std::span<char> output_buffer, int module);
 
 private:
+  static int calculate_start_index(quadrant_id quadrant, std::size_t image_height, std::size_t image_width);
+  static int calculate_row_jump(quadrant_id quadrant, std::size_t image_width);
+
   const std::size_t height;
   const std::size_t width;
-  const std::size_t pixels;
+  const int start_index;
+  const int row_jump;
 };
 
 } // namespace gf::sdc
