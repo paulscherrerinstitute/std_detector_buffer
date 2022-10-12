@@ -16,13 +16,6 @@ char example_data_1[] = {0b00100000, 0b00010010, 0b00000010,
                          0b00100000, 0b00110010, 0b00000100}; // 513, 514, 515, 516
 char example_data_2[] = {0b01100000, 0b00100110, 0b00000011,
                          0b01100000, 0b01000110, 0b00000101}; // 1538, 1539, 1540, 1541
-
-uint16_t gen_block_1[] = {4096,  512,   48,    20484, 1536,  112,   4160,  16900, 1072, 20548,
-                          17924, 1136,  4224,  33288, 2096,  20612, 34312, 2160,  4288, 49676,
-                          3120,  20676, 50700, 3184,  4352,  528,   4145,  20740, 1552, 4209,
-                          4416,  16916, 5169,  20804, 17940, 5233,  4480,  33304, 6193, 20868,
-                          34328, 6257,  4544,  49692, 7217,  20932, 50716, 7281};
-
 } // namespace
 
 TEST(ConverterGf, CheckConversionFrom12bitTo16bitForSouthWest_8x4)
@@ -342,21 +335,31 @@ TEST(ConverterGf, CheckConversionFromGeneratedBytes)
   const auto height = 8;
   const auto width = 8;
 
-  // 96 bytes = height * width * 1.5 bytes / pixel
-  span<char> input_buffer((char*)(&gen_block_1), height * width * 1.5);
-  EXPECT_TRUE(input_buffer.size() == 96);
+  // Packed bytes from each module.
+  const uint16_t SE0[] = {20740, 1552, 4209, 20868, 34328, 6257};
+  //  const uint16_t SE1[] = {20804, 17940, 5233, 20932, 50716, 7281};
+  //  const uint16_t SW0[] = {4352, 528, 4145, 4480, 33304, 6193};
+  //  const uint16_t SW1[] = {4416, 16916, 5169, 4544, 49692, 7217};
+  //  const uint16_t NE0[] = {20612, 34312, 2160, 20484, 1536, 112};
+  //  const uint16_t NE1[] = {20676, 50700, 3184, 20548, 17924, 1136};
+  //  const uint16_t NW0[] = {4224, 33288, 2096, 4096, 512, 48};
+  //  const uint16_t NW1[] = {4288, 49676, 3120, 4160, 16900, 1072};
 
+  uint16_t buffer[height * width] = {};
+  span<char> output_buffer((char*)(&buffer), sizeof(buffer));
   // 128 bytes = height * width * 2 bytes / pixel
-  char buffer[height * width * 2] = {};
-  span<char> output_buffer((char*)(&buffer), height * width * 2);
   EXPECT_TRUE(output_buffer.size() == 128);
 
-  input_buffer[0] = 0;
-  input_buffer[input_buffer.size()-1] = 0;
+  gf::sdc::Converter converter(height, width, gf::quadrant_id::SE, 1);
+  // 12 bytes = 8 pixels * 1.5 bytes / pixel
+  converter.convert(std::span<char>((char*)(&SE0), sizeof(SE0)), output_buffer);
+  //  converter.convert(std::span<char>((char*)(&SE1), 12), output_buffer, 0);
 
-  output_buffer[0] = 0;
-  output_buffer[output_buffer.size()-1] = 0;
-
-  gf::sdc::Converter converter(height, width, gf::quadrant_id::SE, 0);
-  converter.convert(input_buffer, output_buffer);
+//  for (int y = 0; y < height; y++) {
+//    for (int x = 0; x < width; x++) {
+//      int index = (y * width) + x;
+//      std::cout << buffer[index] << ' ';
+//    }
+//    std::cout << std::endl;
+//  }
 }
