@@ -337,29 +337,45 @@ TEST(ConverterGf, CheckConversionFromGeneratedBytes)
 
   // Packed bytes from each module.
   const uint16_t SE0[] = {20740, 1552, 4209, 20868, 34328, 6257};
-  //  const uint16_t SE1[] = {20804, 17940, 5233, 20932, 50716, 7281};
-  //  const uint16_t SW0[] = {4352, 528, 4145, 4480, 33304, 6193};
-  //  const uint16_t SW1[] = {4416, 16916, 5169, 4544, 49692, 7217};
-  //  const uint16_t NE0[] = {20612, 34312, 2160, 20484, 1536, 112};
-  //  const uint16_t NE1[] = {20676, 50700, 3184, 20548, 17924, 1136};
-  //  const uint16_t NW0[] = {4224, 33288, 2096, 4096, 512, 48};
-  //  const uint16_t NW1[] = {4288, 49676, 3120, 4160, 16900, 1072};
+  const uint16_t SE1[] = {20804, 17940, 5233, 20932, 50716, 7281};
+  const uint16_t SW0[] = {4352, 528, 4145, 4480, 33304, 6193};
+  const uint16_t SW1[] = {4416, 16916, 5169, 4544, 49692, 7217};
+  const uint16_t NE0[] = {20676, 50700, 3184, 20548, 17924, 1136};
+  const uint16_t NE1[] = {20612, 34312, 2160, 20484, 1536, 112};
+  const uint16_t NW0[] = {4288, 49676, 3120, 4160, 16900, 1072};
+  const uint16_t NW1[] = {4224, 33288, 2096, 4096, 512, 48};
 
   uint16_t buffer[height * width] = {};
   span<char> output_buffer((char*)(&buffer), sizeof(buffer));
   // 128 bytes = height * width * 2 bytes / pixel
   EXPECT_TRUE(output_buffer.size() == 128);
 
-  gf::sdc::Converter converter(height, width, gf::quadrant_id::SE, 1);
-  // 12 bytes = 8 pixels * 1.5 bytes / pixel
-  converter.convert(std::span<char>((char*)(&SE0), sizeof(SE0)), output_buffer);
-  //  converter.convert(std::span<char>((char*)(&SE1), 12), output_buffer, 0);
+  auto converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::SE, 0);
+  converter->convert(std::span<char>((char*)(&SE0), sizeof(SE0)), output_buffer);
+  converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::SE, 1);
+  converter->convert(std::span<char>((char*)(&SE1), sizeof(SE1)), output_buffer);
 
-//  for (int y = 0; y < height; y++) {
-//    for (int x = 0; x < width; x++) {
-//      int index = (y * width) + x;
-//      std::cout << buffer[index] << ' ';
-//    }
-//    std::cout << std::endl;
-//  }
+  converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::SW, 0);
+  converter->convert(std::span<char>((char*)(&SW0), sizeof(SE1)), output_buffer);
+  converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::SW, 1);
+  converter->convert(std::span<char>((char*)(&SW1), sizeof(SE1)), output_buffer);
+
+  converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::NE, 0);
+  converter->convert(std::span<char>((char*)(&NE0), sizeof(NE0)), output_buffer);
+  converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::NE, 1);
+  converter->convert(std::span<char>((char*)(&NE1), sizeof(NE1)), output_buffer);
+
+  converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::NW, 1);
+  converter->convert(std::span<char>((char*)(&NW0), sizeof(NW0)), output_buffer);
+  converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::NW, 0);
+  converter->convert(std::span<char>((char*)(&NW1), sizeof(NW1)), output_buffer);
+
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      const int index = (y * width) + x;
+      const uint16_t expected_value = (y % 64) << 6 | x % 64;
+      ASSERT_EQ(buffer[index], expected_value);
+    }
+    std::cout << std::endl;
+  }
 }
