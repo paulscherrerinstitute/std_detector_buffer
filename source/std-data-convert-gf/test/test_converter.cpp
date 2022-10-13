@@ -365,9 +365,9 @@ TEST(ConverterGf, CheckConversionFromGeneratedBytes)
   converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::NE, 1);
   converter->convert(std::span<char>((char*)(&NE1), sizeof(NE1)), output_buffer);
 
-  converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::NW, 1);
-  converter->convert(std::span<char>((char*)(&NW0), sizeof(NW0)), output_buffer);
   converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::NW, 0);
+  converter->convert(std::span<char>((char*)(&NW0), sizeof(NW0)), output_buffer);
+  converter = std::make_unique<gf::sdc::Converter>(height, width, gf::quadrant_id::NW, 1);
   converter->convert(std::span<char>((char*)(&NW1), sizeof(NW1)), output_buffer);
 
   for (int y = 0; y < height; y++) {
