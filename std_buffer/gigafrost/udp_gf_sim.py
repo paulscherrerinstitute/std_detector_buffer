@@ -1,6 +1,7 @@
 import argparse
 from socket import socket, AF_INET, SOCK_DGRAM
 from time import time, sleep
+import json
 
 from std_buffer.gigafrost.data import GfUdpPacket, calculate_udp_packet_info
 
@@ -86,7 +87,6 @@ def generate_gf_udp_stream(output_address, start_udp_port, rep_rate=0.1,
     n_rows_packet = udp_packet_info['packet_n_rows']
     n_rows_last_packet = udp_packet_info['last_packet_n_rows']
 
-
     if not n_images:
         n_images = float('inf')
 
@@ -137,20 +137,22 @@ def generate_gf_udp_stream(output_address, start_udp_port, rep_rate=0.1,
 
 def main():
     parser = argparse.ArgumentParser(description='Gigafrost udp stream generator.')
+    parser.add_argument('detector_config_file', type=int, help='JSON file with detector configuration.')
     parser.add_argument('output_address', type=str, help='Address to send the UPD packets to.')
-    parser.add_argument('start_udp_port', type=int, help='First port on which to start the modules.')
     parser.add_argument('-r', '--rep_rate', type=int, help='Repetition rate of the stream.', default=10)
-    parser.add_argument('--image_width', type=int, default=2016, help='Generated image width in pixels')
-    parser.add_argument('--image_height', type=int, default=2016, help='Generated image width in pixels')
     parser.add_argument('-n', '--n_images', type=int, default=None, help='Number of images to generate.')
 
     args = parser.parse_args()
     output_stream = args.output_address
-    start_udp_port = args.start_udp_port
     rep_rate = args.rep_rate
-    image_height = args.image_height
-    image_width = args.image_width
     n_images = args.n_images
+
+    with open(args.detector_config_file, 'r') as input_file:
+        config = json.load(input_file)
+
+    start_udp_port = config['start_udp_port']
+    image_height = config['image_pixel_height']
+    image_width = config['image_pixel_width']
 
     n_images_str = 'unlimited' if n_images is None else n_images
     print(f'Starting simulated GF with rep_rate {rep_rate} on {output_stream} '
