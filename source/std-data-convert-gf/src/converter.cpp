@@ -11,10 +11,10 @@ namespace {
 #pragma pack(1)
 struct conversion_handle
 {
-  int p11 : 8;
-  int p21 : 4;
-  int p12 : 4;
-  int p22 : 8;
+  unsigned int p11 : 8;
+  unsigned int p21 : 4;
+  unsigned int p12 : 4;
+  unsigned int p22 : 8;
 };
 #pragma pack()
 } // namespace
@@ -44,8 +44,8 @@ void Converter::convert(std::span<char> input, std::span<char> output_buffer)
     const auto end_row = start_row + width / 2;
 
     for (auto j = start_row; j < end_row; i++, j += 2) {
-      output[j] = (conversion[i].p11 << 4) | conversion[i].p12;
-      output[j + 1] = (conversion[i].p21 << 8) | conversion[i].p22;
+      output[j] = (conversion[i].p11) | (conversion[i].p21 << 8);
+      output[j + 1] = (conversion[i].p12) | (conversion[i].p22 << 4);
     }
   }
 }
