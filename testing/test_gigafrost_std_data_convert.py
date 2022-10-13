@@ -58,12 +58,12 @@ async def test_converter_send_real_image_with_custom_slot(test_path):
             with start_pull_communication(ctx, GigafrostConfigConverter) as (output_buffer, pull_socket):
                 sent_data = get_udp_packet_array(input_buffer, slot)
                 # 513, 514, 515, 516 - 4 pixels
-                sent_data[0] = 0b00100000
-                sent_data[1] = 0b00010010
-                sent_data[2] = 0b00000010
-                sent_data[3] = 0b00100000
-                sent_data[4] = 0b00110010
-                sent_data[5] = 0b00000100
+                sent_data[0] = 0b00000001
+                sent_data[1] = 0b00100010
+                sent_data[2] = 0b00100000
+                sent_data[3] = 0b00000011
+                sent_data[4] = 0b01000010
+                sent_data[5] = 0b00100000
 
                 msg = await send_receive(pub_socket=pub_socket, sub_socket=pull_socket, slot=slot)
 

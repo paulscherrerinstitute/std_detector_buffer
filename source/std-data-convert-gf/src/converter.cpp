@@ -56,14 +56,14 @@ int Converter::calculate_start_index(int module_id,
                                      std::size_t image_width)
 {
   if (quadrant == quadrant_id::SW)
-    return image_height / 2 * image_width + (module_id % 2 == 0 ? image_width : 0);
+    return image_height / 2 * image_width + (module_id % 2 ? image_width : 0);
   if (quadrant == quadrant_id::SE)
     return (image_height / 2 * image_width) + (image_width / 2) +
-           (module_id % 2 == 0 ? image_width : 0);
+           (module_id % 2 ? image_width : 0);
   if (quadrant == quadrant_id::NW)
-    return (image_height - 1) / 2 * image_width - (module_id % 2 == 0 ? image_width : 0);
+    return (image_height - 1) / 2 * image_width - (module_id % 2 ? image_width : 0);
   return (image_height - 1) / 2 * image_width + (image_width / 2) -
-         (module_id % 2 == 0 ? image_width : 0);
+         (module_id % 2 ? image_width : 0);
 }
 
 int Converter::calculate_row_jump(quadrant_id quadrant, std::size_t image_width)

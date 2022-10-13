@@ -129,7 +129,7 @@ def calculate_udp_packet_info(image_pixel_height, image_pixel_width):
 
 class GigafrostConfigUdp:
     quadrant_id = 0
-    id = 1
+    id = 0
     name = f'GF2-{id}'
     udp_port_base = 50020
     image_pixel_height = 2016
