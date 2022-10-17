@@ -40,6 +40,7 @@ void StatsCollector::processing_finished()
                "{}\n",
                converter_name, quadrant, (stats.first / stats.second).count(), stats.second,
                timestamp());
+    std::fflush(stdout);
 
     last_flush_time = now;
     stats = {0ns, 0};
