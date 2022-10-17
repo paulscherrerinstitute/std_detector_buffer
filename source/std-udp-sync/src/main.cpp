@@ -38,6 +38,7 @@ int main(int argc, char* argv[])
 
   while (true) {
     auto meta = receiver.get_next_image_id();
+    std::cout << meta.image_id << std::endl;
 
     zmq_send(sender, &meta.image_id, sizeof(meta.image_id), 0);
 
