@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name="std_buffer",
-      version="1.0.5",
+      version="1.0.6",
       maintainer="Paul Scherrer Institute",
       maintainer_email="daq@psi.ch",
       author="Paul Scherrer Institute",

@@ -137,7 +137,7 @@ def generate_gf_udp_stream(output_address, start_udp_port, rep_rate=0.1,
 
 def main():
     parser = argparse.ArgumentParser(description='Gigafrost udp stream generator.')
-    parser.add_argument('detector_config_file', type=int, help='JSON file with detector configuration.')
+    parser.add_argument('detector_config_file', type=str, help='JSON file with detector configuration.')
     parser.add_argument('output_address', type=str, help='Address to send the UPD packets to.')
     parser.add_argument('-r', '--rep_rate', type=int, help='Repetition rate of the stream.', default=10)
     parser.add_argument('-n', '--n_images', type=int, default=None, help='Number of images to generate.')
