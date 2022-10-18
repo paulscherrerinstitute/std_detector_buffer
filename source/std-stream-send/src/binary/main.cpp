@@ -81,14 +81,15 @@ int main(int argc, char* argv[])
   image_meta.height = config.image_pixel_height;
   image_meta.width = config.image_pixel_width;
 
+  JFFrame meta{};
+
   while (true) {
 
-    auto [image_id, meta_buffer, data_buffer] = receiver.receive();
+    auto [image_id, data_buffer] = receiver.receive(std::span<char>((char*)&meta, sizeof(meta)));
 
     image_meta.id = image_id;
-    auto frame_meta = reinterpret_cast<JFFrame*>(meta_buffer);
 
-    if (frame_meta->n_missing_packets == 0) {
+    if (meta.n_missing_packets == 0) {
       image_meta.status = ImageMetadataStatus::good_image;
     }
     else {
