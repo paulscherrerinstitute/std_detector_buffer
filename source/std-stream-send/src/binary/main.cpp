@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
 
     image_meta.id = image_id;
 
-    if (meta.n_missing_packets == 0) {
+    if (meta.common.n_missing_packets == 0) {
       image_meta.status = ImageMetadataStatus::good_image;
     }
     else {

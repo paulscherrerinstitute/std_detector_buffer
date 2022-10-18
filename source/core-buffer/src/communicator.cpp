@@ -6,6 +6,7 @@
 
 #include "communicator.hpp"
 #include "buffer_utils.hpp"
+#include "common.hpp"
 
 namespace cb {
 
@@ -43,7 +44,7 @@ std::tuple<uint64_t, char*> Communicator::receive(std::span<char> meta)
   zmq_recv(socket, meta.data(), meta.size(), 0);
 
   // First 8 bytes in any struct must represent the image_id (by convention).
-  const auto id = reinterpret_cast<uint64_t*>(meta.data())[0];
+  const auto id = reinterpret_cast<CommonFrame*>(meta.data())->image_id;
   return {id, buffer.get_data(id)};
 }
 

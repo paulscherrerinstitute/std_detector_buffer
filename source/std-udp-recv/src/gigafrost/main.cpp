@@ -30,8 +30,8 @@ inline void init_frame_metadata(const uint32_t module_size_x,
                                 const GFUdpPacket& packet,
                                 GFFrame& meta)
 {
-  meta.frame_index = static_cast<uint64_t>(packet.frame_index);
-  meta.n_missing_packets = FRAME_N_PACKETS;
+  meta.common.frame_index = static_cast<uint64_t>(packet.frame_index);
+  meta.common.n_missing_packets = FRAME_N_PACKETS;
 
   meta.scan_id = packet.scan_id;
   meta.size_x = module_size_x;
@@ -53,10 +53,10 @@ inline void init_frame_metadata(const uint32_t module_size_x,
 
 inline void send_image_id(GFFrame& meta, char* frame_buffer, cb::Communicator& sender, FrameStats& stats)
 {
-  sender.send(meta.frame_index, std::span<char>((char*)(&meta), sizeof(meta)), frame_buffer);
-  stats.record_stats(meta.n_missing_packets);
+  sender.send(meta.common.frame_index, std::span<char>((char*)(&meta), sizeof(meta)), frame_buffer);
+  stats.record_stats(meta.common.n_missing_packets);
   // Invalidate the current buffer - we already send data out for this one.
-  meta.frame_index = INVALID_FRAME_INDEX;
+  meta.common.frame_index = INVALID_FRAME_INDEX;
 }
 
 inline void process_packet(GFFrame& meta,
@@ -70,7 +70,7 @@ inline void process_packet(GFFrame& meta,
                            const size_t LAST_PACKET_STARTING_ROW)
 {
   // Record we have received this packet.
-  meta.n_missing_packets -= 1;
+  meta.common.n_missing_packets -= 1;
 
   // If not the last packet just accumulate data in frame_buffer.
   if (packet.packet_starting_row != LAST_PACKET_STARTING_ROW) {
@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
   const GFUdpPacket* const packet_buffer =
       reinterpret_cast<GFUdpPacket*>(receiver.get_packet_buffer());
   GFFrame meta = {};
-  meta.frame_index = INVALID_FRAME_INDEX;
+  meta.common.frame_index = INVALID_FRAME_INDEX;
 
   // TODO: Make 64 a const somewhere or read it programmatically (cache line size)
   char* frame_buffer = static_cast<char*>(aligned_alloc(64, MODULE_N_DATA_BYTES));
@@ -160,13 +160,13 @@ int main(int argc, char* argv[])
       const size_t frame_buffer_offset = packet.packet_starting_row * MODULE_N_X_PIXEL * 1.5;
 
       // Packet belongs to the frame we are currently processing.
-      if (meta.frame_index == packet.frame_index) {
+      if (meta.common.frame_index == packet.frame_index) {
         process_packet(meta, packet, frame_buffer, frame_buffer_offset, sender, stats,
                        PACKET_N_DATA_BYTES, LAST_PACKET_N_DATA_BYTES, LAST_PACKET_STARTING_ROW);
       }
       else {
         // The buffer was not flushed because the last packet from the previous frame was missing.
-        if (meta.frame_index != INVALID_FRAME_INDEX) {
+        if (meta.common.frame_index != INVALID_FRAME_INDEX) {
           send_image_id(meta, frame_buffer, sender, stats);
         }
 

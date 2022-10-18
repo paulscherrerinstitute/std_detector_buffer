@@ -8,8 +8,8 @@
 #include <buffer_utils.hpp>
 #include <SyncStats.hpp>
 
+#include "core_buffer/communicator.hpp"
 #include "ZmqPulseSyncReceiver.hpp"
-#include "UdpSyncConfig.hpp"
 #include "buffer_config.hpp"
 
 using namespace std;
@@ -31,7 +31,17 @@ int main(int argc, char* argv[])
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, 1);
 
   ZmqPulseSyncReceiver receiver(ctx, config.detector_name, config.n_modules);
-  auto sender = buffer_utils::bind_socket(ctx, config.detector_name + "-image");
+  socket_ = buffer_utils::bind_socket(ctx_, detector_name + "-sync", ZMQ_PULL);
+  auto receiver =
+      cb::Communicator{{fmt::format("{}-{}", config.detector_name, "sync"), sizeof(GFFrame),
+                        module_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
+                       {ctx, cb::CONN_TYPE_BIND, ZMQ_PULL}};
+
+  const auto sync_name = config.detector_name + "-image";
+
+  auto sender = cb::Communicator{
+      {sync_name, sizeof(GFFrame), converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
+      {ctx, cb::CONN_TYPE_CONNECT, ZMQ_PUSH}};
 
   SyncStats stats(config.detector_name, STATS_TIME);
 
