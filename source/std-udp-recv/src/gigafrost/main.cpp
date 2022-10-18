@@ -53,7 +53,7 @@ inline void init_frame_metadata(const uint32_t module_size_x,
 
 inline void send_image_id(GFFrame& meta, char* frame_buffer, cb::Communicator& sender, FrameStats& stats)
 {
-  sender.send(meta.frame_index, reinterpret_cast<char*>(&meta), frame_buffer);
+  sender.send(meta.frame_index, std::span<char>((char*)(&meta), sizeof(meta)), frame_buffer);
   stats.record_stats(meta.n_missing_packets);
   // Invalidate the current buffer - we already send data out for this one.
   meta.frame_index = INVALID_FRAME_INDEX;

@@ -27,10 +27,10 @@ Communicator::Communicator(const RamBufferConfig& ram_config, const Communicator
   }
 }
 
-void Communicator::send(uint64_t id, char* meta, char* data)
+void Communicator::send(uint64_t id, std::span<const char> meta, char* data)
 {
-  buffer.write(id, meta, data);
-  zmq_send(socket, &id, sizeof(id), 0);
+  buffer.write(id, meta.data(), data);
+  zmq_send(socket, meta.data(), meta.size(), 0);
 }
 
 char* Communicator::get_data(uint64_t id)
@@ -38,11 +38,13 @@ char* Communicator::get_data(uint64_t id)
   return buffer.get_data(id);
 }
 
-std::tuple<uint64_t, char*, char*> Communicator::receive()
+std::tuple<uint64_t, char*> Communicator::receive(std::span<char> meta)
 {
-  uint64_t id;
-  zmq_recv(socket, &id, sizeof(id), 0);
-  return {id, buffer.get_meta(id), buffer.get_data(id)};
+  zmq_recv(socket, meta.data(), meta.size(), 0);
+
+  // First 8 bytes in any struct must represent the image_id (by convention).
+  const auto id = reinterpret_cast<uint64_t*>(meta.data())[0];
+  return {id, buffer.get_data(id)};
 }
 
 } // namespace cb

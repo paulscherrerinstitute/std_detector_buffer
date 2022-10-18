@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
         // Copy frame_buffer to ram_buffer and send pulse_id over zmq if last packet in frame.
         // TODO: Check comparison between size_t and uint32_t
         if (packet.packetnum == N_PACKETS_PER_FRAME - 1) {
-          sender.send(meta.pulse_id, reinterpret_cast<char*>(&meta), frame_buffer);
+          sender.send(meta.pulse_id, std::span<char>((char*)&meta, sizeof(meta)), frame_buffer);
           stats.record_stats(meta.n_missing_packets);
           // Invalidate the current buffer - we already send data out for this one.
           meta.frame_index = INVALID_FRAME_INDEX;
@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
       else {
         // The buffer was not flushed because the last packet from the previous frame was missing.
         if (meta.frame_index != INVALID_FRAME_INDEX) {
-          sender.send(meta.pulse_id, reinterpret_cast<char*>(&meta), frame_buffer);
+          sender.send(meta.pulse_id, std::span<char>((char*)&meta, sizeof(meta)), frame_buffer);
           stats.record_stats(meta.n_missing_packets);
         }
 

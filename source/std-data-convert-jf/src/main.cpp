@@ -66,13 +66,15 @@ int main(int argc, char* argv[])
   auto receiver = create_receiver(converter_id.source_name(), ctx);
   auto sender = create_sender(converter_id.converter_name(), ctx);
 
+  JFFrame meta{};
+
   while (true) {
-    auto [id, meta, image] = receiver.receive();
+    auto [id, image] = receiver.receive(std::span<char>((char*)&meta, sizeof(meta)));
 
     stats_collector.processing_started();
     // I treat sending of the message as part of processing for now
     auto converted = converter.convert_data({(uint16_t*)image, MODULE_N_PIXELS});
-    sender.send(id, meta, (char*)converted.data());
+    sender.send(id, std::span<char>((char*)&meta, sizeof(meta)), (char*)converted.data());
 
     stats_collector.processing_finished();
   }

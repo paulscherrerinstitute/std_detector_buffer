@@ -9,6 +9,7 @@
 #include "ram_buffer_config.hpp"
 #include "communicator_config.hpp"
 #include <tuple>
+#include <span>
 
 namespace cb {
 
@@ -16,8 +17,8 @@ class Communicator
 {
 public:
   explicit Communicator(const RamBufferConfig& ram_config, const CommunicatorConfig& comm_config);
-  void send(uint64_t id, char* meta, char* data);
-  std::tuple<uint64_t, char*, char*> receive();
+  void send(uint64_t id, std::span<const char> meta, char* data);
+  std::tuple<uint64_t, char*> receive(std::span<char> meta);
   char* get_data(uint64_t id);
 
 private:

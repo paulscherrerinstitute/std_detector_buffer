@@ -67,14 +67,16 @@ int main(int argc, char* argv[])
   auto converter =
       sdc::Converter(config.image_pixel_height, config.image_pixel_width, quadrant, module_id);
 
+  GFFrame meta{};
+
   while (true) {
-    auto [id, meta, image] = receiver.receive();
+    auto [id, image] = receiver.receive(std::span<char>((char*)&meta, sizeof(meta)));
     stats_collector.processing_started();
 
     converter.convert(std::span<char>(image, module_bytes),
                       std::span<char>(sender.get_data(id), converted_bytes));
 
-    sender.send(id, meta, nullptr);
+    sender.send(id, std::span((char*)(&meta), sizeof(meta)), nullptr);
     stats_collector.processing_finished();
   }
   return 0;
