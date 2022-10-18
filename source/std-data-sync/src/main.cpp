@@ -25,8 +25,7 @@ int main(int argc, char* argv[])
 
     exit(-1);
   }
-
-  const auto config = UdpSyncConfig::from_json_file(string(argv[1]));
+  const auto config = buffer_utils::read_json_config(std::string(argv[1]));
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, 1);
