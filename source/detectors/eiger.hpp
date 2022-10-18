@@ -9,6 +9,8 @@
 #include <stdint.h>
 #include <string>
 
+#include "common.hpp"
+
 #define IS_BOTTOM(n) ((n % 2 != 0) ? -1 : 1)
 
 const std::string DETECTOR_TYPE = "eiger";
@@ -42,12 +44,10 @@ const std::string DETECTOR_TYPE = "eiger";
 #pragma pack(1)
 struct EGFrame
 {
-  // 16 bytes
-  uint64_t frame_index;
-  uint64_t n_missing_packets;
+  // 18 bytes
+  CommonFrame common;
 
-  //
-  uint16_t module_id;
+  // 6 bytes
   uint16_t bit_depth;
   uint16_t pos_y;
   uint16_t pos_x;
@@ -57,7 +57,7 @@ struct EGFrame
   double bunchid;
   uint32_t debug;
 
-  char __padding__[64-16-16];
+  char __padding__[64-18-6-16];
 };
 #pragma pack(pop)
 

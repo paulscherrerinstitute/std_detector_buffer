@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <string>
 #include <cmath>
+#include "common.hpp"
 
 const std::string DETECTOR_TYPE = "gigafrost";
 
@@ -45,9 +46,16 @@ struct GFUdpPacket
 #pragma pack(1)
 struct GFFrame
 {
-  // 16 bytes
-  uint64_t frame_index;
-  uint64_t n_missing_packets;
+  // 18 bytes
+  CommonFrame common;
+
+  // 6 bytes
+  uint8_t swapped_rows;
+  uint8_t link_id;
+  uint8_t corr_mode;
+  uint8_t quadrant_id;
+  uint8_t rpf; // TODO: No idea what this does.
+  uint8_t do_not_store;
 
   // 12 bytes
   uint32_t scan_id;
@@ -60,16 +68,8 @@ struct GFFrame
   uint64_t frame_timestamp;
   uint64_t exposure_time;
 
-  // 6 bytes
-  uint8_t swapped_rows;
-  uint8_t link_id;
-  uint8_t corr_mode;
-  uint8_t quadrant_id;
-  uint8_t rpf; // TODO: No idea what this does.
-  uint8_t do_not_store;
-
   // The struct size needs to be 64 bytes to fit into a cache line.
-  int8_t __padding__[64 - 16 - 12 - 24 - 6];
+  int8_t __padding__[64 - 18 - 6 - 12 - 24];
 };
 #pragma pack(pop)
 

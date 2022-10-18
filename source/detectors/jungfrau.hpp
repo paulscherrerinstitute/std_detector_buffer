@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <string_view>
+#include "common.hpp"
 
 constexpr inline std::string_view DETECTOR_TYPE{"jungfrau"};
 
@@ -25,9 +26,8 @@ constexpr inline auto N_PACKETS_PER_FRAME = 128u;
 #pragma pack(push, 1)
 struct JFFrame
 {
-  // 16 bytes.
-  uint64_t pulse_id;
-  uint64_t n_missing_packets;
+  // 18 bytes.
+  CommonFrame common;
 
   // 32 bytes.
   uint64_t id;
@@ -35,7 +35,7 @@ struct JFFrame
   uint64_t daq_rec;
   uint64_t module_id;
 
-  char __padding__[64 - 16 - 32];
+  char __padding__[64 - 18 - 32];
 };
 #pragma pack(pop)
 
