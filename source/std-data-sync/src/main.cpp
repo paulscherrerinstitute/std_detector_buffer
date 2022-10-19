@@ -7,9 +7,9 @@
 #include <zmq.h>
 #include <buffer_utils.hpp>
 #include <SyncStats.hpp>
+#include <fmt/core.h>
 
-#include "core_buffer/communicator.hpp"
-#include "ZmqPulseSyncReceiver.hpp"
+#include "common.hpp"
 #include "buffer_config.hpp"
 
 using namespace std;
@@ -30,27 +30,21 @@ int main(int argc, char* argv[])
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, 1);
 
-  ZmqPulseSyncReceiver receiver(ctx, config.detector_name, config.n_modules);
-  socket_ = buffer_utils::bind_socket(ctx_, detector_name + "-sync", ZMQ_PULL);
-  auto receiver =
-      cb::Communicator{{fmt::format("{}-{}", config.detector_name, "sync"), sizeof(GFFrame),
-                        module_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
-                       {ctx, cb::CONN_TYPE_BIND, ZMQ_PULL}};
-
-  const auto sync_name = config.detector_name + "-image";
-
-  auto sender = cb::Communicator{
-      {sync_name, sizeof(GFFrame), converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
-      {ctx, cb::CONN_TYPE_CONNECT, ZMQ_PUSH}};
+  auto receiver = buffer_utils::bind_socket(ctx, config.detector_name + "-sync", ZMQ_PULL);
+  auto sender = buffer_utils::bind_socket(ctx, config.detector_name + "-image", ZMQ_PUB);
 
   SyncStats stats(config.detector_name, STATS_TIME);
 
+  char meta_buffer[DET_FRAME_STRUCT_BYTES];
+  auto* meta = (CommonFrame*)(&meta_buffer);
+
   while (true) {
-    auto meta = receiver.get_next_image_id();
-    std::cout << meta.image_id << std::endl;
+    auto status = zmq_recv(receiver, meta_buffer, DET_FRAME_STRUCT_BYTES, 0);
+    std::cout << meta->image_id << std::endl;
+    fmt::print("{}: module{}", meta->image_id, meta->module_id);
 
-    zmq_send(sender, &meta.image_id, sizeof(meta.image_id), 0);
+    zmq_send(sender, &meta->image_id, sizeof(meta->image_id), 0);
 
-    stats.record_stats(meta.n_lost_pulses);
+    stats.record_stats(0);
   }
 }

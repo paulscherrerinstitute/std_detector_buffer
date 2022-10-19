@@ -5,6 +5,7 @@ find_package(Threads REQUIRED)
 find_package(ZeroMQ REQUIRED)
 find_package(date REQUIRED)
 find_package(RapidJSON REQUIRED)
+find_package(fmt REQUIRED)
 
 add_library(${PROJECT_NAME}_lib)
 add_library(${PROJECT_NAME}::${PROJECT_NAME}_lib ALIAS ${PROJECT_NAME}_lib)
@@ -32,6 +33,8 @@ sdb_package(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         ${PROJECT_NAME}_lib
+        detectors::detectors
+        fmt::fmt
         ZeroMQ::ZeroMQ
         RapidJSON::RapidJSON
         Threads::Threads
