@@ -13,13 +13,15 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME}_lib ALIAS ${PROJECT_NAME}_lib)
 target_sources(${PROJECT_NAME}_lib
     PRIVATE
         src/SyncStats.cpp
-        src/ZmqPulseSyncReceiver.cpp
+        src/synchronizer.cpp
 )
 
 target_include_directories(${PROJECT_NAME}_lib PUBLIC include)
 target_link_libraries(${PROJECT_NAME}_lib
     PUBLIC
         core_buffer::core_buffer
+        detectors::detectors
+        fmt::fmt
     PRIVATE
         ZeroMQ::ZeroMQ
         RapidJSON::RapidJSON
@@ -33,8 +35,6 @@ sdb_package(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         ${PROJECT_NAME}_lib
-        detectors::detectors
-        fmt::fmt
         ZeroMQ::ZeroMQ
         RapidJSON::RapidJSON
         Threads::Threads

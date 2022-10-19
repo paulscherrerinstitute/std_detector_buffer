@@ -11,6 +11,7 @@
 
 #include "common.hpp"
 #include "buffer_config.hpp"
+#include "synchronizer.hpp"
 
 using namespace std;
 using namespace buffer_config;
@@ -32,6 +33,7 @@ int main(int argc, char* argv[])
 
   auto receiver = buffer_utils::bind_socket(ctx, config.detector_name + "-sync", ZMQ_PULL);
   auto sender = buffer_utils::bind_socket(ctx, config.detector_name + "-image", ZMQ_PUB);
+  Synchronizer syncer(config.n_modules, SYNC_N_IMAGES_BUFFER);
 
   SyncStats stats(config.detector_name, STATS_TIME);
 
@@ -40,6 +42,8 @@ int main(int argc, char* argv[])
 
   while (true) {
     zmq_recv(receiver, meta_buffer, DET_FRAME_STRUCT_BYTES, 0);
+
+    auto [image_id, n_missed_images] = syncer.process_image_metadata(*meta);
 
     fmt::print("{}: module{}\n", meta->image_id, meta->module_id);
     std::fflush(stdout);

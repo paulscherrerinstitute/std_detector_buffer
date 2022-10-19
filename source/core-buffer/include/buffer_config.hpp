@@ -27,6 +27,8 @@ const int BUFFER_ZMQ_RCVHWM = 100;
 const std::string IPC_URL_BASE = "ipc:///tmp/";
 // Number of image slots in ram buffer - 10 seconds should be enough
 const int RAM_BUFFER_N_SLOTS = 100 * 10;
+// Number of images to hold in buffer for syncing.
+const int SYNC_N_IMAGES_BUFFER = 5;
 } // namespace buffer_config
 
 #endif // STD_DETECTOR_BUFFER_BUFFER_CONFIG_HPP
