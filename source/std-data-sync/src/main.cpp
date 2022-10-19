@@ -39,8 +39,8 @@ int main(int argc, char* argv[])
   auto* meta = (CommonFrame*)(&meta_buffer);
 
   while (true) {
-    auto status = zmq_recv(receiver, meta_buffer, DET_FRAME_STRUCT_BYTES, 0);
-    std::cout << meta->image_id << std::endl;
+    zmq_recv(receiver, meta_buffer, DET_FRAME_STRUCT_BYTES, 0);
+
     fmt::print("{}: module{}", meta->image_id, meta->module_id);
 
     zmq_send(sender, &meta->image_id, sizeof(meta->image_id), 0);
