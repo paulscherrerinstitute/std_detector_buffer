@@ -43,13 +43,13 @@ int main(int argc, char* argv[])
   while (true) {
     zmq_recv(receiver, meta_buffer, DET_FRAME_STRUCT_BYTES, 0);
 
-    auto [image_id, n_missed_images] = syncer.process_image_metadata(*meta);
+    auto [cached_meta, n_corrupted_images] = syncer.process_image_metadata(*meta);
 
     fmt::print("{}: module{}\n", meta->image_id, meta->module_id);
     std::fflush(stdout);
 
-    zmq_send(sender, &meta->image_id, sizeof(meta->image_id), 0);
+    zmq_send(sender, &(cached_meta.image_id), sizeof(cached_meta.image_id), 0);
 
-    stats.record_stats(0);
+    stats.record_stats(n_corrupted_images);
   }
 }
