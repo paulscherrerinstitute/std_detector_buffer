@@ -69,12 +69,12 @@ struct GFFrame
   uint64_t exposure_time;
 
   // The struct size needs to be 64 bytes to fit into a cache line.
-  int8_t __padding__[64 - 18 - 6 - 12 - 24];
+  int8_t __padding__[DET_FRAME_STRUCT_BYTES - 18 - 6 - 12 - 24];
 };
 #pragma pack(pop)
 
 static_assert(sizeof(GFUdpPacket) == BYTES_PER_PACKET);
-static_assert(sizeof(GFFrame) == 64u);
+static_assert(sizeof(GFFrame) == DET_FRAME_STRUCT_BYTES);
 
 namespace gf {
 

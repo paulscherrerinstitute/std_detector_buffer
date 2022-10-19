@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+constexpr inline auto DET_FRAME_STRUCT_BYTES = 64u;
+
 #pragma pack(push)
 #pragma pack(1)
 struct CommonFrame {

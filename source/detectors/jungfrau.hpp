@@ -35,7 +35,7 @@ struct JFFrame
   uint64_t daq_rec;
   uint64_t module_id;
 
-  char __padding__[64 - 18 - 32];
+  char __padding__[DET_FRAME_STRUCT_BYTES - 18 - 32];
 };
 #pragma pack(pop)
 
@@ -65,6 +65,6 @@ struct JFUdpPacket
 
 // Test correctness of structure size
 static_assert(sizeof(JFUdpPacket) == BYTES_PER_PACKET);
-static_assert(sizeof(JFFrame) == 64u);
+static_assert(sizeof(JFFrame) == DET_FRAME_STRUCT_BYTES);
 
 #endif // STD_DETECTOR_BUFFER_JUNGFRAU_HPP
