@@ -41,7 +41,8 @@ int main(int argc, char* argv[])
   while (true) {
     zmq_recv(receiver, meta_buffer, DET_FRAME_STRUCT_BYTES, 0);
 
-    fmt::print("{}: module{}", meta->image_id, meta->module_id);
+    fmt::print("{}: module{}\n", meta->image_id, meta->module_id);
+    std::fflush(stdout);
 
     zmq_send(sender, &meta->image_id, sizeof(meta->image_id), 0);
 
