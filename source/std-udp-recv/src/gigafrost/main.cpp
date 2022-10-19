@@ -142,6 +142,7 @@ int main(int argc, char* argv[])
       reinterpret_cast<GFUdpPacket*>(receiver.get_packet_buffer());
   GFFrame meta = {};
   meta.common.image_id = INVALID_FRAME_INDEX;
+  meta.common.module_id = module_id % 8;
 
   // TODO: Make 64 a const somewhere or read it programmatically (cache line size)
   char* frame_buffer = static_cast<char*>(aligned_alloc(64, MODULE_N_DATA_BYTES));

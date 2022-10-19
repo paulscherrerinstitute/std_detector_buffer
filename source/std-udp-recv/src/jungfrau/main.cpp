@@ -49,6 +49,7 @@ int main(int argc, char* argv[])
       reinterpret_cast<JFUdpPacket*>(receiver.get_packet_buffer());
   JFFrame meta = {};
   meta.frame_index = INVALID_FRAME_INDEX;
+  meta.module_id = module_id;
 
   char* frame_buffer = new char[MODULE_N_BYTES];
 
