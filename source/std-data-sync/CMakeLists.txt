@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(std_udp_sync)
+project(std_data_sync)
 
 find_package(Threads REQUIRED)
 find_package(ZeroMQ REQUIRED)
