@@ -6,7 +6,7 @@
 #include <string>
 #include <zmq.h>
 #include <buffer_utils.hpp>
-#include <SyncStats.hpp>
+#include <sync_stats.hpp>
 #include <fmt/core.h>
 
 #include "common.hpp"

@@ -12,7 +12,7 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME}_lib ALIAS ${PROJECT_NAME}_lib)
 
 target_sources(${PROJECT_NAME}_lib
     PRIVATE
-        src/SyncStats.cpp
+        src/sync_stats.cpp
         src/synchronizer.cpp
 )
 
@@ -41,3 +41,7 @@ target_link_libraries(${PROJECT_NAME}
         rt
         std_detector_buffer::settings
 )
+
+if(BUILD_TESTING)
+    add_subdirectory(test)
+endif()

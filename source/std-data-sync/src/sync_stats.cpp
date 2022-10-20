@@ -2,7 +2,7 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#include "SyncStats.hpp"
+#include "sync_stats.hpp"
 
 #include <iostream>
 
