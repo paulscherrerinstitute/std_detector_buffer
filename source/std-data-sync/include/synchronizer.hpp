@@ -14,8 +14,6 @@
 #include "formats.hpp"
 #include "common.hpp"
 
-const uint64_t INVALID_IMAGE_ID = -1u;
-
 struct ImageAndSync
 {
   const CommonFrame meta;

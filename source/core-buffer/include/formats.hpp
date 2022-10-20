@@ -7,7 +7,7 @@
 
 #include <cstdint>
 
-#define INVALID_FRAME_INDEX UINT64_C(-1)
+
 
 #pragma pack(push)
 #pragma pack(1)

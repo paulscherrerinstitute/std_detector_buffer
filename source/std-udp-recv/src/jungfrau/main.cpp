@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
   const JFUdpPacket* const packet_buffer =
       reinterpret_cast<JFUdpPacket*>(receiver.get_packet_buffer());
   JFFrame meta = {};
-  meta.frame_index = INVALID_FRAME_INDEX;
+  meta.frame_index = INVALID_IMAGE_ID;
   meta.module_id = module_id;
 
   char* frame_buffer = new char[MODULE_N_BYTES];
@@ -74,12 +74,12 @@ int main(int argc, char* argv[])
           sender.send(meta.common.image_id, std::span<char>((char*)&meta, sizeof(meta)), frame_buffer);
           stats.record_stats(meta.common.n_missing_packets);
           // Invalidate the current buffer - we already send data out for this one.
-          meta.frame_index = INVALID_FRAME_INDEX;
+          meta.frame_index = INVALID_IMAGE_ID;
         }
       }
       else {
         // The buffer was not flushed because the last packet from the previous frame was missing.
-        if (meta.frame_index != INVALID_FRAME_INDEX) {
+        if (meta.frame_index != INVALID_IMAGE_ID) {
           sender.send(meta.common.image_id, std::span<char>((char*)&meta, sizeof(meta)), frame_buffer);
           stats.record_stats(meta.common.n_missing_packets);
         }

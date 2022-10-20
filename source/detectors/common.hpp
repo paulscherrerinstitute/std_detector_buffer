@@ -4,6 +4,7 @@
 #include <cstdint>
 
 constexpr inline auto DET_FRAME_STRUCT_BYTES = 64u;
+constexpr inline auto INVALID_IMAGE_ID = (uint64_t)-1;
 
 #pragma pack(push)
 #pragma pack(1)

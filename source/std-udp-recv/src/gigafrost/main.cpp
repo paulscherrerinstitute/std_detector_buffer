@@ -56,7 +56,7 @@ inline void send_image_id(GFFrame& meta, char* frame_buffer, cb::Communicator& s
   sender.send(meta.common.image_id, std::span<char>((char*)(&meta), sizeof(meta)), frame_buffer);
   stats.record_stats(meta.common.n_missing_packets);
   // Invalidate the current buffer - we already send data out for this one.
-  meta.common.image_id = INVALID_FRAME_INDEX;
+  meta.common.image_id = INVALID_IMAGE_ID;
 }
 
 inline void process_packet(GFFrame& meta,
@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
   const GFUdpPacket* const packet_buffer =
       reinterpret_cast<GFUdpPacket*>(receiver.get_packet_buffer());
   GFFrame meta = {};
-  meta.common.image_id = INVALID_FRAME_INDEX;
+  meta.common.image_id = INVALID_IMAGE_ID;
   meta.common.module_id = module_id % 8;
 
   // TODO: Make 64 a const somewhere or read it programmatically (cache line size)
@@ -167,7 +167,7 @@ int main(int argc, char* argv[])
       }
       else {
         // The buffer was not flushed because the last packet from the previous frame was missing.
-        if (meta.common.image_id != INVALID_FRAME_INDEX) {
+        if (meta.common.image_id != INVALID_IMAGE_ID) {
           send_image_id(meta, frame_buffer, sender, stats);
         }
 
