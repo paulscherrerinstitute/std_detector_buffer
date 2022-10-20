@@ -45,7 +45,7 @@ void SyncStats::print_stats()
   uint64_t timestamp = time_point_cast<nanoseconds>(system_clock::now()).time_since_epoch().count();
 
   // Output in InfluxDB line protocol
-  cout << "std_udp_sync";
+  cout << "std_data_sync";
   cout << ",detector_name=" << detector_name_;
   cout << " ";
   cout << "n_processed_images=" << image_counter_ << "i";
