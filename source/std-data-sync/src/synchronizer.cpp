@@ -33,7 +33,7 @@ ImageAndSync Synchronizer::process_image_metadata(const CommonFrame& meta)
 
     // Initialize the module mask to 1 for n_modules least significant bits.
     uint64_t modules_mask = ~(~0u << n_modules);
-    meta_cache.insert({meta.image_id, {modules_mask, meta}});
+    meta_cache[meta.image_id] = {modules_mask, meta};
 
     // If the queue is too long, drop the oldest non-complete image_id.
     if (image_id_queue.size() > n_images_buffer) {
