@@ -48,7 +48,7 @@ async def test_udp_receiver_with_converter(test_path, cleanup_jungfrau_shared_me
 
                 # await trigger from std_data_convert after data has been successfully converted
                 received_id = await msg
-                assert np.frombuffer(received_id, dtype='i8') == packet.bunchid
+                assert np.frombuffer(received_id, dtype='i8')[0] == packet.bunchid
 
                 converted_data = get_converter_packet_array(output_buffer, int(packet.bunchid))
                 for i in range(JungfrauConfigUdp.packets_per_frame):
