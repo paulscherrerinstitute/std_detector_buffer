@@ -40,26 +40,6 @@ def test_converter_should_return_without_needed_arguments():
 
 
 @pytest.mark.asyncio
-async def test_converter_send_simple_data_for_packet_with_0_id(test_path):
-    command = build_jungfrau_converter_command(test_path)
-
-    ctx = zmq.asyncio.Context()
-
-    with start_publisher_communication(ctx, JungfrauConfigUdp) as (input_buffer, pub_socket):
-        with run_command_in_parallel(command):
-            with start_subscriber_communication(ctx, JungfrauConfigConverter) as (output_buffer, sub_socket):
-                # send msg and await reply from converter
-                sent_data = push_to_buffer(input_buffer, b'hello')
-                msg = await send_receive(pub_socket=pub_socket, sub_socket=sub_socket, slot=0)
-
-                # test reply content and (not) modified buffer
-                assert np.frombuffer(msg, dtype='i8') == 0
-                received_data = np.ndarray((5,), dtype='b', buffer=output_buffer)
-
-                assert np.array_equal(received_data, sent_data)
-
-
-@pytest.mark.asyncio
 async def test_converter_send_real_image_with_custom_slot(test_path):
     slot = 3
     command = build_jungfrau_converter_command(test_path)
@@ -76,7 +56,7 @@ async def test_converter_send_real_image_with_custom_slot(test_path):
 
                 msg = await send_receive(pub_socket=pub_socket, sub_socket=sub_socket, slot=slot)
 
-                assert np.frombuffer(msg, dtype='i8') == slot
+                assert np.frombuffer(msg, dtype='i8')[0] == slot
                 assert np.array_equal(get_converter_packet_array(output_buffer, slot), sent_data)
 
 
@@ -97,7 +77,7 @@ async def test_converter_modifying_image_with_gains_and_pedestals(test_path):
 
                 msg = await send_receive(pub_socket=pub_socket, sub_socket=sub_socket, slot=slot)
 
-                assert np.frombuffer(msg, dtype='i8') == slot
+                assert np.frombuffer(msg, dtype='i8')[0] == slot
                 converted_data = get_converter_packet_array(output_buffer, slot)
                 for i in range(len(converted_data)):
                     assert converted_data[i] == (i % 1000 + 1) * 2

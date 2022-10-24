@@ -50,4 +50,9 @@ struct ImageMetadata
 };
 #pragma pack(pop)
 
+inline constexpr auto get_meta_data_status(uint64_t missing)
+{
+  return missing == 0 ? ImageMetadataStatus::good_image : ImageMetadataStatus::missing_packets;
+}
+
 #endif // STD_DETECTOR_BUFFER_FORMATS_HPP
