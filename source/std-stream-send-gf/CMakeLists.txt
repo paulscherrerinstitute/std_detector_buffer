@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.17)
 project(std_stream_send_gf)
 
+find_package(fmt REQUIRED)
 find_package(Threads REQUIRED)
 find_package(ZeroMQ REQUIRED)
 find_package(RapidJSON REQUIRED)
@@ -12,6 +13,7 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE
         core_buffer::core_buffer
         detectors::detectors
+        fmt::fmt
         ZeroMQ::ZeroMQ
         Threads::Threads
         rt
