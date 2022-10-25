@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 
   while (true) {
     auto [id, image_data] = receiver.receive(std::span<char>((char*)&meta, sizeof(meta)));
-    image_data = is_first_half ? image_data: image_data + data_bytes_sent;
+    image_data = is_first_half ? image_data : image_data + data_bytes_sent;
 
     image_meta.id = id;
     image_meta.status = get_meta_data_status(meta.common.n_missing_packets);
