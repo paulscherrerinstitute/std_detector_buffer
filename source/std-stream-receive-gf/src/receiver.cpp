@@ -18,7 +18,7 @@ constexpr auto zmq_io_threads = 1;
 constexpr auto zmq_sndhwm = 100;
 } // namespace
 
-void* zmq_socket_bind(void* ctx, const std::string& stream_address)
+void* zmq_socket_bind(void* ctx, const std::string&)
 {
   void* socket = zmq_socket(ctx, ZMQ_PUB);
 
