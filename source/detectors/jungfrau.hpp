@@ -9,8 +9,6 @@
 #include <string_view>
 #include "common.hpp"
 
-constexpr inline std::string_view DETECTOR_TYPE{"jungfrau"};
-
 constexpr inline auto BYTES_PER_PACKET = 8240u;
 constexpr inline auto DATA_BYTES_PER_PACKET = 8192u;
 
