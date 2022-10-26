@@ -27,10 +27,6 @@ target_link_libraries(${PROJECT_NAME}
         std_detector_buffer::settings
 )
 
-if(USE_EIGER)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC -DUSE_EIGER)
-endif()
-
 if(BUILD_TESTING)
     add_subdirectory(test)
 endif()
