@@ -15,23 +15,13 @@ using namespace buffer_utils;
 
 namespace {
 constexpr auto zmq_io_threads = 1;
-constexpr auto zmq_sndhwm = 100;
 } // namespace
 
-void* zmq_socket_bind(void* ctx, const std::string&)
+void* zmq_socket_bind(void* ctx, const std::string& stream_address)
 {
-  void* socket = zmq_socket(ctx, ZMQ_PUB);
-
-  //TODO: setup correctly the
-//  if (zmq_setsockopt(socket, ZMQ_SNDHWM, &zmq_sndhwm, sizeof(zmq_sndhwm)) != 0)
-//    throw std::runtime_error(zmq_strerror(errno));
-//
-//  const int linger = 0;
-//  if (zmq_setsockopt(socket, ZMQ_LINGER, &linger, sizeof(linger)) != 0)
-//    throw std::runtime_error(zmq_strerror(errno));
-//
-//  if (zmq_bind(socket, stream_address.c_str()) != 0) throw std::runtime_error(zmq_strerror(errno));
-
+  void* socket = zmq_socket(ctx, ZMQ_SUB);
+  if (zmq_bind(socket, stream_address.c_str())) throw std::runtime_error(zmq_strerror(errno));
+  if (zmq_setsockopt(socket, ZMQ_SUBSCRIBE, "", 0)) throw std::runtime_error(zmq_strerror(errno));
   return socket;
 }
 
@@ -81,8 +71,7 @@ int main(int argc, char* argv[])
                             zmq_socket_bind(ctx, stream_address_second)};
 
   while (true) {
-    for(auto i = 0u; i < sockets.size(); i++)
-    {
+    for (auto i = 0u; i < sockets.size(); i++) {
       if (zmq_recv(sockets[i], &image_meta, sizeof(image_meta), 0) == 0) {
         auto* data = sender.get_data(image_meta.id) + (i * data_bytes_sent);
         if (received_successfully_data(sockets[i], data, data_bytes_sent) &&
