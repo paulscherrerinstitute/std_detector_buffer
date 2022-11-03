@@ -59,21 +59,13 @@ int main(int argc, char* argv[])
 
   auto sender_socket = bind_sender_socket(ctx, stream_address);
 
-  ImageMetadata image_meta{};
-  image_meta.dtype = ImageMetadataDtype::int16;
-  image_meta.height = config.image_pixel_height;
-  image_meta.width = config.image_pixel_width;
-
-  GFFrame meta{};
+  ImageMetadata meta{};
 
   while (true) {
     auto [id, image_data] = receiver.receive(std::span<char>((char*)&meta, sizeof(meta)));
-
     image_data = is_first_half ? image_data : image_data + data_bytes_sent;
-    image_meta.id = id;
-    image_meta.status = get_meta_data_status(meta.common.n_missing_packets);
 
-    zmq_send(sender_socket, &image_meta, sizeof(image_meta), ZMQ_SNDMORE);
+    zmq_send(sender_socket, &meta, sizeof(meta), ZMQ_SNDMORE);
     zmq_send(sender_socket, image_data, data_bytes_sent, 0);
   }
   return 0;
