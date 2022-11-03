@@ -45,7 +45,7 @@ async def test_send_receive_stream_for_multiple_packages(test_path):
             subscriber_config = GigafrostConfigConverter
             subscriber_config.name = 'GF22-sync'
             with start_subscriber_communication(ctx, subscriber_config) as (output_buffer, sub_socket):
-                for slot in range(20):
+                for slot in range(5):
                     sent_data = get_converter_buffer_data(input_buffer, slot)
                     for i in range(2):
                         index_start = int(i * len(sent_data) / 2)
