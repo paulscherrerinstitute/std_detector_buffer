@@ -140,7 +140,7 @@ class GigafrostConfigUdp:
                             calculate_udp_packet_info(image_pixel_height, image_pixel_width)[
                                 'last_packet_n_data_bytes']
     bytes_per_packet = meta_bytes_per_packet + data_bytes_per_packet
-    slots = 10  # should be 1000 but for testing purposes 10 is enough
+    slots = 30  # should be 1000 but for testing purposes 30 is enough
     buffer_size = bytes_per_packet * slots
 
 

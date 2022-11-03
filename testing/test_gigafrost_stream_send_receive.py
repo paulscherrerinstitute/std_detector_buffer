@@ -32,13 +32,12 @@ def get_converter_buffer_data(buffer, slot):
 
 
 @pytest.mark.asyncio
-async def test_send_receive_stream(test_path):
+async def test_send_receive_stream_for_multiple_packages(test_path):
     send_gf0 = build_command('std_stream_send_gf', test_path / 'gigafrost_detector.json', "tcp://127.0.0.1:50001", "0")
     send_gf1 = build_command('std_stream_send_gf', test_path / 'gigafrost_detector.json', "tcp://127.0.0.1:50002", "1")
     receive_fg = build_command('std_stream_receive_gf', test_path / 'gigafrost_detector_2.json',
                                "tcp://127.0.0.1:50001", "tcp://127.0.0.1:50002")
 
-    slot = 3
     ctx = zmq.asyncio.Context()
 
     with start_publisher_communication(ctx, GigafrostConfigConverter) as (input_buffer, pub_socket):
@@ -46,18 +45,19 @@ async def test_send_receive_stream(test_path):
             subscriber_config = GigafrostConfigConverter
             subscriber_config.name = 'GF22-sync'
             with start_subscriber_communication(ctx, subscriber_config) as (output_buffer, sub_socket):
-                sent_data = get_converter_buffer_data(input_buffer, slot)
-                for i in range(2):
-                    index_start = int(i * len(sent_data) / 2)
-                    sent_data[index_start] = 500 + i
-                    sent_data[index_start + 1] = 600 + i
+                for slot in range(20):
+                    sent_data = get_converter_buffer_data(input_buffer, slot)
+                    for i in range(2):
+                        index_start = int(i * len(sent_data) / 2)
+                        sent_data[index_start] = 500 + i + slot
+                        sent_data[index_start + 1] = 600 + i + slot
 
-                msg = await send_receive(pub_socket=pub_socket, sub_socket=sub_socket, slot=slot)
-                assert np.frombuffer(msg, dtype='i8', count=1)[0] == slot
+                    msg = await send_receive(pub_socket=pub_socket, sub_socket=sub_socket, slot=slot)
+                    assert np.frombuffer(msg, dtype='i8', count=1)[0] == slot
 
-                data = get_converter_buffer_data(output_buffer, slot)
-                start_index = int(GigafrostConfigUdp.image_pixel_height * GigafrostConfigUdp.image_pixel_width / 2)
-                assert data[0] == 500
-                assert data[1] == 600
-                assert data[start_index] == 501
-                assert data[start_index + 1] == 601
+                    data = get_converter_buffer_data(output_buffer, slot)
+                    start_index = int(GigafrostConfigUdp.image_pixel_height * GigafrostConfigUdp.image_pixel_width / 2)
+                    assert data[0] == 500 + slot
+                    assert data[1] == 600 + slot
+                    assert data[start_index] == 501 + slot
+                    assert data[start_index + 1] == 601 + slot
