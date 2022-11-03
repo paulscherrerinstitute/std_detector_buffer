@@ -4,7 +4,6 @@
 
 #include <zmq.h>
 #include <fmt/core.h>
-#include <iostream>
 
 #include "buffer_utils.hpp"
 #include "core_buffer/communicator.hpp"
@@ -15,7 +14,7 @@
 using namespace buffer_utils;
 
 namespace {
-constexpr auto zmq_io_threads = 2;
+constexpr auto zmq_io_threads = 1;
 } // namespace
 
 void* zmq_socket_bind(void* ctx, const std::string& stream_address)
@@ -43,28 +42,10 @@ std::tuple<DetectorConfig, std::string, std::string> read_arguments(int argc, ch
 
 bool received_successfully_data(void* socket, char* buffer, std::size_t size)
 {
-  fmt::print(">>> received_successfully_data \n");
-  std::cout << std::endl;
   int receive_more;
   size_t sz = sizeof(receive_more);
-  if(zmq_getsockopt(socket, ZMQ_RCVMORE, &receive_more, &sz) != -1)
-  {
-    fmt::print(">>> receive more {} {} \n", receive_more, buffer[0]);
-    std::cout << std::endl;
-    auto bytes = zmq_recv(socket, buffer, size, ZMQ_DONTWAIT);
-    fmt::print(">>> receive bytes {} \n", reinterpret_cast<uint16_t*>(buffer)[0]);
-    fmt::print(">>> receive bytes {} \n", reinterpret_cast<uint16_t*>(buffer)[1]);
-    std::cout << std::endl;
-    if(bytes > 0)
-    {
-      fmt::print(">>> receive more and even some bytes {} \n", bytes);
-      std::cout << std::endl;
-      return true;
-    }
-  }
-  fmt::print(">>> failed more\n");
-  std::cout << std::endl;
-  return false;
+  return zmq_getsockopt(socket, ZMQ_RCVMORE, &receive_more, &sz) != -1 &&
+         zmq_recv(socket, buffer, size, ZMQ_DONTWAIT) > 0;
 }
 
 int main(int argc, char* argv[])
@@ -89,25 +70,14 @@ int main(int argc, char* argv[])
   auto sockets = std::array{zmq_socket_bind(ctx, stream_address_first),
                             zmq_socket_bind(ctx, stream_address_second)};
   while (true) {
-    fmt::print(">>> Starting receiving images\n");
-    std::cout << std::endl;
     for (auto i = 0u; i < sockets.size(); i++) {
       if (zmq_recv(sockets[i], &image_meta, sizeof(image_meta), 0) > 0) {
-        char* data = sender.get_data(image_meta.id) + (i * data_bytes_sent);
-        fmt::print(">>> received header image {}\n", i);
-        std::cout << std::endl;
-        data[0] = 'x';
-        if (received_successfully_data(sockets[i], data, data_bytes_sent) &&
+        char* data = sender.get_data(image_meta.id);
+        if (received_successfully_data(sockets[i], data + (i * data_bytes_sent), data_bytes_sent) &&
             sync.is_ready_to_send(image_meta.id))
         {
-          fmt::print(">>> sending {}\n", reinterpret_cast<uint16_t*>(data)[0]);
-          sender.send(image_meta.id, image_meta_as_span, sender.get_data(image_meta.id));
+          sender.send(image_meta.id, image_meta_as_span, data);
         }
-        fmt::print(">>> sent\n");
-        std::cout << std::endl;
-      }
-      else {
-        fmt::print(">>> FAIL received header image {} {} \n", i, zmq_strerror(errno));
       }
     }
   }

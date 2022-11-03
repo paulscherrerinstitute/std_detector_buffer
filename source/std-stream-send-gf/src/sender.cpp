@@ -4,7 +4,6 @@
 
 #include <zmq.h>
 #include <fmt/core.h>
-#include <iostream>
 
 #include "buffer_utils.hpp"
 #include "core_buffer/communicator.hpp"
@@ -12,7 +11,7 @@
 #include "ram_buffer.hpp"
 
 namespace {
-constexpr auto zmq_io_threads = 2;
+constexpr auto zmq_io_threads = 1;
 constexpr auto zmq_sndhwm = 100;
 } // namespace
 
@@ -26,7 +25,6 @@ void* bind_sender_socket(void* ctx, const std::string& stream_address)
   const int linger = 0;
   if (zmq_setsockopt(socket, ZMQ_LINGER, &linger, sizeof(linger)) != 0)
     throw std::runtime_error(zmq_strerror(errno));
-  fmt::print("SENDER binding to {}\n", stream_address);
   if (zmq_bind(socket, stream_address.c_str()) != 0) throw std::runtime_error(zmq_strerror(errno));
 
   return socket;
@@ -69,22 +67,14 @@ int main(int argc, char* argv[])
   GFFrame meta{};
 
   while (true) {
-    fmt::print("Starting the send part\n");
-    std::cout << std::endl;
     auto [id, image_data] = receiver.receive(std::span<char>((char*)&meta, sizeof(meta)));
 
-    fmt::print("Received image\n");
-    std::cout << std::endl;
     image_data = is_first_half ? image_data : image_data + data_bytes_sent;
-    fmt::print("FIRST ELEMENT: {} {}\n",   reinterpret_cast<uint16_t*>(image_data)[0], is_first_half);
-
     image_meta.id = id;
     image_meta.status = get_meta_data_status(meta.common.n_missing_packets);
 
     zmq_send(sender_socket, &image_meta, sizeof(image_meta), ZMQ_SNDMORE);
     zmq_send(sender_socket, image_data, data_bytes_sent, 0);
-    fmt::print("Sent image\n");
-    std::cout << std::endl;
   }
   return 0;
 }
