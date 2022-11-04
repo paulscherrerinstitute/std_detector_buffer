@@ -9,6 +9,7 @@
 #include "core_buffer/communicator.hpp"
 #include "gigafrost.hpp"
 #include "ram_buffer.hpp"
+#include "stats_collector.hpp"
 
 namespace {
 constexpr auto zmq_io_threads = 1;
@@ -58,15 +59,18 @@ int main(int argc, char* argv[])
       {ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
 
   auto sender_socket = bind_sender_socket(ctx, stream_address);
+  gf::send::StatsCollector stats(config.detector_name, is_first_half);
 
   ImageMetadata meta{};
 
   while (true) {
     auto [id, image_data] = receiver.receive(std::span<char>((char*)&meta, sizeof(meta)));
+    stats.processing_started();
     image_data = is_first_half ? image_data : image_data + data_bytes_sent;
 
     zmq_send(sender_socket, &meta, sizeof(meta), ZMQ_SNDMORE);
     zmq_send(sender_socket, image_data, data_bytes_sent, 0);
+    stats.processing_finished();
   }
   return 0;
 }
