@@ -8,7 +8,7 @@
 #include <deque>
 #include <algorithm>
 
-namespace ssrg {
+namespace gf::rec {
 
 class Synchronizer
 {
@@ -24,17 +24,24 @@ public:
       return true;
     }
     else {
-      if (sync.size() >= drop) sync.pop_front();
+      if (sync.size() >= drop) {
+        sync.pop_front();
+        dropped_packages++;
+      }
       sync.push_back(id);
       return false;
     }
   }
 
+  [[nodiscard]] unsigned long get_dropped_packages() const { return dropped_packages; }
+  void reset_dropped_packages() { dropped_packages = 0; }
+
 private:
   std::deque<uint64_t> sync;
   std::size_t drop;
+  unsigned long dropped_packages = 0;
 };
 
-} // namespace ssrg
+} // namespace gf::rec
 
 #endif // STD_DETECTOR_BUFFER_SYNCHRONIZER_HPP

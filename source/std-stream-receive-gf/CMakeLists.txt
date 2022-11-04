@@ -6,7 +6,14 @@ find_package(Threads REQUIRED)
 find_package(ZeroMQ REQUIRED)
 find_package(RapidJSON REQUIRED)
 
-add_executable(${PROJECT_NAME} src/synchronizer.hpp src/receiver.cpp)
+add_executable(${PROJECT_NAME})
+target_sources(${PROJECT_NAME}
+    PRIVATE
+        src/receiver.cpp
+        src/stats_collector.cpp
+        src/stats_collector.hpp
+        src/synchronizer.hpp
+)
 sdb_package(${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_link_libraries(${PROJECT_NAME}

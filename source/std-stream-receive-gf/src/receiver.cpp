@@ -10,6 +10,7 @@
 #include "gigafrost.hpp"
 #include "ram_buffer.hpp"
 #include "synchronizer.hpp"
+#include "stats_collector.hpp"
 
 using namespace buffer_utils;
 
@@ -56,7 +57,9 @@ int main(int argc, char* argv[])
       gf::converted_image_n_bytes(config.image_pixel_height, config.image_pixel_width);
   const auto data_bytes_sent = converted_bytes / 2;
 
-  ssrg::Synchronizer sync{10};
+  gf::rec::Synchronizer sync{10};
+  gf::rec::StatsCollector stats(config.detector_name, sync);
+
   ImageMetadata image_meta{};
   auto image_meta_as_span = std::span<char>((char*)&image_meta, sizeof(ImageMetadata));
 
@@ -70,16 +73,22 @@ int main(int argc, char* argv[])
   auto sockets = std::array{zmq_socket_bind(ctx, stream_address_first),
                             zmq_socket_bind(ctx, stream_address_second)};
   while (true) {
+    unsigned int zmq_fails = 0;
+    stats.processing_started();
     for (auto i = 0u; i < sockets.size(); i++) {
       if (zmq_recv(sockets[i], &image_meta, sizeof(image_meta), 0) > 0) {
         char* data = sender.get_data(image_meta.id);
-        if (received_successfully_data(sockets[i], data + (i * data_bytes_sent), data_bytes_sent) &&
-            sync.is_ready_to_send(image_meta.id))
-        {
-          sender.send(image_meta.id, image_meta_as_span, data);
+        if (received_successfully_data(sockets[i], data + (i * data_bytes_sent), data_bytes_sent)) {
+          if (sync.is_ready_to_send(image_meta.id))
+            sender.send(image_meta.id, image_meta_as_span, data);
         }
+        else
+          zmq_fails++;
       }
+      else
+        zmq_fails++;
     }
+    stats.processing_finished(zmq_fails);
   }
   return 0;
 }
