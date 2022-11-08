@@ -4,14 +4,16 @@
 
 #include <iostream>
 #include <string>
+
 #include <zmq.h>
+
 #include <buffer_utils.hpp>
 #include <sync_stats.hpp>
-#include <fmt/core.h>
 
 #include "common.hpp"
 #include "buffer_config.hpp"
 #include "synchronizer.hpp"
+#include "formats.hpp"
 
 using namespace std;
 using namespace buffer_config;
@@ -40,16 +42,21 @@ int main(int argc, char* argv[])
   char meta_buffer[DET_FRAME_STRUCT_BYTES];
   auto* meta = (CommonFrame*)(&meta_buffer);
 
+  ImageMetadata image_meta{};
+  image_meta.dtype = ImageMetadataDtype::uint16;
+  image_meta.height = config.image_pixel_height;
+  image_meta.width = config.image_pixel_width;
+
   while (true) {
     zmq_recv(receiver, meta_buffer, DET_FRAME_STRUCT_BYTES, 0);
 
     auto [cached_meta, n_corrupted_images] = syncer.process_image_metadata(*meta);
 
-    fmt::print("{}: module{}\n", meta->image_id, meta->module_id);
-    std::fflush(stdout);
+    image_meta.id = meta->image_id;
+    image_meta.status = (meta->n_missing_packets == 0) ? ImageMetadataStatus::good_image
+                                                       : ImageMetadataStatus::missing_packets;
 
-    zmq_send(sender, &(cached_meta.image_id), sizeof(cached_meta.image_id), 0);
-
+    zmq_send(sender, &image_meta, sizeof(image_meta), 0);
     stats.record_stats(n_corrupted_images);
   }
 }
