@@ -52,7 +52,7 @@ bool received_successfully_data(void* socket, char* buffer, std::size_t size)
 int main(int argc, char* argv[])
 {
   const auto [config, stream_address_first, stream_address_second] = read_arguments(argc, argv);
-  const auto sync_name = fmt::format("{}-sync", config.detector_name);
+  const auto sync_name = fmt::format("{}-image", config.detector_name);
   const auto converted_bytes =
       gf::converted_image_n_bytes(config.image_pixel_height, config.image_pixel_width);
   const auto data_bytes_sent = converted_bytes / 2;
