@@ -48,13 +48,13 @@ ImageAndSync Synchronizer::process_image_metadata(const CommonFrame& meta)
   auto& modules_mask = meta_cache.find(meta.image_id)->second.first;
 
   // Has this module already arrived for this image_id?
-  if ((modules_mask & (1u << meta.module_id)) == 0) {
+  if ((modules_mask & (1u << meta.module_id % n_modules)) == 0) {
     throw runtime_error(fmt::format("Received same module_id 2 times for image_id {}",
                                     meta.image_id));
   }
 
   // Clear bit in 'module_id' place.
-  modules_mask &= ~(1UL << meta.module_id);
+  modules_mask &= ~(1UL << meta.module_id % n_modules);
 
   // All modules arrived for this image.
   if (modules_mask == 0) {
