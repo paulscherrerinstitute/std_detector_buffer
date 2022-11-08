@@ -83,5 +83,5 @@ ImageAndSync Synchronizer::process_image_metadata(const CommonFrame& meta)
   }
 
   // No image has been completed with this module.
-  return {{}, 0};
+  return {{INVALID_IMAGE_ID, 0,0}, 0};
 }

@@ -52,6 +52,10 @@ int main(int argc, char* argv[])
 
     auto [cached_meta, n_corrupted_images] = syncer.process_image_metadata(*meta);
 
+    if (cached_meta.image_id == INVALID_IMAGE_ID) {
+      continue;
+    }
+
     image_meta.id = meta->image_id;
     image_meta.status = (meta->n_missing_packets == 0) ? ImageMetadataStatus::good_image
                                                        : ImageMetadataStatus::missing_packets;
