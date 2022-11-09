@@ -20,15 +20,12 @@ using namespace buffer_config;
 using namespace chrono;
 
 RamBuffer::RamBuffer(string channel_name,
-                     const size_t meta_n_bytes,
                      const size_t data_n_bytes,
                      const size_t n_slots)
     : buffer_name_(std::move(channel_name))
     , n_slots_(n_slots)
-    , meta_bytes_(meta_n_bytes)
     , data_bytes_(data_n_bytes)
-    , slot_bytes_((meta_bytes_ + data_bytes_))
-    , buffer_bytes_(slot_bytes_ * n_slots_)
+    , buffer_bytes_(data_bytes_ * n_slots_)
 {
 #ifdef DEBUG_OUTPUT
   using namespace date;
@@ -36,7 +33,6 @@ RamBuffer::RamBuffer(string channel_name,
   cout << " [RamBuffer::RamBuffer] ";
   cout << " buffer_name " << buffer_name_;
   cout << " || n_slots " << n_slots_;
-  cout << " || meta_bytes " << meta_bytes_;
   cout << " || data_bytes " << data_bytes_;
   cout << endl;
 #endif
@@ -64,9 +60,8 @@ RamBuffer::~RamBuffer()
   shm_unlink(buffer_name_.c_str());
 }
 
-void RamBuffer::write(const uint64_t id, const char* src_meta, const char* src_data)
+void RamBuffer::write(const uint64_t id, const char* src_data)
 {
-  auto* dst_meta = get_meta(id);
   auto* dst_data = get_data(id);
 
 #ifdef DEBUG_OUTPUT
@@ -76,21 +71,12 @@ void RamBuffer::write(const uint64_t id, const char* src_meta, const char* src_d
   cout << endl;
 #endif
 
-  // when writer is not owning responsibility for metadata src_meta can be nullptr
-  if(src_meta != nullptr)
-    memcpy(dst_meta, src_meta, meta_bytes_);
   if(src_data != nullptr)
     memcpy(dst_data, src_data, data_bytes_);
-}
-
-char* RamBuffer::get_meta(const uint64_t id)
-{
-  const size_t slot_id = id % n_slots_;
-  return buffer_ + (slot_id * slot_bytes_);
 }
 
 char* RamBuffer::get_data(const uint64_t id)
 {
   const size_t slot_id = id % n_slots_;
-  return buffer_ + (slot_id * slot_bytes_) + meta_bytes_;
+  return buffer_ + (slot_id * data_bytes_);
 }

@@ -56,12 +56,12 @@ int main(int argc, char* argv[])
 
   sdc::StatsCollector stats_collector(converter_name, static_cast<int>(quadrant));
   auto receiver =
-      cb::Communicator{{fmt::format("{}-{}", config.detector_name, module_id), sizeof(GFFrame),
+      cb::Communicator{{fmt::format("{}-{}", config.detector_name, module_id),
                         module_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
                        {ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
 
   auto sender = cb::Communicator{
-      {sync_name, sizeof(GFFrame), converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
+      {sync_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
       {ctx, cb::CONN_TYPE_CONNECT, ZMQ_PUSH}};
 
   auto converter =

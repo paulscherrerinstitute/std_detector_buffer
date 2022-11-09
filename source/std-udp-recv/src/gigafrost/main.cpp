@@ -128,7 +128,6 @@ int main(int argc, char* argv[])
 
   const cb::RamBufferConfig module_config = {
       detector_config.detector_name + "-" + std::to_string(module_id),
-      sizeof(GFFrame),
       (PACKET_N_DATA_BYTES * (FRAME_N_PACKETS-1)) + LAST_PACKET_N_DATA_BYTES,
       RAM_BUFFER_N_SLOTS};
 

@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
   auto ctx = zmq_ctx_new();
   cb::Communicator sender{
       {config.detector_name + "-" + std::to_string(module_id),
-       sizeof(JFFrame), DATA_BYTES_PER_PACKET * N_PACKETS_PER_FRAME, RAM_BUFFER_N_SLOTS},
+       DATA_BYTES_PER_PACKET * N_PACKETS_PER_FRAME, RAM_BUFFER_N_SLOTS},
       {ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
 
   PacketUdpReceiver receiver(config.start_udp_port + module_id, sizeof(JFUdpPacket),

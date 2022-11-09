@@ -5,7 +5,7 @@ import pytest
 import zmq
 import zmq.asyncio
 
-from std_buffer.gigafrost.data import GigafrostConfigConverter, GigafrostConfigUdp
+from std_buffer.gigafrost.data import GigafrostConfigConverter, GigafrostConfigUdp, get_converter_buffer_data
 from testing.fixtures import test_path
 from testing.communication import start_publisher_communication, start_subscriber_communication
 from testing.execution_helpers import build_command, run_command_in_parallel, send_receive
@@ -23,12 +23,6 @@ class GFFrame(Structure):
     def __str__(self):
         return f"{self.id=}"
 
-
-def get_converter_buffer_data(buffer, slot):
-    slot_start = slot * GigafrostConfigConverter.bytes_per_packet + GigafrostConfigConverter.meta_bytes_per_packet
-    data_of_slot = buffer[slot_start:slot_start + GigafrostConfigConverter.data_bytes_per_packet]
-    return np.ndarray((int(GigafrostConfigConverter.data_bytes_per_packet / 2),), dtype='u2',
-                      buffer=data_of_slot)
 
 
 @pytest.mark.asyncio

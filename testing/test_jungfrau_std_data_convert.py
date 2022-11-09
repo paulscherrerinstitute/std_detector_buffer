@@ -13,13 +13,13 @@ from std_buffer.jungfrau.data import JungfrauConfigUdp, JungfrauConfigConverter
 
 
 def get_udp_packet_array(input_buffer: memoryview, slot: int) -> np.ndarray:
-    slot_start = slot * JungfrauConfigUdp.bytes_per_packet + JungfrauConfigUdp.meta_bytes_per_packet
+    slot_start = slot * JungfrauConfigUdp.data_bytes_per_packet
     data_of_slot = input_buffer[slot_start:slot_start + JungfrauConfigUdp.data_bytes_per_packet]
     return np.ndarray((int(JungfrauConfigUdp.data_bytes_per_packet / 2),), dtype='i2', buffer=data_of_slot)
 
 
 def get_converter_packet_array(output_buffer: memoryview, slot: int) -> np.ndarray:
-    slot_start = slot * JungfrauConfigConverter.bytes_per_packet + JungfrauConfigConverter.meta_bytes_per_packet
+    slot_start = slot * JungfrauConfigConverter.data_bytes_per_packet
     data_of_slot = output_buffer[slot_start:slot_start + JungfrauConfigConverter.data_bytes_per_packet]
     return np.ndarray((int(JungfrauConfigConverter.data_bytes_per_packet / 4),), dtype='f4',
                       buffer=data_of_slot)

@@ -3,23 +3,11 @@ import pytest
 import zmq
 import zmq.asyncio
 
-from std_buffer.gigafrost.data import GigafrostConfigUdp, GigafrostConfigConverter
+from std_buffer.gigafrost.data import GigafrostConfigUdp, GigafrostConfigConverter, get_udp_packet_array, \
+    get_converter_buffer_data
 from testing.fixtures import test_path
 from testing.communication import start_publisher_communication, start_pull_communication
 from testing.execution_helpers import build_command, run_command_in_parallel, send_receive
-
-
-def get_udp_packet_array(input_buffer: memoryview, slot: int) -> np.ndarray:
-    slot_start = slot * GigafrostConfigUdp.bytes_per_packet + GigafrostConfigUdp.meta_bytes_per_packet
-    data_of_slot = input_buffer[slot_start:slot_start + GigafrostConfigUdp.data_bytes_per_packet]
-    return np.ndarray((int(GigafrostConfigUdp.data_bytes_per_packet),), dtype='i1', buffer=data_of_slot)
-
-
-def get_converter_buffer_data(output_buffer, slot):
-    slot_start = slot * GigafrostConfigConverter.bytes_per_packet + GigafrostConfigConverter.meta_bytes_per_packet
-    data_of_slot = output_buffer[slot_start:slot_start + GigafrostConfigConverter.data_bytes_per_packet]
-    return np.ndarray((int(GigafrostConfigConverter.data_bytes_per_packet / 2),), dtype='u2',
-                      buffer=data_of_slot)
 
 
 @pytest.mark.asyncio

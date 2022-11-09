@@ -1,6 +1,8 @@
 from ctypes import Structure, c_uint32, c_uint64, c_uint16, c_uint8
 from math import ceil
 
+import numpy as np
+
 GF_MAX_PAYLOAD = 7400
 
 
@@ -139,9 +141,8 @@ class GigafrostConfigUdp:
                             (calculate_udp_packet_info(image_pixel_height, image_pixel_width)['frame_n_packets'] - 1) + \
                             calculate_udp_packet_info(image_pixel_height, image_pixel_width)[
                                 'last_packet_n_data_bytes']
-    bytes_per_packet = meta_bytes_per_packet + data_bytes_per_packet
     slots = 10  # should be 1000 but for testing purposes 10 is enough
-    buffer_size = bytes_per_packet * slots
+    buffer_size = data_bytes_per_packet * slots
 
 
 class GigafrostConfigConverter:
@@ -150,6 +151,17 @@ class GigafrostConfigConverter:
     udp_port_base = GigafrostConfigUdp.udp_port_base
     slots = GigafrostConfigUdp.slots
     data_bytes_per_packet = GigafrostConfigUdp.image_pixel_width * GigafrostConfigUdp.image_pixel_height * 2
-    meta_bytes_per_packet = GigafrostConfigUdp.meta_bytes_per_packet
-    bytes_per_packet = meta_bytes_per_packet + data_bytes_per_packet
-    buffer_size = bytes_per_packet * slots
+    buffer_size = data_bytes_per_packet * slots
+
+
+def get_converter_buffer_data(buffer: memoryview, slot: int) -> np.ndarray:
+    slot_start = slot * GigafrostConfigConverter.data_bytes_per_packet
+    data_of_slot = buffer[slot_start:slot_start + GigafrostConfigConverter.data_bytes_per_packet]
+    return np.ndarray((int(GigafrostConfigConverter.data_bytes_per_packet / 2),), dtype='u2',
+                      buffer=data_of_slot)
+
+
+def get_udp_packet_array(input_buffer: memoryview, slot: int) -> np.ndarray:
+    slot_start = slot * GigafrostConfigUdp.data_bytes_per_packet
+    data_of_slot = input_buffer[slot_start:slot_start + GigafrostConfigUdp.data_bytes_per_packet]
+    return np.ndarray((int(GigafrostConfigUdp.data_bytes_per_packet),), dtype='i1', buffer=data_of_slot)

@@ -68,7 +68,6 @@ int main(int argc, char* argv[])
   auto const module_id = 0;
   auto receiver =
       cb::Communicator{{config.detector_name + "-" + std::to_string(module_id) + "-3-converted",
-                        BYTES_PER_PACKET - DATA_BYTES_PER_PACKET,
                         config.image_pixel_width * config.image_pixel_height * sizeof(float),
                         buffer_config::RAM_BUFFER_N_SLOTS},
                        {ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};

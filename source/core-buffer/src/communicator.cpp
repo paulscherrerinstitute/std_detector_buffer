@@ -13,7 +13,6 @@ namespace cb {
 //TODO: Rewrite this into more scoped classes when communication architecture is clear.
 Communicator::Communicator(const RamBufferConfig& ram_config, const CommunicatorConfig& comm_config)
     : buffer(ram_config.buffer_name,
-             ram_config.n_bytes_meta,
              ram_config.n_bytes_data,
              ram_config.n_buffer_slots)
 {
@@ -30,7 +29,7 @@ Communicator::Communicator(const RamBufferConfig& ram_config, const Communicator
 
 void Communicator::send(uint64_t id, std::span<const char> meta, char* data)
 {
-  buffer.write(id, meta.data(), data);
+  buffer.write(id, data);
   zmq_send(socket, meta.data(), meta.size(), 0);
 }
 

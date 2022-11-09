@@ -9,7 +9,6 @@ namespace cb {
 struct RamBufferConfig
 {
   const std::string buffer_name;
-  const size_t n_bytes_meta;
   const size_t n_bytes_data;
   const size_t n_buffer_slots;
 };
