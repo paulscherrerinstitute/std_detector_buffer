@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+message RunInfo {
+  optional string filename = 1;
+  optional int32 n_images = 2;
+}
+
+message WriterRequest {
+  enum RequestType {
+    GET_STATUS = 0;
+    START_WRITING = 1;
+    STOP_WRITING = 2;
+  }
+
+  optional RequestType type = 1;
+  optional RunInfo info = 2;
+}
+
+message WriterStatus {
+  optional string filename = 1;
+  optional RunInfo info = 2;
+}
+
+service StartStopWriter {
+  rpc ConnectDriver(stream WriterRequest) returns (stream WriterStatus) {}
+}
