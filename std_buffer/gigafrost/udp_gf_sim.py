@@ -1,6 +1,5 @@
 import argparse
-import concurrent.futures
-import functools
+from functools import cache
 from socket import socket, AF_INET, SOCK_DGRAM
 from time import time, sleep
 import json
@@ -28,7 +27,7 @@ def init_gf_udp_packet(image_width):
 
     return udp_packet
 
-
+@cache
 def adjust_packet_for_module(udp_packet, i_module, image_height):
     quadrant_id = i_module // 2
     link_id = i_module % 2
@@ -95,38 +94,35 @@ def generate_gf_udp_stream(output_address, start_udp_port, rep_rate=0.1,
     try:
         iteration_start = time()
 
-        send_nth_packet_for_module = functools.partial(send_nth_packet, image_height=image_height,
-                                                       image_width=image_width, n_data_bytes=n_data_bytes,
-                                                       n_rows_packet=n_rows_packet,
-                                                       output_address=output_address,
-                                                       start_udp_port=start_udp_port, udp_socket=udp_socket)
-
-        send_last_packet_for_module = functools.partial(send_last_packet, image_height=image_height,
-                                                        image_width=image_width,
-                                                        n_data_bytes_last_packet=n_data_bytes_last_packet,
-                                                        n_rows_last_packet=n_rows_last_packet, n_packets=n_packets,
-                                                        output_address=output_address,
-                                                        start_udp_port=start_udp_port, udp_socket=udp_socket)
-
         while udp_packet.frame_index < n_images:
 
             # First n-1 packets
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                for i_packet in range(n_packets - 1):
-                    udp_packet.packet_starting_row = udp_packet_info['packet_n_rows'] * i_packet
+            for i_packet in range(n_packets-1):
+                udp_packet.packet_starting_row = udp_packet_info['packet_n_rows'] * i_packet
 
-                    send_nth_packet_for_module_and_packet = functools.partial(send_nth_packet_for_module,
-                                                                              i_packet=i_packet,
-                                                                              udp_packet=udp_packet)
+                for i_module in range(GF_N_MODULES):
+                    adjust_packet_for_module(udp_packet, i_module, image_height)
+                    data = generate_data_for_packet(i_module, i_packet,
+                                                    n_rows_packet=n_rows_packet,
+                                                    n_cols_packet=image_width//2,
+                                                    n_packet_bytes=n_data_bytes)
 
-                    executor.map(send_nth_packet_for_module_and_packet, range(GF_N_MODULES))
+                    udp_socket.sendto(bytes(udp_packet)+data,
+                                      (output_address, start_udp_port + i_module))
+                    # Needed in case you cannot set rmem_max (docker)
+                    sleep(0.01)
 
-                # Last packet (may have different size and  number of lines)
-                udp_packet.packet_starting_row = udp_packet_info['last_packet_starting_row']
-                send_last_packet_for_module_and_packet = functools.partial(send_last_packet_for_module,
-                                                                           udp_packet=udp_packet)
+            # Last packet (may have different size and  number of lines)
+            udp_packet.packet_starting_row = udp_packet_info['last_packet_starting_row']
+            for i_module in range(GF_N_MODULES):
+                adjust_packet_for_module(udp_packet, i_module, image_height)
+                last_packet_data = generate_data_for_packet(i_module, n_packets-1,
+                                                            n_rows_packet=n_rows_last_packet,
+                                                            n_cols_packet=image_width//2,
+                                                            n_packet_bytes=n_data_bytes_last_packet)
 
-                executor.map(send_last_packet_for_module_and_packet, range(GF_N_MODULES))
+                udp_socket.sendto(bytes(udp_packet)+last_packet_data,
+                                  (output_address, start_udp_port + i_module))
 
             iteration_end = time()
             time_left_to_sleep = max(0.0, time_to_sleep - (iteration_end - iteration_start))
@@ -138,30 +134,6 @@ def generate_gf_udp_stream(output_address, start_udp_port, rep_rate=0.1,
 
     except KeyboardInterrupt:
         pass
-
-
-def send_last_packet(i_module, image_height, image_width, n_data_bytes_last_packet, n_packets, n_rows_last_packet,
-                     output_address, start_udp_port, udp_packet, udp_socket):
-    adjust_packet_for_module(udp_packet, i_module, image_height)
-    last_packet_data = generate_data_for_packet(i_module, n_packets - 1,
-                                                n_rows_packet=n_rows_last_packet,
-                                                n_cols_packet=image_width // 2,
-                                                n_packet_bytes=n_data_bytes_last_packet)
-    udp_socket.sendto(bytes(udp_packet) + last_packet_data,
-                      (output_address, start_udp_port + i_module))
-
-
-def send_nth_packet(i_module, i_packet, image_height, image_width, n_data_bytes, n_rows_packet, output_address,
-                    start_udp_port, udp_packet, udp_socket):
-    adjust_packet_for_module(udp_packet, i_module, image_height)
-    data = generate_data_for_packet(i_module, i_packet,
-                                    n_rows_packet=n_rows_packet,
-                                    n_cols_packet=image_width // 2,
-                                    n_packet_bytes=n_data_bytes)
-    udp_socket.sendto(bytes(udp_packet) + data,
-                      (output_address, start_udp_port + i_module))
-    # Needed in case you cannot set rmem_max (docker)
-    sleep(0.01)
 
 
 def main():
