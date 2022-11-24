@@ -26,10 +26,10 @@ conan_cmake_install(
         SETTINGS compiler.psi=True # ensure that all packages are built or used from local cache
 )
 
-include(CPack)
 include(sdb_packaging)
 set(CPACK_PACKAGE_VENDOR "Paul Scherrer Institute")
-set(CPACK_GENERATOR "TGZ;RPM")
+set(CPACK_GENERATOR "RPM;TGZ")
+include(CPack)
 
 include(CTest)
 add_subdirectory("source")
