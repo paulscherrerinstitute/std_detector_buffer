@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import start_stop_writer_pb2 as start__stop__writer__pb2
+import std_buffer.writer.start_stop.start_stop_writer_pb2 as start__stop__writer__pb2
 
 
 class StartStopWriterStub(object):
