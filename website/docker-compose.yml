@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  docusaurus:
+    build: .
+    ports:
+      - 3000:3000
+      - 35729:35729
+    volumes:
+      - ./docs:/app/docs
+      - ./std-daq-doc/docs/Components:/app/std-daq-doc/docs/Components
+      - ./std-daq-doc/docs/Develop:/app/std-daq-doc/docs/Develop
+      - ./std-daq-doc/docs/Getting-Started:/app/std-daq-doc/docs/Getting-Started
+      - ./std-daq-doc/docs/Overview:/app/std-daq-doc/docs/Overview
+      - ./std-daq-doc/docs/docs/Service-Components:/app/std-daq-doc/docs/Service-Components
+      - ./std-daq-doc/sidebars.json:/app/std-daq-doc/sidebars.json
+      - ./std-daq-doc/siteConfig.js:/app/std-daq-doc/siteConfig.js
+      - ./std-daq-doc/docusaurus.config.js:/app/std-daq-doc/docusaurus.config.js
+    working_dir: /app/std-daq-doc

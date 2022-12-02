@@ -1,0 +1,55 @@
+---
+id: intro
+sidebar_position: 1
+title: Welcome
+slug: /
+hide_table_of_contents: true
+---
+
+import Link from '@docusaurus/Link'
+import useBaseUrl from '@docusaurus/useBaseUrl'
+import Tabs from '@theme/Tabs'
+import TabItem from '@theme/TabItem'
+
+# Welcome to the STD DAQ DOC
+
+This is the official documentation page for the Standard Data Acquisition (STD DAQ) system. The STD DAQ is a C++/Python high-speed buffering and writing microservice framework developed in-house at the Paul Scherrer Institut that meets the needs of data taking from the SwissFEL and Swiss Light Source (SLS) to enable cutting edge scientific research.
+
+## Description 
+
+The STD DAQ offers a complete framework for data acquisition, ranging from acquiring the detector or camera's data at the transport network layer using [ZMQ](https://zeromq.org/), to buffering and assembling the data into images with the possibility to use a live viewer and capabilities to perform live analysis with external components, to write such data using [HDF5](https://www.hdfgroup.org/solutions/hdf5/) format files and execute control, debug and monitoring tasks.
+
+The goal of the STD DAQ is to develop modular tools that easily interact and are responsible for very consised and simple tasks. Each microservice is responsible to perform a very unique and clearly identifiable job with clear boundaries, communication and, if necessary, API endpoints. Such design allows to easily perform debug sessions, profileable processes, and assses code performance without guessing.
+
+## Quick links
+
+<div class="container" style={{ padding: 0 }}>
+  <div class="row is-multiline">
+    <div class="col col--4">
+      <Link class="card" to="/docs/Getting-Started/how-to-use" style={{ display: 'flex', gap: 20 }}>
+        <div class="card__body">
+          <h4>Getting Started</h4>
+          <p>How to use the STD DAQ</p>
+        </div>
+      </Link>
+    </div>
+    <div class="col col--4">
+      <Link class="card" to="/docs/Overview/architecture" style={{ display: 'flex', gap: 20 }}>
+        <div class="card__body">
+          <h4>Overview</h4>
+          <p>General concepts, tools summary and architecture</p>
+        </div>
+      </Link>
+    </div>
+    <div class="col col--4">
+      <Link class="card" to="/docs/Develop/development" style={{ display: 'flex', gap: 20 }}>
+        <div class="card__body">
+          <h4>Components</h4>
+          <p>Details of the STD DAQ components</p>
+        </div>
+      </Link>
+    </div>
+  </div>
+</div>
+
+
