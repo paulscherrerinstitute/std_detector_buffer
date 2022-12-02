@@ -43,3 +43,18 @@ release_project:
   tags: [ sf-docker ]
   needs:
     - job: upload_project
+
+pages:
+  stage: deploy
+  image: node:15.12-alpine3.13
+  tags: [ sf-docker ]
+  script:
+    - cd website/std-daq-doc
+    - yarn install
+    - yarn build
+    - mv ./build ${CI_PROJECT_DIR}/public
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
