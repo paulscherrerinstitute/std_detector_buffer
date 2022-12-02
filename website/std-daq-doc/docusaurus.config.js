@@ -8,13 +8,13 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 const config = {
   title: 'STD DAQ DOC',
   tagline: 'Standard data acquisition documentation',
-  url: 'https://hpdi.gitpages.psi.ch/',
-  baseUrl: '/std_daq_doc/',
+  url: 'https://controls-ci.gitpages.psi.ch/',
+  baseUrl: '/std_detector_buffer/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
   organizationName: 'Paul Scherrer Institu', // Usually your GitHub org/user name.
-  projectName: 'std_daq_doc', // Usually your repo name.
+  projectName: 'std_detector_buffer', // Usually your repo name.
 
   presets: [
     [
@@ -49,7 +49,7 @@ const config = {
             label: 'Documentation',
           },
           {
-            href: 'https://git.psi.ch/HPDI/std_daq_doc',
+            href: 'https://git.psi.ch/controls-ci/std_detector_buffer',
             label: 'Gitlab Doc',
             position: 'right',
           },

@@ -10,12 +10,11 @@ This documentation is built using [Docusaurus V2](https://www.docusaurus.io) usi
 
 ## Source code
 
-The documentation code is hosted on https://git.psi.ch/HPDI/std_daq_doc/ (accessible only from PSI's network) and you are welcome to add/update/edit it.
+The documentation code is hosted on https://git.psi.ch/controls-ci/std_detector_buffer (accessible only from PSI's network) and you are welcome to add/update/edit it.
 
 ### Remote development
 
-Access https://git.psi.ch/HPDI/std_daq_doc, find the page you want to edit under https://git.psi.ch/HPDI/std_daq_doc/-/tree/master/std-daq-doc/docs and do the necessary changes.
-
+Access https://git.psi.ch/controls-ci/std_detector_buffer, find the page you want to edit website folder
 :::note
 
 These changes will go live after the commit is pushed to the main branch. Please, use it carefully.
@@ -27,13 +26,13 @@ These changes will go live after the commit is pushed to the main branch. Please
 Clone the repo to your local machine 
 
 ```bash
-$ git clone https://git.psi.ch/HPDI/std_daq_doc.git
+$ git clone https://git.psi.ch/controls-ci/std_detector_buffer
 ```
 
-cd to the `std-daq-doc` subfolder and start the local server:
+cd to the `website/std-daq-doc` subfolder and start the local server:
 
 ```bash
-$ cd std-daq-doc/std-daq-doc
+$ cd std_detector_buffer/website/std-daq-doc
 $ yarn start
 ```
 
@@ -53,8 +52,7 @@ Alternatively, one can create a fork of the documentation and create a Merge Req
 
 ## Build
 
-The documentation is automatically built after each commit to the master branch using a dedicated gitlab-runner. The instructions for the build are described here: https://git.psi.ch/HPDI/std_daq_doc/-/blob/master/.gitlab-ci.yml
-
+The documentation is automatically built after each commit to the master branch using a dedicated gitlab-runner.
 :::note
 
 The new changes might take up to a few minutes until they are live. 

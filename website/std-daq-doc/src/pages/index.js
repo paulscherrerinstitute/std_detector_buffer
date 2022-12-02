@@ -15,7 +15,7 @@ function HomepageHeader() {
 
 export default function Home() {
   // const {siteConfig} = useDocusaurusContext();
-  return <Redirect to="/std_daq_doc/docs/" />;
+  return <Redirect to="/std_detector_buffer/docs/" />;
   // return (
   //   <Layout>
   //     <HomepageHeader/>
