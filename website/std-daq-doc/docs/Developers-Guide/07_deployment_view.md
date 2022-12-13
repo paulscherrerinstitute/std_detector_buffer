@@ -1,8 +1,6 @@
 # Deployment View {#section-deployment-view}
 
-::: formalpara-title
-**Content**
-:::
+### **Content**
 
 The deployment view describes:
 
@@ -28,9 +26,7 @@ elements of an infrastructure that are needed to show a deployment of
 your building blocks. Hardware architects can go beyond that and
 describe an infrastructure to any level of detail they need to capture.
 
-::: formalpara-title
-**Motivation**
-:::
+### **Motivation**
 
 Software does not run without hardware. This underlying infrastructure
 can and will influence a system and/or some cross-cutting concepts.

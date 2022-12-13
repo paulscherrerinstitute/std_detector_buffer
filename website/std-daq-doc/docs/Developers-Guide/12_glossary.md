@@ -1,8 +1,6 @@
 # Glossary {#section-glossary}
 
-::: formalpara-title
-**Contents**
-:::
+### **Contents**
 
 The most important domain and technical terms that your stakeholders use
 when discussing the system.
@@ -10,9 +8,7 @@ when discussing the system.
 You can also see the glossary as source for translations if you work in
 multi-language teams.
 
-::: formalpara-title
-**Motivation**
-:::
+### **Motivation**
 
 You should clearly define your terms, so that all stakeholders
 

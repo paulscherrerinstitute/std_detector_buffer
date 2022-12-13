@@ -1,8 +1,6 @@
 # System Scope and Context {#section-system-scope-and-context}
 
-::: formalpara-title
-**Contents**
-:::
+### **Contents**
 
 System scope and context - as the name suggests - delimits your system
 (i.e. your scope) from all its communication partners (neighboring
@@ -12,17 +10,13 @@ specifies the external interfaces.
 If necessary, differentiate the business context (domain specific inputs
 and outputs) from the technical context (channels, protocols, hardware).
 
-::: formalpara-title
-**Motivation**
-:::
+### **Motivation**
 
 The domain interfaces and technical interfaces to communication partners
 are among your system's most critical aspects. Make sure that you
 completely understand them.
 
-::: formalpara-title
-**Form**
-:::
+### **Form**
 
 Various options:
 
@@ -35,25 +29,19 @@ documentation.
 
 ## Business Context {#_business_context}
 
-::: formalpara-title
-**Contents**
-:::
+### **Contents**
 
 Specification of **all** communication partners (users, IT-systems, ...)
 with explanations of domain specific inputs and outputs or interfaces.
 Optionally you can add domain specific formats or communication
 protocols.
 
-::: formalpara-title
-**Motivation**
-:::
+### **Motivation**
 
 All stakeholders should understand which data are exchanged with the
 environment of the system.
 
-::: formalpara-title
-**Form**
-:::
+### **Form**
 
 All kinds of diagrams that show the system as a black box and specify
 the domain interfaces to communication partners.
@@ -68,26 +56,20 @@ the communication partner, the inputs, and the outputs.
 
 ## Technical Context {#_technical_context}
 
-::: formalpara-title
-**Contents**
-:::
+### **Contents**
 
 Technical interfaces (channels and transmission media) linking your
 system to its environment. In addition a mapping of domain specific
 input/output to the channels, i.e. an explanation which I/O uses which
 channel.
 
-::: formalpara-title
-**Motivation**
-:::
+### **Motivation**
 
 Many stakeholders make architectural decision based on the technical
 interfaces between the system and its context. Especially infrastructure
 or hardware designers decide these technical interfaces.
 
-::: formalpara-title
-**Form**
-:::
+### **Form**
 
 E.g. UML deployment diagram describing channels to neighboring systems,
 together with a mapping table showing the relationships between channels

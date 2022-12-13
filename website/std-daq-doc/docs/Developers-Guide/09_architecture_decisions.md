@@ -1,8 +1,6 @@
 # Architecture Decisions {#section-design-decisions}
 
-::: formalpara-title
-**Contents**
-:::
+### **Contents**
 
 Important, expensive, large scale or risky architecture decisions
 including rationales. With \"decisions\" we mean selecting one
@@ -16,16 +14,12 @@ block).
 Avoid redundancy. Refer to section 4, where you already captured the
 most important decisions of your architecture.
 
-::: formalpara-title
-**Motivation**
-:::
+### **Motivation**
 
 Stakeholders of your system should be able to comprehend and retrace
 your decisions.
 
-::: formalpara-title
-**Form**
-:::
+### **Form**
 
 Various options:
 

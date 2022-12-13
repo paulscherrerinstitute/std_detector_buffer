@@ -1,15 +1,11 @@
 # Risks and Technical Debts {#section-technical-risks}
 
-::: formalpara-title
-**Contents**
-:::
+### **Contents**
 
 A list of identified technical risks or technical debts, ordered by
 priority
 
-::: formalpara-title
-**Motivation**
-:::
+### **Motivation**
 
 "Risk management is project management for grown-ups" (Tim Lister,
 Atlantic Systems Guild.)
@@ -19,9 +15,7 @@ risks and technical debts in the architecture, which will be needed by
 management stakeholders (e.g. project managers, product owners) as part
 of the overall risk analysis and measurement planning.
 
-::: formalpara-title
-**Form**
-:::
+### **Form**
 
 List of risks and/or technical debts, probably including suggested
 measures to minimize, mitigate or avoid risks or reduce technical debts.

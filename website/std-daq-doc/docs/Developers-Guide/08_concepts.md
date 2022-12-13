@@ -1,8 +1,6 @@
 # Cross-cutting Concepts {#section-concepts}
 
-::: formalpara-title
-**Content**
-:::
+### **Content**
 
 This section describes overall, principal regulations and solution ideas
 that are relevant in multiple parts (= cross-cutting) of your system.
@@ -20,9 +18,7 @@ include many different topics, such as
 
 -   implementation rules
 
-::: formalpara-title
-**Motivation**
-:::
+### **Motivation**
 
 Concepts form the basis for *conceptual integrity* (consistency,
 homogeneity) of the architecture. Thus, they are an important
@@ -31,9 +27,7 @@ contribution to achieve inner qualities of your system.
 Some of these concepts cannot be assigned to individual building blocks,
 e.g. security or safety.
 
-::: formalpara-title
-**Form**
-:::
+### **Form**
 
 The form can be varied:
 
@@ -47,9 +41,7 @@ The form can be varied:
 -   reference to typical usage of standard frameworks (e.g. using
     Hibernate for object/relational mapping)
 
-::: formalpara-title
-**Structure**
-:::
+### **Structure**
 
 A potential (but not mandatory) structure for this section could be:
 

@@ -1,8 +1,6 @@
 # Runtime View {#section-runtime-view}
 
-::: formalpara-title
-**Contents**
-:::
+### **Contents**
 
 The runtime view describes concrete behavior and interactions of the
 system's building blocks in form of scenarios from the following areas:
@@ -22,9 +20,7 @@ Remark: The main criterion for the choice of possible scenarios
 **not** important to describe a large number of scenarios. You should
 rather document a representative selection.
 
-::: formalpara-title
-**Motivation**
-:::
+### **Motivation**
 
 You should understand how (instances of) building blocks of your system
 perform their job and communicate at runtime. You will mainly capture
@@ -32,9 +28,7 @@ scenarios in your documentation to communicate your architecture to
 stakeholders that are less willing or able to read and understand the
 static models (building block view, deployment view).
 
-::: formalpara-title
-**Form**
-:::
+### **Form**
 
 There are many notations for describing scenarios, e.g.
 

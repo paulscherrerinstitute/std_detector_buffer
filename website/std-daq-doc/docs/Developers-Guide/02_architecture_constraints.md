@@ -1,25 +1,19 @@
 # Architecture Constraints {#section-architecture-constraints}
 
-::: formalpara-title
-**Contents**
-:::
+### **Contents**
 
 Any requirement that constraints software architects in their freedom of
 design and implementation decisions or decision about the development
 process. These constraints sometimes go beyond individual systems and
 are valid for whole organizations and companies.
 
-::: formalpara-title
-**Motivation**
-:::
+### **Motivation**
 
 Architects should know exactly where they are free in their design
 decisions and where they must adhere to constraints. Constraints must
 always be dealt with; they may be negotiable, though.
 
-::: formalpara-title
-**Form**
-:::
+### **Form**
 
 Simple tables of constraints with explanations. If needed you can
 subdivide them into technical constraints, organizational and political
