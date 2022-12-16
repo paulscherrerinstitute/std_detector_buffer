@@ -57,7 +57,7 @@ struct EGFrame
   double bunchid;
   uint32_t debug;
 
-  char __padding__[DET_FRAME_STRUCT_SIZE-18-6-16];
+  char __padding__[DET_FRAME_STRUCT_BYTES-18-6-16];
 };
 #pragma pack(pop)
 
@@ -87,6 +87,6 @@ struct EGUdpPacket
 
 // Test correctness of structure size
 static_assert(sizeof(EGUdpPacket) == BYTES_PER_PACKET);
-static_assert(sizeof(EGFrame) == DET_FRAME_STRUCT_SIZE);
+static_assert(sizeof(EGFrame) == DET_FRAME_STRUCT_BYTES);
 
 #endif // STD_DETECTOR_BUFFER_EIGER_HPP
