@@ -11,6 +11,7 @@
 #include "core_buffer/communicator.hpp"
 #include "gigafrost.hpp"
 #include "ram_buffer.hpp"
+#include "stats_collector.hpp"
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
@@ -93,6 +94,7 @@ int main(int argc, char* argv[])
                                     buffer_config::RAM_BUFFER_N_SLOTS},
                                    {ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
   auto sender_socket = bind_sender_socket(ctx, stream_address);
+  send::StatsCollector stats(config.detector_name);
 
   ImageMetadata meta{};
   auto prev_sent_time = std::chrono::steady_clock::now();
@@ -101,6 +103,7 @@ int main(int argc, char* argv[])
     auto [_, image_data] = receiver.receive(std::span<char>((char*)&meta, sizeof(meta)));
 
     if (const auto now = std::chrono::steady_clock::now(); prev_sent_time + data_period < now) {
+      stats.processing_started();
       prev_sent_time = now;
 
       auto encoded =
@@ -110,6 +113,7 @@ int main(int argc, char* argv[])
 
       zmq_send(sender_socket, &encoded_c, sizeof(encoded_c), ZMQ_SNDMORE);
       zmq_send(sender_socket, image_data, converted_bytes, 0);
+      stats.processing_finished();
     }
   }
   return 0;
