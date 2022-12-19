@@ -6,7 +6,6 @@
 #include <zmq.h>
 #include <cstring>
 #include <cmath>
-#include <algorithm>
 
 #include "formats.hpp"
 #include "buffer_config.hpp"

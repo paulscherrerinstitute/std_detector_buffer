@@ -49,12 +49,42 @@ std::tuple<buffer_utils::DetectorConfig, std::string, bool> read_arguments(int a
   return {buffer_utils::read_json_config(argv[1]), argv[2], data_rate};
 }
 
+std::size_t converted_image_n_bytes(const buffer_utils::DetectorConfig& config)
+{
+  if(config.detector_type == "gigafrost")
+    return gf::converted_image_n_bytes(config.image_pixel_height, config.image_pixel_width);
+  if(config.detector_type == "eiger")
+    return config.image_pixel_width * config.image_pixel_height * config.bit_depth / 8;
+  return 0;
+}
+
+std::string get_data_type(const buffer_utils::DetectorConfig& config)
+{
+  if(config.detector_type == "gigafrost")
+    return "uint16";
+  if(config.detector_type == "eiger")
+  {
+    switch(config.bit_depth)
+    {
+    case 8:
+      return "uint8";
+    case 16:
+      return "uint16";
+    case 32:
+      return "uint32";
+    default:
+      return "uint8";
+    }
+  }
+  return "uint8";
+}
+
 int main(int argc, char* argv[])
 {
   const auto [config, stream_address, data_rate] = read_arguments(argc, argv);
   const auto data_period = 1000ms / data_rate;
-  const auto converted_bytes =
-      gf::converted_image_n_bytes(config.image_pixel_height, config.image_pixel_width);
+  const auto converted_bytes = converted_image_n_bytes(config);
+  const auto data_type = get_data_type(config);
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
@@ -74,8 +104,8 @@ int main(int argc, char* argv[])
       prev_sent_time = now;
 
       auto encoded =
-          fmt::format(R"({{"htype":"array-1.0", "shape":[{},{}], "type":"uint16", "frame":{}}})",
-                      config.image_pixel_width, config.image_pixel_height, meta.id);
+          fmt::format(R"({{"htype":"array-1.0", "shape":[{},{}], "type":"{}", "frame":{}}})",
+                      config.image_pixel_width, config.image_pixel_height, data_type, meta.id);
       auto encoded_c = encoded.c_str();
 
       zmq_send(sender_socket, &encoded_c, sizeof(encoded_c), ZMQ_SNDMORE);
