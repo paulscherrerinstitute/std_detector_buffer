@@ -125,6 +125,7 @@ int main(int argc, char* argv[])
         meta.common.n_missing_packets -= 1;
       }
     }
+    stats.process_stats();
   }
   free(frame_buffer);
 }
