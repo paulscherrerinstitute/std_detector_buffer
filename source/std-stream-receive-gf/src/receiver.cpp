@@ -28,13 +28,11 @@ void* zmq_socket_bind(void* ctx, const std::string& stream_address)
 
 std::tuple<DetectorConfig, std::string, std::string> read_arguments(int argc, char* argv[])
 {
-  if (argc != 4) {
+  if (argc != 3) {
     fmt::print("Usage: std_stream_receive_gf [detector_json_filename]"
-               " [stream_address_first_half] [stream_address_second_half] \n\n"
+               " [stream_address_first_half] \n\n"
                "\tdetector_json_filename: detector config file path.\n"
                "\tstream_address_first_half: address to bind the input stream"
-               " - first half of image.\n"
-               "\tstream_address_second_half:address to bind the input stream"
                " - first half of image.\n");
     exit(-1);
   }
@@ -61,17 +59,15 @@ int main(int argc, char* argv[])
   gf::rec::StatsCollector stats(config.detector_name, sync);
 
   ImageMetadata image_meta{};
-  auto image_meta_as_span = std::span<char>((char*)&image_meta, sizeof(ImageMetadata));
+  //  auto image_meta_as_span = std::span<char>((char*)&image_meta, sizeof(ImageMetadata));
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
 
-  auto sender = cb::Communicator{
-      {sync_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
-      {ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
+  auto sender = cb::Communicator{{sync_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
+                                 {ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
 
-  auto sockets = std::array{zmq_socket_bind(ctx, stream_address_first),
-                            zmq_socket_bind(ctx, stream_address_second)};
+  auto sockets = std::array{zmq_socket_bind(ctx, stream_address_first)};
   while (true) {
     unsigned int zmq_fails = 0;
     stats.processing_started();
@@ -79,14 +75,14 @@ int main(int argc, char* argv[])
       if (zmq_recv(sockets[i], &image_meta, sizeof(image_meta), 0) > 0) {
         char* data = sender.get_data(image_meta.id);
         if (received_successfully_data(sockets[i], data + (i * data_bytes_sent), data_bytes_sent)) {
-          if (sync.is_ready_to_send(image_meta.id))
-            sender.send(image_meta.id, image_meta_as_span, data);
-        }
-        else
           zmq_fails++;
+          //          if (sync.is_ready_to_send(image_meta.id))
+          //            sender.send(image_meta.id, image_meta_as_span, data);
+          fmt::print("std_stream_receive_gf, {} {} {}\n", image_meta.id, image_meta.status,
+                     image_meta.dtype);
+          std::fflush(stdout);
+        }
       }
-      else
-        zmq_fails++;
     }
     stats.processing_finished(zmq_fails);
   }
