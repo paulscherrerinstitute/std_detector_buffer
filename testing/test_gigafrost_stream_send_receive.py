@@ -26,7 +26,6 @@ class GFFrame(Structure):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip
 async def test_send_receive_stream(test_path):
     send_gf0 = build_command('std_stream_send_gf', test_path / 'gigafrost_detector.json', "tcp://127.0.0.1:50001", "0")
     send_gf1 = build_command('std_stream_send_gf', test_path / 'gigafrost_detector.json', "tcp://127.0.0.1:50002", "1")
