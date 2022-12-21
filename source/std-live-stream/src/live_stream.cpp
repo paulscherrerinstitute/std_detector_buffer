@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
                       config.image_pixel_width, config.image_pixel_height, data_type, meta.id);
       auto encoded_c = encoded.c_str();
 
-      zmq_send(sender_socket, &encoded_c, sizeof(encoded_c), ZMQ_SNDMORE);
+      zmq_send(sender_socket, encoded_c, encoded.length(), ZMQ_SNDMORE);
       zmq_send(sender_socket, image_data, converted_bytes, 0);
       stats.processing_finished();
     }
