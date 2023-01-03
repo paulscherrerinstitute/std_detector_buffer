@@ -32,6 +32,9 @@ int main(int argc, char* argv[])
   check_number_of_arguments(argc);
 
   const auto config = buffer_utils::read_json_config(std::string(argv[1]));
+  if(config.bit_depth < 8)
+    throw std::runtime_error("Bit depth below 8 is not supported!");
+
   const uint16_t module_id = std::stoi(argv[2]);
   const auto converter_name = fmt::format("{}-{}-converted", config.detector_name, module_id);
   const auto sync_name = fmt::format("{}-sync", config.detector_name);
