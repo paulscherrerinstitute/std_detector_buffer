@@ -7,8 +7,6 @@
 
 #include <cstdint>
 
-
-
 #pragma pack(push)
 #pragma pack(1)
 struct ModuleFrame

@@ -6,7 +6,6 @@
 #define STD_DETECTOR_BUFFER_EIGER_HPP
 
 #include <cstdint>
-#include <stdint.h>
 #include <string>
 
 #include "common.hpp"
@@ -30,16 +29,6 @@ const std::string DETECTOR_TYPE = "eiger";
 #define EXTEND_X_PIXELS 3
 #define EXTEND_Y_PIXELS 1
 
-// #define N_BYTES_PER_IMAGE_LINE(bit_depth, n_submodules) ((n_submodules / 2 * MODULE_X_SIZE *
-// bit_depth) / 8)
-
-// DR 16
-// #define N_PACKETS_PER_FRAME 256
-// #define DATA_BYTES_PER_FRAME 262144
-// DR 32
-// #define N_PACKETS_PER_FRAME 512
-// #define DATA_BYTES_PER_FRAME 524288
-
 #pragma pack(push)
 #pragma pack(1)
 struct EGFrame
@@ -57,7 +46,7 @@ struct EGFrame
   double bunchid;
   uint32_t debug;
 
-  char __padding__[DET_FRAME_STRUCT_SIZE-18-6-16];
+  char __padding__[DET_FRAME_STRUCT_BYTES - 18 - 6 - 16];
 };
 #pragma pack(pop)
 
@@ -87,6 +76,17 @@ struct EGUdpPacket
 
 // Test correctness of structure size
 static_assert(sizeof(EGUdpPacket) == BYTES_PER_PACKET);
-static_assert(sizeof(EGFrame) == DET_FRAME_STRUCT_SIZE);
+static_assert(sizeof(EGFrame) == DET_FRAME_STRUCT_BYTES);
+
+namespace eg {
+
+inline std::size_t converted_image_n_bytes(int image_pixel_height,
+                                           int image_pixel_width,
+                                           int bit_depth)
+{
+  return image_pixel_width * image_pixel_height * bit_depth / 8;
+}
+
+} // namespace eg
 
 #endif // STD_DETECTOR_BUFFER_EIGER_HPP
