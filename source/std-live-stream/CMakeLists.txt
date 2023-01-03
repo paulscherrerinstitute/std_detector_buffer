@@ -10,7 +10,6 @@ add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME}
     PRIVATE
         src/live_stream.cpp
-        src/stats_collector.cpp
         src/stats_collector.hpp
 )
 
@@ -18,6 +17,7 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE
         core_buffer::core_buffer
         detectors::detectors
+        utils::utils
         fmt::fmt
         ZeroMQ::ZeroMQ
         Threads::Threads

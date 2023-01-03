@@ -10,23 +10,18 @@
 #include <string>
 #include <string_view>
 
+#include <utils/stats_collector.hpp>
+
 namespace send {
 
-class StatsCollector
+class StatsCollector : public utils::StatsCollector<StatsCollector>
 {
 public:
   explicit StatsCollector(std::string_view detector_name)
-      : name(detector_name)
+      : utils::StatsCollector<StatsCollector>("std_live_stream", detector_name)
   {}
-  void processing_started();
-  void processing_finished();
 
-private:
-  std::string_view name;
-  std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds> last_flush_time =
-      std::chrono::steady_clock::now();
-  std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds> processing_start;
-  std::pair<std::chrono::nanoseconds, std::size_t> stats;
+  static std::string additional_message() { return {}; }
 };
 
 } // namespace gf::send
