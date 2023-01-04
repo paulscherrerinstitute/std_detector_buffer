@@ -7,7 +7,7 @@
 
 #include "converter.hpp"
 #include "read_gains_and_pedestals.hpp"
-#include "stats_collector.hpp"
+#include "utils/module_stats_collector.hpp"
 #include "identifier.hpp"
 
 #include "jungfrau.hpp"
@@ -24,9 +24,9 @@ cb::Communicator create_receiver(std::string name, void* ctx)
 
 cb::Communicator create_sender(std::string name, void* ctx)
 {
-  return cb::Communicator{{std::move(name), MODULE_N_PIXELS * sizeof(float),
-                           buffer_config::RAM_BUFFER_N_SLOTS},
-                          {ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
+  return cb::Communicator{
+      {std::move(name), MODULE_N_PIXELS * sizeof(float), buffer_config::RAM_BUFFER_N_SLOTS},
+      {ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
 }
 
 void check_number_of_arguments(int argc)
@@ -57,7 +57,8 @@ int main(int argc, char* argv[])
   const uint16_t module_id = std::stoi(argv[3]);
   const uint16_t converter_index = std::stoi(argv[4]);
   const jf::sdc::Identifier converter_id(config.detector_name, module_id, converter_index);
-  jf::sdc::StatsCollector stats_collector(converter_id);
+  utils::ModuleStatsCollector stats_collector("std_data_convert_jf", config.detector_name,
+                                              module_id);
 
   auto converter = create_converter(argv[2], config.image_pixel_height * config.image_pixel_width);
 

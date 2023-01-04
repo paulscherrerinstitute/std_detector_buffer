@@ -23,7 +23,6 @@ target_sources(${PROJECT_NAME}_lib
     PRIVATE
         src/converter.cpp
         src/read_gains_and_pedestals.cpp
-        src/stats_collector.cpp
 )
 
 add_executable(${PROJECT_NAME} src/main.cpp)
@@ -32,9 +31,10 @@ sdb_package(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         ${PROJECT_NAME}_lib
-        fmt::fmt
         core_buffer::core_buffer
         detectors::detectors
+        fmt::fmt
+        utils::utils
         ZeroMQ::ZeroMQ
         std_detector_buffer::settings
 )

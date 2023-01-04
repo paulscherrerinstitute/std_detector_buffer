@@ -20,7 +20,6 @@ target_link_libraries(${PROJECT_NAME}_lib
 target_sources(${PROJECT_NAME}_lib
     PRIVATE
         src/converter.cpp
-        src/stats_collector.cpp
 )
 
 add_executable(${PROJECT_NAME} src/main.cpp)
@@ -32,6 +31,7 @@ target_link_libraries(${PROJECT_NAME}
         core_buffer::core_buffer
         detectors::detectors
         fmt::fmt
+        utils::utils
         ZeroMQ::ZeroMQ
         std_detector_buffer::settings
 )

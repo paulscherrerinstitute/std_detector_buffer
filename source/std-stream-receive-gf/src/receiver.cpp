@@ -10,7 +10,7 @@
 #include "gigafrost.hpp"
 #include "ram_buffer.hpp"
 #include "synchronizer.hpp"
-#include "stats_collector.hpp"
+#include "receiver_stats_collector.hpp"
 
 using namespace buffer_utils;
 
@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
   const auto data_bytes_sent = converted_bytes / 2;
 
   gf::rec::Synchronizer sync{10};
-  gf::rec::StatsCollector stats(config.detector_name, sync);
+  gf::rec::ReceiverStatsCollector stats(config.detector_name, sync);
 
   ImageMetadata image_meta{};
   auto image_meta_as_span = std::span<char>((char*)&image_meta, sizeof(ImageMetadata));

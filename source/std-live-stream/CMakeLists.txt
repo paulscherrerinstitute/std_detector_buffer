@@ -10,7 +10,7 @@ add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME}
     PRIVATE
         src/live_stream.cpp
-        src/stats_collector.hpp
+        src/live_stream_stats_collector.hpp
 )
 
 target_link_libraries(${PROJECT_NAME}

@@ -8,6 +8,7 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 target_sources(${PROJECT_NAME}
     INTERFACE
+        include/utils/module_stats_collector.hpp
         include/utils/stats_collector.hpp
 )
 
