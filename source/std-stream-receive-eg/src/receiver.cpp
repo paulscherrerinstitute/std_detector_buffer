@@ -27,7 +27,7 @@ void* zmq_socket_bind(void* ctx, const std::string& stream_address)
 std::tuple<DetectorConfig, std::string> read_arguments(int argc, char* argv[])
 {
   if (argc != 3) {
-    fmt::print("Usage: std_stream_receive_gf [detector_json_filename] [stream_address]\n\n"
+    fmt::print("Usage: std_stream_receive_eg [detector_json_filename] [stream_address]\n\n"
                "\tdetector_json_filename: detector config file path.\n"
                "\tstream_address: address to bind the input stream\n");
     exit(-1);

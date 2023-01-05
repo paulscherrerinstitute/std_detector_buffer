@@ -34,7 +34,7 @@ void* bind_sender_socket(void* ctx, const std::string& stream_address)
 std::tuple<buffer_utils::DetectorConfig, std::string> read_arguments(int argc, char* argv[])
 {
   if (argc != 3) {
-    fmt::print("Usage: std_stream_send_gf [detector_json_filename] [stream_address] \n\n"
+    fmt::print("Usage: std_stream_send_eg [detector_json_filename] [stream_address] \n\n"
                "\tdetector_json_filename: detector config file path.\n"
                "\tstream_address: address to bind the output stream.\n");
     exit(-1);
