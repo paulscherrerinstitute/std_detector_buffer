@@ -16,7 +16,6 @@ set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG_OUTPUT")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG_OUTPUT")
 
 include(sdb_conan)
-
 conan_config_install(ITEM ${CMAKE_HOME_DIRECTORY}/conan/settings.yml)
 conan_cmake_autodetect(DETECTED_SETTINGS)
 conan_cmake_install(
@@ -24,6 +23,9 @@ conan_cmake_install(
         BUILD missing
         SETTINGS ${DETECTED_SETTINGS}
         SETTINGS compiler.psi=True # ensure that all packages are built or used from local cache
+        SETTINGS os=Linux
+        SETTINGS os_build=Linux
+
 )
 
 include(sdb_packaging)
@@ -32,4 +34,5 @@ set(CPACK_GENERATOR "RPM;TGZ")
 include(CPack)
 
 include(CTest)
+add_subdirectory("protos")
 add_subdirectory("source")

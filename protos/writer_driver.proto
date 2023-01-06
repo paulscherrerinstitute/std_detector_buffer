@@ -1,4 +1,7 @@
 syntax = "proto3";
+package std_daq_protocol;
+
+import "image_metadata.proto";
 
 enum CommandType {
   WRITE_IMAGE = 0;
@@ -12,53 +15,9 @@ message RunInfo {
   int32 n_images = 3;
 }
 
-message SourceInfo {
-  uint64 source_id = 1;
-  uint64 height = 2;
-  uint64 width = 3;
-
-//  enum DType {
-//    uint8 = 0;
-//    uint16 = 2, uint32=4, uint64=8,
-//    int8=11, int16=12, int32=14, int64=18,
-//    float16=22, float32=24, float64=28
-//  }
-}
-//
-//
-//    uint16_t status;
-//    uint16_t source_id;
-
 message WriterCommand {
   CommandType command_type = 1;
   RunInfo run_info = 2;
 
-  uint64 image_id = 3;
-  oneof image_metadata {
-    GFImageMetadata gf = 4;
-    JFImageMetadata jf = 5;
-    EGImageMetadata eg = 6;
-  }
+  ImageMetadata metadata=3;
 }
-
-message GFImageMetadata {
-  RunInfo info = 2;
-}
-
-message JFImageMetadata {
-  string test = 1;
-}
-
-message EGImageMetadata {
-  string test = 1;
-}
-
-enum ImageMetadataDtype {
-  string test=1;
-};
-
-enum ImageMetadataStatus {
-  good_image=0;
-  missing_packets=1;
-  id_missmatch=;
-};
