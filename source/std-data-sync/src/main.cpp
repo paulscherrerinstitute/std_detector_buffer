@@ -14,6 +14,7 @@
 #include "buffer_config.hpp"
 #include "synchronizer.hpp"
 #include "formats.hpp"
+#include "image_metadata.pb.h"
 
 using namespace std;
 using namespace buffer_config;
@@ -39,28 +40,34 @@ int main(int argc, char* argv[])
 
   SyncStats stats(config.detector_name, STATS_TIME);
 
-  char meta_buffer[DET_FRAME_STRUCT_BYTES];
-  auto* meta = (CommonFrame*)(&meta_buffer);
+  char meta_buffer_recv[DET_FRAME_STRUCT_BYTES];
+  auto* common_frame = (CommonFrame*)(&meta_buffer_recv);
 
-  ImageMetadata image_meta{};
-  image_meta.dtype = ImageMetadataDtype::uint16;
-  image_meta.height = config.image_pixel_height;
-  image_meta.width = config.image_pixel_width;
+  std_daq_protocol::ImageMetadata image_meta;
+  image_meta.set_dtype(std_daq_protocol::ImageMetadataDtype::uint16);
+  image_meta.set_height(config.image_pixel_height);
+  image_meta.set_width(config.image_pixel_width);
 
   while (true) {
-    zmq_recv(receiver, meta_buffer, DET_FRAME_STRUCT_BYTES, 0);
+    zmq_recv(receiver, meta_buffer_recv, DET_FRAME_STRUCT_BYTES, 0);
 
-    auto [cached_meta, n_corrupted_images] = syncer.process_image_metadata(*meta);
+    auto [cached_meta, n_corrupted_images] = syncer.process_image_metadata(*common_frame);
 
     if (cached_meta.image_id == INVALID_IMAGE_ID) {
       continue;
     }
 
-    image_meta.id = meta->image_id;
-    image_meta.status = (meta->n_missing_packets == 0) ? ImageMetadataStatus::good_image
-                                                       : ImageMetadataStatus::missing_packets;
+    image_meta.set_image_id(common_frame->image_id);
+    if (common_frame->n_missing_packets == 0) {
+      image_meta.set_status(std_daq_protocol::ImageMetadataStatus::good_image);
+    } else {
+      image_meta.set_status(std_daq_protocol::ImageMetadataStatus::missing_packets);
+    }
 
-    zmq_send(sender, &image_meta, sizeof(image_meta), 0);
+    std::string meta_buffer_send;
+    image_meta.SerializeToString(&meta_buffer_send);
+    zmq_send(sender, meta_buffer_send.c_str(), meta_buffer_send.size(), 0);
+
     stats.record_stats(n_corrupted_images);
   }
 }

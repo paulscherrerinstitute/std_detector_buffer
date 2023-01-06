@@ -19,6 +19,7 @@ target_sources(${PROJECT_NAME}_lib
 target_include_directories(${PROJECT_NAME}_lib PUBLIC include)
 target_link_libraries(${PROJECT_NAME}_lib
     PUBLIC
+        protocol
         core_buffer::core_buffer
         detectors::detectors
         fmt::fmt
