@@ -10,8 +10,7 @@ add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME}
     PRIVATE
         src/receiver.cpp
-        src/stats_collector.cpp
-        src/stats_collector.hpp
+        src/receiver_stats_collector.hpp
         src/synchronizer.hpp
 )
 sdb_package(${PROJECT_NAME})
@@ -21,8 +20,9 @@ target_link_libraries(${PROJECT_NAME}
         core_buffer::core_buffer
         detectors::detectors
         fmt::fmt
-        ZeroMQ::ZeroMQ
         Threads::Threads
+        utils::utils
+        ZeroMQ::ZeroMQ
         rt
         std_detector_buffer::settings
 )

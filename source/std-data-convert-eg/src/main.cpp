@@ -10,8 +10,8 @@
 
 #include "buffer_utils.hpp"
 #include "core_buffer/communicator.hpp"
+#include "utils/module_stats_collector.hpp"
 #include "eiger.hpp"
-#include "stats_collector.hpp"
 #include "converter.hpp"
 
 namespace {
@@ -32,8 +32,9 @@ int main(int argc, char* argv[])
   check_number_of_arguments(argc);
 
   const auto config = buffer_utils::read_json_config(std::string(argv[1]));
+  if (config.bit_depth < 8) throw std::runtime_error("Bit depth below 8 is not supported!");
+
   const uint16_t module_id = std::stoi(argv[2]);
-  const auto converter_name = fmt::format("{}-{}-converted", config.detector_name, module_id);
   const auto sync_name = fmt::format("{}-sync", config.detector_name);
   const size_t frame_n_bytes = MODULE_N_PIXELS * config.bit_depth / 8;
   const size_t converted_bytes = eg::converted_image_n_bytes(
@@ -41,7 +42,8 @@ int main(int argc, char* argv[])
 
   auto ctx = zmq_ctx_new();
 
-  eg::sdc::StatsCollector stats_collector(converter_name, module_id);
+  utils::ModuleStatsCollector stats_collector("std_data_convert_eg", config.detector_name,
+                                              module_id);
 
   auto receiver = cb::Communicator{{fmt::format("{}-{}", config.detector_name, module_id),
                                     frame_n_bytes, buffer_config::RAM_BUFFER_N_SLOTS},

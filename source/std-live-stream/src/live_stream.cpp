@@ -11,7 +11,7 @@
 #include "core_buffer/communicator.hpp"
 #include "gigafrost.hpp"
 #include "ram_buffer.hpp"
-#include "stats_collector.hpp"
+#include "utils/basic_stats_collector.hpp"
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
@@ -52,21 +52,18 @@ std::tuple<buffer_utils::DetectorConfig, std::string, bool> read_arguments(int a
 
 std::size_t converted_image_n_bytes(const buffer_utils::DetectorConfig& config)
 {
-  if(config.detector_type == "gigafrost")
+  if (config.detector_type == "gigafrost")
     return gf::converted_image_n_bytes(config.image_pixel_height, config.image_pixel_width);
-  if(config.detector_type == "eiger")
+  if (config.detector_type == "eiger")
     return config.image_pixel_width * config.image_pixel_height * config.bit_depth / 8;
   return 0;
 }
 
 std::string get_data_type(const buffer_utils::DetectorConfig& config)
 {
-  if(config.detector_type == "gigafrost")
-    return "uint16";
-  if(config.detector_type == "eiger")
-  {
-    switch(config.bit_depth)
-    {
+  if (config.detector_type == "gigafrost") return "uint16";
+  if (config.detector_type == "eiger") {
+    switch (config.bit_depth) {
     case 8:
       return "uint8";
     case 16:
@@ -94,7 +91,7 @@ int main(int argc, char* argv[])
                                     buffer_config::RAM_BUFFER_N_SLOTS},
                                    {ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
   auto sender_socket = bind_sender_socket(ctx, stream_address);
-  send::StatsCollector stats(config.detector_name);
+  utils::BasicStatsCollector stats("std_live_stream", config.detector_name);
 
   ImageMetadata meta{};
   auto prev_sent_time = std::chrono::steady_clock::now();

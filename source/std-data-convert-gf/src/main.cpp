@@ -11,7 +11,7 @@
 #include "buffer_utils.hpp"
 #include "core_buffer/communicator.hpp"
 #include "gigafrost.hpp"
-#include "stats_collector.hpp"
+#include "utils/module_stats_collector.hpp"
 #include "converter.hpp"
 
 using namespace gf;
@@ -54,15 +54,14 @@ int main(int argc, char* argv[])
 
   auto ctx = zmq_ctx_new();
 
-  sdc::StatsCollector stats_collector(converter_name, static_cast<int>(quadrant));
-  auto receiver =
-      cb::Communicator{{fmt::format("{}-{}", config.detector_name, module_id),
-                        module_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
-                       {ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
+  utils::ModuleStatsCollector stats_collector("std_data_convert_gf", config.detector_name,
+                                              module_id);
+  auto receiver = cb::Communicator{{fmt::format("{}-{}", config.detector_name, module_id),
+                                    module_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
+                                   {ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
 
-  auto sender = cb::Communicator{
-      {sync_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
-      {ctx, cb::CONN_TYPE_CONNECT, ZMQ_PUSH}};
+  auto sender = cb::Communicator{{sync_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
+                                 {ctx, cb::CONN_TYPE_CONNECT, ZMQ_PUSH}};
 
   auto converter =
       sdc::Converter(config.image_pixel_height, config.image_pixel_width, quadrant, module_id);
