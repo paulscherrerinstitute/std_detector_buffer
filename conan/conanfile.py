@@ -12,9 +12,10 @@ class SBD(ConanFile):
         "range-v3/0.11.0",
         "fmt/8.1.1",
         "benchmark/1.6.1",
-        "protobuf/3.21.9",
+        "protobuf/3.20.0",
         # "hdf5/1.13.1"
     ]
+
     default_options = {"date:header_only": True,
                        "hdf5:parallel": True,
                        "hdf5:enable_cxx": False}
