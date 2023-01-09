@@ -2,7 +2,7 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#include "ram_buffer.hpp"
+#include "core_buffer/ram_buffer.hpp"
 
 #include <span>
 #include <gtest/gtest.h>

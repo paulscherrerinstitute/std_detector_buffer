@@ -9,7 +9,7 @@
 #include "jungfrau.hpp"
 #include <unistd.h>
 #include <cstring>
-#include "buffer_config.hpp"
+#include "core_buffer/buffer_config.hpp"
 
 using namespace std;
 using namespace buffer_config;

@@ -12,8 +12,8 @@
 #include <bitshuffle/bshuf_h5filter.h>
 
 #include "live_writer_config.hpp"
-#include "buffer_config.hpp"
-#include "formats.hpp"
+#include "core_buffer/buffer_config.hpp"
+#include "core_buffer/formats.hpp"
 
 using namespace std;
 using namespace buffer_config;

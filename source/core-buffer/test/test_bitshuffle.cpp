@@ -7,7 +7,7 @@
 #include <gtest/gtest.h>
 #include <bitshuffle/bitshuffle.h>
 
-#include "buffer_config.hpp"
+#include "core_buffer/buffer_config.hpp"
 #include "jungfrau.hpp"
 
 using namespace std;

@@ -8,7 +8,7 @@
 #include <zmq.h>
 #include <fmt/core.h>
 
-#include "buffer_utils.hpp"
+#include "core_buffer/buffer_utils.hpp"
 #include "core_buffer/communicator.hpp"
 #include "utils/module_stats_collector.hpp"
 #include "eiger.hpp"

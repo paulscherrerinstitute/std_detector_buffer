@@ -11,8 +11,8 @@
 #include "identifier.hpp"
 
 #include "jungfrau.hpp"
-#include "buffer_utils.hpp"
-#include "buffer_config.hpp"
+#include "core_buffer/buffer_utils.hpp"
+#include "core_buffer/buffer_config.hpp"
 #include "core_buffer/communicator.hpp"
 
 cb::Communicator create_receiver(std::string name, void* ctx)

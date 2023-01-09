@@ -7,8 +7,8 @@
 
 #include <memory>
 #include <string>
-#include <buffer_utils.hpp>
-#include <formats.hpp>
+#include "core_buffer/buffer_utils.hpp"
+#include "core_buffer/formats.hpp"
 
 #include <hdf5.h>
 

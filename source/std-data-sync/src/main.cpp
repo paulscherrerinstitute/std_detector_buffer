@@ -7,13 +7,13 @@
 
 #include <zmq.h>
 
-#include <buffer_utils.hpp>
+#include "core_buffer/buffer_utils.hpp"
 #include <sync_stats.hpp>
 
 #include "common.hpp"
-#include "buffer_config.hpp"
+#include "core_buffer/buffer_config.hpp"
+#include "core_buffer/formats.hpp"
 #include "synchronizer.hpp"
-#include "formats.hpp"
 #include "image_metadata.pb.h"
 
 using namespace std;

@@ -33,5 +33,4 @@ set(CPACK_GENERATOR "RPM;TGZ")
 include(CPack)
 
 include(CTest)
-add_subdirectory("protos")
 add_subdirectory("source")

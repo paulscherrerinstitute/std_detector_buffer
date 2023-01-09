@@ -11,7 +11,7 @@
 #include <rapidjson/writer.h>
 #include <date/date.h>
 
-#include "buffer_utils.hpp"
+#include "core_buffer/buffer_utils.hpp"
 #include "live_writer_config.hpp"
 #include "WriterStats.hpp"
 #include "JFH5Writer.hpp"

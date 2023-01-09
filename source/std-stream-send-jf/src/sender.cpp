@@ -4,8 +4,8 @@
 
 #include <iostream>
 #include <zmq.h>
-#include <buffer_utils.hpp>
-#include <ram_buffer.hpp>
+#include "core_buffer/buffer_utils.hpp"
+#include "core_buffer/ram_buffer.hpp"
 #include <algorithm>
 
 #include "jungfrau.hpp"

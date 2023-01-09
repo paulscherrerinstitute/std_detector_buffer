@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////
 
 #include "synchronizer.hpp"
-#include "buffer_utils.hpp"
+#include "core_buffer/buffer_utils.hpp"
 
 #include <zmq.h>
 #include <stdexcept>

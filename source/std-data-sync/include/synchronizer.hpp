@@ -11,7 +11,7 @@
 #include <queue>
 #include <unordered_map>
 
-#include "formats.hpp"
+#include "core_buffer/formats.hpp"
 #include "common.hpp"
 
 struct ImageAndSync

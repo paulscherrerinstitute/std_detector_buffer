@@ -7,9 +7,9 @@
 #include <cstring>
 #include <cmath>
 
-#include "formats.hpp"
-#include "buffer_config.hpp"
-#include "buffer_utils.hpp"
+#include "core_buffer/formats.hpp"
+#include "core_buffer/buffer_config.hpp"
+#include "core_buffer/buffer_utils.hpp"
 #include "core_buffer/communicator.hpp"
 #include "frame_stat.hpp"
 

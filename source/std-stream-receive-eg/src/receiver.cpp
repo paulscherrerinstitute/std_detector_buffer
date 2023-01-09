@@ -5,9 +5,9 @@
 #include <zmq.h>
 #include <fmt/core.h>
 
-#include "buffer_utils.hpp"
+#include "core_buffer/buffer_utils.hpp"
 #include "core_buffer/communicator.hpp"
-#include "ram_buffer.hpp"
+#include "core_buffer/ram_buffer.hpp"
 #include "receiver_stats_collector.hpp"
 
 using namespace buffer_utils;
