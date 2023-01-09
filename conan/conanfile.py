@@ -13,6 +13,7 @@ class SBD(ConanFile):
         "fmt/8.1.1",
         "benchmark/1.6.1",
         "protobuf/3.20.0",
+        "argparse/2.9",
         # "hdf5/1.13.1"
     ]
 

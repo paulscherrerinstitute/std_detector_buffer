@@ -5,6 +5,7 @@
 #include <span>
 #include <cstdlib>
 
+#include <argparse/argparse.hpp>
 #include <zmq.h>
 #include <fmt/core.h>
 
@@ -12,29 +13,36 @@
 #include "core_buffer/communicator.hpp"
 #include "detectors/eiger.hpp"
 #include "utils/module_stats_collector.hpp"
+#include "utils/version.hpp"
 #include "converter.hpp"
 
 namespace {
-void check_number_of_arguments(int argc)
+std::tuple<buffer_utils::DetectorConfig, uint16_t> read_arguments(int argc, char* argv[])
 {
-  if (argc != 3) {
-    fmt::print("Usage: std_data_convert_eg [detector_json_filename] \n\n"
-               "\tdetector_json_filename: detector config file path.\n"
-               "\tmodule_id: module id - data source\n");
-    exit(-1);
+  argparse::ArgumentParser program("std_data_convert_eg", PROJECT_VER);
+  program.add_argument("detector_json_filename");
+  program.add_argument("module_id").scan<'d', int>();
+
+  try {
+    program.parse_args(argc, argv);
   }
+  catch (const std::runtime_error& err) {
+    std::cerr << err.what() << std::endl;
+    std::cerr << program;
+    std::exit(1);
+  }
+
+  return {buffer_utils::read_json_config(program.get("detector_json_filename")),
+          program.get<uint16_t>("module_id")};
 }
 
 } // namespace
 
 int main(int argc, char* argv[])
 {
-  check_number_of_arguments(argc);
-
-  const auto config = buffer_utils::read_json_config(std::string(argv[1]));
+  const auto [config, module_id] = read_arguments(argc, argv);
   if (config.bit_depth < 8) throw std::runtime_error("Bit depth below 8 is not supported!");
 
-  const uint16_t module_id = std::stoi(argv[2]);
   const auto sync_name = fmt::format("{}-sync", config.detector_name);
   const size_t frame_n_bytes = MODULE_N_PIXELS * config.bit_depth / 8;
   const size_t converted_bytes = eg::converted_image_n_bytes(

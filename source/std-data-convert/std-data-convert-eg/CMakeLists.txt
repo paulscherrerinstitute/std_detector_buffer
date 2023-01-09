@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.17)
 project(std_data_convert_eg)
 
+find_package(argparse REQUIRED)
 find_package(fmt REQUIRED)
 find_package(ZeroMQ REQUIRED)
 
@@ -28,6 +29,7 @@ sdb_package(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         ${PROJECT_NAME}_lib
+        argparse::argparse
         core_buffer::core_buffer
         detectors::detectors
         fmt::fmt

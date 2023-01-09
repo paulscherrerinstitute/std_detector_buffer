@@ -57,3 +57,6 @@ testing/gigafrost/**/*.dat
 /*/build
 *.spec
 *-checkpoint.ipynb
+
+# auto-generated files
+source/utils/include/utils/version.hpp
