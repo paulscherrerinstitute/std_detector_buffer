@@ -25,7 +25,6 @@ conan_cmake_install(
         SETTINGS compiler.psi=True # ensure that all packages are built or used from local cache
         SETTINGS os=Linux
         SETTINGS os_build=Linux
-
 )
 
 include(sdb_packaging)
