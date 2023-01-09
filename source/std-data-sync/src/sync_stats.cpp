@@ -5,12 +5,13 @@
 #include "sync_stats.hpp"
 
 #include <iostream>
+#include <utility>
 
 using namespace std;
 using namespace chrono;
 
-SyncStats::SyncStats(const std::string& detector_name, const size_t stats_time)
-    : detector_name_(detector_name)
+SyncStats::SyncStats(std::string detector_name, size_t stats_time)
+    : detector_name_(std::move(detector_name))
     , stats_time_(stats_time * 1000)
 {
   reset_counters();
@@ -23,7 +24,7 @@ void SyncStats::reset_counters()
   stats_interval_start_ = steady_clock::now();
 }
 
-void SyncStats::record_stats(const uint32_t n_lost_pulses)
+void SyncStats::record_stats(size_t n_lost_pulses)
 {
   image_counter_++;
   n_sync_lost_images_ += n_lost_pulses;
@@ -41,7 +42,7 @@ void SyncStats::print_stats()
   auto interval_ms_duration =
       duration_cast<milliseconds>(steady_clock::now() - stats_interval_start_).count();
   // * 1000 because milliseconds, + 250 because of truncation.
-  int rep_rate = ((image_counter_ * 1000) + 250) / interval_ms_duration;
+  auto rep_rate = ((image_counter_ * 1000) + 250) / interval_ms_duration;
   uint64_t timestamp = time_point_cast<nanoseconds>(system_clock::now()).time_since_epoch().count();
 
   // Output in InfluxDB line protocol
