@@ -31,7 +31,7 @@ ImageAndSync Synchronizer::process_image_metadata(const CommonFrame& meta)
   if (meta_cache.find(meta.image_id) == meta_cache.end()) {
     image_id_queue.push(meta.image_id);
 
-    // Initialize the module mask to 1 for n_modules least significant bits.
+    // Initialize the module mask to 1 for n_modules the least significant bits.
     uint64_t modules_mask = ~(~0u << n_modules);
     meta_cache[meta.image_id] = {modules_mask, meta};
 
