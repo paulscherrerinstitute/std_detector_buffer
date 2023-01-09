@@ -9,7 +9,6 @@
 #include <mpi.h>
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
-#include <date/date.h>
 
 #include "core_buffer/buffer_utils.hpp"
 #include "live_writer_config.hpp"
@@ -18,7 +17,6 @@
 #include "DetWriterConfig.hpp"
 
 using namespace std;
-using namespace date;
 using namespace live_writer_config;
 
 int main(int argc, char* argv[])

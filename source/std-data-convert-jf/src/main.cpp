@@ -5,15 +5,15 @@
 #include <zmq.h>
 #include <fmt/core.h>
 
-#include "converter.hpp"
-#include "read_gains_and_pedestals.hpp"
-#include "utils/module_stats_collector.hpp"
-#include "identifier.hpp"
-
-#include "detectors/jungfrau.hpp"
 #include "core_buffer/buffer_utils.hpp"
 #include "core_buffer/buffer_config.hpp"
 #include "core_buffer/communicator.hpp"
+#include "detectors/jungfrau.hpp"
+#include "utils/module_stats_collector.hpp"
+
+#include "identifier.hpp"
+#include "converter.hpp"
+#include "read_gains_and_pedestals.hpp"
 
 cb::Communicator create_receiver(std::string name, void* ctx)
 {

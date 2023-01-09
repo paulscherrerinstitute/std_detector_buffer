@@ -7,8 +7,8 @@
 
 #include "core_buffer/buffer_utils.hpp"
 #include "core_buffer/communicator.hpp"
-#include "detectors/eiger.hpp"
 #include "core_buffer/ram_buffer.hpp"
+#include "detectors/eiger.hpp"
 #include "utils/basic_stats_collector.hpp"
 
 namespace {

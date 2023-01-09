@@ -11,6 +11,7 @@
 #include <string_view>
 
 #include "utils/stats_collector.hpp"
+
 #include "synchronizer.hpp"
 
 namespace gf::rec {

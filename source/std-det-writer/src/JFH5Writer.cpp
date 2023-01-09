@@ -11,13 +11,11 @@
 #include <H5version.h>
 #include <bitshuffle/bshuf_h5filter.h>
 
-#include "live_writer_config.hpp"
 #include "core_buffer/buffer_config.hpp"
 #include "core_buffer/formats.hpp"
 
 using namespace std;
 using namespace buffer_config;
-using namespace live_writer_config;
 
 JFH5Writer::JFH5Writer(std::string detector_name)
     : detector_name_(std::move(detector_name))

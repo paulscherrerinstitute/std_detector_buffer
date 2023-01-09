@@ -7,8 +7,9 @@
 
 #include "core_buffer/buffer_utils.hpp"
 #include "core_buffer/communicator.hpp"
-#include "detectors/gigafrost.hpp"
 #include "core_buffer/ram_buffer.hpp"
+#include "detectors/gigafrost.hpp"
+
 #include "sender_stats_collector.hpp"
 
 namespace {

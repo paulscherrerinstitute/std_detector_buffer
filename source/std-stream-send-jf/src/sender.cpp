@@ -4,13 +4,13 @@
 
 #include <iostream>
 #include <zmq.h>
-#include "core_buffer/buffer_utils.hpp"
-#include "core_buffer/ram_buffer.hpp"
-#include <algorithm>
 
-#include "detectors/jungfrau.hpp"
-#include "stream_config.hpp"
+#include "core_buffer/buffer_utils.hpp"
 #include "core_buffer/communicator.hpp"
+#include "core_buffer/ram_buffer.hpp"
+#include "detectors/jungfrau.hpp"
+
+#include "stream_config.hpp"
 
 using namespace std;
 using namespace stream_config;

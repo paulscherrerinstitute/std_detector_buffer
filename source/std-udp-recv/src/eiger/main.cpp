@@ -3,17 +3,18 @@
 /////////////////////////////////////////////////////////////////////
 
 #include <iostream>
-#include <zmq.h>
 #include <cstring>
 #include <cmath>
+
+#include <zmq.h>
 
 #include "core_buffer/formats.hpp"
 #include "core_buffer/buffer_config.hpp"
 #include "core_buffer/buffer_utils.hpp"
 #include "core_buffer/communicator.hpp"
-#include "frame_stat.hpp"
-
 #include "detectors/eiger.hpp"
+
+#include "frame_stat.hpp"
 #include "packet_udp_receiver.hpp"
 
 using namespace std;

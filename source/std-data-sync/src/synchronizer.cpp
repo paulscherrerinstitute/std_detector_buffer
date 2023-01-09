@@ -3,22 +3,12 @@
 /////////////////////////////////////////////////////////////////////
 
 #include "synchronizer.hpp"
-#include "core_buffer/buffer_utils.hpp"
 
-#include <zmq.h>
 #include <stdexcept>
-#include <sstream>
-#include <chrono>
-#include <iostream>
-#include <date/date.h>
+#include <zmq.h>
 #include <fmt/core.h>
 
-#include "sync_config.hpp"
-
 using namespace std;
-using namespace chrono;
-using namespace sync_config;
-
 
 Synchronizer::Synchronizer(const int n_modules, const int n_images_buffer)
     : n_modules(n_modules), n_images_buffer(n_images_buffer), image_id_queue(), meta_cache()

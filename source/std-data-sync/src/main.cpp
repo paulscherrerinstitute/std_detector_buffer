@@ -8,12 +8,11 @@
 #include <zmq.h>
 
 #include "core_buffer/buffer_utils.hpp"
-#include <sync_stats.hpp>
-
-#include "detectors/common.hpp"
 #include "core_buffer/buffer_config.hpp"
-#include "core_buffer/formats.hpp"
+#include "detectors/common.hpp"
+
 #include "synchronizer.hpp"
+#include "sync_stats.hpp"
 #include "image_metadata.pb.h"
 
 using namespace std;

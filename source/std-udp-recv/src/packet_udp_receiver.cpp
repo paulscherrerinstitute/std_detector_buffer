@@ -2,14 +2,16 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#include <netinet/in.h>
-#include <iostream>
-#include <stdexcept>
-#include "packet_udp_receiver.hpp"
-#include "detectors/jungfrau.hpp"
 #include <unistd.h>
+#include <netinet/in.h>
+
+#include <stdexcept>
 #include <cstring>
+
 #include "core_buffer/buffer_config.hpp"
+#include "detectors/jungfrau.hpp"
+
+#include "packet_udp_receiver.hpp"
 
 using namespace std;
 using namespace buffer_config;

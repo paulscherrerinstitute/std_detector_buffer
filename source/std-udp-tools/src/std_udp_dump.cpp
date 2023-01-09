@@ -6,9 +6,11 @@
 #include <unistd.h>
 #include <cstdint>
 #include <iostream>
-#include <fmt/core.h>
 #include <thread>
 #include <vector>
+
+#include <fmt/core.h>
+
 #include "udp_recv_config.hpp"
 
 

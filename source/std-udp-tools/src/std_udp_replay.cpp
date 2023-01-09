@@ -5,10 +5,12 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <cstdint>
-#include <iostream>
-#include <fmt/core.h>
 #include <thread>
 #include <vector>
+#include <iostream>
+
+#include <fmt/core.h>
+
 #include "udp_recv_config.hpp"
 
 const int UDP_BUFFER_MAX_SIZE = 1024 * 10;
