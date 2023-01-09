@@ -12,7 +12,7 @@
 #include "core_buffer/communicator.hpp"
 #include "frame_stat.hpp"
 
-#include "jungfrau.hpp"
+#include "detectors/jungfrau.hpp"
 #include "packet_udp_receiver.hpp"
 
 using namespace std;

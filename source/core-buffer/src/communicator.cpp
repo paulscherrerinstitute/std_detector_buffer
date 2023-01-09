@@ -6,7 +6,7 @@
 
 #include "communicator.hpp"
 #include "buffer_utils.hpp"
-#include "common.hpp"
+#include "detectors/common.hpp"
 
 namespace cb {
 

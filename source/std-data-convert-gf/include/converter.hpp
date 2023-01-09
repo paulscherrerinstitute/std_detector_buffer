@@ -9,7 +9,7 @@
 #include <vector>
 #include <span>
 
-#include "gigafrost.hpp"
+#include "detectors/gigafrost.hpp"
 
 namespace gf::sdc {
 

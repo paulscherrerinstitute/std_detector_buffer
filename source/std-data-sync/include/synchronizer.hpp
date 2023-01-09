@@ -12,7 +12,7 @@
 #include <unordered_map>
 
 #include "core_buffer/formats.hpp"
-#include "common.hpp"
+#include "detectors/common.hpp"
 
 struct ImageAndSync
 {

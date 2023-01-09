@@ -8,7 +8,7 @@
 #include "core_buffer/ram_buffer.hpp"
 #include <algorithm>
 
-#include "jungfrau.hpp"
+#include "detectors/jungfrau.hpp"
 #include "stream_config.hpp"
 #include "core_buffer/communicator.hpp"
 

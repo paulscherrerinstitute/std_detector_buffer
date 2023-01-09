@@ -8,7 +8,7 @@
 #include <bitshuffle/bitshuffle.h>
 
 #include "core_buffer/buffer_config.hpp"
-#include "jungfrau.hpp"
+#include "detectors/jungfrau.hpp"
 
 using namespace std;
 using namespace buffer_config;

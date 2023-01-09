@@ -6,7 +6,7 @@
 #include <iostream>
 #include <stdexcept>
 #include "packet_udp_receiver.hpp"
-#include "jungfrau.hpp"
+#include "detectors/jungfrau.hpp"
 #include <unistd.h>
 #include <cstring>
 #include "core_buffer/buffer_config.hpp"

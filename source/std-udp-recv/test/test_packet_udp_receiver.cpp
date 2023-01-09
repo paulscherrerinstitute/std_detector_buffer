@@ -10,7 +10,7 @@
 #include <thread>
 #include <chrono>
 
-#include "jungfrau.hpp"
+#include "detectors/jungfrau.hpp"
 
 using namespace std;
 

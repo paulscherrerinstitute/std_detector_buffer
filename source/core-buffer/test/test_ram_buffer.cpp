@@ -8,7 +8,7 @@
 #include <gtest/gtest.h>
 #include <range/v3/all.hpp>
 
-#include "jungfrau.hpp"
+#include "detectors/jungfrau.hpp"
 
 using namespace buffer_config;
 

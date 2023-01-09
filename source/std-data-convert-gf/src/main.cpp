@@ -10,7 +10,7 @@
 
 #include "core_buffer/buffer_utils.hpp"
 #include "core_buffer/communicator.hpp"
-#include "gigafrost.hpp"
+#include "detectors/gigafrost.hpp"
 #include "utils/module_stats_collector.hpp"
 #include "converter.hpp"
 

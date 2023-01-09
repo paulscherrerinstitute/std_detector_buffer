@@ -5,7 +5,7 @@
 #include <cstring>
 
 #include "converter.hpp"
-#include "eiger.hpp"
+#include "detectors/eiger.hpp"
 
 namespace eg::sdc {
 

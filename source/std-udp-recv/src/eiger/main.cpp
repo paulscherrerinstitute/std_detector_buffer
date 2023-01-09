@@ -13,7 +13,7 @@
 #include "core_buffer/communicator.hpp"
 #include "frame_stat.hpp"
 
-#include "eiger.hpp"
+#include "detectors/eiger.hpp"
 #include "packet_udp_receiver.hpp"
 
 using namespace std;

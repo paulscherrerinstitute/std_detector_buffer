@@ -10,7 +10,7 @@
 #include "core_buffer/buffer_utils.hpp"
 #include <sync_stats.hpp>
 
-#include "common.hpp"
+#include "detectors/common.hpp"
 #include "core_buffer/buffer_config.hpp"
 #include "core_buffer/formats.hpp"
 #include "synchronizer.hpp"

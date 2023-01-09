@@ -10,7 +10,7 @@
 #include "utils/module_stats_collector.hpp"
 #include "identifier.hpp"
 
-#include "jungfrau.hpp"
+#include "detectors/jungfrau.hpp"
 #include "core_buffer/buffer_utils.hpp"
 #include "core_buffer/buffer_config.hpp"
 #include "core_buffer/communicator.hpp"

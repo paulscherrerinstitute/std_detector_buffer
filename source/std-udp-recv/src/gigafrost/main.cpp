@@ -14,7 +14,7 @@
 #include "core_buffer/communicator.hpp"
 #include "frame_stat.hpp"
 
-#include "gigafrost.hpp"
+#include "detectors/gigafrost.hpp"
 #include "packet_udp_receiver.hpp"
 
 using namespace std;
