@@ -3,7 +3,6 @@
 /////////////////////////////////////////////////////////////////////
 
 #include <span>
-#include <cstdlib>
 
 #include <argparse/argparse.hpp>
 #include <zmq.h>
@@ -13,24 +12,16 @@
 #include "core_buffer/communicator.hpp"
 #include "detectors/eiger.hpp"
 #include "utils/module_stats_collector.hpp"
-#include "utils/version.hpp"
+#include "utils/args.hpp"
 #include "converter.hpp"
 
 namespace {
 std::tuple<buffer_utils::DetectorConfig, uint16_t> read_arguments(int argc, char* argv[])
 {
-  argparse::ArgumentParser program("std_data_convert_eg", PROJECT_VER);
-  program.add_argument("detector_json_filename");
-  program.add_argument("module_id").scan<'d', int>();
+  auto program = utils::create_parser("std_data_convert_eg");
+  program.add_argument("module_id").scan<'d', uint16_t>();
 
-  try {
-    program.parse_args(argc, argv);
-  }
-  catch (const std::runtime_error& err) {
-    std::cerr << err.what() << std::endl;
-    std::cerr << program;
-    std::exit(1);
-  }
+  program = utils::parse_arguments(program, argc, argv);
 
   return {buffer_utils::read_json_config(program.get("detector_json_filename")),
           program.get<uint16_t>("module_id")};

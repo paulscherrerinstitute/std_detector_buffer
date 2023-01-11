@@ -34,9 +34,9 @@ def test_converter_should_return_without_needed_arguments():
     command = f'{executable(name="std_data_convert_jf")}'
     rc, s, e = run_command(command)
 
-    assert rc == 255
-    assert len(e) == 0
-    assert s.startswith('Usage: std_data_convert_jf')
+    assert rc == 1
+    assert len(e) > 0
+    assert 'Usage: std_data_convert_jf' in e
 
 
 @pytest.mark.asyncio

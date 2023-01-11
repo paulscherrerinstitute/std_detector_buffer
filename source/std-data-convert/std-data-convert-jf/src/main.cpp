@@ -10,6 +10,7 @@
 #include "core_buffer/communicator.hpp"
 #include "detectors/jungfrau.hpp"
 #include "utils/module_stats_collector.hpp"
+#include "utils/args.hpp"
 
 #include "identifier.hpp"
 #include "converter.hpp"
@@ -29,18 +30,13 @@ cb::Communicator create_sender(std::string name, void* ctx)
       {ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
 }
 
-void check_number_of_arguments(int argc)
+auto read_arguments(int argc, char* argv[])
 {
-  if (argc != 5) {
-    fmt::print(
-        "Usage: std_data_convert_jf [detector_json_filename] [gains_and_pedestal_h5_filename] "
-        "[module_id] [converter_index]\n\n"
-        "\tdetector_json_filename: detector config file path.\n"
-        "\tgains_and_pedestal_h5_filename: gains and pedestals h5 path.\n"
-        "\tmodule_id: id of the module for this process.\n"
-        "\tconverter_index: index of converter used to determine the output.\n");
-    exit(-1);
-  }
+  auto program = utils::create_parser("std_data_convert_jf");
+  program.add_argument("gains_and_pedestal_h5_filename");
+  program.add_argument("module_id").scan<'d', uint16_t>();
+  program.add_argument("converter_index").scan<'d', uint16_t>();
+  return utils::parse_arguments(program, argc, argv);
 }
 
 jf::sdc::Converter create_converter(const std::string& filename, std::size_t image_size)
@@ -51,16 +47,17 @@ jf::sdc::Converter create_converter(const std::string& filename, std::size_t ima
 
 int main(int argc, char* argv[])
 {
-  check_number_of_arguments(argc);
+  auto parser = read_arguments(argc, argv);
 
-  const auto config = buffer_utils::read_json_config(std::string(argv[1]));
-  const uint16_t module_id = std::stoi(argv[3]);
-  const uint16_t converter_index = std::stoi(argv[4]);
+  const auto config = buffer_utils::read_json_config(parser.get("detector_json_filename"));
+  const uint16_t module_id = parser.get<uint16_t>("module_id");
+  const uint16_t converter_index = parser.get<uint16_t>("converter_index");
   const jf::sdc::Identifier converter_id(config.detector_name, module_id, converter_index);
   utils::ModuleStatsCollector stats_collector("std_data_convert_jf", config.detector_name,
                                               module_id);
 
-  auto converter = create_converter(argv[2], config.image_pixel_height * config.image_pixel_width);
+  auto converter = create_converter(parser.get("gains_and_pedestal_h5_filename"),
+                                    config.image_pixel_height * config.image_pixel_width);
 
   auto ctx = zmq_ctx_new();
   auto receiver = create_receiver(converter_id.source_name(), ctx);

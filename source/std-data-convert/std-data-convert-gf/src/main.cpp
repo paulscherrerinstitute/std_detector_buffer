@@ -12,19 +12,21 @@
 #include "core_buffer/communicator.hpp"
 #include "detectors/gigafrost.hpp"
 #include "utils/module_stats_collector.hpp"
+#include "utils/args.hpp"
 #include "converter.hpp"
 
 using namespace gf;
 
 namespace {
-void check_number_of_arguments(int argc)
+std::tuple<buffer_utils::DetectorConfig, uint16_t> read_arguments(int argc, char* argv[])
 {
-  if (argc != 3) {
-    fmt::print("Usage: std_data_convert_gf [detector_json_filename] \n\n"
-               "\tdetector_json_filename: detector config file path.\n"
-               "\tmodule_id: module id - data source\n");
-    exit(-1);
-  }
+  auto program = utils::create_parser("std_data_convert_gf");
+  program.add_argument("module_id").scan<'d', uint16_t>();
+
+  program = utils::parse_arguments(program, argc, argv);
+
+  return {buffer_utils::read_json_config(program.get("detector_json_filename")),
+          program.get<uint16_t>("module_id")};
 }
 
 std::tuple<std::size_t, std::size_t> calculate_data_sizes(
@@ -43,10 +45,7 @@ std::tuple<std::size_t, std::size_t> calculate_data_sizes(
 
 int main(int argc, char* argv[])
 {
-  check_number_of_arguments(argc);
-
-  const auto config = buffer_utils::read_json_config(std::string(argv[1]));
-  const uint16_t module_id = std::stoi(argv[2]);
+  const auto [config, module_id] = read_arguments(argc, argv);
   const auto quadrant = static_cast<quadrant_id>(module_id / 2);
   const auto converter_name = fmt::format("{}-{}-converted", config.detector_name, module_id);
   const auto sync_name = fmt::format("{}-sync", config.detector_name);

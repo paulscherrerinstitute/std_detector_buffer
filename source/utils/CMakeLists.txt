@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.17)
 project(utils)
 
+find_package(argparse REQUIRED)
 find_package(fmt REQUIRED)
 
 add_library(${PROJECT_NAME} INTERFACE)
@@ -10,6 +11,7 @@ configure_file(include/utils/version.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/include/
 
 target_sources(${PROJECT_NAME}
     INTERFACE
+        include/utils/args.hpp
         include/utils/basic_stats_collector.hpp
         include/utils/module_stats_collector.hpp
         include/utils/stats_collector.hpp
@@ -19,6 +21,7 @@ target_sources(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME} INTERFACE include)
 target_link_libraries(${PROJECT_NAME}
     INTERFACE
+        argparse::argparse
         fmt::fmt
         std_detector_buffer::settings
 )
