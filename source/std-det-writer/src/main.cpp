@@ -8,9 +8,10 @@
 #include <zmq.h>
 #include <mpi.h>
 #include <rapidjson/document.h>
-#include <rapidjson/writer.h>
 
 #include "core_buffer/buffer_utils.hpp"
+#include "utils/args.hpp"
+
 #include "live_writer_config.hpp"
 #include "WriterStats.hpp"
 #include "JFH5Writer.hpp"
@@ -21,16 +22,9 @@ using namespace live_writer_config;
 
 int main(int argc, char* argv[])
 {
-  if (argc != 2) {
-    cout << endl;
-    cout << "Usage: std_det_writer [detector_json_filename]" << endl;
-    cout << "\tdetector_json_filename: detector config file path." << endl;
-    cout << endl;
-
-    exit(-1);
-  }
-
-  auto const config = converter::from_json_file(string(argv[1]));
+  auto program = utils::create_parser("std_det_writer");
+  program = utils::parse_arguments(program, argc, argv);
+  const auto config = converter::from_json_file(program.get("detector_json_filename"));
 
   MPI_Init(nullptr, nullptr);
 

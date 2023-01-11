@@ -39,6 +39,7 @@ target_link_libraries(${PROJECT_NAME}
         date::date
         ZeroMQ::ZeroMQ
         RapidJSON::RapidJSON
+        utils::utils
         hdf5::hdf5
         MPI::MPI_CXX
         std_detector_buffer::settings
