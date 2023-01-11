@@ -42,6 +42,7 @@ target_link_libraries(${PROJECT_NAME}
         ZeroMQ::ZeroMQ
         RapidJSON::RapidJSON
         Threads::Threads
+        utils::utils
         protobuf::libprotobuf
         rt
         std_detector_buffer::settings

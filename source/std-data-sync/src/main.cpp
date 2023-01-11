@@ -2,7 +2,6 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#include <iostream>
 #include <string>
 
 #include <zmq.h>
@@ -10,6 +9,7 @@
 #include "core_buffer/buffer_utils.hpp"
 #include "core_buffer/buffer_config.hpp"
 #include "detectors/common.hpp"
+#include "utils/args.hpp"
 
 #include "synchronizer.hpp"
 #include "sync_stats.hpp"
@@ -20,15 +20,9 @@ using namespace buffer_config;
 
 int main(int argc, char* argv[])
 {
-  if (argc != 2) {
-    cout << endl;
-    cout << "Usage: std_udp_sync [detector_json_filename]" << endl;
-    cout << "\tdetector_json_filename: detector config file path." << endl;
-    cout << endl;
-
-    exit(-1);
-  }
-  const auto config = buffer_utils::read_json_config(std::string(argv[1]));
+  auto program = utils::create_parser("std_data_sync");
+  program = utils::parse_arguments(program, argc, argv);
+  const auto config = buffer_utils::read_json_config(program.get("detector_json_filename"));
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, 1);
@@ -52,16 +46,13 @@ int main(int argc, char* argv[])
 
     auto [cached_meta, n_corrupted_images] = syncer.process_image_metadata(*common_frame);
 
-    if (cached_meta.image_id == INVALID_IMAGE_ID) {
-      continue;
-    }
+    if (cached_meta.image_id == INVALID_IMAGE_ID) continue;
 
     image_meta.set_image_id(common_frame->image_id);
-    if (common_frame->n_missing_packets == 0) {
+    if (common_frame->n_missing_packets == 0)
       image_meta.set_status(std_daq_protocol::ImageMetadataStatus::good_image);
-    } else {
+    else
       image_meta.set_status(std_daq_protocol::ImageMetadataStatus::missing_packets);
-    }
 
     std::string meta_buffer_send;
     image_meta.SerializeToString(&meta_buffer_send);
