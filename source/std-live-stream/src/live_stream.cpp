@@ -12,6 +12,7 @@
 #include "core_buffer/ram_buffer.hpp"
 #include "detectors/gigafrost.hpp"
 #include "utils/basic_stats_collector.hpp"
+#include "utils/args.hpp"
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
@@ -36,18 +37,22 @@ void* bind_sender_socket(void* ctx, const std::string& stream_address)
   return socket;
 }
 
-std::tuple<buffer_utils::DetectorConfig, std::string, bool> read_arguments(int argc, char* argv[])
+std::tuple<buffer_utils::DetectorConfig, std::string, int> read_arguments(int argc, char* argv[])
 {
-  if (argc != 4) {
-    fmt::print("Usage: std_live_stream_gf [detector_json_filename] [stream_address] \n\n"
-               "\tdetector_json_filename: detector config file path.\n"
-               "\tstream_address: address to bind the output stream.\n"
-               "\tdata_rate: 1-100 Hz.\n");
-    exit(-1);
-  }
-  auto data_rate = std::stoi(argv[3]);
-  if (data_rate > 100) throw std::runtime_error("Unsupported data_rate! [1-100 Hz] is valid");
-  return {buffer_utils::read_json_config(argv[1]), argv[2], data_rate};
+  auto program = utils::create_parser("std_live_stream");
+  program.add_argument("stream_address").help("address to bind the output stream");
+  program.add_argument("data_rate")
+      .help("rate in [Hz]")
+      .action([](const std::string& arg) {
+        if (auto value = std::stoi(arg); value < 1 || value > 1000)
+          throw std::runtime_error("Unsupported data_rate! [1-100 Hz] is valid");
+        else
+          return value;
+      });
+
+  program = utils::parse_arguments(program, argc, argv);
+  return {buffer_utils::read_json_config(program.get("detector_json_filename")),
+          program.get("stream_address"), program.get<int>("data_rate")};
 }
 
 std::size_t converted_image_n_bytes(const buffer_utils::DetectorConfig& config)
