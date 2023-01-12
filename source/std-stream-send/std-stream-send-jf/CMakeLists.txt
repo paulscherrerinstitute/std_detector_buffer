@@ -12,6 +12,7 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE
         core_buffer::core_buffer
         detectors::detectors
+        utils::utils
         ZeroMQ::ZeroMQ
         Threads::Threads
         rt

@@ -8,6 +8,7 @@
 #include "core_buffer/buffer_utils.hpp"
 #include "core_buffer/communicator.hpp"
 #include "core_buffer/ram_buffer.hpp"
+#include "utils/args.hpp"
 
 #include "receiver_stats_collector.hpp"
 
@@ -27,13 +28,10 @@ void* zmq_socket_bind(void* ctx, const std::string& stream_address)
 
 std::tuple<DetectorConfig, std::string> read_arguments(int argc, char* argv[])
 {
-  if (argc != 3) {
-    fmt::print("Usage: std_stream_receive_eg [detector_json_filename] [stream_address]\n\n"
-               "\tdetector_json_filename: detector config file path.\n"
-               "\tstream_address: address to bind the input stream\n");
-    exit(-1);
-  }
-  return {read_json_config(argv[1]), argv[2]};
+  auto program = utils::create_parser("std_stream_receive_eg");
+  program.add_argument("stream_address").help("address to bind the input stream");
+  program = utils::parse_arguments(program, argc, argv);
+  return {read_json_config(program.get("detector_json_filename")), program.get("stream_address")};
 }
 
 bool received_successfully_data(void* socket, char* buffer, std::size_t size)
@@ -59,23 +57,22 @@ int main(int argc, char* argv[])
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
 
-  auto sender = cb::Communicator{
-      {sync_name, data_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
-      {ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
+  auto sender = cb::Communicator{{sync_name, data_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
+                                 {ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
 
   auto socket = zmq_socket_bind(ctx, stream_address);
   while (true) {
     unsigned int zmq_fails = 0;
     stats.processing_started();
-      if (zmq_recv(socket, &image_meta, sizeof(image_meta), 0) > 0) {
-        char* data = sender.get_data(image_meta.id);
-        if (received_successfully_data(socket, data, data_bytes))
-            sender.send(image_meta.id, image_meta_as_span, data);
-        else
-          zmq_fails++;
-      }
+    if (zmq_recv(socket, &image_meta, sizeof(image_meta), 0) > 0) {
+      char* data = sender.get_data(image_meta.id);
+      if (received_successfully_data(socket, data, data_bytes))
+        sender.send(image_meta.id, image_meta_as_span, data);
       else
         zmq_fails++;
+    }
+    else
+      zmq_fails++;
     stats.processing_finished(zmq_fails);
   }
   return 0;

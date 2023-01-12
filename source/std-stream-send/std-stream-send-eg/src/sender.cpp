@@ -9,7 +9,10 @@
 #include "core_buffer/communicator.hpp"
 #include "core_buffer/ram_buffer.hpp"
 #include "detectors/eiger.hpp"
+#include "utils/args.hpp"
 #include "utils/basic_stats_collector.hpp"
+
+using namespace buffer_utils;
 
 namespace {
 constexpr auto zmq_io_threads = 1;
@@ -31,15 +34,12 @@ void* bind_sender_socket(void* ctx, const std::string& stream_address)
   return socket;
 }
 
-std::tuple<buffer_utils::DetectorConfig, std::string> read_arguments(int argc, char* argv[])
+std::tuple<DetectorConfig, std::string> read_arguments(int argc, char* argv[])
 {
-  if (argc != 3) {
-    fmt::print("Usage: std_stream_send_eg [detector_json_filename] [stream_address] \n\n"
-               "\tdetector_json_filename: detector config file path.\n"
-               "\tstream_address: address to bind the output stream.\n");
-    exit(-1);
-  }
-  return {buffer_utils::read_json_config(argv[1]), argv[2]};
+  auto program = utils::create_parser("std_stream_send_eg");
+  program.add_argument("stream_address").help("address to bind the input stream");
+  program = utils::parse_arguments(program, argc, argv);
+  return {read_json_config(program.get("detector_json_filename")), program.get("stream_address")};
 }
 
 int main(int argc, char* argv[])

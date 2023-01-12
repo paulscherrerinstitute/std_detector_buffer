@@ -9,6 +9,7 @@
 #include "core_buffer/communicator.hpp"
 #include "core_buffer/ram_buffer.hpp"
 #include "detectors/gigafrost.hpp"
+#include "utils/args.hpp"
 
 #include "synchronizer.hpp"
 #include "receiver_stats_collector.hpp"
@@ -29,17 +30,12 @@ void* zmq_socket_bind(void* ctx, const std::string& stream_address)
 
 std::tuple<DetectorConfig, std::string, std::string> read_arguments(int argc, char* argv[])
 {
-  if (argc != 4) {
-    fmt::print("Usage: std_stream_receive_gf [detector_json_filename]"
-               " [stream_address_first_half] [stream_address_second_half] \n\n"
-               "\tdetector_json_filename: detector config file path.\n"
-               "\tstream_address_first_half: address to bind the input stream"
-               " - first half of image.\n"
-               "\tstream_address_second_half:address to bind the input stream"
-               " - first half of image.\n");
-    exit(-1);
-  }
-  return {read_json_config(argv[1]), argv[2], argv[3]};
+  auto program = utils::create_parser("std_stream_receive_gf");
+  program.add_argument("stream_address_first").help("address to bind first half input stream");
+  program.add_argument("stream_address_second").help("address to bind second half input stream");
+  program = utils::parse_arguments(program, argc, argv);
+  return {read_json_config(program.get("detector_json_filename")),
+          program.get("stream_address_first"), program.get("stream_address_second")};
 }
 
 bool received_successfully_data(void* socket, char* buffer, std::size_t size)
@@ -67,9 +63,8 @@ int main(int argc, char* argv[])
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
 
-  auto sender = cb::Communicator{
-      {sync_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
-      {ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
+  auto sender = cb::Communicator{{sync_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
+                                 {ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
 
   auto sockets = std::array{zmq_socket_bind(ctx, stream_address_first),
                             zmq_socket_bind(ctx, stream_address_second)};

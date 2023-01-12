@@ -9,6 +9,7 @@
 #include "core_buffer/communicator.hpp"
 #include "core_buffer/ram_buffer.hpp"
 #include "detectors/gigafrost.hpp"
+#include "utils/args.hpp"
 
 #include "sender_stats_collector.hpp"
 
@@ -34,14 +35,16 @@ void* bind_sender_socket(void* ctx, const std::string& stream_address)
 
 std::tuple<buffer_utils::DetectorConfig, std::string, bool> read_arguments(int argc, char* argv[])
 {
-  if (argc != 4) {
-    fmt::print("Usage: std_stream_send_gf [detector_json_filename] [stream_address] \n\n"
-               "\tdetector_json_filename: detector config file path.\n"
-               "\tstream_address: address to bind the output stream.\n"
-               "\timage_half: 0 or 1 responsible for sending first or second part of image.\n");
-    exit(-1);
-  }
-  return {buffer_utils::read_json_config(argv[1]), argv[2], std::stoi(argv[3]) == 0};
+  auto program = utils::create_parser("std_stream_send_gf");
+  program.add_argument("stream_address").help("address to bind the input stream");
+  program.add_argument("image_half")
+      .help("0 or 1 responsible for sending first or second part of image.")
+      .scan<'d', int>();
+
+  program = utils::parse_arguments(program, argc, argv);
+
+  return {buffer_utils::read_json_config(program.get("detector_json_filename")),
+          program.get("stream_address"), program.get<int>("image_half") == 0};
 }
 
 int main(int argc, char* argv[])
@@ -55,9 +58,8 @@ int main(int argc, char* argv[])
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
 
-  auto receiver = cb::Communicator{
-      {sync_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
-      {ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
+  auto receiver = cb::Communicator{{sync_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
+                                   {ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
 
   auto sender_socket = bind_sender_socket(ctx, stream_address);
   gf::send::SenderStatsCollector stats(config.detector_name, is_first_half);
