@@ -31,6 +31,7 @@ sdb_package(${PROJECT_NAME}_jf)
 target_link_libraries(${PROJECT_NAME}_jf
     PRIVATE
         ${PROJECT_NAME}_lib
+        utils::utils
         ZeroMQ::ZeroMQ
         core_buffer::core_buffer
         rt
@@ -42,6 +43,7 @@ sdb_package(${PROJECT_NAME}_gf)
 target_link_libraries(${PROJECT_NAME}_gf
         PRIVATE
         ${PROJECT_NAME}_lib
+        utils::utils
         ZeroMQ::ZeroMQ
         core_buffer::core_buffer
         rt
@@ -53,6 +55,7 @@ sdb_package(${PROJECT_NAME}_eg)
 target_link_libraries(${PROJECT_NAME}_eg
     PRIVATE
         ${PROJECT_NAME}_lib
+        utils::utils
         ZeroMQ::ZeroMQ
         core_buffer::core_buffer
         rt

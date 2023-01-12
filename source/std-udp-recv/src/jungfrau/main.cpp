@@ -12,6 +12,7 @@
 #include "core_buffer/buffer_utils.hpp"
 #include "core_buffer/communicator.hpp"
 #include "detectors/jungfrau.hpp"
+#include "utils/args.hpp"
 
 #include "frame_stat.hpp"
 #include "packet_udp_receiver.hpp"
@@ -23,18 +24,12 @@ using namespace buffer_utils;
 
 int main(int argc, char* argv[])
 {
-  if (argc != 3) {
-    cout << endl;
-    cout << "Usage: std_udp_recv_jf [detector_json_filename] [module_id]";
-    cout << endl;
-    cout << "\tdetector_json_filename: detector config file path." << endl;
-    cout << "\tmodule_id: id of the module for this process." << endl;
-    cout << endl;
+  auto program = utils::create_parser("std_udp_recv_jf");
+  program.add_argument("module_id").scan<'d', uint16_t>();
+  program = utils::parse_arguments(program, argc, argv);
 
-    exit(-1);
-  }
-  const auto config = read_json_config(string(argv[1]));
-  const uint16_t module_id = stoi(argv[2]);
+  const auto config = read_json_config(program.get("detector_json_filename"));
+  const auto module_id =  program.get<uint16_t>("module_id");
 
   auto ctx = zmq_ctx_new();
   cb::Communicator sender{

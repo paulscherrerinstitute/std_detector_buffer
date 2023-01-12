@@ -13,6 +13,7 @@
 #include "core_buffer/buffer_utils.hpp"
 #include "core_buffer/communicator.hpp"
 #include "detectors/eiger.hpp"
+#include "utils/args.hpp"
 
 #include "frame_stat.hpp"
 #include "packet_udp_receiver.hpp"
@@ -54,18 +55,12 @@ inline void send_image_id(EGFrame& meta,
 
 int main(int argc, char* argv[])
 {
-  if (argc != 3) {
-    cout << endl;
-    cout << "Usage: std_udp_recv_eg [detector_json_filename] [module_id]";
-    cout << endl;
-    cout << "\tdetector_json_filename: detector detector_config file path." << endl;
-    cout << "\tmodule_id: id of the module for this process." << endl;
-    cout << endl;
+  auto program = utils::create_parser("std_udp_recv_eg");
+  program.add_argument("module_id").scan<'d', uint16_t>();
+  program = utils::parse_arguments(program, argc, argv);
 
-    exit(-1);
-  }
-  const auto detector_config = read_json_config(string(argv[1]));
-  const uint16_t module_id = stoi(argv[2]);
+  const auto detector_config = read_json_config(program.get("detector_json_filename"));
+  const auto module_id =  program.get<uint16_t>("module_id");
 
   const size_t FRAME_N_BYTES = MODULE_N_PIXELS * detector_config.bit_depth / 8;
   const size_t N_PACKETS_PER_FRAME = FRAME_N_BYTES / DATA_BYTES_PER_PACKET;
