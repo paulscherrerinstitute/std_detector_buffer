@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
   program = utils::parse_arguments(program, argc, argv);
 
   const auto detector_config = read_json_config(program.get("detector_json_filename"));
-  const auto module_id =  program.get<uint16_t>("module_id");
+  const auto module_id = program.get<uint16_t>("module_id");
 
   const size_t FRAME_N_BYTES = MODULE_N_PIXELS * detector_config.bit_depth / 8;
   const size_t N_PACKETS_PER_FRAME = FRAME_N_BYTES / DATA_BYTES_PER_PACKET;
@@ -101,7 +101,8 @@ int main(int argc, char* argv[])
         // Copy frame_buffer to ram_buffer and send pulse_id over zmq if last packet in frame.
         // TODO: Check comparison between size_t and uint32_t
         if (packet.packetnum == N_PACKETS_PER_FRAME - 1) {
-          sender.send(meta.common.image_id, std::span<char>((char*)&meta, sizeof(meta)), frame_buffer);
+          sender.send(meta.common.image_id, std::span<char>((char*)&meta, sizeof(meta)),
+                      frame_buffer);
           stats.record_stats(meta.common.n_missing_packets);
           // Invalidate the current buffer - we already send data out for this one.
           meta.common.image_id = INVALID_IMAGE_ID;
@@ -110,12 +111,14 @@ int main(int argc, char* argv[])
       else {
         // The buffer was not flushed because the last packet from the previous frame was missing.
         if (meta.common.image_id != INVALID_IMAGE_ID) {
-          sender.send(meta.common.image_id, std::span<char>((char*)&meta, sizeof(meta)), frame_buffer);
+          sender.send(meta.common.image_id, std::span<char>((char*)&meta, sizeof(meta)),
+                      frame_buffer);
           stats.record_stats(meta.common.n_missing_packets);
         }
 
         // Initialize new frame metadata from first seen packet.
-        init_frame_metadata(module_id, N_PACKETS_PER_FRAME, detector_config.bit_depth, packet, meta);
+        init_frame_metadata(module_id, N_PACKETS_PER_FRAME, detector_config.bit_depth, packet,
+                            meta);
         // Accumulate packets data into the frame buffer.
         memcpy(frame_buffer + frame_buffer_offset, packet.data, DATA_BYTES_PER_PACKET);
         meta.common.n_missing_packets -= 1;

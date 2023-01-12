@@ -29,13 +29,12 @@ int main(int argc, char* argv[])
   program = utils::parse_arguments(program, argc, argv);
 
   const auto config = read_json_config(program.get("detector_json_filename"));
-  const auto module_id =  program.get<uint16_t>("module_id");
+  const auto module_id = program.get<uint16_t>("module_id");
 
   auto ctx = zmq_ctx_new();
-  cb::Communicator sender{
-      {config.detector_name + "-" + std::to_string(module_id),
-       DATA_BYTES_PER_PACKET * N_PACKETS_PER_FRAME, RAM_BUFFER_N_SLOTS},
-      {ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
+  cb::Communicator sender{{config.detector_name + "-" + std::to_string(module_id),
+                           DATA_BYTES_PER_PACKET * N_PACKETS_PER_FRAME, RAM_BUFFER_N_SLOTS},
+                          {ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
 
   PacketUdpReceiver receiver(config.start_udp_port + module_id, sizeof(JFUdpPacket),
                              N_PACKETS_PER_FRAME);
@@ -67,7 +66,8 @@ int main(int argc, char* argv[])
         // Copy frame_buffer to ram_buffer and send pulse_id over zmq if last packet in frame.
         // TODO: Check comparison between size_t and uint32_t
         if (packet.packetnum == N_PACKETS_PER_FRAME - 1) {
-          sender.send(meta.common.image_id, std::span<char>((char*)&meta, sizeof(meta)), frame_buffer);
+          sender.send(meta.common.image_id, std::span<char>((char*)&meta, sizeof(meta)),
+                      frame_buffer);
           stats.record_stats(meta.common.n_missing_packets);
           // Invalidate the current buffer - we already send data out for this one.
           meta.frame_index = INVALID_IMAGE_ID;
@@ -76,7 +76,8 @@ int main(int argc, char* argv[])
       else {
         // The buffer was not flushed because the last packet from the previous frame was missing.
         if (meta.frame_index != INVALID_IMAGE_ID) {
-          sender.send(meta.common.image_id, std::span<char>((char*)&meta, sizeof(meta)), frame_buffer);
+          sender.send(meta.common.image_id, std::span<char>((char*)&meta, sizeof(meta)),
+                      frame_buffer);
           stats.record_stats(meta.common.n_missing_packets);
         }
 

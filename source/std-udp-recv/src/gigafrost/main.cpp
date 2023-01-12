@@ -52,7 +52,10 @@ inline void init_frame_metadata(const uint32_t module_size_x,
   meta.do_not_store = packet.image_status_flags & 0x8000 >> 15;
 }
 
-inline void send_image_id(GFFrame& meta, char* frame_buffer, cb::Communicator& sender, FrameStats& stats)
+inline void send_image_id(GFFrame& meta,
+                          char* frame_buffer,
+                          cb::Communicator& sender,
+                          FrameStats& stats)
 {
   sender.send(meta.common.image_id, std::span<char>((char*)(&meta), sizeof(meta)), frame_buffer);
   stats.record_stats(meta.common.n_missing_packets);
@@ -92,7 +95,7 @@ int main(int argc, char* argv[])
   program = utils::parse_arguments(program, argc, argv);
 
   const auto detector_config = read_json_config(program.get("detector_json_filename"));
-  const auto module_id =  program.get<uint16_t>("module_id");
+  const auto module_id = program.get<uint16_t>("module_id");
 
   const uint32_t MODULE_N_X_PIXEL = module_n_x_pixels(detector_config.image_pixel_width);
   const uint32_t MODULE_N_Y_PIXEL = module_n_y_pixels(detector_config.image_pixel_height);
@@ -100,10 +103,10 @@ int main(int argc, char* argv[])
       module_n_data_bytes(detector_config.image_pixel_height, detector_config.image_pixel_width);
   const uint32_t PACKET_N_ROWS =
       n_rows_per_packet(detector_config.image_pixel_height, detector_config.image_pixel_width);
-  auto PACKET_N_DATA_BYTES = n_data_bytes_per_packet(
-      detector_config.image_pixel_height, detector_config.image_pixel_width);
-  const size_t FRAME_N_PACKETS = n_packets_per_frame(
-      detector_config.image_pixel_height, detector_config.image_pixel_width);
+  auto PACKET_N_DATA_BYTES = n_data_bytes_per_packet(detector_config.image_pixel_height,
+                                                     detector_config.image_pixel_width);
+  const size_t FRAME_N_PACKETS =
+      n_packets_per_frame(detector_config.image_pixel_height, detector_config.image_pixel_width);
 
   // Calculate if the last packet has the same number of rows as the rest of the packets.
   auto LAST_PACKET_N_ROWS = static_cast<size_t>(MODULE_N_Y_PIXEL % PACKET_N_ROWS);
@@ -123,8 +126,7 @@ int main(int argc, char* argv[])
 
   const cb::RamBufferConfig module_config = {
       detector_config.detector_name + "-" + std::to_string(module_id),
-      (PACKET_N_DATA_BYTES * (FRAME_N_PACKETS-1)) + LAST_PACKET_N_DATA_BYTES,
-      RAM_BUFFER_N_SLOTS};
+      (PACKET_N_DATA_BYTES * (FRAME_N_PACKETS - 1)) + LAST_PACKET_N_DATA_BYTES, RAM_BUFFER_N_SLOTS};
 
   auto ctx = zmq_ctx_new();
   cb::Communicator sender{module_config, {ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
