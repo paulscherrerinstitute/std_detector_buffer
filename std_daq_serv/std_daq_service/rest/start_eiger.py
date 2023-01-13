@@ -1,13 +1,14 @@
 import argparse
-import logging
 import json
+import logging
 
-from flask import Flask, request, jsonify, make_response
-
+from flask import Flask, jsonify, make_response, request
 from std_daq_service.broker.common import TEST_BROKER_URL
-from std_daq_service.rest.eiger import set_eiger_config, get_eiger_config, set_eiger_cmd, get_eiger_status
+from std_daq_service.rest.eiger import (get_eiger_config, get_eiger_status,
+                                        set_eiger_cmd, set_eiger_config)
 from std_daq_service.rest.manager import RestManager
-from std_daq_service.rest.request_factory import build_user_response, extract_write_request
+from std_daq_service.rest.request_factory import (build_user_response,
+                                                  extract_write_request)
 from std_daq_service.start_utils import default_service_setup
 
 _logger = logging.getLogger("RestProxyService")
@@ -75,7 +76,7 @@ def start_rest_api(service_name, broker_url, tag, config_file):
     app.run(host='0.0.0.0', port=5000)
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description='SLS Rest Service')
     parser.add_argument("tag", type=str, help="Tag on which the proxy listens to statuses and sends requests.")
     parser.add_argument("--broker_url", default=TEST_BROKER_URL,
