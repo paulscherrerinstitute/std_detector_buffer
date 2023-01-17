@@ -1,0 +1,11 @@
+docker/
+docs/
+
+.idea
+.dockerignore
+
+build_service.sh
+README.md
+
+# Include files:
+
