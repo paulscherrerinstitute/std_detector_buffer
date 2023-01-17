@@ -34,3 +34,7 @@ include(CPack)
 
 include(CTest)
 add_subdirectory("source")
+
+
+include(sdb_pyinstall)
+add_subdirectory("pyinstaller")
