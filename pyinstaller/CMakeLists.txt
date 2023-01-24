@@ -1,3 +1,4 @@
 cmake_minimum_required(VERSION 3.17)
 
 add_pyinstall_target(std_stream_binary_jf_sim SOURCE std_stream_binary_jf_sim.py)
+add_pyinstall_target(std_udp_gf_sim SOURCE std_udp_gf_sim.py)
