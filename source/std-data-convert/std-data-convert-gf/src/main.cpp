@@ -16,6 +16,7 @@
 #include "converter.hpp"
 
 using namespace gf;
+using namespace buffer_config;
 
 namespace {
 std::tuple<buffer_utils::DetectorConfig, uint16_t> read_arguments(int argc, char* argv[])
@@ -48,19 +49,29 @@ int main(int argc, char* argv[])
   const auto [config, module_id] = read_arguments(argc, argv);
   const auto quadrant = static_cast<quadrant_id>(module_id / 2);
   const auto converter_name = fmt::format("{}-{}-converted", config.detector_name, module_id);
-  const auto sync_name = fmt::format("{}-sync", config.detector_name);
   const auto [module_bytes, converted_bytes] = calculate_data_sizes(config);
 
-  auto ctx = zmq_ctx_new();
 
   utils::ModuleStatsCollector stats_collector("std_data_convert_gf", config.detector_name,
                                               module_id);
-  auto receiver = cb::Communicator{{fmt::format("{}-{}", config.detector_name, module_id),
-                                    module_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
-                                   {ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
 
-  auto sender = cb::Communicator{{sync_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
-                                 {ctx, cb::CONN_TYPE_CONNECT, ZMQ_PUSH}};
+  auto ctx = zmq_ctx_new();
+  const auto source_name = fmt::format("{}-{}", config.detector_name, module_id);
+
+  const cb::RamBufferConfig recv_buffer_config =
+      {source_name, module_bytes, RAM_BUFFER_N_SLOTS};
+  const cb::CommunicatorConfig recv_comm_config =
+      {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB};
+  auto receiver = cb::Communicator{recv_buffer_config, recv_comm_config};
+
+  const auto sync_buffer_name = fmt::format("{}-image", config.detector_name);
+  const auto sync_stream_name = fmt::format("{}-sync", config.detector_name);
+
+  const cb::RamBufferConfig send_buffer_config =
+      {sync_buffer_name, converted_bytes, RAM_BUFFER_N_SLOTS};
+  const cb::CommunicatorConfig send_comm_config =
+      {sync_stream_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_PUSH};
+  auto sender = cb::Communicator{send_buffer_config, send_comm_config};
 
   auto converter =
       sdc::Converter(config.image_pixel_height, config.image_pixel_width, quadrant, module_id);

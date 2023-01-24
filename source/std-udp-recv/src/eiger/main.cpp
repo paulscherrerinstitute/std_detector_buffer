@@ -7,6 +7,7 @@
 #include <cmath>
 
 #include <zmq.h>
+#include <fmt/core.h>
 
 #include "core_buffer/formats.hpp"
 #include "core_buffer/buffer_config.hpp"
@@ -65,12 +66,13 @@ int main(int argc, char* argv[])
   const size_t FRAME_N_BYTES = MODULE_N_PIXELS * detector_config.bit_depth / 8;
   const size_t N_PACKETS_PER_FRAME = FRAME_N_BYTES / DATA_BYTES_PER_PACKET;
 
-  const cb::RamBufferConfig module_config = {detector_config.detector_name + "-" +
-                                                 std::to_string(module_id),
-                                             FRAME_N_BYTES, RAM_BUFFER_N_SLOTS};
-
   auto ctx = zmq_ctx_new();
-  cb::Communicator sender{module_config, {ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
+  const auto source_name = fmt::format("{}-{}", detector_config.detector_name, module_id);
+
+  const cb::RamBufferConfig buffer_config = {source_name, FRAME_N_BYTES, RAM_BUFFER_N_SLOTS};
+  const cb::CommunicatorConfig comm_config = {source_name, ctx, cb::CONN_TYPE_BIND, ZMQ_PUB};
+
+  cb::Communicator sender{buffer_config, comm_config};
   PacketUdpReceiver receiver(detector_config.start_udp_port + module_id, sizeof(EGUdpPacket),
                              N_PACKETS_PER_FRAME);
   FrameStats stats(detector_config.detector_name, module_id, STATS_TIME);

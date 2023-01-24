@@ -15,6 +15,8 @@
 #include "utils/args.hpp"
 #include "converter.hpp"
 
+using namespace buffer_config;
+
 namespace {
 std::tuple<buffer_utils::DetectorConfig, uint16_t> read_arguments(int argc, char* argv[])
 {
@@ -34,22 +36,31 @@ int main(int argc, char* argv[])
   const auto [config, module_id] = read_arguments(argc, argv);
   if (config.bit_depth < 8) throw std::runtime_error("Bit depth below 8 is not supported!");
 
-  const auto sync_name = fmt::format("{}-sync", config.detector_name);
   const size_t frame_n_bytes = MODULE_N_PIXELS * config.bit_depth / 8;
   const size_t converted_bytes = eg::converted_image_n_bytes(
       config.image_pixel_height, config.image_pixel_width, config.bit_depth);
 
-  auto ctx = zmq_ctx_new();
 
   utils::ModuleStatsCollector stats_collector("std_data_convert_eg", config.detector_name,
                                               module_id);
 
-  auto receiver = cb::Communicator{{fmt::format("{}-{}", config.detector_name, module_id),
-                                    frame_n_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
-                                   {ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
+  auto ctx = zmq_ctx_new();
+  const auto source_name = fmt::format("{}-{}", config.detector_name, module_id);
 
-  auto sender = cb::Communicator{{sync_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
-                                 {ctx, cb::CONN_TYPE_CONNECT, ZMQ_PUSH}};
+  const cb::RamBufferConfig recv_buffer_config =
+      {source_name, frame_n_bytes, RAM_BUFFER_N_SLOTS};
+  const cb::CommunicatorConfig recv_comm_config =
+      {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB};
+  auto receiver = cb::Communicator{recv_buffer_config, recv_comm_config};
+
+  const auto sync_buffer_name = fmt::format("{}-image", config.detector_name);
+  const auto sync_stream_name = fmt::format("{}-sync", config.detector_name);
+
+  const cb::RamBufferConfig send_buffer_config =
+      {sync_buffer_name, converted_bytes, RAM_BUFFER_N_SLOTS};
+  const cb::CommunicatorConfig send_comm_config =
+      {sync_stream_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_PUSH};
+  auto sender = cb::Communicator{send_buffer_config, send_comm_config};
 
   auto converter = eg::sdc::Converter(config.image_pixel_height, config.image_pixel_width,
                                       config.bit_depth, module_id);

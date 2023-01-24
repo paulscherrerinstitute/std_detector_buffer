@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
 
   auto receiver = cb::Communicator{{sync_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
-                                   {ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
+                                   {sync_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
 
   auto sender_socket = bind_sender_socket(ctx, stream_address);
   gf::send::SenderStatsCollector stats(config.detector_name, is_first_half);

@@ -92,9 +92,11 @@ int main(int argc, char* argv[])
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
 
-  auto receiver = cb::Communicator{{fmt::format("{}-image", config.detector_name), converted_bytes,
+  const auto source_name = fmt::format("{}-image", config.detector_name);
+
+  auto receiver = cb::Communicator{{source_name, converted_bytes,
                                     buffer_config::RAM_BUFFER_N_SLOTS},
-                                   {ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
+                                   {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
   auto sender_socket = bind_sender_socket(ctx, stream_address);
   utils::BasicStatsCollector stats("std_live_stream", config.detector_name);
 

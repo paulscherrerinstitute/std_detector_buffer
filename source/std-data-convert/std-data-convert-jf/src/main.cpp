@@ -18,16 +18,16 @@
 
 cb::Communicator create_receiver(std::string name, void* ctx)
 {
-  return cb::Communicator{{std::move(name), DATA_BYTES_PER_PACKET * N_PACKETS_PER_FRAME,
+  return cb::Communicator{{name, DATA_BYTES_PER_PACKET * N_PACKETS_PER_FRAME,
                            buffer_config::RAM_BUFFER_N_SLOTS},
-                          {ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
+                          {name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
 }
 
 cb::Communicator create_sender(std::string name, void* ctx)
 {
   return cb::Communicator{
-      {std::move(name), MODULE_N_PIXELS * sizeof(float), buffer_config::RAM_BUFFER_N_SLOTS},
-      {ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
+      {name, MODULE_N_PIXELS * sizeof(float), buffer_config::RAM_BUFFER_N_SLOTS},
+      {name, ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
 }
 
 auto read_arguments(int argc, char* argv[])

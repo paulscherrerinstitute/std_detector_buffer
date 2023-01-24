@@ -55,13 +55,13 @@ int main(int argc, char* argv[])
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, STREAM_ZMQ_IO_THREADS);
   auto socket = bind_socket(ctx, stream_address);
 
-  // TODO: The module_id here is temporary.
+  // TODO: This clearly does not work. Fix later, no time now.
   auto const module_id = 0;
   auto receiver =
       cb::Communicator{{config.detector_name + "-" + std::to_string(module_id) + "-3-converted",
                         config.image_pixel_width * config.image_pixel_height * sizeof(float),
                         buffer_config::RAM_BUFFER_N_SLOTS},
-                       {ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
+                       {"test", ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
 
   // TODO: This is temporary. * 4 is because of float32 (after conversion).
   const size_t IMAGE_N_BYTES = config.image_pixel_height * config.image_pixel_width * 4;

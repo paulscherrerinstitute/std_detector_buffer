@@ -16,7 +16,7 @@ Communicator::Communicator(const RamBufferConfig& ram_config, const Communicator
              ram_config.n_bytes_data,
              ram_config.n_buffer_slots)
 {
-  auto port_name = ram_config.buffer_name;
+  auto port_name = comm_config.stream_name;
 
   if (comm_config.connection_type == CONN_TYPE_BIND) {
     socket = buffer_utils::bind_socket(comm_config.zmq_ctx, port_name, comm_config.zmq_socket_type);

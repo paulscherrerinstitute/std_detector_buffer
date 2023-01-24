@@ -6,6 +6,7 @@
 #include <cstring>
 
 #include <zmq.h>
+#include <fmt/core.h>
 
 #include "core_buffer/formats.hpp"
 #include "core_buffer/buffer_config.hpp"
@@ -31,10 +32,15 @@ int main(int argc, char* argv[])
   const auto config = read_json_config(program.get("detector_json_filename"));
   const auto module_id = program.get<uint16_t>("module_id");
 
+  const size_t FRAME_N_BYTES = DATA_BYTES_PER_PACKET * N_PACKETS_PER_FRAME;
+
   auto ctx = zmq_ctx_new();
-  cb::Communicator sender{{config.detector_name + "-" + std::to_string(module_id),
-                           DATA_BYTES_PER_PACKET * N_PACKETS_PER_FRAME, RAM_BUFFER_N_SLOTS},
-                          {ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
+  const auto source_name = fmt::format("{}-{}", config.detector_name, module_id);
+
+  const cb::RamBufferConfig buffer_config = {source_name, FRAME_N_BYTES, RAM_BUFFER_N_SLOTS};
+  const cb::CommunicatorConfig comm_config = {source_name, ctx, cb::CONN_TYPE_BIND, ZMQ_PUB};
+
+  cb::Communicator sender{buffer_config, comm_config};
 
   PacketUdpReceiver receiver(config.start_udp_port + module_id, sizeof(JFUdpPacket),
                              N_PACKETS_PER_FRAME);

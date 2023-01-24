@@ -12,6 +12,7 @@ constexpr inline int CONN_TYPE_CONNECT = 1;
 
 struct CommunicatorConfig
 {
+  const std::string stream_name;
   void* zmq_ctx;
   const int connection_type;
   const int zmq_socket_type;

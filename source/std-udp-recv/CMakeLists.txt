@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.17)
 project(std_udp_recv)
 
+find_package(fmt REQUIRED)
 find_package(date REQUIRED)
 find_package(ZeroMQ REQUIRED)
 find_package(RapidJSON REQUIRED)
@@ -23,6 +24,7 @@ target_link_libraries(${PROJECT_NAME}_lib
     PRIVATE
         date::date
         ZeroMQ::ZeroMQ
+        fmt::fmt
         std_detector_buffer::settings
 )
 
@@ -32,6 +34,7 @@ target_link_libraries(${PROJECT_NAME}_jf
     PRIVATE
         ${PROJECT_NAME}_lib
         utils::utils
+        fmt::fmt
         ZeroMQ::ZeroMQ
         core_buffer::core_buffer
         rt
@@ -44,6 +47,7 @@ target_link_libraries(${PROJECT_NAME}_gf
         PRIVATE
         ${PROJECT_NAME}_lib
         utils::utils
+        fmt::fmt
         ZeroMQ::ZeroMQ
         core_buffer::core_buffer
         rt
@@ -56,6 +60,7 @@ target_link_libraries(${PROJECT_NAME}_eg
     PRIVATE
         ${PROJECT_NAME}_lib
         utils::utils
+        fmt::fmt
         ZeroMQ::ZeroMQ
         core_buffer::core_buffer
         rt
