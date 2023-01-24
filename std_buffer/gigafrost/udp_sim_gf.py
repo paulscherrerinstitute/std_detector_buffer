@@ -109,8 +109,6 @@ def generate_gf_udp_stream(output_address, start_udp_port, rep_rate=0.1,
 
                     udp_socket.sendto(bytes(udp_packet)+data,
                                       (output_address, start_udp_port + i_module))
-                    # Needed in case you cannot set rmem_max (docker)
-                    sleep(0.01)
 
             # Last packet (may have different size and  number of lines)
             udp_packet.packet_starting_row = udp_packet_info['last_packet_starting_row']
