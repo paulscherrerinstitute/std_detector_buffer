@@ -7,6 +7,7 @@ import json
 from std_buffer.gigafrost.data import GfUdpPacket, calculate_udp_packet_info
 
 GF_N_MODULES = 8
+PRINT_INTERVAL = 10
 
 
 def init_gf_udp_packet(image_width):
@@ -93,6 +94,7 @@ def generate_gf_udp_stream(output_address, start_udp_port, rep_rate=0.1,
 
     try:
         iteration_start = time()
+        print_start = iteration_start
 
         while udp_packet.frame_index < n_images:
 
@@ -127,7 +129,10 @@ def generate_gf_udp_stream(output_address, start_udp_port, rep_rate=0.1,
             sleep(time_left_to_sleep)
             iteration_start = iteration_end
 
-            print(f'Send frame {udp_packet.frame_index}.')
+            if iteration_end - print_start > PRINT_INTERVAL:
+                print(f'Send all frames up to {udp_packet.frame_index}.')
+                print_start = iteration_end
+
             udp_packet.frame_index += 1
 
     except KeyboardInterrupt:
