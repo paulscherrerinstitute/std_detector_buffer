@@ -1,5 +1,5 @@
 from threading import Thread
-from std_buffer.stream.image_metadata_pb2 import ImageMetadata
+from std_buffer.stream.image_metadata_pb2 import ImageMetadata, WriterCommand, CommandType, RunInfo
 import zmq
 
 
@@ -55,12 +55,13 @@ class WriterDriver(object):
     def get_status(self):
         return self.status.get_status()
 
-    def send_command(self, command, data=None):
-        if data is None:
-            data = {}
-        data['COMMAND'] = command
+    def send_command(self, command, run_info=None):
+        if run_info is None:
+            run_info = {}
 
-        self.user_command_sender.send_json(data)
+        command = {'COMMAND': command, 'run_info': run_info}
+
+        self.user_command_sender.send_json(command)
 
     def processing_thread(self, command_address, image_metadata_address):
         user_command_receiver = self.ctx.socket(zmq.PULL)
@@ -72,10 +73,13 @@ class WriterDriver(object):
         image_metadata_receiver = self.ctx.socket(zmq.SUB)
         image_metadata_receiver.connect(image_metadata_address)
 
-        def process_start_command(command):
+        def process_start_command(run_info):
             # Tell the writer to start writing.
-            start_command = command
-            writer_command_sender.send_json(start_command)
+            start_command = WriterCommand(command_type=CommandType.START_WRITING,
+                                          run_info=RunInfo(**run_info))
+            print(f'Sending start command: {start_command}')
+
+            writer_command_sender.send(start_command.SerializeToString())
 
             # Subscribe to the ImageMetadata stream.
             image_metadata_receiver.setsockopt(zmq.SUBSCRIBE, b'')
@@ -104,7 +108,7 @@ class WriterDriver(object):
                 command = user_command_receiver.recv_json(flags=zmq.NOBLOCK)
 
                 if command['COMMAND'] == self.WRITE_COMMAND:
-                    process_start_command(command)
+                    process_start_command(command['run_info'])
                 elif command['COMMAND'] == self.STOP_COMMAND:
                     process_stop_command()
             except zmq.Again:
