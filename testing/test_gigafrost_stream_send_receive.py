@@ -35,10 +35,12 @@ async def test_send_receive_stream(test_path):
     ctx = zmq.asyncio.Context()
 
     gf_config = GigafrostConfigConverter
+    gf_config.socket_name = 'GF2-image'
     gf_config.name = 'GF2-image'
 
     with start_publisher_communication(ctx, gf_config) as (input_buffer, pub_socket):
         with run_command_in_parallel(send_gf0), run_command_in_parallel(send_gf1), run_command_in_parallel(receive_fg):
+            gf_config.socket_name = 'GF22-image'
             gf_config.name = 'GF22-image'
             with start_subscriber_communication(ctx, gf_config) as (output_buffer, sub_socket):
                 sent_data = get_converter_buffer_data(input_buffer, slot)
