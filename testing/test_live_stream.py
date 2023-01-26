@@ -32,7 +32,7 @@ async def test_send_live_stream(test_path):
     frame.id = 3
 
     config = GigafrostConfigConverter
-    config.name = 'GF2-image'
+    config.socket_name = 'GF2-image'
 
     with start_publisher_communication(ctx, config) as (input_buffer, pub_socket):
         with run_command_in_parallel(live_stream_cmd):
