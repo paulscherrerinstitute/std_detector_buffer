@@ -88,6 +88,8 @@ def generate_gf_udp_stream(output_address, start_udp_port, rep_rate=0.1,
     n_data_bytes_last_packet = udp_packet_info['last_packet_n_data_bytes']
     n_rows_packet = udp_packet_info['packet_n_rows']
     n_rows_last_packet = udp_packet_info['last_packet_n_rows']
+    n_cols_packet = image_width // 2
+
 
     if not n_images:
         n_images = float('inf')
@@ -106,7 +108,7 @@ def generate_gf_udp_stream(output_address, start_udp_port, rep_rate=0.1,
                     adjust_packet_for_module(udp_packet, i_module, image_height)
                     data = generate_data_for_packet(i_module, i_packet,
                                                     n_rows_packet=n_rows_packet,
-                                                    n_cols_packet=image_width//2,
+                                                    n_cols_packet=n_cols_packet,
                                                     n_packet_bytes=n_data_bytes)
 
                     udp_socket.sendto(bytes(udp_packet)+data,
@@ -125,15 +127,19 @@ def generate_gf_udp_stream(output_address, start_udp_port, rep_rate=0.1,
                                   (output_address, start_udp_port + i_module))
 
             iteration_end = time()
-            time_left_to_sleep = max(0.0, time_to_sleep - (iteration_end - iteration_start))
-            sleep(time_left_to_sleep)
-            iteration_start = iteration_end
+            iteration_time = iteration_end - iteration_start
+            time_left_to_sleep = time_to_sleep - iteration_time
+
+            # We do not sleep for less then 1ms.
+            if time_left_to_sleep > 0.01:
+                sleep(time_left_to_sleep)
 
             if iteration_end - print_start > PRINT_INTERVAL:
                 print(f'Send all frames up to {udp_packet.frame_index}.')
                 print_start = iteration_end
 
             udp_packet.frame_index += 1
+            iteration_start = time()
 
     except KeyboardInterrupt:
         pass
