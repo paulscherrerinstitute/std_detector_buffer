@@ -1,4 +1,5 @@
 from threading import Thread
+from std_buffer.stream.image_metadata_pb2 import ImageMetadata
 import zmq
 
 
@@ -27,10 +28,10 @@ class WriterStatusTracker(object):
                 pass
 
     def _process_received_status(self, status):
-        pass
+        print(f'Received status {status}')
 
     def sent_image_write_request(self, image_id):
-        pass
+        print(f'Send write image {image_id}') 
 
 
 class WriterDriver(object):
@@ -46,7 +47,7 @@ class WriterDriver(object):
         self.status = WriterStatusTracker(ctx, status_address)
 
         self.user_command_sender = self.ctx.socket(zmq.PUSH)
-        self.user_command_sender.connect(self.WRITER_DRIVER_IPC_ADDRESS)
+        self.user_command_sender.bind(self.WRITER_DRIVER_IPC_ADDRESS)
 
         self.processing_t = Thread(target=self.processing_thread, args=(command_address, image_metadata_address))
         self.processing_t.start()
@@ -59,7 +60,7 @@ class WriterDriver(object):
             data = {}
         data['COMMAND'] = command
 
-        self.user_command_sender.send_json(command)
+        self.user_command_sender.send_json(data)
 
     def processing_thread(self, command_address, image_metadata_address):
         user_command_receiver = self.ctx.socket(zmq.PULL)
@@ -74,14 +75,14 @@ class WriterDriver(object):
         def process_start_command(command):
             # Tell the writer to start writing.
             start_command = command
-            writer_command_sender.send(start_command)
+            writer_command_sender.send_json(start_command)
 
             # Subscribe to the ImageMetadata stream.
-            image_metadata_receiver.setsockopt(zmq.SUBSCRIBE, '')
+            image_metadata_receiver.setsockopt(zmq.SUBSCRIBE, b'')
 
         def process_stop_command():
             # Stop listening to new image metadata.
-            image_metadata_receiver.setsockopt(zmq.UNSUBSCRIBE, '')
+            image_metadata_receiver.setsockopt(zmq.UNSUBSCRIBE, b'')
 
             # Drain image_metadata received so far.
             try:
@@ -89,14 +90,19 @@ class WriterDriver(object):
             except zmq.Again:
                 pass
 
+            stop_command = {'stop':'please'}
+
             # Tell the writer to stop writing.
+            writer_command_sender.send_json(stop_command)
             stop_command = None
-            writer_command_sender.send(stop_command)
+
+        image_meta = ImageMetadata()
 
         while True:
             # Check if the user made any requests.
             try:
                 command = user_command_receiver.recv_json(flags=zmq.NOBLOCK)
+
                 if command['COMMAND'] == self.WRITE_COMMAND:
                     process_start_command(command)
                 elif command['COMMAND'] == self.STOP_COMMAND:
@@ -107,10 +113,13 @@ class WriterDriver(object):
             try:
                 # Drain the image_metadata socket.
                 while True:
-                    image_meta = image_metadata_receiver.recv(flags=zmq.NOBLOCK)
+                    meta_raw = image_metadata_receiver.recv(flags=zmq.NOBLOCK)
+                    image_meta.ParseFromString(meta_raw)
+                
+                    print(f"Received {image_meta.image_id}.")
 
-                    write_image_command = None
+                    write_image_command = {'image_id': image_meta.image_id}
                     self.status.sent_image_write_request(image_meta.image_id)
-                    writer_command_sender.send(write_image_command)
+                    writer_command_sender.send_json(write_image_command)
             except zmq.Again:
                 pass
