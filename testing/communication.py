@@ -8,7 +8,10 @@ import zmq.asyncio
 @contextmanager
 def start_publisher_communication(zmq_context: zmq.asyncio.Context, config):
     socket = zmq_context.socket(zmq.PUB)
-    socket.bind(f'ipc:///tmp/{config.name}')
+    try:
+        socket.bind(f'ipc:///tmp/{config.socket_name}')
+    except AttributeError:
+        socket.bind(f'ipc:///tmp/{config.name}')
 
     memory = shared_memory.SharedMemory(name=config.name, size=config.buffer_size, create=True)
 
@@ -35,7 +38,10 @@ def start_subscriber_communication(zmq_context: zmq.asyncio.Context, config):
 @contextmanager
 def start_pull_communication(zmq_context: zmq.asyncio.Context, config):
     socket = zmq_context.socket(zmq.PULL)
-    socket.bind(f'ipc:///tmp/{config.name}')
+    try:
+        socket.bind(f'ipc:///tmp/{config.socket_name}')
+    except AttributeError:
+        socket.bind(f'ipc:///tmp/{config.name}')
 
     memory = shared_memory.SharedMemory(name=config.name, size=config.buffer_size, create=False)
 

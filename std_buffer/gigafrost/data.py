@@ -147,7 +147,8 @@ class GigafrostConfigUdp:
 
 class GigafrostConfigConverter:
     id = GigafrostConfigUdp.id
-    name = 'GF2-sync'
+    name = 'GF2-image'
+    socket_name = 'GF2-sync'
     udp_port_base = GigafrostConfigUdp.udp_port_base
     slots = GigafrostConfigUdp.slots
     data_bytes_per_packet = GigafrostConfigUdp.image_pixel_width * GigafrostConfigUdp.image_pixel_height * 2
