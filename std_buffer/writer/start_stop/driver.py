@@ -1,4 +1,4 @@
-from threading import Thread
+from threading import Thread, Event
 from std_buffer.stream.image_metadata_pb2 import ImageMetadata, WriterCommand, CommandType, RunInfo
 import zmq
 
@@ -7,8 +7,9 @@ class WriterStatusTracker(object):
     RECV_TIMEOUT_MS = 500
     STATUS_READY = {'state': "READY"}
 
-    def __init__(self, ctx, status_address):
+    def __init__(self, ctx, status_address, stop_event):
         self.ctx = ctx
+        self.stop_event = stop_event
         self.status = self.STATUS_READY
         self.processing_thread = Thread(target=self._processing_thread, args=(status_address,))
 
@@ -20,7 +21,7 @@ class WriterStatusTracker(object):
         writer_status_receiver.RCVTIMEO = self.RECV_TIMEOUT_MS
         writer_status_receiver.bind(status_address)
 
-        while True:
+        while not self.stop_event.is_set():
             try:
                 status = writer_status_receiver.recv()
                 self._process_received_status(status)
@@ -44,7 +45,8 @@ class WriterDriver(object):
 
     def __init__(self, ctx, command_address, status_address, image_metadata_address):
         self.ctx = ctx
-        self.status = WriterStatusTracker(ctx, status_address)
+        self.stop_event = Event()
+        self.status = WriterStatusTracker(ctx, status_address, self.stop_event)
 
         self.user_command_sender = self.ctx.socket(zmq.PUSH)
         self.user_command_sender.bind(self.WRITER_DRIVER_IPC_ADDRESS)
@@ -55,7 +57,17 @@ class WriterDriver(object):
     def get_status(self):
         return self.status.get_status()
 
-    def send_command(self, command, run_info=None):
+    def start(self, run_info):
+        self._send_command(self.WRITE_COMMAND, run_info)
+
+    def stop(self):
+        self._send_command(self.STOP_COMMAND)
+
+    def close(self):
+        self.stop_event.set()
+        self.processing_t.join()
+
+    def _send_command(self, command, run_info=None):
         if run_info is None:
             run_info = {}
 
@@ -102,7 +114,7 @@ class WriterDriver(object):
 
         image_meta = ImageMetadata()
 
-        while True:
+        while not self.stop_event.is_set():
             # Check if the user made any requests.
             try:
                 command = user_command_receiver.recv_json(flags=zmq.NOBLOCK)
