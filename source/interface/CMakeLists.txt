@@ -18,7 +18,16 @@ protobuf_generate(
     PROTOC_OUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/generated
 )
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/generated)
+protobuf_generate(
+        TARGET ${PROJECT_NAME}
+        LANGUAGE python
+        PROTOC_OUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/generated
+)
+
+target_include_directories(${PROJECT_NAME}
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/generated
+)
 
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
