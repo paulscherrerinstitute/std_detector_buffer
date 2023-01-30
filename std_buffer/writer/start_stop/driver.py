@@ -1,5 +1,6 @@
 from threading import Thread, Event
 from std_buffer.stream.image_metadata_pb2 import ImageMetadata, WriterCommand, CommandType, RunInfo
+from time import time
 import logging
 import zmq
 
@@ -14,6 +15,7 @@ class WriterStatusTracker(object):
         self.stop_event = stop_event
         self.status = self.STATUS_READY
         self.processing_thread = Thread(target=self._processing_thread, args=(status_address,))
+        self._open_write_requests = {}
 
     def get_status(self):
         return self.status
@@ -33,14 +35,16 @@ class WriterStatusTracker(object):
     def _process_received_status(self, status):
         print(f'Received status {status}')
 
-    def log_write_request(self, image_id):
-        print(f'Send write image {image_id}') 
-
     def log_start_request(self, run_info):
-        print(f'Send start request {run_info}') 
+        _logger.debug(f"Sent start request with run_info {run_info}.")
+        self._open_runs[run_info['run_id']] = run_info
 
     def log_stop_request(self):
-        print(f'Send stop request.') 
+        _logger.debug("Sent stop request")
+
+    def log_write_request(self, image_id):
+        _logger.debug(f"Sent write request for image_id {image_id}.")
+        #self._open_write_requests[image_id] = time.time()
 
 
 class WriterDriver(object):
