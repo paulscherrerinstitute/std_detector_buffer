@@ -1,7 +1,9 @@
 from threading import Thread, Event
 from std_buffer.stream.image_metadata_pb2 import ImageMetadata, WriterCommand, CommandType, RunInfo
+import logging
 import zmq
 
+_logger = logging.getLogger(__name__)
 
 class WriterStatusTracker(object):
     RECV_TIMEOUT_MS = 500
@@ -31,8 +33,14 @@ class WriterStatusTracker(object):
     def _process_received_status(self, status):
         print(f'Received status {status}')
 
-    def sent_image_write_request(self, image_id):
+    def log_write_request(self, image_id):
         print(f'Send write image {image_id}') 
+
+    def log_start_request(self, run_info):
+        print(f'Send start request {run_info}') 
+
+    def log_stop_request(self):
+        print(f'Send stop request.') 
 
 
 class WriterDriver(object):
@@ -47,6 +55,9 @@ class WriterDriver(object):
         self.ctx = ctx
         self.stop_event = Event()
         self.status = WriterStatusTracker(ctx, status_address, self.stop_event)
+        _logger.info(f'Starting writer driver with command_address:{command_address} \
+                                                   status_address:{status_address} \
+                                                   image_metadata_address:{image_metadata_address}')
 
         self.user_command_sender = self.ctx.socket(zmq.PUSH)
         self.user_command_sender.bind(self.WRITER_DRIVER_IPC_ADDRESS)
@@ -64,6 +75,7 @@ class WriterDriver(object):
         self._send_command(self.STOP_COMMAND)
 
     def close(self):
+        _logger.info(f'Closing writer driver.')
         self.stop_event.set()
         self.processing_t.join()
 
@@ -72,6 +84,7 @@ class WriterDriver(object):
             run_info = {}
 
         command = {'COMMAND': command, 'run_info': run_info}
+        _logger.info(f"Execute command in driver {command}'.")
 
         self.user_command_sender.send_json(command)
 
@@ -89,9 +102,9 @@ class WriterDriver(object):
             # Tell the writer to start writing.
             start_command = WriterCommand(command_type=CommandType.START_WRITING,
                                           run_info=RunInfo(**run_info))
-            print(f'Sending start command: {start_command}')
-
+            _logger.info(f"Send start command to writer: {start_command}.")
             writer_command_sender.send(start_command.SerializeToString())
+            self.status.log_start_request(run_info)
 
             # Subscribe to the ImageMetadata stream.
             image_metadata_receiver.setsockopt(zmq.SUBSCRIBE, b'')
@@ -106,11 +119,10 @@ class WriterDriver(object):
             except zmq.Again:
                 pass
 
-            stop_command = {'stop':'please'}
-
-            # Tell the writer to stop writing.
-            writer_command_sender.send_json(stop_command)
-            stop_command = None
+            stop_command = WriterCommand(command_type=CommandType.STOP_WRITING)
+            _logger.info(f"Send stop command to writer: {stop_command}.")
+            writer_command_sender.send(stop_command.SerializeToString())
+            self.status.log_stop_request()
 
         image_meta = ImageMetadata()
 
@@ -123,19 +135,17 @@ class WriterDriver(object):
                     process_start_command(command['run_info'])
                 elif command['COMMAND'] == self.STOP_COMMAND:
                     process_stop_command()
+                else:
+                    _logger.warning(f"Unknown command:{command}.")
             except zmq.Again:
                 pass
 
             try:
-                # Drain the image_metadata socket.
-                while True:
-                    meta_raw = image_metadata_receiver.recv(flags=zmq.NOBLOCK)
-                    image_meta.ParseFromString(meta_raw)
-                
-                    print(f"Received {image_meta.image_id}.")
-
-                    write_image_command = {'image_id': image_meta.image_id}
-                    self.status.sent_image_write_request(image_meta.image_id)
-                    writer_command_sender.send_json(write_image_command)
+                meta_raw = image_metadata_receiver.recv(flags=zmq.NOBLOCK)
+                image_meta.ParseFromString(meta_raw)
+            
+                write_image_command = {'image_id': image_meta.image_id}
+                self.status.log_write_request(image_meta.image_id)
+                writer_command_sender.send_json(write_image_command)
             except zmq.Again:
                 pass
