@@ -3,12 +3,9 @@ project(std_data_sync)
 
 find_package(date REQUIRED)
 find_package(fmt REQUIRED)
-find_package(Protobuf REQUIRED)
 find_package(RapidJSON REQUIRED)
 find_package(Threads REQUIRED)
 find_package(ZeroMQ REQUIRED)
-
-protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS image_metadata.proto)
 
 add_library(${PROJECT_NAME}_lib)
 add_library(${PROJECT_NAME}::${PROJECT_NAME}_lib ALIAS ${PROJECT_NAME}_lib)
@@ -32,7 +29,7 @@ target_link_libraries(${PROJECT_NAME}_lib
         std_detector_buffer::settings
 )
 
-add_executable(${PROJECT_NAME} src/main.cpp ${PROTO_HDRS} ${PROTO_SRCS})
+add_executable(${PROJECT_NAME} src/main.cpp)
 sdb_package(${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
@@ -43,7 +40,7 @@ target_link_libraries(${PROJECT_NAME}
         RapidJSON::RapidJSON
         Threads::Threads
         utils::utils
-        protobuf::libprotobuf
+        std_daq_interface::std_daq_interface
         rt
         std_detector_buffer::settings
 )
