@@ -62,3 +62,4 @@ testing/gigafrost/**/*.dat
 source/utils/include/utils/version.hpp
 source/interface/generated/std_daq/*.pb.cc
 source/interface/generated/std_daq/*.pb.h
+source/interface/generated/std_daq/*_pb2.py
