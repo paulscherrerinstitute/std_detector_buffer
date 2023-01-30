@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+import "std_daq/image_metadata.proto";
+
+// This is an ugly name. Come up with something better.
+package std_daq_protocol;
+
+enum CommandType {
+  WRITE_IMAGE = 0;
+  START_WRITING = 1;
+  STOP_WRITING = 2;
+}
+
+message RunInfo {
+  uint64 run_id = 1;
+  string output_file = 2;
+  int32 n_images = 3;
+}
+
+message WriterCommand {
+  CommandType command_type = 1;
+  RunInfo run_info = 2;
+
+  ImageMetadata metadata=3;
+}
