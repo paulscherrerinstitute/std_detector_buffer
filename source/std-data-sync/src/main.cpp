@@ -2,33 +2,28 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#include <iostream>
 #include <string>
 
 #include <zmq.h>
 
 #include "core_buffer/buffer_utils.hpp"
-#include <sync_stats.hpp>
-
-#include "detectors/common.hpp"
 #include "core_buffer/buffer_config.hpp"
+#include "detectors/common.hpp"
+#include "utils/args.hpp"
+#include "utils/basic_stats_collector.hpp"
+#include "std_daq/image_metadata.pb.h"
+
 #include "synchronizer.hpp"
-#include "core_buffer/formats.hpp"
+#include "sync_stats.hpp"
 
 using namespace std;
 using namespace buffer_config;
 
 int main(int argc, char* argv[])
 {
-  if (argc != 2) {
-    cout << endl;
-    cout << "Usage: std_udp_sync [detector_json_filename]" << endl;
-    cout << "\tdetector_json_filename: detector config file path." << endl;
-    cout << endl;
-
-    exit(-1);
-  }
-  const auto config = buffer_utils::read_json_config(std::string(argv[1]));
+  auto program = utils::create_parser("std_data_sync");
+  program = utils::parse_arguments(program, argc, argv);
+  const auto config = buffer_utils::read_json_config(program.get("detector_json_filename"));
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, 1);
@@ -38,29 +33,35 @@ int main(int argc, char* argv[])
   Synchronizer syncer(config.n_modules, SYNC_N_IMAGES_BUFFER);
 
   SyncStats stats(config.detector_name, STATS_TIME);
+  utils::BasicStatsCollector stats2("std_data_sync", config.detector_name);
 
-  char meta_buffer[DET_FRAME_STRUCT_BYTES];
-  auto* meta = (CommonFrame*)(&meta_buffer);
+  char meta_buffer_recv[DET_FRAME_STRUCT_BYTES];
+  auto* common_frame = (CommonFrame*)(&meta_buffer_recv);
 
-  ImageMetadata image_meta{};
-  image_meta.dtype = ImageMetadataDtype::uint16;
-  image_meta.height = config.image_pixel_height;
-  image_meta.width = config.image_pixel_width;
+  std_daq_protocol::ImageMetadata image_meta;
+  image_meta.set_dtype(std_daq_protocol::ImageMetadataDtype::uint16);
+  image_meta.set_height(config.image_pixel_height);
+  image_meta.set_width(config.image_pixel_width);
 
   while (true) {
-    zmq_recv(receiver, meta_buffer, DET_FRAME_STRUCT_BYTES, 0);
+    zmq_recv(receiver, meta_buffer_recv, DET_FRAME_STRUCT_BYTES, 0);
+    stats2.processing_started();
 
-    auto [cached_meta, n_corrupted_images] = syncer.process_image_metadata(*meta);
+    auto [cached_meta, n_corrupted_images] = syncer.process_image_metadata(*common_frame);
 
-    if (cached_meta.image_id == INVALID_IMAGE_ID) {
-      continue;
-    }
+    if (cached_meta.image_id == INVALID_IMAGE_ID) continue;
 
-    image_meta.id = meta->image_id;
-    image_meta.status = (meta->n_missing_packets == 0) ? ImageMetadataStatus::good_image
-                                                       : ImageMetadataStatus::missing_packets;
+    image_meta.set_image_id(common_frame->image_id);
+    if (common_frame->n_missing_packets == 0)
+      image_meta.set_status(std_daq_protocol::ImageMetadataStatus::good_image);
+    else
+      image_meta.set_status(std_daq_protocol::ImageMetadataStatus::missing_packets);
 
-    zmq_send(sender, &image_meta, sizeof(image_meta), 0);
+    std::string meta_buffer_send;
+    image_meta.SerializeToString(&meta_buffer_send);
+    zmq_send(sender, meta_buffer_send.c_str(), meta_buffer_send.size(), 0);
+
     stats.record_stats(n_corrupted_images);
+    stats2.processing_finished();
   }
 }
