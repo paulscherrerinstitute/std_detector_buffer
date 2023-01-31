@@ -10,6 +10,7 @@
 #include "core_buffer/buffer_config.hpp"
 #include "detectors/common.hpp"
 #include "utils/args.hpp"
+#include "utils/basic_stats_collector.hpp"
 #include "std_daq/image_metadata.pb.h"
 
 #include "synchronizer.hpp"
@@ -32,6 +33,7 @@ int main(int argc, char* argv[])
   Synchronizer syncer(config.n_modules, SYNC_N_IMAGES_BUFFER);
 
   SyncStats stats(config.detector_name, STATS_TIME);
+  utils::BasicStatsCollector stats2("std_data_sync", config.detector_name);
 
   char meta_buffer_recv[DET_FRAME_STRUCT_BYTES];
   auto* common_frame = (CommonFrame*)(&meta_buffer_recv);
@@ -43,6 +45,7 @@ int main(int argc, char* argv[])
 
   while (true) {
     zmq_recv(receiver, meta_buffer_recv, DET_FRAME_STRUCT_BYTES, 0);
+    stats2.processing_started();
 
     auto [cached_meta, n_corrupted_images] = syncer.process_image_metadata(*common_frame);
 
@@ -59,5 +62,6 @@ int main(int argc, char* argv[])
     zmq_send(sender, meta_buffer_send.c_str(), meta_buffer_send.size(), 0);
 
     stats.record_stats(n_corrupted_images);
+    stats2.processing_finished();
   }
 }
