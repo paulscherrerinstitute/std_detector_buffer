@@ -42,5 +42,6 @@ target_link_libraries(${PROJECT_NAME}
         utils::utils
         hdf5::hdf5
         MPI::MPI_CXX
+        std_daq_interface::std_daq_interface
         std_detector_buffer::settings
 )
