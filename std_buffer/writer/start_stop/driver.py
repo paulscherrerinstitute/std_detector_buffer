@@ -1,5 +1,6 @@
 from threading import Thread, Event
-from std_buffer.stream.image_metadata_pb2 import ImageMetadata, WriterCommand, CommandType, RunInfo
+from std_daq.image_metadata_pb2 import ImageMetadata
+from std_daq.writer_command_pb2 import WriterCommand, CommandType, RunInfo 
 from time import time
 import logging
 import zmq
@@ -9,12 +10,15 @@ _logger = logging.getLogger(__name__)
 class WriterStatusTracker(object):
     RECV_TIMEOUT_MS = 500
     STATUS_READY = {'state': "READY"}
+    STATUS_WRITING = {'state': "WRITING"}
 
     def __init__(self, ctx, status_address, stop_event):
         self.ctx = ctx
         self.stop_event = stop_event
         self.status = self.STATUS_READY
         self.processing_thread = Thread(target=self._processing_thread, args=(status_address,))
+
+        # Keep track of the open write requests.
         self._open_write_requests = {}
 
     def get_status(self):
@@ -37,14 +41,16 @@ class WriterStatusTracker(object):
 
     def log_start_request(self, run_info):
         _logger.debug(f"Sent start request with run_info {run_info}.")
-        self._open_runs[run_info['run_id']] = run_info
+        self.status = self.STATUS_WRITING | {'start_request_time': time(), 'run_info': run_info}
+        self._open_write_requests = {}
 
     def log_stop_request(self):
         _logger.debug("Sent stop request")
+        self.status['stop_request_time'] = time()
 
     def log_write_request(self, image_id):
         _logger.debug(f"Sent write request for image_id {image_id}.")
-        #self._open_write_requests[image_id] = time.time()
+        self._open_write_requests[image_id] = time()
 
 
 class WriterDriver(object):
@@ -129,6 +135,7 @@ class WriterDriver(object):
             self.status.log_stop_request()
 
         image_meta = ImageMetadata()
+        writer_command = WriterCommand()
 
         while not self.stop_event.is_set():
             # Check if the user made any requests.
@@ -147,9 +154,9 @@ class WriterDriver(object):
             try:
                 meta_raw = image_metadata_receiver.recv(flags=zmq.NOBLOCK)
                 image_meta.ParseFromString(meta_raw)
+                writer_command.metadata.CopyFrom(image_meta)
             
-                write_image_command = {'image_id': image_meta.image_id}
                 self.status.log_write_request(image_meta.image_id)
-                writer_command_sender.send_json(write_image_command)
+                writer_command_sender.send(writer_command.SerializeToString())
             except zmq.Again:
                 pass
