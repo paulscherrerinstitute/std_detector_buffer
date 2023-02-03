@@ -122,6 +122,7 @@ class WriterDriver(object):
             _logger.info(f"Send start command to writer: {writer_command}.")
             writer_command_sender.send(writer_command.SerializeToString())
             self.status.log_start_request(run_info)
+            i_image = 0
 
             # Subscribe to the ImageMetadata stream.
             image_metadata_receiver.setsockopt(zmq.SUBSCRIBE, b'')
@@ -148,6 +149,8 @@ class WriterDriver(object):
         poller.register(user_command_receiver, zmq.POLLIN)
         poller.register(image_metadata_receiver, zmq.POLLIN)
 
+        i_image = 0
+
         while not self.stop_event.is_set():
             events = dict(poller.poll(timeout=RECV_TIMEOUT_MS))
             
@@ -166,6 +169,8 @@ class WriterDriver(object):
                 image_meta.ParseFromString(meta_raw)
                 writer_command.metadata.CopyFrom(image_meta)
                 writer_command.command_type = CommandType.WRITE_IMAGE
+                writer_command.i_image = i_image
             
                 self.status.log_write_request(image_meta.image_id)
                 writer_command_sender.send(writer_command.SerializeToString())
+                i_image += 1
