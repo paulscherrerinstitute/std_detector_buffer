@@ -26,9 +26,9 @@ JFH5Writer::~JFH5Writer()
   close_file();
 }
 
-hid_t JFH5Writer::get_datatype(const int bits_per_pixel)
+hid_t JFH5Writer::get_datatype(const int bit_depth)
 {
-  switch (bits_per_pixel) {
+  switch (bit_depth) {
   case 8:
     return H5T_NATIVE_UINT8;
   case 16:
@@ -36,7 +36,7 @@ hid_t JFH5Writer::get_datatype(const int bits_per_pixel)
   case 32:
     return H5T_NATIVE_UINT32;
   default:
-    throw runtime_error("Unsupported bits per pixel:" + to_string(bits_per_pixel));
+    throw runtime_error("Unsupported bits per pixel:" + to_string(bit_depth));
   }
 }
 
@@ -45,22 +45,21 @@ void JFH5Writer::open_run(const string& output_file,
                           const int n_images,
                           const int image_y_size,
                           const int image_x_size,
-                          const int dtype)
+                          const int bit_depth)
 {
   close_run();
 
   current_run_id_ = run_id;
   image_y_size_ = image_y_size;
   image_x_size_ = image_x_size;
-  // The last digit in the enum value represents the number of bytes/pixel.
-  bits_per_pixel_ = (dtype % 10) * 8;
-  image_n_bytes_ = (image_y_size_ * image_x_size_ * bits_per_pixel_) / 8;
+  bit_depth_ = bit_depth;
+  image_n_bytes_ = (image_y_size_ * image_x_size_ * bit_depth) / 8;
 
 #ifdef DEBUG_OUTPUT
   cout << "[JFH5Writer::open_run]";
   cout << " run_id:" << current_run_id_;
   cout << " output_file:" << output_file;
-  cout << " bits_per_pixel:" << bits_per_pixel_;
+  cout << " bit_depth:" << bit_depth_;
   cout << " image_y_size:" << image_y_size_;
   cout << " image_x_size:" << image_x_size_;
   cout << " image_n_bytes:" << image_n_bytes_;
@@ -82,7 +81,7 @@ void JFH5Writer::close_run()
   current_run_id_ = NO_RUN_ID;
   image_y_size_ = 0;
   image_x_size_ = 0;
-  bits_per_pixel_ = 0;
+  bit_depth_ = 0;
   image_n_bytes_ = 0;
 }
 
@@ -145,7 +144,7 @@ void JFH5Writer::open_file(const string& output_file, const uint32_t n_images)
   //        throw runtime_error("Cannot set compression filter on dataset.");
   //    }
 
-  image_data_dataset_ = H5Dcreate(data_group_id, "data", get_datatype(bits_per_pixel_),
+  image_data_dataset_ = H5Dcreate(data_group_id, "data", get_datatype(bit_depth_),
                                   image_space_id, H5P_DEFAULT, dcpl_id, H5P_DEFAULT);
   if (image_data_dataset_ < 0) {
     throw runtime_error("Cannot create image dataset.");
@@ -223,7 +222,7 @@ void JFH5Writer::write_data(const int64_t run_id, const uint32_t index, const ch
     throw runtime_error("Cannot select image dataset file hyperslab.");
   }
 
-  if (H5Dwrite(image_data_dataset_, get_datatype(bits_per_pixel_), ram_ds, file_ds, H5P_DEFAULT,
+  if (H5Dwrite(image_data_dataset_, get_datatype(bit_depth_), ram_ds, file_ds, H5P_DEFAULT,
                data) < 0)
   {
     throw runtime_error("Cannot write data to image dataset.");
