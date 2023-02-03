@@ -7,8 +7,9 @@ import zmq
 
 _logger = logging.getLogger(__name__)
 
+RECV_TIMEOUT_MS = 500
+
 class WriterStatusTracker(object):
-    RECV_TIMEOUT_MS = 500
     STATUS_READY = {'state': "READY"}
     STATUS_WRITING = {'state': "WRITING"}
 
@@ -26,7 +27,7 @@ class WriterStatusTracker(object):
 
     def _processing_thread(self, status_address):
         writer_status_receiver = self.ctx.socket(zmq.PULL)
-        writer_status_receiver.RCVTIMEO = self.RECV_TIMEOUT_MS
+        writer_status_receiver.RCVTIMEO = RECV_TIMEOUT_MS
         writer_status_receiver.bind(status_address)
 
         while not self.stop_event.is_set():
@@ -108,12 +109,18 @@ class WriterDriver(object):
         image_metadata_receiver = self.ctx.socket(zmq.SUB)
         image_metadata_receiver.connect(image_metadata_address)
 
+        image_meta = ImageMetadata()
+        writer_command = WriterCommand()
+
         def process_start_command(run_info):
             # Tell the writer to start writing.
-            start_command = WriterCommand(command_type=CommandType.START_WRITING,
-                                          run_info=RunInfo(**run_info))
-            _logger.info(f"Send start command to writer: {start_command}.")
-            writer_command_sender.send(start_command.SerializeToString())
+            nonlocal writer_command
+            writer_command.command_type = CommandType.START_WRITING
+            writer_command.run_info.CopyFrom(RunInfo(**run_info))
+            writer_command.metadata.Clear()
+
+            _logger.info(f"Send start command to writer: {writer_command}.")
+            writer_command_sender.send(writer_command.SerializeToString())
             self.status.log_start_request(run_info)
 
             # Subscribe to the ImageMetadata stream.
@@ -129,17 +136,22 @@ class WriterDriver(object):
             except zmq.Again:
                 pass
 
-            stop_command = WriterCommand(command_type=CommandType.STOP_WRITING)
-            _logger.info(f"Send stop command to writer: {stop_command}.")
-            writer_command_sender.send(stop_command.SerializeToString())
+            nonlocal writer_command
+            writer_command.command_type = CommandType.STOP_WRITING
+            writer_command.metadata.Clear()
+
+            _logger.info(f"Send stop command to writer: {writer_command}.")
+            writer_command_sender.send(writer_command.SerializeToString())
             self.status.log_stop_request()
 
-        image_meta = ImageMetadata()
-        writer_command = WriterCommand()
+        poller = zmq.Poller()
+        poller.register(user_command_receiver, zmq.POLLIN)
+        poller.register(image_metadata_receiver, zmq.POLLIN)
 
         while not self.stop_event.is_set():
-            # Check if the user made any requests.
-            try:
+            events = dict(poller.poll(timeout=RECV_TIMEOUT_MS))
+            
+            if user_command_receiver in events:
                 command = user_command_receiver.recv_json(flags=zmq.NOBLOCK)
 
                 if command['COMMAND'] == self.WRITE_COMMAND:
@@ -148,15 +160,12 @@ class WriterDriver(object):
                     process_stop_command()
                 else:
                     _logger.warning(f"Unknown command:{command}.")
-            except zmq.Again:
-                pass
 
-            try:
+            if image_metadata_receiver in events:
                 meta_raw = image_metadata_receiver.recv(flags=zmq.NOBLOCK)
                 image_meta.ParseFromString(meta_raw)
                 writer_command.metadata.CopyFrom(image_meta)
+                writer_command.command_type = CommandType.WRITE_IMAGE
             
                 self.status.log_write_request(image_meta.image_id)
                 writer_command_sender.send(writer_command.SerializeToString())
-            except zmq.Again:
-                pass
