@@ -274,7 +274,7 @@ void JFH5Writer::write_meta_gf(const int64_t run_id,
   H5Sclose(ram_ds);
 }
 
-void JFH5Writer::write_meta(const int64_t run_id, const uint32_t index, const ImageMetadata* meta)
+void JFH5Writer::write_meta(const int64_t run_id, const uint32_t index, const std_daq_protocol::ImageMetadata& meta)
 {
   if (run_id != current_run_id_) {
     throw runtime_error("Invalid run_id.");
@@ -301,13 +301,12 @@ void JFH5Writer::write_meta(const int64_t run_id, const uint32_t index, const Im
     throw runtime_error("Cannot select metadata dataset file hyperslab.");
   }
 
-  if (H5Dwrite(image_id_dataset_, H5T_NATIVE_UINT64, ram_ds, file_ds, H5P_DEFAULT, &(meta->id)) < 0)
+  if (H5Dwrite(image_id_dataset_, H5T_NATIVE_UINT64, ram_ds, file_ds, H5P_DEFAULT, &(meta.image_id())) < 0)
   {
     throw runtime_error("Cannot write data to pulse_id dataset.");
   }
 
-  if (H5Dwrite(status_dataset_, H5T_NATIVE_UINT64, ram_ds, file_ds, H5P_DEFAULT, &(meta->status)) <
-      0) {
+  if (H5Dwrite(status_dataset_, H5T_NATIVE_UINT64, ram_ds, file_ds, H5P_DEFAULT, &(meta.status())) < 0) {
     throw runtime_error("Cannot write data to is_good_image dataset.");
   }
 
