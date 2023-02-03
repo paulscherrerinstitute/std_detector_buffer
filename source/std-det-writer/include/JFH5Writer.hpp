@@ -49,13 +49,7 @@ public:
   void close_run();
 
   void write_data(const int64_t run_id, const uint32_t index, const char* data);
-
-  void write_meta(const int64_t run_id, const uint32_t index, const ImageMetadata* meta);
-
-  void write_meta_gf(const int64_t run_id,
-                     const uint32_t index,
-                     const uint16_t id,
-                     const uint64_t status);
+  void write_meta(const int64_t run_id, const uint32_t index, const std_daq_protocol::ImageMetadata& meta);
 };
 
 #endif // STD_DETECTOR_BUFFER_JF_LIVE_WRITER_HPP
