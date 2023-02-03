@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
   RamBuffer image_buffer(buffer_name, image_n_bytes, buffer_config::RAM_BUFFER_N_SLOTS);
   auto ctx = zmq_ctx_new();
   const auto command_stream_name = fmt::format("{}-writer", config.detector_name);
-  auto command_receiver = buffer_utils::bind_socket(ctx, command_stream_name, ZMQ_SUB);
+  auto command_receiver = buffer_utils::connect_socket(ctx, command_stream_name, ZMQ_SUB);
 
   char recv_buffer_meta[512];
   bool open_run = false;
