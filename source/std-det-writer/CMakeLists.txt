@@ -3,6 +3,7 @@ project(std_det_writer)
 
 find_package(MPI REQUIRED)
 find_package(date REQUIRED)
+find_package(fmt REQUIRED)
 find_package(ZeroMQ REQUIRED)
 find_package(RapidJSON REQUIRED)
 find_package(HDF5 REQUIRED)
@@ -16,6 +17,7 @@ target_link_libraries(${PROJECT_NAME}_lib
     PUBLIC
         RapidJSON::RapidJSON
         hdf5::hdf5
+        std_daq_interface::std_daq_interface
     PRIVATE
         core_buffer::core_buffer
         bitshuffle::bitshuffle
@@ -36,12 +38,12 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE
         ${PROJECT_NAME}_lib
         core_buffer::core_buffer
+        fmt::fmt
         date::date
         ZeroMQ::ZeroMQ
         RapidJSON::RapidJSON
         utils::utils
         hdf5::hdf5
         MPI::MPI_CXX
-        std_daq_interface::std_daq_interface
         std_detector_buffer::settings
 )

@@ -259,12 +259,14 @@ void JFH5Writer::write_meta(const int64_t run_id, const uint32_t index, const st
     throw runtime_error("Cannot select metadata dataset file hyperslab.");
   }
 
-  if (H5Dwrite(image_id_dataset_, H5T_NATIVE_UINT64, ram_ds, file_ds, H5P_DEFAULT, &(meta.image_id())) < 0)
+  const uint64_t image_id = meta.image_id();
+  if (H5Dwrite(image_id_dataset_, H5T_NATIVE_UINT64, ram_ds, file_ds, H5P_DEFAULT, &image_id) < 0)
   {
     throw runtime_error("Cannot write data to pulse_id dataset.");
   }
 
-  if (H5Dwrite(status_dataset_, H5T_NATIVE_UINT64, ram_ds, file_ds, H5P_DEFAULT, &(meta.status())) < 0) {
+  const uint64_t status = meta.status();
+  if (H5Dwrite(status_dataset_, H5T_NATIVE_UINT64, ram_ds, file_ds, H5P_DEFAULT, &status) < 0) {
     throw runtime_error("Cannot write data to is_good_image dataset.");
   }
 
