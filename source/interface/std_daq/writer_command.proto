@@ -21,5 +21,6 @@ message WriterCommand {
   CommandType command_type = 1;
   RunInfo run_info = 2;
 
-  ImageMetadata metadata=3;
+  uint32 i_image = 3;
+  ImageMetadata metadata=4;
 }
