@@ -3,4 +3,3 @@
   only: [ tags ]
   script:
     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file release/${PACKAGE_RPM} ${PACKAGE_REGISTRY_URL}/${PACKAGE_RPM}'
-    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file release/${PACKAGE_TARGZ} ${PACKAGE_REGISTRY_URL}/${PACKAGE_TARGZ}'
