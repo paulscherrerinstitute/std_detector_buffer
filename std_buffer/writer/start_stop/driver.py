@@ -1,7 +1,7 @@
 from threading import Thread, Event
 from std_daq.image_metadata_pb2 import ImageMetadata
 from std_daq.writer_command_pb2 import WriterCommand, CommandType, RunInfo 
-from time import time
+from time import time, sleep
 import logging
 import zmq
 
@@ -59,7 +59,7 @@ class WriterDriver(object):
     WRITER_DRIVER_IPC_ADDRESS = 'inproc://WriterDriverCommand'
     POLLER_TIMEOUT_MS = 1000
 
-    WRITE_COMMAND = 'WRITE'
+    START_COMMAND = 'START'
     STOP_COMMAND = 'STOP'
 
     def __init__(self, ctx, command_address, status_address, image_metadata_address):
@@ -80,7 +80,7 @@ class WriterDriver(object):
         return self.status.get_status()
 
     def start(self, run_info):
-        self._send_command(self.WRITE_COMMAND, run_info)
+        self._send_command(self.START_COMMAND, run_info)
 
     def stop(self):
         self._send_command(self.STOP_COMMAND)
@@ -108,6 +108,9 @@ class WriterDriver(object):
 
         image_metadata_receiver = self.ctx.socket(zmq.SUB)
         image_metadata_receiver.connect(image_metadata_address)
+        
+        # Wait for connections to happen.
+        sleep(0.5)
 
         image_meta = ImageMetadata()
         writer_command = WriterCommand()
@@ -157,7 +160,7 @@ class WriterDriver(object):
             if user_command_receiver in events:
                 command = user_command_receiver.recv_json(flags=zmq.NOBLOCK)
 
-                if command['COMMAND'] == self.WRITE_COMMAND:
+                if command['COMMAND'] == self.START_COMMAND:
                     process_start_command(command['run_info'])
                 elif command['COMMAND'] == self.STOP_COMMAND:
                     process_stop_command()
