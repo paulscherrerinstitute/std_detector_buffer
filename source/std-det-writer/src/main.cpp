@@ -59,27 +59,32 @@ int main(int argc, char* argv[])
     // Handle start and stop commands.
     switch (command.command_type()) {
         case std_daq_protocol::CommandType::START_WRITING:
+          fmt::print("[std_data_write::main] Start writing run_id={} output_file={} n_images={}\n", 
+                  command.run_info().run_id(), command.run_info().output_file(), command.run_info().n_images());
+
           writer.open_run(command.run_info().output_file(), command.run_info().run_id(), command.run_info().n_images(), 
                           config.image_height, config.image_width, config.bit_depth);
           open_run = true;
           continue;
           
         case std_daq_protocol::CommandType::STOP_WRITING:
+          fmt::print("[std_data_write::main] Stop writing run_id={} output_file={} last_i_image={}\n", 
+                  command.run_info().run_id(), command.run_info().output_file(), command.i_image());
           writer.close_run();
           stats.end_run();
           open_run = false;
           continue;
 
         default:
-          break;
+          if (!open_run) continue;
     }
-
-    if (open_run) throw std::runtime_error("Unexpected protocol message. Send START_WRITING before WRITE_IMAGE.");
 
     const auto i_image = command.i_image();
     const auto image_id = command.metadata().image_id();
     const auto run_id = command.run_info().run_id();
     const auto data = image_buffer.get_data(image_id);
+
+    fmt::print("[std_data_write::main] Write i_image={} image_id={} run_id={}\n", i_image, image_id, run_id);
 
     // Fair distribution of images among writers.
     if (i_image % n_writers == (uint) i_writer) {
