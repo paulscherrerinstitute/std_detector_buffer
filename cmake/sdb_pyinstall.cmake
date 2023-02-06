@@ -20,13 +20,12 @@ function(add_pyinstall_target TARGET)
     set(_HIDDEN_OPTIONS "")
     if(PYINSTALL_SETTINGS_HIDDEN_IMPORTS)
         foreach(arg ${PYINSTALL_SETTINGS_HIDDEN_IMPORTS})
-            set(_HIDDEN_OPTIONS "${_HIDDEN_OPTIONS} --hidden-import  ${arg}")
+            set(_HIDDEN_OPTIONS "${_HIDDEN_OPTIONS};--hidden-import;${arg}")
         endforeach()
     endif()
 
     add_custom_target(${TARGET}
-        COMMAND ${PY_INSTALLER} --distpath ${CMAKE_CURRENT_BINARY_DIR} --onefile ${PYINSTALL_SETTINGS_SOURCE}
-            ${_HIDDEN_OPTIONS}
+        COMMAND ${PY_INSTALLER} --distpath ${CMAKE_CURRENT_BINARY_DIR} --onefile ${PYINSTALL_SETTINGS_SOURCE} -p ${CMAKE_SOURCE_DIR} ${_HIDDEN_OPTIONS}
         COMMENT "Building ${TARGET}"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
