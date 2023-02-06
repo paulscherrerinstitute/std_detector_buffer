@@ -121,3 +121,5 @@ class StdStreamSendBinary(object):
     def send(self, meta: ImageMetadata, data: np.ndarray):
         self.sender.send_multipart((bytes(meta), data.tobytes()))
 
+    def send_meta(self, meta: ImageMetadata):
+        self.sender.send(bytes(meta))
