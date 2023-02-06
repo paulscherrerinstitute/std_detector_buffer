@@ -35,7 +35,7 @@ class JFH5Writer
 
   static hid_t get_datatype(int bit_depth);
   void open_file(const std::string& output_file, uint32_t n_images);
-  void close_file();
+  void close_file(const uint32_t highest_written_index);
 
 public:
   JFH5Writer(std::string detector_name);
@@ -47,7 +47,7 @@ public:
                 const int image_y_size,
                 const int image_x_size,
                 const int bit_depth);
-  void close_run();
+  void close_run(const uint32_t highest_written_index);
 
   void write_data(const int64_t run_id, const uint32_t index, const char* data);
   void write_meta(const int64_t run_id, const uint32_t index, const std_daq_protocol::ImageMetadata& meta);

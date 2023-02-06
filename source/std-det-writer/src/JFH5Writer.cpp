@@ -23,7 +23,7 @@ JFH5Writer::JFH5Writer(std::string detector_name)
 
 JFH5Writer::~JFH5Writer()
 {
-  close_file();
+  close_file(0);
 }
 
 hid_t JFH5Writer::get_datatype(const int bit_depth)
@@ -47,7 +47,7 @@ void JFH5Writer::open_run(const string& output_file,
                           const int image_x_size,
                           const int bit_depth)
 {
-  close_run();
+  close_run(0);
 
   current_run_id_ = run_id;
   image_y_size_ = image_y_size;
@@ -69,14 +69,14 @@ void JFH5Writer::open_run(const string& output_file,
   open_file(output_file, n_images);
 }
 
-void JFH5Writer::close_run()
+void JFH5Writer::close_run(const uint32_t highest_written_index)
 {
 
 #ifdef DEBUG_OUTPUT
   cout << "[JFH5Writer::close_run] run_id:" << current_run_id_ << endl;
 #endif
 
-  close_file();
+  close_file(highest_written_index);
 
   current_run_id_ = NO_RUN_ID;
   image_y_size_ = 0;
@@ -176,10 +176,16 @@ void JFH5Writer::open_file(const string& output_file, const uint32_t n_images)
   H5Gclose(data_group_id);
 }
 
-void JFH5Writer::close_file()
+void JFH5Writer::close_file(const uint32_t highest_written_index)
 {
   if (file_id_ < 0) {
     return;
+  }
+
+  // Resize datasets in case the writer was stopped before reaching n_images.
+  if (highest_written_index != 0) {
+      hsize_t image_dataset_dims[] = {highest_written_index+1, image_y_size_, image_x_size_};
+      H5Dset_extent(image_data_dataset_, image_dataset_dims);
   }
 
   H5Dclose(image_data_dataset_);
