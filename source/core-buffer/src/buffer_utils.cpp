@@ -11,6 +11,7 @@
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/document.h>
 #include <zmq.h>
+#include <fmt/core.h>
 
 #include "buffer_config.hpp"
 
@@ -99,6 +100,14 @@ buffer_utils::DetectorConfig buffer_utils::read_json_config(const std::string& f
   rapidjson::IStreamWrapper isw(ifs);
   rapidjson::Document config_parameters;
   config_parameters.ParseStream(isw);
+
+  static const std::string required_parameters[] = {
+      "detector_name",      "detector_type",     "n_modules",     "bit_depth",
+      "image_pixel_height", "image_pixel_width", "start_udp_port"};
+
+  for (auto& s : required_parameters)
+    if (!config_parameters.HasMember(s.c_str()))
+      throw std::runtime_error(fmt::format("Detector json file is missing parameter: \"{}\"", s));
 
   return {config_parameters["detector_name"].GetString(),
           config_parameters["detector_type"].GetString(),
