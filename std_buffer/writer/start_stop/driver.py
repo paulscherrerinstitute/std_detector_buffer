@@ -178,4 +178,8 @@ class WriterDriver(object):
             
                 self.status.log_write_request(image_meta.image_id)
                 writer_command_sender.send(writer_command.SerializeToString())
+
+                # Terminate writing.
                 i_image += 1
+                if i_image == writer_command.run_info.n_images:
+                    process_stop_command()
