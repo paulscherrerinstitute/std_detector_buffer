@@ -58,6 +58,8 @@ class WriterDriver(object):
 
     WRITER_DRIVER_IPC_ADDRESS = 'inproc://WriterDriverCommand'
     POLLER_TIMEOUT_MS = 1000
+    # In seconds.
+    STARTUP_WAIT_TIME = 200/1000
 
     START_COMMAND = 'START'
     STOP_COMMAND = 'STOP'
@@ -110,7 +112,7 @@ class WriterDriver(object):
         image_metadata_receiver.connect(image_metadata_address)
         
         # Wait for connections to happen.
-        sleep(0.5)
+        sleep(self.STARTUP_WAIT_TIME)
 
         image_meta = ImageMetadata()
         writer_command = WriterCommand()
