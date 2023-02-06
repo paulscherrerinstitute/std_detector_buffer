@@ -48,6 +48,8 @@ int main(int argc, char* argv[])
 
   char recv_buffer_meta[512];
   bool open_run = false;
+  uint32_t highest_run_image_index = 0;
+
   std_daq_protocol::WriterCommand command;
 
   while (true) {
@@ -65,12 +67,13 @@ int main(int argc, char* argv[])
           writer.open_run(command.run_info().output_file(), command.run_info().run_id(), command.run_info().n_images(), 
                           config.image_height, config.image_width, config.bit_depth);
           open_run = true;
+          highest_run_image_index = 0;
           continue;
           
         case std_daq_protocol::CommandType::STOP_WRITING:
           fmt::print("[std_data_write::main] Stop writing run_id={} output_file={} last_i_image={}\n", 
                   command.run_info().run_id(), command.run_info().output_file(), command.i_image());
-          writer.close_run();
+          writer.close_run(highest_run_image_index);
           stats.end_run();
           open_run = false;
           continue;
@@ -83,6 +86,8 @@ int main(int argc, char* argv[])
     const auto image_id = command.metadata().image_id();
     const auto run_id = command.run_info().run_id();
     const auto data = image_buffer.get_data(image_id);
+
+    highest_run_image_index = max(highest_run_image_index, i_image);
 
     fmt::print("[std_data_write::main] Write i_image={} image_id={} run_id={}\n", i_image, image_id, run_id);
 
