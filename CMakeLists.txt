@@ -29,7 +29,7 @@ conan_cmake_install(
 
 include(sdb_packaging)
 set(CPACK_PACKAGE_VENDOR "Paul Scherrer Institute")
-set(CPACK_GENERATOR "RPM;TGZ")
+set(CPACK_GENERATOR "RPM")
 include(CPack)
 
 include(CTest)
