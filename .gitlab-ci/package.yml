@@ -14,7 +14,7 @@
       cmake --build release --target package
   artifacts:
     when: on_success
-    expire_in: 1 week
+    expire_in: 1 day
     paths:
       - release/std_detector_buffer*.rpm
       - release/std_detector_buffer*.tar.gz
