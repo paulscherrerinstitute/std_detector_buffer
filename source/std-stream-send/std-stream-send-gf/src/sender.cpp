@@ -14,7 +14,7 @@
 #include "sender_stats_collector.hpp"
 
 namespace {
-constexpr auto zmq_io_threads = 4;
+constexpr auto zmq_io_threads = 2;
 constexpr auto zmq_sndhwm = 100;
 } // namespace
 
