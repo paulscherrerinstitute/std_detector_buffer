@@ -17,7 +17,7 @@
 using namespace buffer_utils;
 
 namespace {
-constexpr auto zmq_io_threads = 1;
+constexpr auto zmq_io_threads = 4;
 } // namespace
 
 void* zmq_socket_bind(void* ctx, const std::string& stream_address)
