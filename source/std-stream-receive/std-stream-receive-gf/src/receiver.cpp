@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
       gf::converted_image_n_bytes(config.image_pixel_height, config.image_pixel_width);
   const auto data_bytes_sent = converted_bytes / 2;
 
-  gf::rec::Synchronizer sync{10};
+  gf::rec::Synchronizer sync{1000};
   gf::rec::ReceiverStatsCollector stats(config.detector_name, sync);
 
   ImageMetadata image_meta{};
