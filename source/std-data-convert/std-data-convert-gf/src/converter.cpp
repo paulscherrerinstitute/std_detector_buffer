@@ -29,7 +29,7 @@ Converter::Converter(std::size_t image_height,
     , row_jump(calculate_row_jump(q, image_width))
 {}
 
-void Converter::convert(std::span<char> input, std::span<char> output_buffer)
+void Converter::convert(std::span<char> input, std::span<char> output_buffer) const
 {
   // in theory the pixels number should be divisible by 4 - so there should be no problem with
   // alignment of conversion_handle
@@ -50,23 +50,22 @@ void Converter::convert(std::span<char> input, std::span<char> output_buffer)
   }
 }
 
-int Converter::calculate_start_index(int module_id,
-                                     quadrant_id quadrant,
-                                     std::size_t image_height,
-                                     std::size_t image_width)
+std::size_t Converter::calculate_start_index(int module_id,
+                                             quadrant_id quadrant,
+                                             std::size_t image_height,
+                                             std::size_t image_width)
 {
   if (quadrant == quadrant_id::SW)
     return image_height / 2 * image_width + (module_id % 2 ? image_width : 0);
   if (quadrant == quadrant_id::SE)
-    return (image_height / 2 * image_width) + (image_width / 2) +
-           (module_id % 2 ? image_width : 0);
+    return (image_height / 2 * image_width) + (image_width / 2) + (module_id % 2 ? image_width : 0);
   if (quadrant == quadrant_id::NW)
     return (image_height - 1) / 2 * image_width - (module_id % 2 ? image_width : 0);
   return (image_height - 1) / 2 * image_width + (image_width / 2) -
          (module_id % 2 ? image_width : 0);
 }
 
-int Converter::calculate_row_jump(quadrant_id quadrant, std::size_t image_width)
+std::size_t Converter::calculate_row_jump(quadrant_id quadrant, std::size_t image_width)
 {
   return image_width * 2 * (quadrant == quadrant_id::NW || quadrant == quadrant_id::NE ? -1 : 1);
 }

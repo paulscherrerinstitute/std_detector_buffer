@@ -20,19 +20,19 @@ public:
                      std::size_t image_width,
                      quadrant_id q,
                      int module_id);
-  void convert(std::span<char> input_data, std::span<char> output_buffer);
+  void convert(std::span<char> input_data, std::span<char> output_buffer) const;
 
 private:
-  static int calculate_start_index(int module_id,
+  static std::size_t calculate_start_index(int module_id,
                                    quadrant_id quadrant,
                                    std::size_t image_height,
                                    std::size_t image_width);
-  static int calculate_row_jump(quadrant_id quadrant, std::size_t image_width);
+  static std::size_t calculate_row_jump(quadrant_id quadrant, std::size_t image_width);
 
   const std::size_t height;
   const std::size_t width;
-  const int start_index;
-  const int row_jump;
+  const std::size_t start_index;
+  const std::size_t row_jump;
 };
 
 } // namespace gf::sdc
