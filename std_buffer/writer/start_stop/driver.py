@@ -10,17 +10,19 @@ _logger = logging.getLogger(__name__)
 RECV_TIMEOUT_MS = 500
 
 class WriterStatusTracker(object):
-    STATUS_READY = {'state': "READY"}
-    STATUS_WRITING = {'state': "WRITING"}
+    STATE_READY = {'state': "READY"}
+    STATE_WRITING = {'state': "WRITING"}
+    EMPTY_RUN = {'run_info': None,
+                 'run_stats': {'start_request_time': None, 
+                               'stop_request_time': None,
+                               'n_image_write_requested': 0,
+                               'n_image_write_completed': 0}}
 
     def __init__(self, ctx, status_address, stop_event):
         self.ctx = ctx
         self.stop_event = stop_event
-        self.status = self.STATUS_READY
+        self.status = self.STATE_READY | self.EMPTY_RUN
         self.processing_thread = Thread(target=self._processing_thread, args=(status_address,))
-
-        # Keep track of the open write requests.
-        self._open_write_requests = {}
 
     def get_status(self):
         return self.status
@@ -42,16 +44,20 @@ class WriterStatusTracker(object):
 
     def log_start_request(self, run_info):
         _logger.debug(f"Sent start request with run_info {run_info}.")
-        self.status = self.STATUS_WRITING | {'start_request_time': time(), 'run_info': run_info}
-        self._open_write_requests = {}
+
+        new_status = self.STATE_WRITING | self.EMPTY_RUN
+        new_status['run_info'] = run_info
+        new_status['run_stats']['start_request_time'] = time()
+
+        self.status = new_status
 
     def log_stop_request(self):
         _logger.debug("Sent stop request")
-        self.status['stop_request_time'] = time()
+        self.status['run_stats']['stop_request_time'] = time()
 
     def log_write_request(self, image_id):
         _logger.debug(f"Sent write request for image_id {image_id}.")
-        self._open_write_requests[image_id] = time()
+        self.status['run_stats']['n_image_write_requested'] += 1 
 
 
 class WriterDriver(object):
@@ -125,8 +131,8 @@ class WriterDriver(object):
             writer_command.metadata.Clear()
 
             _logger.info(f"Send start command to writer: {writer_command}.")
-            writer_command_sender.send(writer_command.SerializeToString())
             self.status.log_start_request(run_info)
+            writer_command_sender.send(writer_command.SerializeToString())
             i_image = 0
 
             # Subscribe to the ImageMetadata stream.
@@ -157,29 +163,34 @@ class WriterDriver(object):
         i_image = 0
 
         while not self.stop_event.is_set():
-            events = dict(poller.poll(timeout=RECV_TIMEOUT_MS))
-            
-            if user_command_receiver in events:
-                command = user_command_receiver.recv_json(flags=zmq.NOBLOCK)
+            try:
 
-                if command['COMMAND'] == self.START_COMMAND:
-                    process_start_command(command['run_info'])
-                elif command['COMMAND'] == self.STOP_COMMAND:
-                    process_stop_command()
-                else:
-                    _logger.warning(f"Unknown command:{command}.")
+                events = dict(poller.poll(timeout=RECV_TIMEOUT_MS))
+                
+                if user_command_receiver in events:
+                    command = user_command_receiver.recv_json(flags=zmq.NOBLOCK)
 
-            if image_metadata_receiver in events:
-                meta_raw = image_metadata_receiver.recv(flags=zmq.NOBLOCK)
-                image_meta.ParseFromString(meta_raw)
-                writer_command.metadata.CopyFrom(image_meta)
-                writer_command.command_type = CommandType.WRITE_IMAGE
-                writer_command.i_image = i_image
-            
-                self.status.log_write_request(image_meta.image_id)
-                writer_command_sender.send(writer_command.SerializeToString())
+                    if command['COMMAND'] == self.START_COMMAND:
+                        process_start_command(command['run_info'])
+                    elif command['COMMAND'] == self.STOP_COMMAND:
+                        process_stop_command()
+                    else:
+                        _logger.warning(f"Unknown command:{command}.")
 
-                # Terminate writing.
-                i_image += 1
-                if i_image == writer_command.run_info.n_images:
-                    process_stop_command()
+                if image_metadata_receiver in events:
+                    meta_raw = image_metadata_receiver.recv(flags=zmq.NOBLOCK)
+                    image_meta.ParseFromString(meta_raw)
+                    writer_command.metadata.CopyFrom(image_meta)
+                    writer_command.command_type = CommandType.WRITE_IMAGE
+                    writer_command.i_image = i_image
+                
+                    self.status.log_write_request(image_meta.image_id)
+                    writer_command_sender.send(writer_command.SerializeToString())
+
+                    # Terminate writing.
+                    i_image += 1
+                    if i_image == writer_command.run_info.n_images:
+                        process_stop_command()
+            except Exception as e:
+                print(f"Error in driver loop: {str(e)}")
+
