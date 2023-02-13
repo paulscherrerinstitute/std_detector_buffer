@@ -1,0 +1,9 @@
+{
+  "detector_name": "GF22",
+  "detector_type": "gigafrost",
+  "n_modules": 8,
+  "bit_depth": 16,
+  "image_pixel_height": 252,
+  "image_pixel_width": 504,
+  "start_udp_port": 50020
+}

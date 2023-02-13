@@ -12,22 +12,18 @@
 
 #include "utils/stats_collector.hpp"
 
-#include "synchronizer.hpp"
-
 namespace gf::rec {
 
 class ReceiverStatsCollector : public utils::StatsCollector<ReceiverStatsCollector>
 {
 public:
-  explicit ReceiverStatsCollector(std::string_view detector_name, Synchronizer& sync)
+  explicit ReceiverStatsCollector(std::string_view detector_name)
       : utils::StatsCollector<ReceiverStatsCollector>("std_stream_receive_gf", detector_name)
-      , synchronizer(sync)
   {}
 
   [[nodiscard]] std::string additional_message()
   {
-    auto outcome = fmt::format("packets_discarded={},zmq_receive_fails={}",
-                               synchronizer.get_dropped_packages(), zmq_fails);
+    auto outcome = fmt::format("zmq_receive_fails={}", zmq_fails);
     zmq_fails = 0;
     return outcome;
   }
@@ -39,7 +35,6 @@ public:
   }
 
 private:
-  Synchronizer& synchronizer;
   unsigned long zmq_fails = 0;
 };
 

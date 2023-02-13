@@ -11,7 +11,6 @@ target_sources(${PROJECT_NAME}
     PRIVATE
         src/receiver.cpp
         src/receiver_stats_collector.hpp
-        src/synchronizer.hpp
 )
 sdb_package(${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} PUBLIC include)

@@ -18,8 +18,9 @@ constexpr inline auto BYTES_PER_PACKET = PACKET_N_DATA_BYTES_MAX + 32u;
 #pragma pack(1)
 struct GFUdpPacket
 {
-  uint8_t protocol_id;                   // Fixed to 0xCB
-  uint8_t quadrant_row_length_in_blocks; // Length of quadrant_id row in 12 pixel blocks -> 24 .. 1008
+  uint8_t protocol_id; // Fixed to 0xCB
+  uint8_t
+      quadrant_row_length_in_blocks; // Length of quadrant_id row in 12 pixel blocks -> 24 .. 1008
   uint8_t quadrant_rows; // N rows in each quadrant_id. quadrant_rows[0] == SWAP bit. -> 2 .. 1008
   // bit[6-7] == quadrant_id 	GF_NE=3 GF_NW=2 GF_SE=1 GF_SW=0
   // bit[5] == link_id, [0, 1]
@@ -162,6 +163,10 @@ inline std::size_t converted_image_n_bytes(int image_pixel_height, int image_pix
 {
   return image_pixel_width * image_pixel_height * 2;
 }
+
+inline constexpr std::size_t max_converted_image_byte_size = 2016 * 2016 * 2;
+inline constexpr std::size_t max_single_sender_size = max_converted_image_byte_size / 8;
+static_assert(max_single_sender_size * 8 == max_converted_image_byte_size);
 
 } // namespace gf
 

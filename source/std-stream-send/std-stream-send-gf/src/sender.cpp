@@ -14,7 +14,7 @@
 #include "sender_stats_collector.hpp"
 
 namespace {
-constexpr auto zmq_io_threads = 2;
+constexpr auto zmq_io_threads = 1;
 constexpr auto zmq_sndhwm = 100;
 } // namespace
 
@@ -33,27 +33,29 @@ void* bind_sender_socket(void* ctx, const std::string& stream_address)
   return socket;
 }
 
-std::tuple<buffer_utils::DetectorConfig, std::string, bool> read_arguments(int argc, char* argv[])
+std::tuple<buffer_utils::DetectorConfig, std::string, int> read_arguments(int argc, char* argv[])
 {
   auto program = utils::create_parser("std_stream_send_gf");
   program.add_argument("stream_address").help("address to bind the input stream");
-  program.add_argument("image_half")
-      .help("0 or 1 responsible for sending first or second part of image.")
+  program.add_argument("image_part")
+      .help("0..7 responsible for sending n-th part of image")
       .scan<'d', int>();
 
   program = utils::parse_arguments(program, argc, argv);
 
   return {buffer_utils::read_json_config(program.get("detector_json_filename")),
-          program.get("stream_address"), program.get<int>("image_half") == 0};
+          program.get("stream_address"), program.get<int>("image_part")};
 }
 
 int main(int argc, char* argv[])
 {
-  const auto [config, stream_address, is_first_half] = read_arguments(argc, argv);
+  const auto [config, stream_address, image_part] = read_arguments(argc, argv);
   const auto sync_name = fmt::format("{}-image", config.detector_name);
   const auto converted_bytes =
       gf::converted_image_n_bytes(config.image_pixel_height, config.image_pixel_width);
-  const auto data_bytes_sent = converted_bytes / 2;
+  const auto start_index = image_part * gf::max_single_sender_size;
+  if (converted_bytes <= start_index) return 0;
+  const auto data_bytes_sent = std::min(converted_bytes - start_index, gf::max_single_sender_size);
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
@@ -62,17 +64,15 @@ int main(int argc, char* argv[])
                                    {sync_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
 
   auto sender_socket = bind_sender_socket(ctx, stream_address);
-  gf::send::SenderStatsCollector stats(config.detector_name, is_first_half);
+  gf::send::SenderStatsCollector stats(config.detector_name, image_part);
 
   ImageMetadata meta{};
 
   while (true) {
     auto [id, image_data] = receiver.receive(std::span<char>((char*)&meta, sizeof(meta)));
     stats.processing_started();
-    image_data = is_first_half ? image_data : image_data + data_bytes_sent;
-
     zmq_send(sender_socket, &meta, sizeof(meta), ZMQ_SNDMORE);
-    zmq_send(sender_socket, image_data, data_bytes_sent, 0);
+    zmq_send(sender_socket, image_data + start_index, data_bytes_sent, 0);
     stats.processing_finished();
   }
   return 0;
