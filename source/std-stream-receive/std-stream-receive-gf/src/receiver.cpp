@@ -71,6 +71,7 @@ int main(int argc, char* argv[])
   auto socket = zmq_socket_bind(ctx, stream_address);
   while (true) {
     unsigned int zmq_fails = 0;
+    image_meta.id = 0;
     stats.processing_started();
     if (zmq_recv(socket, &image_meta, sizeof(image_meta), 0) > 0) {
       char* data = sender.get_data(image_meta.id);
@@ -81,7 +82,7 @@ int main(int argc, char* argv[])
     }
     else
       zmq_fails++;
-    stats.processing_finished(zmq_fails);
+    stats.processing_finished(zmq_fails, image_meta.id);
   }
   return 0;
 }
