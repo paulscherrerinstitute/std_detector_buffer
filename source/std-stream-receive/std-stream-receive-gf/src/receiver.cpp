@@ -17,7 +17,7 @@
 using namespace buffer_utils;
 
 namespace {
-constexpr auto zmq_io_threads = 1;
+constexpr auto zmq_io_threads = 2;
 } // namespace
 
 void* zmq_socket_bind(void* ctx, const std::string& stream_address)
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
       gf::converted_image_n_bytes(config.image_pixel_height, config.image_pixel_width);
   const auto data_bytes_sent = converted_bytes / 2;
 
-  gf::rec::Synchronizer sync{10};
+  gf::rec::Synchronizer sync{1000};
   gf::rec::ReceiverStatsCollector stats(config.detector_name, sync);
 
   ImageMetadata image_meta{};

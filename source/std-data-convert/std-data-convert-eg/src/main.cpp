@@ -69,11 +69,14 @@ int main(int argc, char* argv[])
 
   while (true) {
     auto [id, image] = receiver.receive(std::span<char>((char*)&meta, sizeof(meta)));
+    stats_collector.processing_started();
 
     converter.convert(std::span<char>(image, frame_n_bytes),
                       std::span<char>(sender.get_data(id), converted_bytes));
 
     sender.send(id, std::span((char*)(&meta), sizeof(meta)), nullptr);
+    stats_collector.processing_finished();
+
   }
   return 0;
 }

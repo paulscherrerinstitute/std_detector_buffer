@@ -3,6 +3,7 @@ project(core_buffer)
 
 find_package(date REQUIRED)
 find_package(ZeroMQ REQUIRED)
+find_package(fmt REQUIRED)
 find_package(RapidJSON REQUIRED)
 
 add_library(${PROJECT_NAME})
@@ -21,6 +22,7 @@ target_link_libraries(${PROJECT_NAME}
         ZeroMQ::ZeroMQ
     PRIVATE
         bitshuffle::bitshuffle
+        fmt::fmt
         date::date
         RapidJSON::RapidJSON
         detectors::detectors

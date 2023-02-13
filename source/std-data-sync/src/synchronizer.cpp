@@ -11,67 +11,94 @@
 using namespace std;
 
 Synchronizer::Synchronizer(const int n_modules, const int n_images_buffer)
-    : n_modules(n_modules), n_images_buffer(n_images_buffer), image_id_queue(), meta_cache()
-{
-}
+    : n_modules(n_modules)
+    , n_images_buffer(n_images_buffer)
+    , image_id_queue()
+    , meta_cache()
+{}
 
 ImageAndSync Synchronizer::process_image_metadata(const CommonFrame& meta)
 {
-  // First time we see this image_id.
-  if (meta_cache.find(meta.image_id) == meta_cache.end()) {
-    image_id_queue.push(meta.image_id);
-
-    // Initialize the module mask to 1 for n_modules the least significant bits.
-    uint64_t modules_mask = ~(~0u << n_modules);
-    meta_cache[meta.image_id] = {modules_mask, meta};
-
-    // If the queue is too long, drop the oldest non-complete image_id.
-    if (image_id_queue.size() > n_images_buffer) {
-      auto const image_id = image_id_queue.front();
-
-      image_id_queue.pop();
-      meta_cache.erase(image_id);
-    }
-  }
+  if (is_new_image(meta.image_id)) push_new_image_to_queue(meta);
 
   // meta_cache format: map<image_id, pair<modules_mask, metadata>>
-  auto& modules_mask = meta_cache.find(meta.image_id)->second.first;
+  auto& modules_mask = get_modules_mask(meta.image_id);
 
   // Has this module already arrived for this image_id?
   if ((modules_mask & (1u << meta.module_id % n_modules)) == 0) {
-    throw runtime_error(fmt::format("Received same module_id 2 times for image_id {}",
-                                    meta.image_id));
+    throw runtime_error(
+        fmt::format("Received same module_id 2 times for image_id {}", meta.image_id));
   }
 
   // Clear bit in 'module_id' place.
   modules_mask &= ~(1UL << meta.module_id % n_modules);
 
-  // All modules arrived for this image.
-  if (modules_mask == 0) {
-    uint32_t n_corrupted_images = 0;
+  if (did_all_modules_arrive(modules_mask)) return get_full_image(meta.image_id);
+  return NoImageSynchronized;
+}
 
-    // Empty all older images until we get to the completed one.
-    while (!image_id_queue.empty() && image_id_queue.front() != meta.image_id) {
-      auto const image_id = image_id_queue.front();
+ImageAndSync Synchronizer::get_full_image(uint64_t image_id)
+{
+  uint32_t n_corrupted_images = discard_stale_images(image_id);
 
-      image_id_queue.pop();
-      meta_cache.erase(image_id);
+  if (image_id_queue.empty()) throw runtime_error(fmt::format("No images to return. Impossible?!"));
 
-      n_corrupted_images++;
-    }
+  const ImageAndSync result{meta_cache.find(image_id)->second.second, n_corrupted_images};
 
-    if (image_id_queue.empty()) {
-      throw runtime_error(fmt::format("No images to return. Impossible?!"));
-    }
+  image_id_queue.pop();
+  meta_cache.erase(image_id);
 
-    const ImageAndSync result{meta_cache.find(meta.image_id)->second.second, n_corrupted_images};
+  return result;
+}
 
+uint32_t Synchronizer::discard_stale_images(uint64_t image_id)
+{
+  uint32_t n_corrupted_images = 0;
+
+  // Empty all older images until we get to the completed one.
+  while (!image_id_queue.empty() && image_id_queue.front() != image_id) {
+    meta_cache.erase(image_id_queue.front());
     image_id_queue.pop();
-    meta_cache.erase(meta.image_id);
-
-    return result;
+    n_corrupted_images++;
   }
+  return n_corrupted_images;
+}
 
-  // No image has been completed with this module.
-  return {{INVALID_IMAGE_ID, 0,0}, 0};
+bool Synchronizer::did_all_modules_arrive(uint64_t modules_mask)
+{
+  return modules_mask == 0;
+}
+
+bool Synchronizer::is_new_image(uint64_t image_id) const
+{
+  return meta_cache.find(image_id) == meta_cache.end();
+}
+
+void Synchronizer::push_new_image_to_queue(CommonFrame meta)
+{
+  image_id_queue.push(meta.image_id);
+
+  // Initialize the module mask to 1 for n_modules the least significant bits.
+  uint64_t modules_mask = ~(~0u << n_modules);
+  meta_cache[meta.image_id] = {modules_mask, meta};
+
+  if (is_queue_too_long()) drop_oldest_incomplete_image();
+}
+
+void Synchronizer::drop_oldest_incomplete_image()
+{
+  auto const image_id = image_id_queue.front();
+
+  image_id_queue.pop();
+  meta_cache.erase(image_id);
+}
+
+bool Synchronizer::is_queue_too_long() const
+{
+  return image_id_queue.size() > n_images_buffer;
+}
+
+uint64_t& Synchronizer::get_modules_mask(uint64_t image_id)
+{
+  return meta_cache.find(image_id)->second.first;
 }

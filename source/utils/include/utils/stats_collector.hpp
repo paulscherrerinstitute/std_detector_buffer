@@ -26,17 +26,18 @@ public:
   {
     using namespace std::chrono_literals;
     const auto now = std::chrono::steady_clock::now();
-    stats.first += now - processing_start;
-    stats.second++;
+
+    update_stats(now);
 
     if (10s < now - last_flush_time) {
-      fmt::print("{},detector={},average_process_time_ns={},processed_times={}{} {}\n", app_name,
-                 detector_name, (stats.first / stats.second).count(), stats.second,
-                 additional_info(), timestamp());
+      fmt::print("{},detector={},average_process_time_ns={},max_process_time_ns={},processed_times="
+                 "{}{} {}\n",
+                 app_name, detector_name, (stats.first / stats.second).count(),
+                 max_processing_time.count(), stats.second, additional_info(), timestamp());
       std::fflush(stdout);
 
       last_flush_time = now;
-      stats = {0ns, 0};
+      reset_stats();
     }
   }
 
@@ -45,6 +46,21 @@ private:
   {
     using namespace std::chrono;
     return duration_cast<nanoseconds>(steady_clock::now().time_since_epoch()).count();
+  }
+
+  void reset_stats()
+  {
+    using namespace std::chrono_literals;
+    stats = {0ns, 0};
+    max_processing_time = 0ns;
+  }
+
+  void update_stats(time_point now)
+  {
+    const auto processing_time = now - processing_start;
+    max_processing_time = std::max(max_processing_time, processing_time);
+    stats.first += processing_time;
+    stats.second++;
   }
 
   std::string additional_info()
@@ -60,6 +76,7 @@ private:
   time_point processing_start{};
   time_point last_flush_time{std::chrono::steady_clock::now()};
   std::pair<std::chrono::nanoseconds, std::size_t> stats{};
+  std::chrono::nanoseconds max_processing_time{};
 };
 
 } // namespace utils
