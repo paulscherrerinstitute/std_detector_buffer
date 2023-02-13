@@ -116,6 +116,47 @@ void JFH5Writer::open_file(const string& output_file, const uint32_t n_images)
     throw runtime_error("Cannot create data group.");
   }
 
+  // Create metadata datasets.
+  hsize_t meta_dataset_dims[] = {n_images};
+  auto meta_space_id = H5Screate_simple(1, meta_dataset_dims, nullptr);
+  if (meta_space_id < 0) {
+    throw runtime_error("Cannot create meta dataset space.");
+  }
+
+  auto create_meta_dataset = [&](const string& name, hid_t data_type) {
+    auto dcpl_id = H5Pcreate(H5P_DATASET_CREATE);
+    if (dcpl_id < 0) {
+          throw runtime_error("Error in creating dataset create property list.");
+    }
+
+    // Specify metadata datasets properties explicitly.
+    if (H5Pset_fill_time(dcpl_id, H5D_FILL_TIME_ALLOC) < 0) {
+      throw runtime_error("Cannot set image dataset fill time.");
+    }
+
+    if (H5Pset_alloc_time(dcpl_id, H5D_ALLOC_TIME_EARLY) < 0) {
+      throw runtime_error("Cannot set metadata dataset alloc time.");
+    }
+
+    if (H5Pset_layout(dcpl_id, H5D_CONTIGUOUS) < 0) {
+      throw runtime_error("Cannot set metadata dataset alloc time.");
+    }
+
+    auto dataset_id = H5Dcreate(data_group_id, name.c_str(), data_type, meta_space_id, H5P_DEFAULT,
+                                dcpl_id, H5P_DEFAULT);
+    if (dataset_id < 0) {
+      throw runtime_error("Cannot create " + name + " dataset.");
+    }
+
+    H5Pclose(dcpl_id);
+
+    return dataset_id;
+  };
+
+  image_id_dataset_ = create_meta_dataset("image_id", H5T_NATIVE_UINT64);
+  status_dataset_ = create_meta_dataset("status", H5T_NATIVE_UINT64);
+  H5Sclose(meta_space_id);
+
   // Create image dataset.
   auto dcpl_id = H5Pcreate(H5P_DATASET_CREATE);
   if (dcpl_id < 0) {
@@ -154,48 +195,6 @@ void JFH5Writer::open_file(const string& output_file, const uint32_t n_images)
   if (image_data_dataset_ < 0) {
     throw runtime_error("Cannot create image dataset.");
   }
-
-  // Create metadata datasets.
-  hsize_t meta_dataset_dims[] = {n_images};
-  auto meta_space_id = H5Screate_simple(1, meta_dataset_dims, nullptr);
-  if (meta_space_id < 0) {
-    throw runtime_error("Cannot create meta dataset space.");
-  }
-
-  auto create_meta_dataset = [&](const string& name, hid_t data_type) {
-    auto dcpl_id = H5Pcreate(H5P_DATASET_CREATE);
-    if (dcpl_id < 0) {
-          throw runtime_error("Error in creating dataset create property list.");
-    }
-
-    // Specify metadata datasets properties explicitly.
-//    if (H5Pset_fill_time(dcpl_id, H5D_FILL_TIME_ALLOC) < 0) {
-//      throw runtime_error("Cannot set image dataset fill time.");
-//    }
-//
-//    if (H5Pset_alloc_time(dcpl_id, H5D_ALLOC_TIME_EARLY) < 0) {
-//      throw runtime_error("Cannot set metadata dataset alloc time.");
-//    }
-//
-//    if (H5Pset_layout(dcpl_id, H5D_CONTIGUOUS) < 0) {
-//      throw runtime_error("Cannot set metadata dataset alloc time.");
-//    }
-
-    auto dataset_id = H5Dcreate(data_group_id, name.c_str(), data_type, meta_space_id, H5P_DEFAULT,
-                                dcpl_id, H5P_DEFAULT);
-    if (dataset_id < 0) {
-      throw runtime_error("Cannot create " + name + " dataset.");
-    }
-
-    H5Pclose(dcpl_id);
-
-    return dataset_id;
-  };
-
-  image_id_dataset_ = create_meta_dataset("image_id", H5T_NATIVE_UINT64);
-  status_dataset_ = create_meta_dataset("status", H5T_NATIVE_UINT64);
-  H5Sclose(meta_space_id);
-  
 
   H5Sclose(image_space_id);
   H5Pclose(dcpl_id);
