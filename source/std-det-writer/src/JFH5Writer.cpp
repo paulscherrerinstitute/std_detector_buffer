@@ -207,6 +207,12 @@ void JFH5Writer::close_file(const uint32_t highest_written_index)
     return;
   }
 
+  H5Dclose(image_id_dataset_);
+  image_id_dataset_ = -1;
+
+  H5Dclose(status_dataset_);
+  status_dataset_ = -1;
+
   // Resize datasets in case the writer was stopped before reaching n_images.
   if (highest_written_index != 0) {
       const hsize_t n_written_images = highest_written_index + 1; 
@@ -217,11 +223,6 @@ void JFH5Writer::close_file(const uint32_t highest_written_index)
   H5Dclose(image_data_dataset_);
   image_data_dataset_ = -1;
 
-  H5Dclose(image_id_dataset_);
-  image_id_dataset_ = -1;
-
-  H5Dclose(status_dataset_);
-  status_dataset_ = -1;
 
   H5Fclose(file_id_);
   file_id_ = -1;
