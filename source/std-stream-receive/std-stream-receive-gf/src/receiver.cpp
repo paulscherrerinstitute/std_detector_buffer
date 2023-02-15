@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
     if (zmq_recv(socket, &image_meta, sizeof(image_meta), 0) > 0) {
       char* data = sender.get_data(image_meta.id);
       if (received_successfully_data(socket, data + start_index, data_bytes_sent))
-        sender.send(image_meta.id, image_meta_as_span, data);
+        sender.send(image_meta.id, image_meta_as_span, nullptr);
       else
         zmq_fails++;
     }
