@@ -23,6 +23,7 @@ class WriterStatusTracker(object):
         self.stop_event = stop_event
         self.status = self.STATE_READY | self.EMPTY_RUN
         self.processing_thread = Thread(target=self._processing_thread, args=(status_address,))
+        self.processing_thread.start()
 
     def get_status(self):
         return self.status
@@ -133,6 +134,7 @@ class WriterDriver(object):
             _logger.info(f"Send start command to writer: {writer_command}.")
             self.status.log_start_request(run_info)
             writer_command_sender.send(writer_command.SerializeToString())
+            nonlocal i_image
             i_image = 0
 
             # Subscribe to the ImageMetadata stream.
