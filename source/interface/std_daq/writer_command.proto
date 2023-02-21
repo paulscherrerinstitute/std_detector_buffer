@@ -24,3 +24,12 @@ message WriterCommand {
   uint32 i_image = 3;
   ImageMetadata metadata=4;
 }
+
+message StatusReport {
+  CommandType command_type = 1;
+  uint32 i_writer = 2;
+  uint32 n_writers = 3;
+
+  uint64 run_id = 4;
+  uint32 i_image = 5;
+}
