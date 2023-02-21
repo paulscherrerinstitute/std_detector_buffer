@@ -66,15 +66,21 @@ int main(int argc, char* argv[])
 
     command.ParseFromString(string(recv_buffer_meta));
 
+    const auto run_id = command.run_info().run_id();
+    const auto output_file = command.run_info().output_file();
+    const auto n_images = command.run_info().n_images();
+    
+    const auto image_id = command.metadata().image_id();
+    const auto i_image = command.i_image();
+    const auto data = image_buffer.get_data(image_id);
+
     // Handle start and stop commands.
     switch (command.command_type()) {
         case std_daq_protocol::CommandType::START_WRITING:
-          fmt::print("[std_data_write::main] Start writing run_id={} output_file={} n_images={}\n", 
-                  command.run_info().run_id(), command.run_info().output_file(), command.run_info().n_images());
+          fmt::print("Start writing run_id={} output_file={} n_images={}\n", run_id, output_file, n_images);
 
-          writer.open_run(command.run_info().output_file(), command.run_info().run_id(), command.run_info().n_images(), 
-                          config.image_height, config.image_width, config.bit_depth);
-          current_run_id = command.run_info().run_id();
+          writer.open_run(output_file, run_id, n_images, config.image_height, config.image_width, config.bit_depth);
+          current_run_id = run_id;
           highest_run_image_index = 0;
 
           status.set_command_type(std_daq_protocol::CommandType::START_WRITING);
@@ -84,11 +90,9 @@ int main(int argc, char* argv[])
           zmq_send(status_sender, status_buffer_send.c_str(), status_buffer_send.size(), 0);
 
           continue;
-          break;
           
         case std_daq_protocol::CommandType::STOP_WRITING:
-          fmt::print("[std_data_write::main] Stop writing run_id={} output_file={} last_i_image={}\n", 
-                  command.run_info().run_id(), command.run_info().output_file(), command.i_image());
+          fmt::print("Stop writing run_id={} output_file={} last_i_image={}\n", run_id, output_file, i_image);
           writer.close_run(highest_run_image_index);
           stats.end_run();
 
@@ -104,21 +108,15 @@ int main(int argc, char* argv[])
           if (current_run_id == -1LU) continue;
     }
 
-    const auto i_image = command.i_image();
-    const auto image_id = command.metadata().image_id();
-    const auto run_id = command.run_info().run_id();
-    const auto data = image_buffer.get_data(image_id);
-
     // Check if we got a message for the wrong run_id - should not happen, driver problem.
     if (run_id != current_run_id) {
-        fmt::print("[std_data_write::main] Received write request for run_id={} but current_run_id={}\n",
-                run_id, current_run_id);
+        fmt::print("Received write request for run_id={} but current_run_id={}\n", run_id, current_run_id);
         continue;
     }
 
     highest_run_image_index = max(highest_run_image_index, i_image);
 
-    fmt::print("[std_data_write::main] Write i_image={} image_id={} run_id={}\n", i_image, image_id, run_id);
+    fmt::print("Write i_image={} image_id={} run_id={}\n", i_image, image_id, run_id);
 
     // Fair distribution of images among writers.
     if (i_image % n_writers == (uint) i_writer) {
@@ -136,7 +134,6 @@ int main(int argc, char* argv[])
     if (i_writer == 0) {
       writer.write_meta(run_id, i_image, command.metadata());
     }
-
   }
 }
 
