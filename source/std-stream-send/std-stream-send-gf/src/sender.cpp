@@ -16,6 +16,7 @@
 namespace {
 constexpr auto zmq_io_threads = 1;
 constexpr auto zmq_sndhwm = 100;
+constexpr auto zmq_success = 0;
 } // namespace
 
 void* bind_sender_socket(void* ctx, const std::string& stream_address)
@@ -71,9 +72,11 @@ int main(int argc, char* argv[])
   while (true) {
     auto [id, image_data] = receiver.receive(std::span<char>((char*)&meta, sizeof(meta)));
     stats.processing_started();
-    zmq_send(sender_socket, &meta, sizeof(meta), ZMQ_SNDMORE);
-    zmq_send(sender_socket, image_data + start_index, data_bytes_sent, 0);
-    stats.processing_finished();
+    std::size_t zmq_failed =
+        zmq_success == zmq_send(sender_socket, &meta, sizeof(meta), ZMQ_SNDMORE);
+    zmq_failed +=
+        zmq_success == zmq_send(sender_socket, image_data + start_index, data_bytes_sent, 0);
+    stats.processing_finished(zmq_failed);
   }
   return 0;
 }

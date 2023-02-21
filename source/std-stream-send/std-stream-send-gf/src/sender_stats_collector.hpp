@@ -22,13 +22,22 @@ public:
       , image_part(part)
   {}
 
-  [[nodiscard]] std::string additional_message() const
+  [[nodiscard]] std::string additional_message()
   {
-    return fmt::format("image_part={}", image_part);
+    auto outcome = fmt::format("image_part={},zmq_fails={}", image_part, zmq_fails);
+    zmq_fails = 0;
+    return outcome;
+  }
+
+  void processing_finished(std::size_t send_fails)
+  {
+    zmq_fails += send_fails;
+    static_cast<utils::StatsCollector<SenderStatsCollector>*>(this)->processing_finished();
   }
 
 private:
   int image_part;
+  std::size_t zmq_fails = 0;
 };
 
 } // namespace gf::send
