@@ -21,7 +21,7 @@ class JFH5Writer
   static const int64_t NO_RUN_ID = -1;
 
   // Run specific variables.
-  int64_t current_run_id_ = NO_RUN_ID;
+  uint64_t current_run_id_ = -1L;
   uint32_t image_y_size_ = 0;
   uint32_t image_x_size_ = 0;
   uint32_t bit_depth_ = 0;
@@ -42,15 +42,15 @@ public:
   ~JFH5Writer();
 
   void open_run(const std::string& output_file,
-                const int run_id,
+                const uint64_t run_id,
                 const int n_images,
                 const int image_y_size,
                 const int image_x_size,
                 const int bit_depth);
   void close_run(const uint32_t highest_written_index);
 
-  void write_data(const int64_t run_id, const uint32_t index, const char* data);
-  void write_meta(const int64_t run_id, const uint32_t index, const std_daq_protocol::ImageMetadata& meta);
+  void write_data(const uint64_t run_id, const uint32_t index, const char* data);
+  void write_meta(const uint64_t run_id, const uint32_t index, const std_daq_protocol::ImageMetadata& meta);
 };
 
 #endif // STD_DETECTOR_BUFFER_JF_LIVE_WRITER_HPP

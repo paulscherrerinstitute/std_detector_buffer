@@ -41,7 +41,7 @@ hid_t JFH5Writer::get_datatype(const int bit_depth)
 }
 
 void JFH5Writer::open_run(const string& output_file,
-                          const int run_id,
+                          const uint64_t run_id,
                           const int n_images,
                           const int image_y_size,
                           const int image_x_size,
@@ -228,7 +228,7 @@ void JFH5Writer::close_file(const uint32_t highest_written_index)
   file_id_ = -1;
 }
 
-void JFH5Writer::write_data(const int64_t run_id, const uint32_t index, const char* data)
+void JFH5Writer::write_data(const uint64_t run_id, const uint32_t index, const char* data)
 {
   if (run_id != current_run_id_) {
     throw runtime_error("Invalid run_id.");
@@ -265,7 +265,7 @@ void JFH5Writer::write_data(const int64_t run_id, const uint32_t index, const ch
   H5Sclose(ram_ds);
 }
 
-void JFH5Writer::write_meta(const int64_t run_id, const uint32_t index, const std_daq_protocol::ImageMetadata& meta)
+void JFH5Writer::write_meta(const uint64_t run_id, const uint32_t index, const std_daq_protocol::ImageMetadata& meta)
 {
   if (run_id != current_run_id_) {
     throw runtime_error("Invalid run_id.");
