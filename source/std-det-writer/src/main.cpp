@@ -39,18 +39,26 @@ int main(int argc, char* argv[])
 
   JFH5Writer writer(config.detector_name);
   WriterStats stats(config.detector_name, image_n_bytes);
-
   const auto buffer_name = fmt::format("{}-image", config.detector_name);
   RamBuffer image_buffer(buffer_name, image_n_bytes, buffer_config::RAM_BUFFER_N_SLOTS);
   auto ctx = zmq_ctx_new();
+
   const auto command_stream_name = fmt::format("{}-writer", config.detector_name);
   auto command_receiver = buffer_utils::connect_socket(ctx, command_stream_name, ZMQ_SUB);
 
+  const auto status_sender_name = fmt::format("{}-writer-status", config.detector_name);
+  auto status_sender = buffer_utils::connect_socket(ctx, status_sender_name, ZMQ_PUSH);
+
   char recv_buffer_meta[512];
-  bool open_run = false;
+  uint64_t current_run_id = -1;
   uint32_t highest_run_image_index = 0;
 
   std_daq_protocol::WriterCommand command;
+
+  std_daq_protocol::StatusReport status;
+  std::string status_buffer_send;
+  status.set_i_writer(i_writer);
+  status.set_n_writers(n_writers);
 
   while (true) {
     auto nbytes = zmq_recv(command_receiver, &recv_buffer_meta, sizeof(recv_buffer_meta), 0);
@@ -66,26 +74,47 @@ int main(int argc, char* argv[])
 
           writer.open_run(command.run_info().output_file(), command.run_info().run_id(), command.run_info().n_images(), 
                           config.image_height, config.image_width, config.bit_depth);
-          open_run = true;
+          current_run_id = command.run_info().run_id();
           highest_run_image_index = 0;
+
+          status.set_command_type(std_daq_protocol::CommandType::START_WRITING);
+          status.set_run_id(current_run_id);
+          status.set_i_image(0);
+          status.SerializeToString(&status_buffer_send);
+          zmq_send(status_sender, status_buffer_send.c_str(), status_buffer_send.size(), 0);
+
           continue;
+          break;
           
         case std_daq_protocol::CommandType::STOP_WRITING:
           fmt::print("[std_data_write::main] Stop writing run_id={} output_file={} last_i_image={}\n", 
                   command.run_info().run_id(), command.run_info().output_file(), command.i_image());
           writer.close_run(highest_run_image_index);
           stats.end_run();
-          open_run = false;
+
+          status.set_command_type(std_daq_protocol::CommandType::STOP_WRITING);
+          status.set_i_image(0);
+          status.SerializeToString(&status_buffer_send);
+          zmq_send(status_sender, status_buffer_send.c_str(), status_buffer_send.size(), 0);
+
+          current_run_id = -1;
           continue;
 
         default:
-          if (!open_run) continue;
+          if (current_run_id == -1LU) continue;
     }
 
     const auto i_image = command.i_image();
     const auto image_id = command.metadata().image_id();
     const auto run_id = command.run_info().run_id();
     const auto data = image_buffer.get_data(image_id);
+
+    // Check if we got a message for the wrong run_id - should not happen, driver problem.
+    if (run_id != current_run_id) {
+        fmt::print("[std_data_write::main] Received write request for run_id={} but current_run_id={}\n",
+                run_id, current_run_id);
+        continue;
+    }
 
     highest_run_image_index = max(highest_run_image_index, i_image);
 
@@ -96,11 +125,18 @@ int main(int argc, char* argv[])
       stats.start_image_write();
       writer.write_data(run_id, i_image, data);
       stats.end_image_write();
+
+      status.set_command_type(std_daq_protocol::CommandType::WRITE_IMAGE);
+      status.set_i_image(i_image);
+      status.SerializeToString(&status_buffer_send);
+      zmq_send(status_sender, status_buffer_send.c_str(), status_buffer_send.size(), 0);
     }
 
     // Only the first instance writes metadata.
     if (i_writer == 0) {
       writer.write_meta(run_id, i_image, command.metadata());
     }
+
   }
 }
+
