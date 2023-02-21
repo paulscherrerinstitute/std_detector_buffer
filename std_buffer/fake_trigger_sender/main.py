@@ -18,7 +18,7 @@ def main():
     iteration_start = time()
     with StdStreamSendBinary(args.output_stream) as output_stream:
         while True:
-            meta.id = (meta.id + 1) % 10000
+            meta.id = (meta.id + 1) % 1000000
             output_stream.send_meta(meta)
 
             iteration_end = time()

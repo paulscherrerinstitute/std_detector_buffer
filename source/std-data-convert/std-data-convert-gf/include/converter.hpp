@@ -24,9 +24,9 @@ public:
 
 private:
   static std::size_t calculate_start_index(int module_id,
-                                   quadrant_id quadrant,
-                                   std::size_t image_height,
-                                   std::size_t image_width);
+                                           quadrant_id quadrant,
+                                           std::size_t image_height,
+                                           std::size_t image_width);
   static std::size_t calculate_row_jump(quadrant_id quadrant, std::size_t image_width);
 
   const std::size_t height;

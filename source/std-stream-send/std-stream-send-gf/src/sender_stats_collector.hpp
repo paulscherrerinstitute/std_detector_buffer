@@ -17,18 +17,18 @@ namespace gf::send {
 class SenderStatsCollector : public utils::StatsCollector<SenderStatsCollector>
 {
 public:
-  explicit SenderStatsCollector(std::string_view detector_name, bool first_half)
+  explicit SenderStatsCollector(std::string_view detector_name, int part)
       : utils::StatsCollector<SenderStatsCollector>("std_stream_send_gf", detector_name)
-      , is_first_half(first_half)
+      , image_part(part)
   {}
 
   [[nodiscard]] std::string additional_message() const
   {
-    return fmt::format("is_first_half={}", is_first_half);
+    return fmt::format("image_part={}", image_part);
   }
 
 private:
-  bool is_first_half;
+  int image_part;
 };
 
 } // namespace gf::send

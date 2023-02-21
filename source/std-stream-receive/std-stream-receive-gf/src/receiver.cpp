@@ -11,13 +11,12 @@
 #include "detectors/gigafrost.hpp"
 #include "utils/args.hpp"
 
-#include "synchronizer.hpp"
 #include "receiver_stats_collector.hpp"
 
 using namespace buffer_utils;
 
 namespace {
-constexpr auto zmq_io_threads = 2;
+constexpr auto zmq_io_threads = 1;
 } // namespace
 
 void* zmq_socket_bind(void* ctx, const std::string& stream_address)
@@ -28,14 +27,16 @@ void* zmq_socket_bind(void* ctx, const std::string& stream_address)
   return socket;
 }
 
-std::tuple<DetectorConfig, std::string, std::string> read_arguments(int argc, char* argv[])
+std::tuple<DetectorConfig, std::string, int> read_arguments(int argc, char* argv[])
 {
   auto program = utils::create_parser("std_stream_receive_gf");
-  program.add_argument("stream_address_first").help("address to bind first half input stream");
-  program.add_argument("stream_address_second").help("address to bind second half input stream");
+  program.add_argument("stream_address").help("address to bind input stream");
+  program.add_argument("image_part")
+      .help("0..7 responsible for sending n-th part of image")
+      .scan<'d', int>();
   program = utils::parse_arguments(program, argc, argv);
-  return {read_json_config(program.get("detector_json_filename")),
-          program.get("stream_address_first"), program.get("stream_address_second")};
+  return {read_json_config(program.get("detector_json_filename")), program.get("stream_address"),
+          program.get<int>("image_part")};
 }
 
 bool received_successfully_data(void* socket, char* buffer, std::size_t size)
@@ -48,14 +49,15 @@ bool received_successfully_data(void* socket, char* buffer, std::size_t size)
 
 int main(int argc, char* argv[])
 {
-  const auto [config, stream_address_first, stream_address_second] = read_arguments(argc, argv);
+  const auto [config, stream_address, image_part] = read_arguments(argc, argv);
   const auto sync_name = fmt::format("{}-image", config.detector_name);
   const auto converted_bytes =
       gf::converted_image_n_bytes(config.image_pixel_height, config.image_pixel_width);
-  const auto data_bytes_sent = converted_bytes / 2;
+  const auto start_index = image_part * gf::max_single_sender_size;
+  if (converted_bytes <= start_index) return 0;
+  const auto data_bytes_sent = std::min(converted_bytes - start_index, gf::max_single_sender_size);
 
-  gf::rec::Synchronizer sync{1000};
-  gf::rec::ReceiverStatsCollector stats(config.detector_name, sync);
+  gf::rec::ReceiverStatsCollector stats(config.detector_name);
 
   ImageMetadata image_meta{};
   auto image_meta_as_span = std::span<char>((char*)&image_meta, sizeof(ImageMetadata));
@@ -66,25 +68,21 @@ int main(int argc, char* argv[])
   auto sender = cb::Communicator{{sync_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
                                  {sync_name, ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
 
-  auto sockets = std::array{zmq_socket_bind(ctx, stream_address_first),
-                            zmq_socket_bind(ctx, stream_address_second)};
+  auto socket = zmq_socket_bind(ctx, stream_address);
   while (true) {
     unsigned int zmq_fails = 0;
+    image_meta.id = 0;
     stats.processing_started();
-    for (auto i = 0u; i < sockets.size(); i++) {
-      if (zmq_recv(sockets[i], &image_meta, sizeof(image_meta), 0) > 0) {
-        char* data = sender.get_data(image_meta.id);
-        if (received_successfully_data(sockets[i], data + (i * data_bytes_sent), data_bytes_sent)) {
-          if (sync.is_ready_to_send(image_meta.id))
-            sender.send(image_meta.id, image_meta_as_span, data);
-        }
-        else
-          zmq_fails++;
-      }
+    if (zmq_recv(socket, &image_meta, sizeof(image_meta), 0) > 0) {
+      char* data = sender.get_data(image_meta.id);
+      if (received_successfully_data(socket, data + start_index, data_bytes_sent))
+        sender.send(image_meta.id, image_meta_as_span, nullptr);
       else
         zmq_fails++;
     }
-    stats.processing_finished(zmq_fails);
+    else
+      zmq_fails++;
+    stats.processing_finished(zmq_fails, image_meta.id);
   }
   return 0;
 }
