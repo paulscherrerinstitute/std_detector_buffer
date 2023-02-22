@@ -4,8 +4,9 @@
 
 #include "sync_stats.hpp"
 
-#include <iostream>
 #include <utility>
+
+#include <fmt/core.h>
 
 using namespace std;
 using namespace chrono;
@@ -46,13 +47,7 @@ void SyncStats::print_stats()
   uint64_t timestamp = time_point_cast<nanoseconds>(system_clock::now()).time_since_epoch().count();
 
   // Output in InfluxDB line protocol
-  cout << "std_data_sync";
-  cout << ",detector_name=" << detector_name_;
-  cout << " ";
-  cout << "n_processed_images=" << image_counter_ << "i";
-  cout << ",n_sync_lost_images=" << n_sync_lost_images_ << "i";
-  cout << ",repetition_rate=" << rep_rate << "i";
-  cout << " ";
-  cout << timestamp;
-  cout << endl;
+  fmt::print("std_data_sync,detector={},n_processed_images={},n_sync_lost_images={},repetition_"
+             "rate={} {}\n",
+             detector_name_, image_counter_, n_sync_lost_images_, rep_rate, timestamp);
 }
