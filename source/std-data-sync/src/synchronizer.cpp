@@ -5,6 +5,8 @@
 #include "synchronizer.hpp"
 
 #include <stdexcept>
+#include <algorithm>
+
 #include <zmq.h>
 #include <fmt/core.h>
 
@@ -26,8 +28,8 @@ ImageAndSync Synchronizer::process_image_metadata(const CommonFrame& meta)
 
   // Has this module already arrived for this image_id?
   if ((modules_mask & (1u << meta.module_id % n_modules)) == 0) {
-    throw runtime_error(
-        fmt::format("Received same module_id 2 times for image_id {}", meta.image_id));
+    discard_image(meta.image_id);
+    return {NoImage, 1};
   }
 
   // Clear bit in 'module_id' place.
@@ -45,7 +47,7 @@ ImageAndSync Synchronizer::get_full_image(uint64_t image_id)
 
   const ImageAndSync result{meta_cache.find(image_id)->second.second, n_corrupted_images};
 
-  image_id_queue.pop();
+  image_id_queue.pop_front();
   meta_cache.erase(image_id);
 
   return result;
@@ -58,10 +60,17 @@ uint32_t Synchronizer::discard_stale_images(uint64_t image_id)
   // Empty all older images until we get to the completed one.
   while (!image_id_queue.empty() && image_id_queue.front() != image_id) {
     meta_cache.erase(image_id_queue.front());
-    image_id_queue.pop();
+    image_id_queue.pop_front();
     n_corrupted_images++;
   }
   return n_corrupted_images;
+}
+
+void Synchronizer::discard_image(uint64_t image_id)
+{
+  const auto [first, last] = std::ranges::remove(image_id_queue, image_id);
+  image_id_queue.erase(first, last);
+  meta_cache.erase(image_id);
 }
 
 bool Synchronizer::did_all_modules_arrive(uint64_t modules_mask)
@@ -76,7 +85,7 @@ bool Synchronizer::is_new_image(uint64_t image_id) const
 
 void Synchronizer::push_new_image_to_queue(CommonFrame meta)
 {
-  image_id_queue.push(meta.image_id);
+  image_id_queue.push_back(meta.image_id);
 
   // Initialize the module mask to 1 for n_modules the least significant bits.
   uint64_t modules_mask = ~(~0u << n_modules);
@@ -89,7 +98,7 @@ void Synchronizer::drop_oldest_incomplete_image()
 {
   auto const image_id = image_id_queue.front();
 
-  image_id_queue.pop();
+  image_id_queue.pop_front();
   meta_cache.erase(image_id);
 }
 

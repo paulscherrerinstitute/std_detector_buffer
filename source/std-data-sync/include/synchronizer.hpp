@@ -8,7 +8,7 @@
 #include <cstddef>
 #include <string>
 #include <vector>
-#include <queue>
+#include <deque>
 #include <unordered_map>
 
 #include "core_buffer/formats.hpp"
@@ -20,13 +20,14 @@ struct ImageAndSync
   const uint32_t n_corrupted_images;
 };
 
-inline constexpr ImageAndSync NoImageSynchronized = {{INVALID_IMAGE_ID, 0, 0}, 0};
+inline constexpr CommonFrame NoImage = {INVALID_IMAGE_ID, 0, 0};
+inline constexpr ImageAndSync NoImageSynchronized = {NoImage, 0};
 
 class Synchronizer
 {
   const int n_modules;
   const size_t n_images_buffer;
-  std::queue<uint64_t> image_id_queue;
+  std::deque<uint64_t> image_id_queue;
   // meta_cache format: map<image_id, pair<modules_mask, metadata>>
   std::unordered_map<uint64_t, std::pair<uint64_t, CommonFrame>> meta_cache;
 
@@ -39,6 +40,7 @@ private:
   void push_new_image_to_queue(CommonFrame meta);
   void drop_oldest_incomplete_image();
   uint32_t discard_stale_images(uint64_t image_id);
+  void discard_image(uint64_t image_id);
   ImageAndSync get_full_image(uint64_t image_id);
 
   bool is_new_image(uint64_t image_id) const;
