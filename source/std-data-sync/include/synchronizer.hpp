@@ -25,27 +25,29 @@ inline constexpr ImageAndSync NoImageSynchronized = {NoImage, 0};
 
 class Synchronizer
 {
-  const int n_modules;
+  using parts_mask = uint64_t;
+  using image_id = uint64_t;
+
+  const int n_parts;
   const size_t n_images_buffer;
-  std::deque<uint64_t> image_id_queue;
-  // meta_cache format: map<image_id, pair<modules_mask, metadata>>
-  std::unordered_map<uint64_t, std::pair<uint64_t, CommonFrame>> meta_cache;
+  std::deque<image_id> image_id_queue;
+  std::unordered_map<image_id, std::pair<parts_mask, CommonFrame>> meta_cache;
 
 public:
-  Synchronizer(int n_modules, int n_images_buffer);
-  ImageAndSync process_image_metadata(const CommonFrame& meta);
+  Synchronizer(int n_parts, int n_images_buffer);
+  ImageAndSync process_image_metadata(const CommonFrame& meta, std::size_t part_id);
 
 private:
-  uint64_t& get_modules_mask(uint64_t image_id);
+  parts_mask& get_parts_mask_for_image(image_id id);
+  uint32_t discard_stale_images(image_id id);
+  ImageAndSync get_full_image(image_id id);
   void push_new_image_to_queue(CommonFrame meta);
   void drop_oldest_incomplete_image();
-  uint32_t discard_stale_images(uint64_t image_id);
-  void discard_image(uint64_t image_id);
-  ImageAndSync get_full_image(uint64_t image_id);
+  void discard_image(image_id id);
 
-  bool is_new_image(uint64_t image_id) const;
+  bool is_new_image(image_id id) const;
   bool is_queue_too_long() const;
-  static bool did_all_modules_arrive(uint64_t modules_mask);
+  static bool did_all_modules_arrive(parts_mask mask);
 };
 
 #endif // STD_DETECTOR_BUFFER_ZMQ_PULSE_SYNC_RECEIVER_HPP

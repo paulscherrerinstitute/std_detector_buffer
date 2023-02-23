@@ -47,7 +47,8 @@ int main(int argc, char* argv[])
     zmq_recv(receiver, meta_buffer_recv, DET_FRAME_STRUCT_BYTES, 0);
     stats2.processing_started();
 
-    auto [cached_meta, n_corrupted_images] = syncer.process_image_metadata(*common_frame);
+    auto [cached_meta, n_corrupted_images] =
+        syncer.process_image_metadata(*common_frame, common_frame->module_id);
 
     if (cached_meta.image_id == INVALID_IMAGE_ID) continue;
 
