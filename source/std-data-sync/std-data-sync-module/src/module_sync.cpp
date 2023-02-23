@@ -10,11 +10,10 @@
 #include "core_buffer/buffer_config.hpp"
 #include "detectors/common.hpp"
 #include "utils/args.hpp"
-#include "utils/basic_stats_collector.hpp"
 #include "std_daq/image_metadata.pb.h"
 
 #include "synchronizer.hpp"
-#include "sync_stats.hpp"
+#include "sync_stats_collector.hpp"
 
 using namespace std;
 using namespace buffer_config;
@@ -32,8 +31,7 @@ int main(int argc, char* argv[])
   auto sender = buffer_utils::bind_socket(ctx, config.detector_name + "-image", ZMQ_PUB);
   Synchronizer syncer(config.n_modules, SYNC_N_IMAGES_BUFFER);
 
-  SyncStats stats(config.detector_name, STATS_TIME);
-  utils::BasicStatsCollector stats2("std_data_sync", config.detector_name);
+  gf::sync::SyncStatsCollector stats(config.detector_name);
 
   char meta_buffer_recv[DET_FRAME_STRUCT_BYTES];
   auto* common_frame = (CommonFrame*)(&meta_buffer_recv);
@@ -45,24 +43,22 @@ int main(int argc, char* argv[])
 
   while (true) {
     zmq_recv(receiver, meta_buffer_recv, DET_FRAME_STRUCT_BYTES, 0);
-    stats2.processing_started();
+    stats.processing_started();
 
-    auto [cached_meta, n_corrupted_images] =
-        syncer.process_image_metadata(*common_frame, common_frame->module_id);
+    auto [cached_id, n_corrupted_images] =
+        syncer.process_image_metadata(common_frame->image_id, common_frame->module_id);
 
-    if (cached_meta.image_id == INVALID_IMAGE_ID) continue;
+    if (cached_id != INVALID_IMAGE_ID) {
+      image_meta.set_image_id(common_frame->image_id);
+      if (common_frame->n_missing_packets == 0)
+        image_meta.set_status(std_daq_protocol::ImageMetadataStatus::good_image);
+      else
+        image_meta.set_status(std_daq_protocol::ImageMetadataStatus::missing_packets);
 
-    image_meta.set_image_id(common_frame->image_id);
-    if (common_frame->n_missing_packets == 0)
-      image_meta.set_status(std_daq_protocol::ImageMetadataStatus::good_image);
-    else
-      image_meta.set_status(std_daq_protocol::ImageMetadataStatus::missing_packets);
-
-    std::string meta_buffer_send;
-    image_meta.SerializeToString(&meta_buffer_send);
-    zmq_send(sender, meta_buffer_send.c_str(), meta_buffer_send.size(), 0);
-
-    stats.record_stats(n_corrupted_images);
-    stats2.processing_finished();
+      std::string meta_buffer_send;
+      image_meta.SerializeToString(&meta_buffer_send);
+      zmq_send(sender, meta_buffer_send.c_str(), meta_buffer_send.size(), 0);
+    }
+    stats.processing_finished(n_corrupted_images);
   }
 }

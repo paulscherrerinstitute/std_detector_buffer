@@ -12,30 +12,29 @@
 
 using namespace std;
 
-Synchronizer::Synchronizer(int n_parts, int n_images_buffer)
-    : n_parts(n_parts)
+Synchronizer::Synchronizer(int n_modules, int n_images_buffer)
+    : n_modules(n_modules)
     , n_images_buffer(n_images_buffer)
     , image_id_queue()
     , meta_cache()
 {}
 
-ImageAndSync Synchronizer::process_image_metadata(const CommonFrame& meta, std::size_t part_id)
+ImageAndSync Synchronizer::process_image_metadata(image_id id, std::size_t module_id)
 {
-  if (is_new_image(meta.image_id)) push_new_image_to_queue(meta);
+  if (is_new_image(id)) push_new_image_to_queue(id);
 
-  // meta_cache format: map<image_id, pair<modules_mask, metadata>>
-  auto& mask = get_parts_mask_for_image(meta.image_id);
+  auto& mask = get_modules_mask_for_image(id);
 
   // Has this module already arrived for this image_id?
-  if ((mask & (1u << part_id % n_parts)) == 0) {
-    discard_image(meta.image_id);
-    return {NoImage, 1};
+  if ((mask & (1u << module_id % n_modules)) == 0) {
+    discard_image(id);
+    return {INVALID_IMAGE_ID, 1};
   }
 
   // Clear bit in 'part_id' place.
-  mask &= ~(1UL << part_id % n_parts);
+  mask &= ~(1UL << module_id % n_modules);
 
-  if (did_all_modules_arrive(mask)) return get_full_image(meta.image_id);
+  if (did_all_modules_arrive(mask)) return get_full_image(id);
   return NoImageSynchronized;
 }
 
@@ -45,12 +44,10 @@ ImageAndSync Synchronizer::get_full_image(image_id id)
 
   if (image_id_queue.empty()) throw runtime_error(fmt::format("No images to return. Impossible?!"));
 
-  const ImageAndSync result{meta_cache.find(id)->second.second, n_corrupted_images};
-
   image_id_queue.pop_front();
   meta_cache.erase(id);
 
-  return result;
+  return {id, n_corrupted_images};
 }
 
 uint32_t Synchronizer::discard_stale_images(image_id id)
@@ -73,14 +70,11 @@ void Synchronizer::discard_image(image_id id)
   meta_cache.erase(id);
 }
 
-void Synchronizer::push_new_image_to_queue(CommonFrame meta)
+void Synchronizer::push_new_image_to_queue(image_id id)
 {
-  image_id_queue.push_back(meta.image_id);
-
+  image_id_queue.push_back(id);
   // Initialize the module mask to 1 for n_modules the least significant bits.
-  uint64_t mask = ~(~0u << n_parts);
-  meta_cache[meta.image_id] = {mask, meta};
-
+  meta_cache[id] = ~(~0u << n_modules);
   if (is_queue_too_long()) drop_oldest_incomplete_image();
 }
 
@@ -91,9 +85,9 @@ void Synchronizer::drop_oldest_incomplete_image()
   meta_cache.erase(id);
 }
 
-Synchronizer::parts_mask& Synchronizer::get_parts_mask_for_image(image_id id)
+Synchronizer::modules_mask& Synchronizer::get_modules_mask_for_image(image_id id)
 {
-  return meta_cache.find(id)->second.first;
+  return meta_cache.find(id)->second;
 }
 
 bool Synchronizer::is_queue_too_long() const
