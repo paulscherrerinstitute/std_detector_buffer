@@ -10,11 +10,9 @@
 
 namespace cb {
 
-//TODO: Rewrite this into more scoped classes when communication architecture is clear.
+// TODO: Rewrite this into more scoped classes when communication architecture is clear.
 Communicator::Communicator(const RamBufferConfig& ram_config, const CommunicatorConfig& comm_config)
-    : buffer(ram_config.buffer_name,
-             ram_config.n_bytes_data,
-             ram_config.n_buffer_slots)
+    : buffer(ram_config.buffer_name, ram_config.n_bytes_data, ram_config.n_buffer_slots)
 {
   auto port_name = comm_config.stream_name;
 
@@ -45,6 +43,11 @@ std::tuple<uint64_t, char*> Communicator::receive(std::span<char> meta)
   // First 8 bytes in any struct must represent the image_id (by convention).
   const auto id = reinterpret_cast<CommonFrame*>(meta.data())->image_id;
   return {id, buffer.get_data(id)};
+}
+
+int Communicator::receive_meta(std::span<char> meta)
+{
+  return zmq_recv(socket, meta.data(), meta.size(), 0);
 }
 
 } // namespace cb

@@ -21,7 +21,7 @@ protobuf_generate(
 protobuf_generate(
         TARGET ${PROJECT_NAME}
         LANGUAGE python
-        PROTOC_OUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/generated
+        PROTOC_OUT_DIR ${CMAKE_SOURCE_DIR}/testing
 )
 
 target_include_directories(${PROJECT_NAME}

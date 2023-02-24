@@ -9,6 +9,7 @@
 #include "core_buffer/communicator.hpp"
 #include "core_buffer/ram_buffer.hpp"
 #include "detectors/gigafrost.hpp"
+#include "std_daq/image_metadata.pb.h"
 #include "utils/args.hpp"
 
 #include "receiver_stats_collector.hpp"
@@ -50,7 +51,7 @@ bool received_successfully_data(void* socket, char* buffer, std::size_t size)
 int main(int argc, char* argv[])
 {
   const auto [config, stream_address, image_part] = read_arguments(argc, argv);
-  const auto sync_name = fmt::format("{}-image", config.detector_name);
+  const auto sync_name = fmt::format("{}-sync", config.detector_name);
   const auto converted_bytes =
       gf::converted_image_n_bytes(config.image_pixel_height, config.image_pixel_width);
   const auto start_index = image_part * gf::max_single_sender_size;
@@ -59,30 +60,31 @@ int main(int argc, char* argv[])
 
   gf::rec::ReceiverStatsCollector stats(config.detector_name);
 
-  ImageMetadata image_meta{};
-  auto image_meta_as_span = std::span<char>((char*)&image_meta, sizeof(ImageMetadata));
+  char buffer[512];
+  std_daq_protocol::ImageMetadata meta;
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
 
   auto sender = cb::Communicator{{sync_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
-                                 {sync_name, ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
+                                 {sync_name, ctx, cb::CONN_TYPE_BIND, ZMQ_PUSH}};
 
   auto socket = zmq_socket_bind(ctx, stream_address);
   while (true) {
     unsigned int zmq_fails = 0;
-    image_meta.id = 0;
+    meta.set_image_id(0);
     stats.processing_started();
-    if (zmq_recv(socket, &image_meta, sizeof(image_meta), 0) > 0) {
-      char* data = sender.get_data(image_meta.id);
+    if (auto n_bytes = zmq_recv(socket, buffer, sizeof(buffer), 0); n_bytes > 0) {
+      meta.ParseFromArray(buffer, n_bytes);
+      char* data = sender.get_data(meta.image_id());
       if (received_successfully_data(socket, data + start_index, data_bytes_sent))
-        sender.send(image_meta.id, image_meta_as_span, nullptr);
+        sender.send(meta.image_id(), std::span{buffer, static_cast<std::size_t>(n_bytes)}, nullptr);
       else
         zmq_fails++;
     }
     else
       zmq_fails++;
-    stats.processing_finished(zmq_fails, image_meta.id);
+    stats.processing_finished(zmq_fails, meta.image_id());
   }
   return 0;
 }

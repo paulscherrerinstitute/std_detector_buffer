@@ -9,6 +9,8 @@ import numpy as np
 import zmq
 import zmq.asyncio
 
+import testing.std_daq.image_metadata_pb2 as daq_proto
+
 
 def executable(name) -> Path:
     binary_path = Path(__file__).parent.parent.absolute()
@@ -74,3 +76,15 @@ async def send_receive(pub_socket: zmq.asyncio.Socket, slot: int, sub_socket: zm
     await pub_socket.send(np.array([slot], dtype='i8'))
     time.sleep(0.1)
     return await msg
+
+
+async def send_receive_proto(pub_socket: zmq.asyncio.Socket, slot: int, sub_socket: zmq.asyncio.Socket):
+    msg = sub_socket.recv()
+    time.sleep(0.1)
+    metadata = daq_proto.ImageMetadata()
+    metadata.image_id = slot
+    await pub_socket.send(metadata.SerializeToString())
+    time.sleep(0.1)
+    data = await msg
+    metadata.ParseFromString(data)
+    return metadata

@@ -17,6 +17,7 @@ target_link_libraries(${PROJECT_NAME}
         core_buffer::core_buffer
         detectors::detectors
         fmt::fmt
+        std_daq_interface::std_daq_interface
         Threads::Threads
         utils::utils
         ZeroMQ::ZeroMQ
