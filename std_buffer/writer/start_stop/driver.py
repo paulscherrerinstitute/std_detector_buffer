@@ -1,4 +1,5 @@
-from threading import Thread, Event
+from threading import Thread, Event, Lock
+from google.protobuf.json_format import MessageToDict
 from std_daq.image_metadata_pb2 import ImageMetadata
 from std_daq.writer_command_pb2 import WriterCommand, CommandType, RunInfo, StatusReport
 from time import time, sleep, time_ns
@@ -8,58 +9,115 @@ import zmq
 _logger = logging.getLogger(__name__)
 
 RECV_TIMEOUT_MS = 500
+STATS_INTERVAL_TIME = 0.5
 
 class WriterStatusTracker(object):
     EMPTY_STATS = {"n_write_completed": 0, "n_write_requested": 0, "start_time": None, "stop_time": None}
 
-    def __init__(self, ctx, status_address, stop_event):
+    def __init__(self, ctx, in_status_address, out_status_address, stop_event):
         self.ctx = ctx
         
-        self.status = {'state': 'READY', 'acquisition': {'state': "FINISHED", 'info': None, 'stats': None}} 
+        self.status = {'state': 'READY', 'acquisition': {'state': "FINISHED", 'info': None, 'stats': None}}
+        self.status_lock = Lock()
+
+        self.last_status_send_time = 0
+        self._current_run_id = None
+
+        self.status_receiver = self.ctx.socket(zmq.PULL)
+        self.status_receiver.RCVTIMEO = RECV_TIMEOUT_MS
+        self.status_receiver.bind(in_status_address)
+
+        self.status_sender = self.ctx.socket(zmq.PUB)
+        self.status_sender.bind(out_status_address)
 
         self.stop_event = stop_event
-        self.status_thread = Thread(target=self._status_rcv_thread, args=(status_address,))
+        self.status_thread = Thread(target=self._status_rcv_thread)
         self.status_thread.start()
 
     def get_status(self):
-        return self.status
+        with self.status_lock:
+            return self.status
 
-    def _status_rcv_thread(self, status_address):
-        writer_status_receiver = self.ctx.socket(zmq.PULL)
-        writer_status_receiver.RCVTIMEO = RECV_TIMEOUT_MS
-        writer_status_receiver.bind(status_address)
+    def _status_rcv_thread(self):
+        status_message = StatusReport()
 
         while not self.stop_event.is_set():
             try:
-                status = writer_status_receiver.recv()
-                self._process_received_status(status)
+                status = self.status_receiver.recv()
+                status_message.ParseFromString(status)
+
+                status_run_id = status_message.run_info.run_id
+
+                if status_message.command_type == CommandType.START_WRITING:
+                    self._log_start_status(status_run_id, status_message)
+                    return
+                   
+                if status_message.command_type == CommandType.STOP_WRITING:
+                    self._log_stop_status(status_message)
+                    return
+
+                if status_run_id != self._current_run_id:
+                    error_message = f"Received write status for run_id={status_run_id} while the " \
+                        "_current_run_id={self._current_run_id}. Status={MessageToDict(status_message)}" 
+
+                    raise ValueError(error_message)
+
+                if status_message.command_type == CommandType.WRITE_IMAGE:
+                    self._log_write_status(status_message)
+                    return
+
+                _logger.warning(f"Unknown status message received: {status_message}")
             except zmq.Again:
                 pass
+            except ValueError:
+                _logger.exception()
 
-    def _process_received_status(self, status):
-        status_message = StatusReport()
-        status_message.ParseFromString(status)
+    def _log_write_status(self, status):
+        with self.status_lock:
+            self.status['state'] = 'WRITING'
+            self.status['acquisition']['state'] = 'ACQUIRING_IMAGES'
+            self.status['acquisition']['stats']['n_write_completed'] += 1
 
-        if status_message.command_type == CommandType.WRITE_IMAGE:
-            if self.status['acquisition']['stats'] is not None:
-                self.status['acquisition']['stats']['n_write_completed'] += 1
-        else:
-            pass
+        # Send out write progress updates on STATS_INTERVAL_TIME intervals.
+        current_time = time()
+        if current_time - self.last_status_send_time > STATS_INTERVAL_TIME:
+            self.last_status_send_time = current_time    
+            self.status_sender.send_json(self.status)
 
-    def log_start_request(self, run_info):
-        _logger.debug(f"Sent start request with run_info {run_info}.")
+    def _log_start_status(self, run_id, status):
+        with self.status_lock:
+            self.status = {'state': "WRITING", 
+                           'acquisition': {'state': 'WAITING_FOR_IMAGES',
+                                           'stats': dict(self.EMPTY_STATS),
+                                           'info': {'output_file': status.run_info.output_file,
+                                                    'n_images': status.run_info.n_images,
+                                                    'run_id': run_id}}}
+            self.status['acquisition']['stats']['start_time'] = time()
 
-        self.status = {'state': "WRITING", 'acquisition': {'state': 'WAITING_FOR_IMAGES', 'info':run_info, 'stats':
-            self.EMPTY_STATS}}
+        self.last_status_send_time = 0
+        self._current_run_id = run_id
 
-    def log_stop_request(self):
-        _logger.debug("Sent stop request")
+        # Send status update as soon as writer starts.
+        self.status_sender.send_json(self.status)
 
-    def log_write_request(self, image_id):
-        if self.status['acquisition']['stats'] is not None:
-            self.status['acquisition']['stats']['n_write_requested'] += 1	
-        else:
-            _logging.warning(f"Logging write request on an invalid acquisition: {self.status}")
+    def _log_stop_status(self, status):
+        with self.status_lock:
+            self.status['state'] = 'READY'
+            self.status['acquisition']['state'] = 'FINISHED'
+            self.status['acquisition']['stats']['stop_time'] = time()
+
+        self._current_run_id = None
+
+        # Send status update as soon as writer stops.
+        self.status_sender.send_json(self.status)
+
+    def log_write_request(self, run_id, image_id):
+        if run_id != self._current_run_id:
+            _logger.debug(f"Received write_request for image_id={image_id}, run_id={run_id} while the _current_run_id={self._current_run_id}.")
+            return
+
+        with self.status_lock:
+            self.status['acquisition']['stats']['n_write_requested'] += 1
 
 
 class WriterDriver(object):
@@ -72,12 +130,13 @@ class WriterDriver(object):
     START_COMMAND = 'START'
     STOP_COMMAND = 'STOP'
 
-    def __init__(self, ctx, command_address, status_address, image_metadata_address):
+    def __init__(self, ctx, command_address, in_status_address, out_status_address, image_metadata_address):
         self.ctx = ctx
         self.stop_event = Event()
-        self.status = WriterStatusTracker(ctx, status_address, self.stop_event)
+        self.status = WriterStatusTracker(ctx, in_status_address, out_status_address, self.stop_event)
         _logger.info(f'Starting writer driver with command_address:{command_address} \
-                                                   status_address:{status_address} \
+                                                   in_status_address:{in_status_address} \
+                                                   out_status_address:{out_status_address} \
                                                    image_metadata_address:{image_metadata_address}')
 
         self.user_command_sender = self.ctx.socket(zmq.PUSH)
@@ -135,11 +194,16 @@ class WriterDriver(object):
             writer_command.run_info.CopyFrom(RunInfo(**run_info))
             writer_command.metadata.Clear()
 
-            _logger.info(f"Send start command to writer: {writer_command}.")
-            self.status.log_start_request(run_info)
+            _logger.info(f"Send start command to writer: {MessageToDict(writer_command)}.")
             writer_command_sender.send(writer_command.SerializeToString())
             nonlocal i_image
             i_image = 0
+
+            while True:
+                status = self.status.get_status()
+                if status['state'] == "WRITING":
+                    break
+                sleep(0.1)
 
             # Subscribe to the ImageMetadata stream.
             image_metadata_receiver.setsockopt(zmq.SUBSCRIBE, b'')
@@ -158,9 +222,8 @@ class WriterDriver(object):
             writer_command.command_type = CommandType.STOP_WRITING
             writer_command.metadata.Clear()
 
-            _logger.info(f"Send stop command to writer: {writer_command}.")
+            _logger.info(f"Send stop command to writer: {MessageToDict(writer_command)}.")
             writer_command_sender.send(writer_command.SerializeToString())
-            self.status.log_stop_request()
 
         poller = zmq.Poller()
         poller.register(user_command_receiver, zmq.POLLIN)
@@ -190,7 +253,7 @@ class WriterDriver(object):
                     writer_command.command_type = CommandType.WRITE_IMAGE
                     writer_command.i_image = i_image
                 
-                    self.status.log_write_request(image_meta.image_id)
+                    self.status.log_write_request(writer_command.run_info.run_id, image_meta.image_id)
                     writer_command_sender.send(writer_command.SerializeToString())
 
                     # Terminate writing.
