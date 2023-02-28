@@ -54,8 +54,8 @@ int main(int argc, char* argv[])
   uint32_t highest_run_image_index = 0;
 
   std_daq_protocol::WriterCommand command;
+  std_daq_protocol::WriterStatus status;
 
-  std_daq_protocol::StatusReport status;
   std::string status_buffer_send;
   status.set_i_writer(i_writer);
   status.set_n_writers(n_writers);
@@ -84,8 +84,8 @@ int main(int argc, char* argv[])
           highest_run_image_index = 0;
 
           status.set_command_type(std_daq_protocol::CommandType::START_WRITING);
-          status.set_run_id(current_run_id);
           status.set_i_image(0);
+          status.set_allocated_run_info(command.release_run_info());
           status.SerializeToString(&status_buffer_send);
           zmq_send(status_sender, status_buffer_send.c_str(), status_buffer_send.size(), 0);
 
