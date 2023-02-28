@@ -30,6 +30,6 @@ message WriterStatus {
   RunInfo run_info = 2;
   uint32 i_image = 3;
 
-  uint32 i_writer = 3;
-  uint32 n_writers = 4;
+  uint32 i_writer = 4;
+  uint32 n_writers = 5;
 }
