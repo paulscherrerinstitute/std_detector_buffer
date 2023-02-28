@@ -20,16 +20,16 @@ message RunInfo {
 message WriterCommand {
   CommandType command_type = 1;
   RunInfo run_info = 2;
-
   uint32 i_image = 3;
-  ImageMetadata metadata=4;
+
+  ImageMetadata metadata = 4;
 }
 
-message StatusReport {
+message WriterStatus {
   CommandType command_type = 1;
-  uint32 i_writer = 2;
-  uint32 n_writers = 3;
+  RunInfo run_info = 2;
+  uint32 i_image = 3;
 
-  uint64 run_id = 4;
-  uint32 i_image = 5;
+  uint32 i_writer = 3;
+  uint32 n_writers = 4;
 }
