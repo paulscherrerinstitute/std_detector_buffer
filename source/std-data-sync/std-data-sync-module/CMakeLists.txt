@@ -31,11 +31,11 @@ target_link_libraries(${PROJECT_NAME}_lib
         std_detector_buffer::settings
 )
 
-add_executable(${PROJECT_NAME}_module src/module_sync.cpp)
-sdb_package(${PROJECT_NAME}_module)
+add_executable(${PROJECT_NAME} src/module_sync.cpp)
+sdb_package(${PROJECT_NAME})
 
-target_include_directories(${PROJECT_NAME}_module PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-target_link_libraries(${PROJECT_NAME}_module
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_link_libraries(${PROJECT_NAME}
     PRIVATE
         ${PROJECT_NAME}_lib
         ZeroMQ::ZeroMQ
