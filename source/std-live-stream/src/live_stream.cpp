@@ -11,6 +11,7 @@
 #include "core_buffer/communicator.hpp"
 #include "core_buffer/ram_buffer.hpp"
 #include "detectors/gigafrost.hpp"
+#include "std_daq/image_metadata.pb.h"
 #include "utils/basic_stats_collector.hpp"
 #include "utils/args.hpp"
 
@@ -41,14 +42,12 @@ std::tuple<buffer_utils::DetectorConfig, std::string, int> read_arguments(int ar
 {
   auto program = utils::create_parser("std_live_stream");
   program.add_argument("stream_address").help("address to bind the output stream");
-  program.add_argument("data_rate")
-      .help("rate in [Hz]")
-      .action([](const std::string& arg) {
-        if (auto value = std::stoi(arg); value < 1 || value > 1000)
-          throw std::runtime_error("Unsupported data_rate! [1-100 Hz] is valid");
-        else
-          return value;
-      });
+  program.add_argument("data_rate").help("rate in [Hz]").action([](const std::string& arg) {
+    if (auto value = std::stoi(arg); value < 1 || value > 1000)
+      throw std::runtime_error("Unsupported data_rate! [1-100 Hz] is valid");
+    else
+      return value;
+  });
 
   program = utils::parse_arguments(program, argc, argv);
   return {buffer_utils::read_json_config(program.get("detector_json_filename")),
@@ -94,30 +93,34 @@ int main(int argc, char* argv[])
 
   const auto source_name = fmt::format("{}-image", config.detector_name);
 
-  auto receiver = cb::Communicator{{source_name, converted_bytes,
-                                    buffer_config::RAM_BUFFER_N_SLOTS},
-                                   {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
+  auto receiver =
+      cb::Communicator{{source_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
+                       {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
   auto sender_socket = bind_sender_socket(ctx, stream_address);
   utils::BasicStatsCollector stats("std_live_stream", config.detector_name);
 
-  ImageMetadata meta{};
+  char buffer[512];
+  std_daq_protocol::ImageMetadata meta;
   auto prev_sent_time = std::chrono::steady_clock::now();
 
   while (true) {
-    auto [_, image_data] = receiver.receive(std::span<char>((char*)&meta, sizeof(meta)));
+    if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
+      meta.ParseFromArray(buffer, n_bytes);
+      auto image_data = receiver.get_data(meta.image_id());
 
-    if (const auto now = std::chrono::steady_clock::now(); prev_sent_time + data_period < now) {
-      stats.processing_started();
-      prev_sent_time = now;
+      if (const auto now = std::chrono::steady_clock::now(); prev_sent_time + data_period < now) {
+        stats.processing_started();
+        prev_sent_time = now;
 
-      auto encoded =
-          fmt::format(R"({{"htype":"array-1.0", "shape":[{},{}], "type":"{}", "frame":{}}})",
-                      config.image_pixel_width, config.image_pixel_height, data_type, meta.id);
-      auto encoded_c = encoded.c_str();
+        auto encoded = fmt::format(
+            R"({{"htype":"array-1.0", "shape":[{},{}], "type":"{}", "frame":{}}})",
+            config.image_pixel_width, config.image_pixel_height, data_type, meta.image_id());
+        auto encoded_c = encoded.c_str();
 
-      zmq_send(sender_socket, encoded_c, encoded.length(), ZMQ_SNDMORE);
-      zmq_send(sender_socket, image_data, converted_bytes, 0);
-      stats.processing_finished();
+        zmq_send(sender_socket, encoded_c, encoded.length(), ZMQ_SNDMORE);
+        zmq_send(sender_socket, image_data, converted_bytes, 0);
+        stats.processing_finished();
+      }
     }
   }
   return 0;
