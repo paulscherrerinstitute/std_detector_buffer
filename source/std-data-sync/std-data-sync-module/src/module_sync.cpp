@@ -10,17 +10,18 @@
 #include "core_buffer/buffer_config.hpp"
 #include "detectors/common.hpp"
 #include "utils/args.hpp"
+#include "utils/sync_stats_collector.hpp"
 #include "std_daq/image_metadata.pb.h"
 
 #include "synchronizer.hpp"
-#include "sync_stats_collector.hpp"
 
 using namespace std;
 using namespace buffer_config;
 
 int main(int argc, char* argv[])
 {
-  auto program = utils::create_parser("std_data_sync");
+  static const std::string prog_name{"std_data_sync_module"};
+  auto program = utils::create_parser(prog_name);
   program = utils::parse_arguments(program, argc, argv);
   const auto config = buffer_utils::read_json_config(program.get("detector_json_filename"));
 
@@ -31,7 +32,7 @@ int main(int argc, char* argv[])
   auto sender = buffer_utils::bind_socket(ctx, config.detector_name + "-image", ZMQ_PUB);
   Synchronizer syncer(config.n_modules, SYNC_N_IMAGES_BUFFER);
 
-  gf::sync::SyncStatsCollector stats(config.detector_name);
+  utils::SyncStatsCollector stats(prog_name, config.detector_name);
 
   char meta_buffer_recv[DET_FRAME_STRUCT_BYTES];
   auto* common_frame = (CommonFrame*)(&meta_buffer_recv);

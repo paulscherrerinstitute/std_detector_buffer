@@ -15,6 +15,7 @@ target_sources(${PROJECT_NAME}
         include/utils/basic_stats_collector.hpp
         include/utils/module_stats_collector.hpp
         include/utils/stats_collector.hpp
+        include/utils/sync_stats_collector.hpp
         include/utils/version.hpp
 )
 

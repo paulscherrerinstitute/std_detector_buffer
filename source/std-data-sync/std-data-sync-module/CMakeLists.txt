@@ -14,7 +14,6 @@ target_sources(${PROJECT_NAME}_lib
     PUBLIC
         include/sync_config.hpp
         include/synchronizer.hpp
-        include/sync_stats_collector.hpp
     PRIVATE
         src/synchronizer.cpp
 )
