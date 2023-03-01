@@ -14,7 +14,7 @@ class SBD(ConanFile):
         "benchmark/1.6.1",
         "protobuf/3.20.0",
         "argparse/2.9",
-        "hdf5/1.13.1"
+        # "hdf5/1.13.1"
     ]
 
     default_options = {"date:header_only": True,
