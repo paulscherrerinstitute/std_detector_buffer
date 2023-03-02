@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
 
   auto sender = cb::Communicator{{sync_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
-                                 {sync_name, ctx, cb::CONN_TYPE_BIND, ZMQ_PUSH}};
+                                 {sync_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_PUSH}};
 
   auto socket = zmq_socket_bind(ctx, stream_address);
   while (true) {

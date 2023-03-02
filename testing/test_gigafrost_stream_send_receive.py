@@ -12,7 +12,8 @@ import zmq.asyncio
 import testing.std_daq.image_metadata_pb2
 from std_buffer.gigafrost.data import GigafrostConfigConverter, GigafrostConfigUdp, get_converter_buffer_data
 from testing.fixtures import test_path
-from testing.communication import start_publisher_communication, start_subscriber_communication
+from testing.communication import start_publisher_communication, start_subscriber_communication, \
+    start_pull_communication
 from testing.execution_helpers import build_command, run_command_in_parallel, send_receive, send_receive_proto
 
 
@@ -81,7 +82,7 @@ async def test_send_receive_stream(test_path):
             gf_config.socket_name = 'GF22-sync'
             gf_config.name = 'GF22-sync'
 
-            with start_subscriber_communication(ctx, gf_config, zmq.SocketType.PULL) as (output_buffer, sub_socket):
+            with start_pull_communication(ctx, gf_config) as (output_buffer, sub_socket):
                 sent_data = get_converter_buffer_data(input_buffer, slot)
                 for i in range(8):
                     index_start = int(i * len(sent_data) / 8)
