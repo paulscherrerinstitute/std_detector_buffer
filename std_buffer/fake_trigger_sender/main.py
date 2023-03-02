@@ -2,7 +2,7 @@ import argparse
 from time import sleep, time
 
 from ..stream_binary import StdStreamSendBinary
-from ...testing.std_daq import image_metadata_pb2 as daq_proto
+from ..std_daq import image_metadata_pb2 as daq_proto
 
 def main():
     parser = argparse.ArgumentParser(description='Fake trigger - fake portions ')
