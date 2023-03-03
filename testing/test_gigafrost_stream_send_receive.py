@@ -80,7 +80,7 @@ async def test_send_receive_stream(test_path):
         with run_command_in_parallel(send_gf0), run_command_in_parallel(send_gf1), run_command_in_parallel(
                 receive_fg0), run_command_in_parallel(receive_fg1):
             gf_config.socket_name = 'GF22-sync'
-            gf_config.name = 'GF22-sync'
+            gf_config.name = 'GF22-image'
 
             with start_pull_communication(ctx, gf_config) as (output_buffer, sub_socket):
                 sent_data = get_converter_buffer_data(input_buffer, slot)

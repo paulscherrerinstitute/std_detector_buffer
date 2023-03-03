@@ -51,6 +51,7 @@ bool received_successfully_data(void* socket, char* buffer, std::size_t size)
 int main(int argc, char* argv[])
 {
   const auto [config, stream_address, image_part] = read_arguments(argc, argv);
+  const auto image_name = fmt::format("{}-image", config.detector_name);
   const auto sync_name = fmt::format("{}-sync", config.detector_name);
   const auto converted_bytes =
       gf::converted_image_n_bytes(config.image_pixel_height, config.image_pixel_width);
@@ -66,7 +67,7 @@ int main(int argc, char* argv[])
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
 
-  auto sender = cb::Communicator{{sync_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
+  auto sender = cb::Communicator{{image_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
                                  {sync_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_PUSH}};
 
   auto socket = zmq_socket_bind(ctx, stream_address);
