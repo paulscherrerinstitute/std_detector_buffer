@@ -46,12 +46,13 @@ int main(int argc, char* argv[])
     zmq_recv(receiver, meta_buffer_recv, DET_FRAME_STRUCT_BYTES, 0);
     stats.processing_started();
 
-    auto [cached_id, n_corrupted_images] =
-        syncer.process_image_metadata(common_frame->image_id, common_frame->module_id);
+    auto n_corrupted_images = syncer.process_image_metadata(*common_frame);
 
-    if (cached_id != INVALID_IMAGE_ID) {
-      image_meta.set_image_id(common_frame->image_id);
-      if (common_frame->n_missing_packets == 0)
+    for (auto m = syncer.pop_next_full_image(); m.image_id != INVALID_IMAGE_ID;
+         m = syncer.pop_next_full_image())
+    {
+      image_meta.set_image_id(m.image_id);
+      if (m.n_missing_packets == 0)
         image_meta.set_status(std_daq_protocol::ImageMetadataStatus::good_image);
       else
         image_meta.set_status(std_daq_protocol::ImageMetadataStatus::missing_packets);

@@ -21,7 +21,7 @@ int correct_stream_sync(Synchronizer& syncer)
     for (int i_module = 0; i_module < n_modules; i_module++) {
       meta.module_id = i_module;
 
-      auto result = syncer.process_image_metadata(meta.image_id, meta.module_id);
+      auto result = syncer.process_image_metadata(meta);
       (void)result;
     }
   }
@@ -46,12 +46,12 @@ int missing_stream_sync(Synchronizer& syncer)
     for (int i_module = 0; i_module < n_modules - 1; i_module++) {
       meta.module_id = i_module;
 
-      auto result = syncer.process_image_metadata(meta.image_id, meta.module_id);
+      auto result = syncer.process_image_metadata(meta);
       (void)result;
     }
     if (i_frame % 2 == 0) {
       meta.module_id = 7;
-      auto result = syncer.process_image_metadata(meta.image_id, meta.module_id);
+      auto result = syncer.process_image_metadata(meta);
       (void)result;
     }
   }
