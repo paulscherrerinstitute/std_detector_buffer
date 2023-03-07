@@ -1,5 +1,5 @@
 .upload:
-  image: curlimages/curl:latest
+  image: curlimages/curl:7.87.0
   only: [ tags ]
   script:
     - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file release/${PACKAGE_RPM} ${PACKAGE_REGISTRY_URL}/${PACKAGE_RPM}'

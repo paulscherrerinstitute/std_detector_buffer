@@ -8,35 +8,41 @@
 #include <cstddef>
 #include <string>
 #include <vector>
-#include <map>
+#include <deque>
+#include <unordered_map>
 
 #include "core_buffer/formats.hpp"
 #include "detectors/common.hpp"
 
+struct ImageAndSync
+{
+  const uint64_t image_id;
+  const uint32_t n_corrupted_images;
+};
+
 class Synchronizer
 {
-  using modules_mask = uint64_t;
   using image_id = uint64_t;
 
-  const int n_modules;
+  const std::size_t n_parts;
   const size_t n_images_buffer;
-  std::map<image_id, std::pair<modules_mask, CommonFrame>> cache;
+
+  std::deque<image_id> image_id_queue;
+  std::unordered_map<image_id, std::size_t> meta_cache;
 
 public:
-  Synchronizer(int n_modules, int n_images_buffer);
-  // returns corrupted images
-  std::size_t process_image_metadata(CommonFrame meta);
-  CommonFrame pop_next_full_image();
+  Synchronizer(int n_parts, int n_images_buffer);
+  ImageAndSync process_image_metadata(image_id id);
+  [[nodiscard]] std::size_t get_queue_length() const { return image_id_queue.size(); }
 
 private:
-  std::size_t push_new_image_to_queue(CommonFrame meta);
-  size_t update_module_mask_for_image(image_id id, size_t module_id);
-  modules_mask& get_modules_mask_for_image(image_id id);
   uint32_t discard_stale_images(image_id id);
+  ImageAndSync get_full_image(image_id id);
+  std::size_t push_new_image_to_queue(image_id id);
   void drop_oldest_incomplete_image();
 
-  [[nodiscard]] bool is_new_image(image_id id) const;
-  [[nodiscard]] bool is_queue_too_long() const;
+  bool is_new_image(image_id id) const;
+  bool is_queue_too_long() const;
 };
 
 #endif // STD_DETECTOR_BUFFER_SYNCHRONIZER_HPP

@@ -10,17 +10,18 @@
 #include "core_buffer/buffer_config.hpp"
 #include "detectors/common.hpp"
 #include "utils/args.hpp"
+#include "utils/sync_stats_collector.hpp"
 #include "std_daq/image_metadata.pb.h"
 
 #include "synchronizer.hpp"
-#include "sync_stats_collector.hpp"
 
 using namespace std;
 using namespace buffer_config;
 
 int main(int argc, char* argv[])
 {
-  auto program = utils::create_parser("std_data_sync");
+  static const std::string prog_name{"std_data_sync_module"};
+  auto program = utils::create_parser(prog_name);
   program = utils::parse_arguments(program, argc, argv);
   const auto config = buffer_utils::read_json_config(program.get("detector_json_filename"));
 
@@ -31,7 +32,7 @@ int main(int argc, char* argv[])
   auto sender = buffer_utils::bind_socket(ctx, config.detector_name + "-image", ZMQ_PUB);
   Synchronizer syncer(config.n_modules, SYNC_N_IMAGES_BUFFER);
 
-  gf::sync::SyncStatsCollector stats(config.detector_name);
+  utils::SyncStatsCollector stats(prog_name, config.detector_name);
 
   char meta_buffer_recv[DET_FRAME_STRUCT_BYTES];
   auto* common_frame = (CommonFrame*)(&meta_buffer_recv);
@@ -45,12 +46,13 @@ int main(int argc, char* argv[])
     zmq_recv(receiver, meta_buffer_recv, DET_FRAME_STRUCT_BYTES, 0);
     stats.processing_started();
 
-    auto [cached_id, n_corrupted_images] =
-        syncer.process_image_metadata(common_frame->image_id, common_frame->module_id);
+    auto n_corrupted_images = syncer.process_image_metadata(*common_frame);
 
-    if (cached_id != INVALID_IMAGE_ID) {
-      image_meta.set_image_id(common_frame->image_id);
-      if (common_frame->n_missing_packets == 0)
+    for (auto m = syncer.pop_next_full_image(); m.image_id != INVALID_IMAGE_ID;
+         m = syncer.pop_next_full_image())
+    {
+      image_meta.set_image_id(m.image_id);
+      if (m.n_missing_packets == 0)
         image_meta.set_status(std_daq_protocol::ImageMetadataStatus::good_image);
       else
         image_meta.set_status(std_daq_protocol::ImageMetadataStatus::missing_packets);
