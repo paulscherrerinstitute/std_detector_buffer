@@ -7,16 +7,15 @@
 #include <zmq.h>
 
 #include "core_buffer/buffer_utils.hpp"
-#include "core_buffer/buffer_config.hpp"
 #include "detectors/common.hpp"
 #include "detectors/gigafrost.hpp"
 #include "utils/args.hpp"
-#include "utils/sync_stats_collector.hpp"
 #include "std_daq/image_metadata.pb.h"
 
 #include "synchronizer.hpp"
+#include "queue_len_stats_collector.hpp"
+
 using namespace std;
-using namespace buffer_config;
 
 int main(int argc, char* argv[])
 {
@@ -35,9 +34,9 @@ int main(int argc, char* argv[])
       gf::converted_image_n_bytes(config.image_pixel_height, config.image_pixel_width));
   const int parts = std::ceil(converted_bytes / gf::max_single_sender_size);
 
-  Synchronizer syncer(parts, SYNC_N_IMAGES_BUFFER);
+  Synchronizer syncer(parts, 1000);
 
-  utils::SyncStatsCollector stats(prog_name, config.detector_name);
+  sdss::QueueStatsCollector stats(prog_name, config.detector_name);
 
   char buffer[512];
   std_daq_protocol::ImageMetadata image_meta;
@@ -49,7 +48,7 @@ int main(int argc, char* argv[])
 
       auto [cached_id, n_corrupted_images] = syncer.process_image_metadata(image_meta.image_id());
       if (cached_id != INVALID_IMAGE_ID) zmq_send(sender, buffer, n_bytes, 0);
-      stats.processing_finished(n_corrupted_images);
+      stats.processing_finished(n_corrupted_images, syncer.get_queue_length());
     }
   }
 }

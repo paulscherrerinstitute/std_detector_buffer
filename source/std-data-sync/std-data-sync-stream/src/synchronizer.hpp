@@ -20,8 +20,6 @@ struct ImageAndSync
   const uint32_t n_corrupted_images;
 };
 
-inline constexpr ImageAndSync NoImageSynchronized = {INVALID_IMAGE_ID, 0};
-
 class Synchronizer
 {
   using image_id = uint64_t;
@@ -35,11 +33,12 @@ class Synchronizer
 public:
   Synchronizer(int n_parts, int n_images_buffer);
   ImageAndSync process_image_metadata(image_id id);
+  [[nodiscard]] std::size_t get_queue_length() const { return image_id_queue.size(); }
 
 private:
   uint32_t discard_stale_images(image_id id);
   ImageAndSync get_full_image(image_id id);
-  void push_new_image_to_queue(image_id id);
+  std::size_t push_new_image_to_queue(image_id id);
   void drop_oldest_incomplete_image();
 
   bool is_new_image(image_id id) const;

@@ -19,13 +19,14 @@ Synchronizer::Synchronizer(int parts, int n_images_buffer)
 
 ImageAndSync Synchronizer::process_image_metadata(image_id id)
 {
-  if (is_new_image(id)) push_new_image_to_queue(id);
+  auto n_corrupted = 0u;
+  if (is_new_image(id)) n_corrupted = push_new_image_to_queue(id);
 
   auto& count = meta_cache.find(id)->second;
-  if (count++ == n_parts)
+  if (++count == n_parts)
     return get_full_image(id);
   else
-    return NoImageSynchronized;
+    return {INVALID_IMAGE_ID, n_corrupted};
 }
 
 ImageAndSync Synchronizer::get_full_image(image_id id)
@@ -53,12 +54,16 @@ uint32_t Synchronizer::discard_stale_images(image_id id)
   return n_corrupted_images;
 }
 
-void Synchronizer::push_new_image_to_queue(image_id id)
+std::size_t Synchronizer::push_new_image_to_queue(image_id id)
 {
   image_id_queue.push_back(id);
   // Initialize the module mask to 1 for n_modules the least significant bits.
   meta_cache[id] = 0;
-  if (is_queue_too_long()) drop_oldest_incomplete_image();
+  if (is_queue_too_long()) {
+    drop_oldest_incomplete_image();
+    return 1;
+  }
+  return 0;
 }
 
 void Synchronizer::drop_oldest_incomplete_image()

@@ -13,6 +13,7 @@ target_sources(${PROJECT_NAME}
     PRIVATE
         src/sync_config.hpp
         src/synchronizer.hpp
+        src/queue_len_stats_collector.hpp
         src/stream_sync.cpp
         src/synchronizer.cpp
 )
