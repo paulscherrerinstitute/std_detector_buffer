@@ -8,10 +8,13 @@ import zmq
 
 _logger = logging.getLogger(__name__)
 
-RECV_TIMEOUT_MS = 500
 STATS_INTERVAL_TIME = 0.5
-START_STATUS_WAIT_TIME = 0.03
-START_STATUS_WAIT_N_RETRY = 5
+WRITER_STATUS_TIMEOUT_MS = 500
+# In seconds.
+RECV_TIMEOUT_MS = 200
+
+WRITER_STATUS_POLL_INTERVAL = 0.5
+WRITER_STATUS_POLL_N_ATTEMPTS = 10
 
 class WriterStatusTracker(object):
     EMPTY_STATS = {"n_write_completed": 0, "n_write_requested": 0, "start_time": None, "stop_time": None}
@@ -27,7 +30,7 @@ class WriterStatusTracker(object):
         self._current_run_id = None
 
         self.status_receiver = self.ctx.socket(zmq.PULL)
-        self.status_receiver.RCVTIMEO = RECV_TIMEOUT_MS
+        self.status_receiver.RCVTIMEO = WRITER_STATUS_TIMEOUT_MS
         self.status_receiver.bind(in_status_address)
 
         self.status_sender = self.ctx.socket(zmq.PUB)
@@ -172,11 +175,16 @@ class WriterDriver(object):
         return self.status.get_status()
 
     def start(self, run_info):
-        _logger.info(f"Start acquisition.")
+        _logger.info(f"Start acquisition requested.")
+
+        status = self.get_status()
+        if status['state'] != "READY":
+            raise RuntimeError(f"Cannot start new acquisition while previous one is running:\n {status}")
+
         self.user_command_sender.send_json({'COMMAND': self.START_COMMAND, 'run_info': run_info or {}})
 
     def stop(self):
-        _logger.info(f"Stop acquisition.")
+        _logger.info(f"Stop acquisition requested.")
         self.user_command_sender.send_json({'COMMAND': self.STOP_COMMAND})
 
     def close(self):
@@ -231,28 +239,15 @@ class WriterDriver(object):
                 _logger.exception("Error in driver loop.")
 
     def _execute_start_command(self, run_info):
-        
         # Tell the writer to start writing.
         self.writer_command.command_type = CommandType.START_WRITING
         self.writer_command.run_info.CopyFrom(RunInfo(**run_info))
         self.writer_command.metadata.Clear()
 
-        _logger.info(f"Send start command to writer: {self.writer_command}.")
+        _logger.debug(f"Send start command to writer: {self.writer_command}.")
         self.writer_command_sender.send(self.writer_command.SerializeToString())
-
-        n_fails = 0
-        while True:
-            sleep(START_STATUS_WAIT_TIME)
-
-            status = self.status.get_status()
-            if status['state'] == "WRITING":
-                break
-
-            n_fails += 1
-            _logger.warning("Start wait interval time exceeded.")
-
-            if n_fails >= START_STATUS_WAIT_N_RETRY:
-                raise RuntimeError(f"Timeout exceeded. Writer did not start writing in {n_fails * START_STATUS_WAIT_TIME} seconds.")
+        
+        self.wait_for_state('WRITING')
 
         # Subscribe to the ImageMetadata stream.
         self.image_metadata_receiver.setsockopt(zmq.SUBSCRIBE, b'')
@@ -270,8 +265,10 @@ class WriterDriver(object):
         self.writer_command.command_type = CommandType.STOP_WRITING
         self.writer_command.metadata.Clear()
 
-        _logger.info(f"Send stop command to writer: {self.writer_command}.")
+        _logger.debug(f"Send stop command to writer: {self.writer_command}.")
         self.writer_command_sender.send(self.writer_command.SerializeToString())
+
+        self.wait_for_state('READY')
 
     def _execute_write_command(self, i_image):
 
@@ -281,4 +278,13 @@ class WriterDriver(object):
     
         self.status.log_write_request(self.writer_command.run_info.run_id, self.image_meta.image_id)
         self.writer_command_sender.send(self.writer_command.SerializeToString())
+
+    def wait_for_state(self, target_state, poll_interval=WRITER_STATUS_POLL_INTERVAL):
+        for _ in range(WRITER_STATUS_POLL_N_ATTEMPTS):
+            sleep(poll_interval)
+            status = self.get_status()
+            if status['state'] == target_state:
+                return
+        else:
+            raise RuntimeError(f"Writer cannot reach target_state={target_state}. Last status:\n{status}")
 
