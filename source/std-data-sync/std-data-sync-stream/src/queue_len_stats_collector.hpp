@@ -34,7 +34,6 @@ public:
   {
     queue = std::max(queue, queue_len);
     Parent::processing_finished(n_corrupted);
-    static_cast<utils::StatsCollector<SyncStatsCollector>*>(this)->processing_finished();
   }
 
 private:
