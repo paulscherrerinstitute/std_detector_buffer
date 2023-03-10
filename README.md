@@ -112,17 +112,38 @@ export LD_LIBRARY_PATH="/usr/lib64/mpich-3.2/lib:${LD_LIBRARY_PATH}"
 Step by step procedure to build the repo:
 
 ```bash
-scl enable devtoolset-9 bash
-git clone git@github.com:paulscherrerinstitute/std_detector_buffer.git
+scl enable devtoolset-10 rh-python38 bash
+git clone https://git.psi.ch/controls-ci/std_detector_buffer.git
 cd std_detector_buffer
 mkdir build
 cd build/
-cmake3 -DDETECTOR=[detector_name] ..
-make
+cmake3 -DCMAKE_BUILD_TYPE=Debug -G Ninja ..
+ninja
 ```
 
-Please refer to the beginning of the **Build** section for valid DETECTOR
-values.
+### HDF5 / MPI error: Could NOT find MPI_C (missing: MPI_C_WORKS)
+
+If the cmake has problems finding MPI_C, try:
+- Comment out line "hdf5/1.13.1" from conan/conanfile.py
+- Build and install HDF5 manually:
+```bash
+cd /etc/std_daq/
+wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.13/hdf5-1.13.2/src/hdf5-1.13.2.tar.gz
+tar -xzf hdf5-1.13.2.tar.gz
+cd hdf5-1.13.2
+./configure --enable-parallel 
+make install 
+```
+- Indicate the HDF5_ROOT:
+```bash
+$ export HDF5_ROOT=/etc/std_daq/hdf5-1.13.2/hdf5/
+```
+- When building (make sure to remove CMakeCache.txt to clean any old configuration), add the following flag to the cmake3:
+```bash
+cd /etc/std_daq/std_detector_buffer/build
+cmake -DCMAKE_BUILD_TYPE=Debug -G Ninja -DCMAKE_CXX_STANDARD_LIBRARIES="-L/etc/std_daq/hdf5-1.13.2/hdf5/lib/ -lhdf5" ..
+ninja
+```
 
 ## Testing
 Each project should have unit tests associated with it written using 
