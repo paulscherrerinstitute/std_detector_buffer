@@ -7,13 +7,13 @@
 #include <zmq.h>
 #include <fmt/core.h>
 
-#include "core_buffer/buffer_utils.hpp"
 #include "core_buffer/communicator.hpp"
 #include "core_buffer/ram_buffer.hpp"
 #include "detectors/gigafrost.hpp"
 #include "std_daq/image_metadata.pb.h"
-#include "utils/basic_stats_collector.hpp"
 #include "utils/args.hpp"
+#include "utils/basic_stats_collector.hpp"
+#include "utils/detector_config.hpp"
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
@@ -38,7 +38,7 @@ void* bind_sender_socket(void* ctx, const std::string& stream_address)
   return socket;
 }
 
-std::tuple<buffer_utils::DetectorConfig, std::string, int> read_arguments(int argc, char* argv[])
+std::tuple<utils::DetectorConfig, std::string, int> read_arguments(int argc, char* argv[])
 {
   auto program = utils::create_parser("std_live_stream");
   program.add_argument("stream_address").help("address to bind the output stream");
@@ -50,11 +50,11 @@ std::tuple<buffer_utils::DetectorConfig, std::string, int> read_arguments(int ar
   });
 
   program = utils::parse_arguments(program, argc, argv);
-  return {buffer_utils::read_json_config(program.get("detector_json_filename")),
+  return {utils::read_config_from_json_file(program.get("detector_json_filename")),
           program.get("stream_address"), program.get<int>("data_rate")};
 }
 
-std::size_t converted_image_n_bytes(const buffer_utils::DetectorConfig& config)
+std::size_t converted_image_n_bytes(const utils::DetectorConfig& config)
 {
   if (config.detector_type == "gigafrost")
     return gf::converted_image_n_bytes(config.image_pixel_height, config.image_pixel_width);
@@ -63,7 +63,7 @@ std::size_t converted_image_n_bytes(const buffer_utils::DetectorConfig& config)
   return 0;
 }
 
-std::string get_data_type(const buffer_utils::DetectorConfig& config)
+std::string get_data_type(const utils::DetectorConfig& config)
 {
   if (config.detector_type == "gigafrost") return "uint16";
   if (config.detector_type == "eiger") {

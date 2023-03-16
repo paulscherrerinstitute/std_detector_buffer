@@ -3,14 +3,13 @@
 /////////////////////////////////////////////////////////////////////
 
 #include <zmq.h>
-#include <fmt/core.h>
 
-#include "core_buffer/buffer_utils.hpp"
 #include "core_buffer/buffer_config.hpp"
 #include "core_buffer/communicator.hpp"
 #include "detectors/jungfrau.hpp"
-#include "utils/module_stats_collector.hpp"
 #include "utils/args.hpp"
+#include "utils/detector_config.hpp"
+#include "utils/module_stats_collector.hpp"
 
 #include "identifier.hpp"
 #include "converter.hpp"
@@ -18,9 +17,9 @@
 
 cb::Communicator create_receiver(std::string name, void* ctx)
 {
-  return cb::Communicator{{name, DATA_BYTES_PER_PACKET * N_PACKETS_PER_FRAME,
-                           buffer_config::RAM_BUFFER_N_SLOTS},
-                          {name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
+  return cb::Communicator{
+      {name, DATA_BYTES_PER_PACKET * N_PACKETS_PER_FRAME, buffer_config::RAM_BUFFER_N_SLOTS},
+      {name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
 }
 
 cb::Communicator create_sender(std::string name, void* ctx)
@@ -49,7 +48,7 @@ int main(int argc, char* argv[])
 {
   auto parser = read_arguments(argc, argv);
 
-  const auto config = buffer_utils::read_json_config(parser.get("detector_json_filename"));
+  const auto config = utils::read_config_from_json_file(parser.get("detector_json_filename"));
   const uint16_t module_id = parser.get<uint16_t>("module_id");
   const uint16_t converter_index = parser.get<uint16_t>("converter_index");
   const jf::sdc::Identifier converter_id(config.detector_name, module_id, converter_index);

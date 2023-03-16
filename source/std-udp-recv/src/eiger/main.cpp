@@ -11,10 +11,10 @@
 
 #include "core_buffer/formats.hpp"
 #include "core_buffer/buffer_config.hpp"
-#include "core_buffer/buffer_utils.hpp"
 #include "core_buffer/communicator.hpp"
 #include "detectors/eiger.hpp"
 #include "utils/args.hpp"
+#include "utils/detector_config.hpp"
 
 #include "frame_stat.hpp"
 #include "packet_udp_receiver.hpp"
@@ -22,7 +22,6 @@
 using namespace std;
 using namespace chrono;
 using namespace buffer_config;
-using namespace buffer_utils;
 
 // Initialize new frame metadata from first seen packet.
 inline void init_frame_metadata(const uint16_t module_id,
@@ -60,7 +59,8 @@ int main(int argc, char* argv[])
   program.add_argument("module_id").scan<'d', uint16_t>();
   program = utils::parse_arguments(program, argc, argv);
 
-  const auto detector_config = read_json_config(program.get("detector_json_filename"));
+  const auto detector_config =
+      utils::read_config_from_json_file(program.get("detector_json_filename"));
   const auto module_id = program.get<uint16_t>("module_id");
 
   const size_t FRAME_N_BYTES = MODULE_N_PIXELS * detector_config.bit_depth / 8;

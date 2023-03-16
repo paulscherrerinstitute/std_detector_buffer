@@ -11,10 +11,10 @@
 
 #include "core_buffer/formats.hpp"
 #include "core_buffer/buffer_config.hpp"
-#include "core_buffer/buffer_utils.hpp"
 #include "core_buffer/communicator.hpp"
 #include "detectors/gigafrost.hpp"
 #include "utils/args.hpp"
+#include "utils/detector_config.hpp"
 
 #include "frame_stat.hpp"
 #include "packet_udp_receiver.hpp"
@@ -22,7 +22,6 @@
 using namespace std;
 using namespace chrono;
 using namespace buffer_config;
-using namespace buffer_utils;
 using namespace gf;
 
 // Initialize new frame metadata from first seen packet.
@@ -95,7 +94,8 @@ int main(int argc, char* argv[])
   program.add_argument("module_id").scan<'d', uint16_t>();
   program = utils::parse_arguments(program, argc, argv);
 
-  const auto detector_config = read_json_config(program.get("detector_json_filename"));
+  const auto detector_config =
+      utils::read_config_from_json_file(program.get("detector_json_filename"));
   const auto module_id = program.get<uint16_t>("module_id");
 
   const uint32_t MODULE_N_X_PIXEL = module_n_x_pixels(detector_config.image_pixel_width);
@@ -124,8 +124,8 @@ int main(int argc, char* argv[])
 
   // Get offset of last packet in frame to know when to commit frame.
   const size_t LAST_PACKET_STARTING_ROW = MODULE_N_Y_PIXEL - LAST_PACKET_N_ROWS;
-  const size_t FRAME_N_BYTES = (PACKET_N_DATA_BYTES * (FRAME_N_PACKETS - 1)) +
-                               LAST_PACKET_N_DATA_BYTES;
+  const size_t FRAME_N_BYTES =
+      (PACKET_N_DATA_BYTES * (FRAME_N_PACKETS - 1)) + LAST_PACKET_N_DATA_BYTES;
 
   auto ctx = zmq_ctx_new();
   const auto source_name = fmt::format("{}-{}", detector_config.detector_name, module_id);

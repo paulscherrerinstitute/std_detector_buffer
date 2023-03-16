@@ -5,14 +5,12 @@
 #include <zmq.h>
 #include <fmt/core.h>
 
-#include "core_buffer/buffer_utils.hpp"
 #include "core_buffer/communicator.hpp"
 #include "core_buffer/ram_buffer.hpp"
 #include "utils/args.hpp"
+#include "utils/detector_config.hpp"
 
 #include "receiver_stats_collector.hpp"
-
-using namespace buffer_utils;
 
 namespace {
 constexpr auto zmq_io_threads = 1;
@@ -26,12 +24,13 @@ void* zmq_socket_bind(void* ctx, const std::string& stream_address)
   return socket;
 }
 
-std::tuple<DetectorConfig, std::string> read_arguments(int argc, char* argv[])
+std::tuple<utils::DetectorConfig, std::string> read_arguments(int argc, char* argv[])
 {
   auto program = utils::create_parser("std_stream_receive_eg");
   program.add_argument("stream_address").help("address to bind the input stream");
   program = utils::parse_arguments(program, argc, argv);
-  return {read_json_config(program.get("detector_json_filename")), program.get("stream_address")};
+  return {utils::read_config_from_json_file(program.get("detector_json_filename")),
+          program.get("stream_address")};
 }
 
 bool received_successfully_data(void* socket, char* buffer, std::size_t size)

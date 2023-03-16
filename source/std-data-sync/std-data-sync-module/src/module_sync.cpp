@@ -6,10 +6,11 @@
 
 #include <zmq.h>
 
-#include "core_buffer/buffer_utils.hpp"
 #include "core_buffer/buffer_config.hpp"
+#include "core_buffer/buffer_utils.hpp"
 #include "detectors/common.hpp"
 #include "utils/args.hpp"
+#include "utils/detector_config.hpp"
 #include "utils/sync_stats_collector.hpp"
 #include "std_daq/image_metadata.pb.h"
 
@@ -23,7 +24,7 @@ int main(int argc, char* argv[])
   static const std::string prog_name{"std_data_sync_module"};
   auto program = utils::create_parser(prog_name);
   program = utils::parse_arguments(program, argc, argv);
-  const auto config = buffer_utils::read_json_config(program.get("detector_json_filename"));
+  const auto config = utils::read_config_from_json_file(program.get("detector_json_filename"));
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, 1);

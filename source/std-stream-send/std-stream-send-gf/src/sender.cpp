@@ -5,12 +5,12 @@
 #include <zmq.h>
 #include <fmt/core.h>
 
-#include "core_buffer/buffer_utils.hpp"
 #include "core_buffer/communicator.hpp"
 #include "core_buffer/ram_buffer.hpp"
 #include "detectors/gigafrost.hpp"
 #include "std_daq/image_metadata.pb.h"
 #include "utils/args.hpp"
+#include "utils/detector_config.hpp"
 
 #include "sender_stats_collector.hpp"
 
@@ -35,7 +35,7 @@ void* bind_sender_socket(void* ctx, const std::string& stream_address)
   return socket;
 }
 
-std::tuple<buffer_utils::DetectorConfig, std::string, int> read_arguments(int argc, char* argv[])
+std::tuple<utils::DetectorConfig, std::string, int> read_arguments(int argc, char* argv[])
 {
   auto program = utils::create_parser("std_stream_send_gf");
   program.add_argument("stream_address").help("address to bind the input stream");
@@ -45,7 +45,7 @@ std::tuple<buffer_utils::DetectorConfig, std::string, int> read_arguments(int ar
 
   program = utils::parse_arguments(program, argc, argv);
 
-  return {buffer_utils::read_json_config(program.get("detector_json_filename")),
+  return {utils::read_config_from_json_file(program.get("detector_json_filename")),
           program.get("stream_address"), program.get<int>("image_part")};
 }
 
