@@ -5,6 +5,7 @@
 #include "detector_config.hpp"
 
 #include <fstream>
+#include <unordered_map>
 
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/document.h>
@@ -12,28 +13,45 @@
 
 namespace utils {
 
-DetectorConfig read_config_from_json_file(const std::string& filename)
+namespace {
+DetectorConfig read_config(const rapidjson::Document& doc)
 {
-  std::ifstream ifs(filename);
-  rapidjson::IStreamWrapper isw(ifs);
-  rapidjson::Document config_parameters;
-  config_parameters.ParseStream(isw);
-
   static const std::string required_parameters[] = {
       "detector_name",      "detector_type",     "n_modules",     "bit_depth",
       "image_pixel_height", "image_pixel_width", "start_udp_port"};
 
   for (auto& s : required_parameters)
-    if (!config_parameters.HasMember(s.c_str()))
+    if (!doc.HasMember(s.c_str()))
       throw std::runtime_error(fmt::format("Detector json file is missing parameter: \"{}\"", s));
 
-  return {config_parameters["detector_name"].GetString(),
-          config_parameters["detector_type"].GetString(),
-          config_parameters["n_modules"].GetInt(),
-          config_parameters["bit_depth"].GetInt(),
-          config_parameters["image_pixel_height"].GetInt(),
-          config_parameters["image_pixel_width"].GetInt(),
-          static_cast<uint16_t>(config_parameters["start_udp_port"].GetUint())};
+  //  std::unordered_map<module_id, std::pair<Point, Point>> modules;
+  //  for (auto& m : doc["module_positions"].GetObject())
+  //    modules[m.name.GetInt()] = {{m.value[0].GetInt(), m.value[1].GetInt()},
+  //                                {m.value[2].GetInt(), m.value[3].GetInt()}};
+
+  return {doc["detector_name"].GetString(),
+          doc["detector_type"].GetString(),
+          doc["n_modules"].GetInt(),
+          doc["bit_depth"].GetInt(),
+          doc["image_pixel_height"].GetInt(),
+          doc["image_pixel_width"].GetInt(),
+          static_cast<uint16_t>(doc["start_udp_port"].GetUint())};
+}
+} // namespace
+
+DetectorConfig read_config_from_json_file(const std::string& filename)
+{
+  std::ifstream ifs(filename);
+  rapidjson::IStreamWrapper isw(ifs);
+  rapidjson::Document doc;
+  doc.ParseStream(isw);
+  return read_config(doc);
 }
 
+DetectorConfig read_config_from_json_string(const std::string& data)
+{
+  rapidjson::Document doc;
+  doc.Parse(data.c_str());
+  return read_config(doc);
+}
 } // namespace utils

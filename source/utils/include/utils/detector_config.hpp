@@ -9,6 +9,14 @@
 
 namespace utils {
 
+using module_id = std::size_t;
+
+struct Point
+{
+  int x = 0;
+  int y = 0;
+};
+
 struct DetectorConfig
 {
   const std::string detector_name;
@@ -29,6 +37,7 @@ struct DetectorConfig
 };
 
 DetectorConfig read_config_from_json_file(const std::string& filename);
+DetectorConfig read_config_from_json_string(const std::string& data);
 
 } // namespace utils
 
