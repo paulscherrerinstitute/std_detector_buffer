@@ -6,6 +6,7 @@
 #define STD_DETECTOR_BUFFER_DETECTOR_CONFIG_HPP
 
 #include <iostream>
+#include <unordered_map>
 
 namespace utils {
 
@@ -26,6 +27,7 @@ struct DetectorConfig
   const int image_pixel_height;
   const int image_pixel_width;
   const uint16_t start_udp_port;
+  const std::unordered_map<module_id, std::pair<Point, Point>> modules;
 
   friend std::ostream& operator<<(std::ostream& os, DetectorConfig const& det_config)
   {
@@ -38,6 +40,9 @@ struct DetectorConfig
 
 DetectorConfig read_config_from_json_file(const std::string& filename);
 DetectorConfig read_config_from_json_string(const std::string& data);
+
+Point get_module_start_position(const DetectorConfig& config, module_id id);
+Point get_module_end_position(const DetectorConfig& config, module_id id);
 
 } // namespace utils
 

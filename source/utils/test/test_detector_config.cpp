@@ -4,8 +4,6 @@
 
 #include "utils/detector_config.hpp"
 
-#include <chrono>
-
 #include <gtest/gtest.h>
 
 namespace utils {
@@ -19,7 +17,8 @@ TEST(DetectorConfig, ShouldReadModuleSettingsCorrectly)
 "bit_depth": 16,
 "image_pixel_height": 2016,
 "image_pixel_width": 2016,
-"start_udp_port": 50020
+"start_udp_port": 50020,
+"module_positions": { "0": [0,1,100,101] }
 }
 )"""";
 
@@ -30,6 +29,10 @@ TEST(DetectorConfig, ShouldReadModuleSettingsCorrectly)
   EXPECT_EQ(16, config.bit_depth);
   EXPECT_EQ(2016, config.image_pixel_width);
   EXPECT_EQ(2016, config.image_pixel_height);
+  EXPECT_EQ(0, get_module_start_position(config, 0).x);
+  EXPECT_EQ(1, get_module_start_position(config, 0).y);
+  EXPECT_EQ(100, get_module_end_position(config, 0).x);
+  EXPECT_EQ(101, get_module_end_position(config, 0).y);
 }
 
 } // namespace utils
