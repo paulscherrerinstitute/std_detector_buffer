@@ -1,7 +1,7 @@
 from threading import Thread, Event, Lock
 from google.protobuf.json_format import MessageToDict
-from std_daq.image_metadata_pb2 import ImageMetadata
-from std_daq.writer_command_pb2 import WriterCommand, CommandType, RunInfo, StatusReport
+from std_buffer.std_daq.image_metadata_pb2 import ImageMetadata
+from std_buffer.std_daq.writer_command_pb2 import WriterCommand, CommandType, RunInfo, WriterStatus
 from time import time, sleep, time_ns
 import logging
 import zmq
@@ -44,7 +44,7 @@ class WriterStatusTracker(object):
             return self.status
 
     def _status_rcv_thread(self):
-        status_message = StatusReport()
+        status_message = WriterStatus()
 
         while not self.stop_event.is_set():
             try:
