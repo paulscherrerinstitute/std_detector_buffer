@@ -15,6 +15,7 @@ target_link_libraries(${PROJECT_NAME}_lib
         detectors::detectors
     PRIVATE
         fmt::fmt
+        utils::utils
         std_detector_buffer::settings
 )
 

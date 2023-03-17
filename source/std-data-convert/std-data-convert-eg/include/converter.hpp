@@ -9,21 +9,18 @@
 #include <vector>
 #include <span>
 
+#include "utils/detector_config.hpp"
+
 namespace eg::sdc {
 
 class Converter
 {
 public:
-  explicit Converter(std::size_t image_height,
-                     std::size_t image_width,
-                     std::size_t depth,
-                     int module_id);
+  explicit Converter(const utils::DetectorConfig& config, int module_id);
   void convert(std::span<char> input_data, std::span<char> output_buffer) const;
 
 private:
-  static int calculate_start_index(int module_id,
-                                   std::size_t image_width,
-                                   std::size_t bit_depth);
+  static int calculate_start_index(int module_id, std::size_t image_width, std::size_t bit_depth);
   static int calculate_row_jump(int module_id, std::size_t image_width, std::size_t bit_depth);
 
   const std::size_t height;

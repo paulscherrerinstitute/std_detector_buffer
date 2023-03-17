@@ -60,8 +60,7 @@ int main(int argc, char* argv[])
                                                    ZMQ_PUSH};
   auto sender = cb::Communicator{send_buffer_config, send_comm_config};
 
-  auto converter = eg::sdc::Converter(config.image_pixel_height, config.image_pixel_width,
-                                      config.bit_depth, module_id);
+  auto converter = eg::sdc::Converter(config, module_id);
 
   EGFrame meta{};
 
