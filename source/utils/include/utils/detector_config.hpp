@@ -7,10 +7,12 @@
 
 #include <iostream>
 #include <unordered_map>
+#include <bitset>
 
 namespace utils {
 
 using module_id = std::size_t;
+using modules_mask = std::bitset<128>;
 
 struct Point
 {
@@ -43,6 +45,7 @@ DetectorConfig read_config_from_json_string(const std::string& data);
 
 Point get_module_start_position(const DetectorConfig& config, module_id id);
 Point get_module_end_position(const DetectorConfig& config, module_id id);
+modules_mask get_modules_mask(const DetectorConfig& config);
 
 } // namespace utils
 

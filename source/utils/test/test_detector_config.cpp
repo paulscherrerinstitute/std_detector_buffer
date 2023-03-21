@@ -18,7 +18,7 @@ TEST(DetectorConfig, ShouldReadModuleSettingsCorrectly)
 "image_pixel_height": 2016,
 "image_pixel_width": 2016,
 "start_udp_port": 50020,
-"module_positions": { "0": [0, 1, 100, 101] }
+"module_positions": { "0": [0, 1, 100, 101], "2": [1,2,3,4], "15": [5,6,7,8]}
 }
 )"""";
 
@@ -33,6 +33,7 @@ TEST(DetectorConfig, ShouldReadModuleSettingsCorrectly)
   EXPECT_EQ(1, get_module_start_position(config, 0).y);
   EXPECT_EQ(100, get_module_end_position(config, 0).x);
   EXPECT_EQ(101, get_module_end_position(config, 0).y);
+  EXPECT_EQ(modules_mask{133}, get_modules_mask(config));
 }
 
 } // namespace utils

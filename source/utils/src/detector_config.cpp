@@ -66,4 +66,12 @@ Point get_module_end_position(const DetectorConfig& config, module_id id)
   return config.modules.at(id).second;
 }
 
+modules_mask get_modules_mask(const DetectorConfig& config)
+{
+  modules_mask m;
+  for(auto [key, _] : config.modules)
+    m.set(key % config.n_modules);
+  return m;
+}
+
 } // namespace utils
