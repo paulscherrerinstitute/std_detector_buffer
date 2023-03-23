@@ -6,7 +6,8 @@ import zmq.asyncio
 
 
 @contextmanager
-def start_publisher_communication(zmq_context: zmq.asyncio.Context, config, socket_type: zmq.SocketType = zmq.SocketType.PUB):
+def start_publisher_communication(zmq_context: zmq.asyncio.Context, config,
+                                  socket_type: zmq.SocketType = zmq.SocketType.PUB):
     socket = zmq_context.socket(socket_type)
     try:
         socket.bind(f'ipc:///tmp/{config.socket_name}')
@@ -22,7 +23,8 @@ def start_publisher_communication(zmq_context: zmq.asyncio.Context, config, sock
 
 
 @contextmanager
-def start_subscriber_communication(zmq_context: zmq.asyncio.Context, config, socket_type: zmq.SocketType = zmq.SocketType.SUB):
+def start_subscriber_communication(zmq_context: zmq.asyncio.Context, config,
+                                   socket_type: zmq.SocketType = zmq.SocketType.SUB):
     socket = zmq_context.socket(socket_type)
     socket.connect(f'ipc:///tmp/{config.name}')
     if socket_type == zmq.SocketType.SUB:
