@@ -32,11 +32,12 @@ Converter::Converter(const utils::DetectorConfig& config, int module_id)
 
 void Converter::convert(std::span<char> input, std::span<char> output_buffer) const
 {
+  constexpr std::size_t chips_per_module = 2;
   const auto input_second_chip_pos = input_row_size_per_chip;
   const auto output_second_chip_pos = input_second_chip_pos + gap_size;
 
   for (auto row = 0u; row < MODULE_Y_SIZE; row++) {
-    const auto input_start = row * input_row_size_per_chip * 2;
+    const auto input_start = row * input_row_size_per_chip * chips_per_module;
     const auto output_start = start_index + row * row_jump;
     std::memcpy(output_buffer.data() + output_start, input.data() + input_start,
                 input_row_size_per_chip);
