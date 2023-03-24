@@ -1,0 +1,15 @@
+{
+  "detector_name": "EG05M",
+  "detector_type": "eiger",
+  "n_modules": 4,
+  "bit_depth": 16,
+  "image_pixel_height": 514,
+  "image_pixel_width": 1030,
+  "start_udp_port": 50020,
+  "module_positions": {
+    "0": [0,0,513,255],
+    "1": [516,0,1029,255],
+    "2": [0,513,513,258],
+    "3": [516,513,1029,258]
+  }
+}

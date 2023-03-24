@@ -17,7 +17,7 @@ def main():
     iteration_start = time()
     with StdStreamSendBinary(args.output_stream) as output_stream:
         while True:
-            metadata.image_id  = (metadata.image_id + 1) % 1000000
+            metadata.image_id = (metadata.image_id + 1) % 1000000
             output_stream.send_meta(metadata.SerializeToString())
 
             iteration_end = time()
