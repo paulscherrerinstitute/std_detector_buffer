@@ -30,8 +30,17 @@ def get_converter_packet_array(output_buffer: memoryview, slot: int) -> np.ndarr
                       buffer=data_of_slot)
 
 
+def fill_data_to_send(input_buffer, slot):
+    sent_data = get_udp_packet_array(input_buffer, slot)
+    for i in range(256):
+        for j in range(256):
+            sent_data[i * 512 + j] = i
+        for j in range(256, 512):
+            sent_data[i * 512 + j] = i + 100
+
+
 @pytest.mark.asyncio
-async def test_converter_1m_for_eiger(test_path):
+async def test_converter_1m_for_eiger_first_quarter(test_path):
     slot = 3
     build_eiger_converter_command = functools.partial(build_eiger_converter_command_full, test_path,
                                                       'eiger_detector_1M.json')
@@ -40,13 +49,7 @@ async def test_converter_1m_for_eiger(test_path):
     with start_publisher_communication(ctx, EigerConfigUdp) as (input_buffer, pub_socket):
         with run_command_in_parallel(build_eiger_converter_command(0)):
             with start_pull_communication(ctx, EigerConfigConverter) as (output_buffer, pull_socket):
-                # fill data array with incremented data
-                sent_data = get_udp_packet_array(input_buffer, slot)
-                for i in range(256):
-                    for j in range(256):
-                        sent_data[i * 512 + j] = i
-                    for j in range(256, 512):
-                        sent_data[i * 512 + j] = i + 100
+                fill_data_to_send(input_buffer, slot)
 
                 msg = await send_receive(pub_socket=pub_socket, sub_socket=pull_socket, slot=slot)
 
@@ -58,3 +61,31 @@ async def test_converter_1m_for_eiger(test_path):
                         assert output_data[i*1030+j] == i
                     for j in range(258,514):
                         assert output_data[i*1030+j] == i + 100
+
+
+@pytest.mark.asyncio
+async def test_converter_1m_for_eiger_fourth_quarter(test_path):
+    slot = 4
+    build_eiger_converter_command = functools.partial(build_eiger_converter_command_full, test_path,
+                                                      'eiger_detector_1M.json')
+    ctx = zmq.asyncio.Context()
+    config = EigerConfigUdp
+    config.name = 'EG1M-3'
+    with start_publisher_communication(ctx, config) as (input_buffer, pub_socket):
+        with run_command_in_parallel(build_eiger_converter_command(3)):
+            config = EigerConfigConverter
+            config.converter_index = 3
+            with start_pull_communication(ctx, config) as (output_buffer, pull_socket):
+                fill_data_to_send(input_buffer, slot)
+
+                msg = await send_receive(pub_socket=pub_socket, sub_socket=pull_socket, slot=slot)
+
+                assert np.frombuffer(msg, dtype='i8')[0] == slot
+                output_data = get_converter_packet_array(output_buffer, slot)
+                for i in range(256):
+                    for j in range(256):
+                        jump = ((258 + i) * 1030) + 516 + j
+                        assert output_data[jump] == 255-i
+                    for j in range(258, 514):
+                        jump = ((258 + i) * 1030) + 516 + j
+                        assert output_data[jump] == 255-i + 100
