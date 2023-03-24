@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
   const auto data_bytes =
       config.image_pixel_width * config.image_pixel_height * config.bit_depth / 8u;
 
-  gf::rec::ReceiverStatsCollector stats(config.detector_name);
+  eg::rec::ReceiverStatsCollector stats(config.detector_name);
 
   ImageMetadata image_meta{};
   auto image_meta_as_span = std::span<char>((char*)&image_meta, sizeof(ImageMetadata));

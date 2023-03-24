@@ -2,8 +2,8 @@
 // Copyright (c) 2023 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_RECEIVER_STATS_COLLECTOR_HPP
-#define STD_DETECTOR_BUFFER_RECEIVER_STATS_COLLECTOR_HPP
+#ifndef STD_DETECTOR_BUFFER_RECEIVER_STATS_COLLECTOR_EG_HPP
+#define STD_DETECTOR_BUFFER_RECEIVER_STATS_COLLECTOR_EG_HPP
 
 #include <chrono>
 #include <utility>
@@ -12,7 +12,7 @@
 
 #include "utils/stats_collector.hpp"
 
-namespace gf::rec {
+namespace eg::rec {
 
 class ReceiverStatsCollector : public utils::StatsCollector<ReceiverStatsCollector>
 {
@@ -38,6 +38,6 @@ private:
   unsigned long zmq_fails = 0;
 };
 
-} // namespace gf::rec
+} // namespace eg::rec
 
 #endif // STD_DETECTOR_BUFFER_RECEIVER_STATS_COLLECTOR_HPP

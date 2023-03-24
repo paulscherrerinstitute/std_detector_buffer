@@ -10,6 +10,7 @@ add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME}
     PRIVATE
         src/sender.cpp
+        src/sender_stats_collector.hpp
 )
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
@@ -17,6 +18,7 @@ target_link_libraries(${PROJECT_NAME}
         detectors::detectors
         fmt::fmt
         Threads::Threads
+        std_daq_interface::std_daq_interface
         utils::utils
         ZeroMQ::ZeroMQ
         rt

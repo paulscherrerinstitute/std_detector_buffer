@@ -87,6 +87,11 @@ inline std::size_t converted_image_n_bytes(int image_pixel_height,
   return image_pixel_width * image_pixel_height * bit_depth / 8;
 }
 
+inline constexpr std::size_t max_converted_image_byte_size =
+    image_pixel_width * image_pixel_height * 2;
+inline constexpr std::size_t max_single_sender_size = max_converted_image_byte_size / 8;
+static_assert(max_single_sender_size * 8 == max_converted_image_byte_size);
+
 } // namespace eg
 
 #endif // STD_DETECTOR_BUFFER_EIGER_HPP
