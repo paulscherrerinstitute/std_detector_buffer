@@ -40,10 +40,10 @@ def fill_data_to_send(input_buffer, slot):
 
 
 @pytest.mark.asyncio
-async def test_converter_1m_for_eiger_first_quarter(test_path):
+async def test_converter_half_m_for_eiger_first_quarter(test_path):
     slot = 3
     build_eiger_converter_command = functools.partial(build_eiger_converter_command_full, test_path,
-                                                      'eiger_detector_1M.json')
+                                                      'eiger_detector_0_5M.json')
     ctx = zmq.asyncio.Context()
 
     with start_publisher_communication(ctx, EigerConfigUdp) as (input_buffer, pub_socket):
@@ -64,13 +64,13 @@ async def test_converter_1m_for_eiger_first_quarter(test_path):
 
 
 @pytest.mark.asyncio
-async def test_converter_1m_for_eiger_fourth_quarter(test_path):
+async def test_converter_half_m_for_eiger_fourth_quarter(test_path):
     slot = 4
     build_eiger_converter_command = functools.partial(build_eiger_converter_command_full, test_path,
-                                                      'eiger_detector_1M.json')
+                                                      'eiger_detector_0_5M.json')
     ctx = zmq.asyncio.Context()
     config = EigerConfigUdp
-    config.name = 'EG1M-3'
+    config.name = 'EG05M-3'
     with start_publisher_communication(ctx, config) as (input_buffer, pub_socket):
         with run_command_in_parallel(build_eiger_converter_command(3)):
             config = EigerConfigConverter
