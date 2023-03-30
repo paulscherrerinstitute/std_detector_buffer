@@ -20,12 +20,12 @@ conan_config_install(ITEM ${CMAKE_HOME_DIRECTORY}/conan/settings.yml)
 conan_config_install(ITEM ${CMAKE_HOME_DIRECTORY}/conan/remotes.json)
 conan_cmake_autodetect(DETECTED_SETTINGS)
 conan_cmake_install(
-        PATH_OR_REFERENCE ${CMAKE_SOURCE_DIR}/conan
-        BUILD missing
-        SETTINGS ${DETECTED_SETTINGS}
-        SETTINGS compiler.psi=True # ensure that all packages are built or used from local cache
-        SETTINGS os=Linux
-        SETTINGS os_build=Linux
+    PATH_OR_REFERENCE ${CMAKE_SOURCE_DIR}/conan
+    BUILD missing
+    SETTINGS ${DETECTED_SETTINGS}
+    SETTINGS compiler.psi=True # ensure that all packages are built or used from local cache
+    SETTINGS os=Linux
+    SETTINGS os_build=Linux
 )
 
 include(sdb_packaging)
