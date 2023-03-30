@@ -17,6 +17,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG_OUTPUT")
 
 include(sdb_conan)
 conan_config_install(ITEM ${CMAKE_HOME_DIRECTORY}/conan/settings.yml)
+conan_config_install(ITEM ${CMAKE_HOME_DIRECTORY}/conan/remotes.json)
 conan_cmake_autodetect(DETECTED_SETTINGS)
 conan_cmake_install(
         PATH_OR_REFERENCE ${CMAKE_SOURCE_DIR}/conan
