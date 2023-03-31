@@ -30,16 +30,13 @@ inline void init_frame_metadata(const uint16_t module_id,
                                 const EGUdpPacket& packet,
                                 EGFrame& meta)
 {
-  meta.common.image_id = packet.framenum;
+  meta.common.image_id = packet.frame_num;
   meta.common.module_id = module_id;
   meta.common.n_missing_packets = FRAME_N_PACKETS;
 
   meta.bit_depth = bit_depth;
   meta.pos_x = packet.row;
   meta.pos_y = packet.column;
-
-  meta.exptime = packet.exptime;
-  meta.bunchid = packet.bunchid;
 }
 
 inline void send_image_id(EGFrame& meta,
@@ -92,17 +89,17 @@ int main(int argc, char* argv[])
 
     for (int i_packet = 0; i_packet < n_packets; i_packet++) {
       const auto& packet = packet_buffer[i_packet];
-      const size_t frame_buffer_offset = packet.packetnum * DATA_BYTES_PER_PACKET;
+      const size_t frame_buffer_offset = packet.packet_number * DATA_BYTES_PER_PACKET;
 
       // Packet belongs to the frame we are currently processing.
-      if (meta.common.image_id == packet.framenum) {
+      if (meta.common.image_id == packet.frame_num) {
         // Accumulate packets data into the frame buffer.
         memcpy(frame_buffer + frame_buffer_offset, packet.data, DATA_BYTES_PER_PACKET);
         meta.common.n_missing_packets -= 1;
 
         // Copy frame_buffer to ram_buffer and send pulse_id over zmq if last packet in frame.
         // TODO: Check comparison between size_t and uint32_t
-        if (packet.packetnum == N_PACKETS_PER_FRAME - 1) {
+        if (packet.packet_number == N_PACKETS_PER_FRAME - 1) {
           sender.send(meta.common.image_id, std::span<char>((char*)&meta, sizeof(meta)),
                       frame_buffer);
           stats.record_stats(meta.common.n_missing_packets);
