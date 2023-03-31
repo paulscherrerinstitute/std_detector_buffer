@@ -15,6 +15,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         bsread_receiver::bsread_receiver
+        utils::utils
         fmt::fmt
         std_detector_buffer::settings
 )
