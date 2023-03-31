@@ -41,35 +41,34 @@ struct EGFrame
   uint16_t pos_y;
   uint16_t pos_x;
 
-  // 16 bytes
-  uint32_t exptime;
-  double bunchid;
-  uint32_t debug;
-
-  char __padding__[DET_FRAME_STRUCT_BYTES - 18 - 6 - 16];
+  char __padding__[DET_FRAME_STRUCT_BYTES - 18 - 6];
 };
 #pragma pack(pop)
 
+// for more info on the eiger udp header:
+// https://slsdetectorgroup.github.io/devdoc/udpheader.html
 #pragma pack(push)
 #pragma pack(2)
 struct EGUdpPacket
 {
-  uint64_t framenum;
-  uint32_t exptime;
-  uint32_t packetnum;
+  uint64_t frame_num;
 
-  double bunchid;
+  uint32_t exp_length;
+  uint32_t packet_number;
+
+  uint64_t detSpec1;
+
   uint64_t timestamp;
 
-  uint16_t moduleID;
+  uint16_t module_id;
   uint16_t row;
   uint16_t column;
-  uint16_t reserved;
+  uint16_t detSpec2;
 
-  uint32_t debug;
-  uint16_t roundRobin;
-  uint8_t detectortype;
-  uint8_t headerVersion;
+  uint32_t detSpec3;
+  uint16_t round_robin;
+  uint8_t detType;
+  uint8_t version;
   char data[DATA_BYTES_PER_PACKET];
 };
 #pragma pack(pop)
@@ -86,9 +85,8 @@ inline std::size_t converted_image_n_bytes(int image_pixel_height,
 {
   return image_pixel_width * image_pixel_height * bit_depth / 8;
 }
-
-inline constexpr std::size_t max_converted_image_byte_size =
-    image_pixel_width * image_pixel_height * 2;
+// Max image byte size for a 9M eiger detector using 32 bits
+inline constexpr std::size_t max_converted_image_byte_size = 3106 * 3264 * 32 / 8;
 inline constexpr std::size_t max_single_sender_size = max_converted_image_byte_size / 8;
 static_assert(max_single_sender_size * 8 == max_converted_image_byte_size);
 
