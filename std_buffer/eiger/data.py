@@ -8,27 +8,29 @@ EG_GAPPIXELS_BETWEEN_CHIPS_X = 2
 EG_GAPPIXELS_BETWEEN_CHIPS_Y = 2
 EG_GAPPIXELS_BETWEEN_MODULES_X = 8
 EG_GAPPIXELS_BETWEEN_MODULES_Y = 36
+MODULE_X_SIZE = 512
+MODULE_Y_SIZE = 256
 
 class EgUdpPacket(Structure):
-    _comparable_fields = ['framenum', 'exptime', 'packetnum',
-                          'bunchid', 'timestamp', 'moduleID',
-                          'row', 'column', 'reserved', 'roundRobin',
-                          'detectortype', 'headerVersion']
+    _comparable_fields = ['frame_num', 'exp_length', 'packet_number',
+                          'timestamp', 'module_id',
+                          'row', 'column',
+                          'detector_type', 'header_version']
 
     _pack_ = 1
-    _fields_ = [("framenum", c_uint64),
-                ("exptime", c_uint32),
-                ("packetnum", c_uint32),
-                ("bunchid", c_double),
+    _fields_ = [("frame_num", c_uint64),
+                ("exp_length", c_uint32),
+                ("packet_number", c_uint32),
+                ("detSpec1", c_uint64),
                 ("timestamp", c_uint64),
-                ("moduleID", c_uint16),
+                ("module_id", c_uint16),
                 ("row", c_uint16),
                 ("column", c_uint16),
-                ("reserved", c_uint16),
-                ("debug", c_uint32),
-                ("roundRobin", c_uint16),
-                ("detectortype", c_uint8),
-                ("headerVersion", c_uint8)]
+                ("detSpec2", c_uint16),
+                ("detSpec3", c_uint32),
+                ("round_robin", c_uint16),
+                ("detector_type", c_uint8),
+                ("header_version", c_uint8)]
 
     def __str__(self):
         output_string = ''
@@ -48,83 +50,64 @@ class EGFrame(Structure):
     _fields_ = [("frame_index", c_uint64),
                 ("n_missing_packets", c_uint64),
                 ("bit_depth", c_uint16),
-                ("pos_y", c_uint16),
-                ("pos_x", c_uint16),
-                ("exptime", c_uint32),
-                ("bunchid", c_double),
-                ("debug", c_uint32)]
+                ("row", c_uint16),
+                ("column", c_uint16),
+                ("exptime", c_uint32)]
 
     def __str__(self):
-        return f"bunchid: {self.bunchid} " \
+        return f"frame_index: {self.frame_index} "\
                f"bit_depth: {self.bit_depth} " \
+               f"n_missing_packets: {self.n_missing_packets} " \
                f"exptime: {self.exptime}"
 
 
-def eg_udp_packet_to_frame(packet, module_n_x_pixels, module_n_y_pixels, frame_n_packets):
+def eg_udp_packet_to_frame(packet, module_n_x_pixels, module_n_y_pixels, frame_n_packets, bit_depth):
     meta = EGFrame()
 
     meta.n_missing_packets = frame_n_packets
     meta.size_x = module_n_x_pixels
     meta.size_y = module_n_y_pixels
 
-    meta.frame_index = packet.framenun
+    meta.frame_index = packet.frame_num
 
     meta.frame_timestamp = packet.timestamp
     
-    meta.bit_depth = packet.bit_depth
-    meta.pos_y = packet.row
-    meta.pos_x = packet.column
-    
-    meta.exposure_time = packet.exptime
-    meta.bunchid = packet.bunchid
-    meta.debug = packet.debug
-    
+    meta.bit_depth = bit_depth
+    meta.row = packet.row
+    meta.column = packet.column
 
     return meta
 
-# //TODO -> CALCULATE UDP PACKET INFO FOR EIGER
-# def calculate_udp_packet_info(image_pixel_height, image_pixel_width):
-#     # Each line of final image is composed by 2 quadrants side by side.
-#     module_n_x_pixel = image_pixel_width // 2
+def calculate_udp_packet_info(n_modules, image_pixel_height, image_pixel_width, bit_depth):
+    # Calculations for a 0.5M Eiger
+    # Each line of final image is composed by 4 chips (256x256) side by side and gap pixels.
+    # Each column of the final image is composed by 2 chips (256x256) on top of each other and gap pixels.
+    module_n_x_pixel = MODULE_X_SIZE
+    module_n_y_pixel = MODULE_Y_SIZE
 
-#     # Each quadrant is composed by 2 modules streaming interleaved image lines.
-#     module_n_y_pixel = image_pixel_height // 2 // 2
+    # Max udp packet payload divided by the module row size in bytes or module Y size if smaller.
+    packet_n_rows = int(min(EG_MAX_PAYLOAD * module_n_x_pixel / bit_depth / 8 , module_n_y_pixel))
 
-#     # Max udp packet payload divided by the module row size in bytes or module Y size if smaller.
-#     # packet_n_rows = int(min(GF_MAX_PAYLOAD / 1.5 / module_n_x_pixel, module_n_y_pixel))
+    # Calculate the number of data bytes per packet.
+    packet_n_data_bytes = int(module_n_x_pixel * packet_n_rows * bit_depth / 8)
 
-#     # Do NOT optimize these expressions due to rounding.
-#     n_12pixel_blocks = module_n_x_pixel // 12
-#     n_cache_line_blocks = int((EG_MAX_PAYLOAD / (36 * n_12pixel_blocks)) * n_12pixel_blocks / 2)
-#     # Each cache line block (64 bytes) has 48 pixels (12 bit pixels)
-#     packet_n_rows = int(min(n_cache_line_blocks * 48 / module_n_x_pixel, module_n_y_pixel))
+    # Number of rows in a frame divided by the number of rows in a packet.
+    frame_n_packets = ceil(module_n_y_pixel / packet_n_rows)
 
-#     # Calculate the number of data bytes per packet.
-#     packet_n_data_bytes = int(module_n_x_pixel * packet_n_rows * 1.5)
-#     if packet_n_rows % 2 == 1 and module_n_x_pixel % 48 != 0:
-#         # Add bytes for 24 pixels (24 * 1.5) padding.
-#         packet_n_data_bytes += 36
+    # Calculate if the last packet has the same number of rows as the rest of the packets.
+    last_packet_n_rows = module_n_y_pixel % packet_n_rows or packet_n_rows
 
-#     # Number of rows in a frame divided by the number of rows in a packet.
-#     frame_n_packets = ceil(module_n_y_pixel / packet_n_rows)
+    last_packet_n_data_bytes = int(module_n_x_pixel * last_packet_n_rows * bit_depth / 8)
 
-#     # Calculate if the last packet has the same number of rows as the rest of the packets.
-#     last_packet_n_rows = module_n_y_pixel % packet_n_rows or packet_n_rows
+    # Get offset of last packet in frame to know when to commit frame.
+    last_packet_starting_row = module_n_y_pixel - last_packet_n_rows
 
-#     last_packet_n_data_bytes = int(module_n_x_pixel * last_packet_n_rows * 1.5)
-#     if last_packet_n_rows % 2 == 1 and module_n_x_pixel % 48 != 0:
-#         # Add bytes for 24 pixels (24 * 1.5) padding.
-#         last_packet_n_data_bytes += 36
-
-#     # Get offset of last packet in frame to know when to commit frame.
-#     last_packet_starting_row = module_n_y_pixel - last_packet_n_rows
-
-#     return {'packet_n_data_bytes': packet_n_data_bytes,
-#             'last_packet_starting_row': last_packet_starting_row,
-#             'frame_n_packets': frame_n_packets,
-#             'packet_n_rows': packet_n_rows,
-#             'last_packet_n_rows': last_packet_n_rows,
-#             'last_packet_n_data_bytes': last_packet_n_data_bytes}
+    return {'packet_n_data_bytes': packet_n_data_bytes,
+            'last_packet_starting_row': last_packet_starting_row,
+            'frame_n_packets': frame_n_packets,
+            'packet_n_rows': packet_n_rows,
+            'last_packet_n_rows': last_packet_n_rows,
+            'last_packet_n_data_bytes': last_packet_n_data_bytes}
 
 
 class EigerConfigUdp:

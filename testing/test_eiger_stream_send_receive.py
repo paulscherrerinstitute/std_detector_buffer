@@ -33,7 +33,7 @@ class EGFrame(Structure):
 
 @pytest.mark.asyncio
 async def test_sender_should_return_when_nothing_to_do(test_path):
-    stream_send = build_command('std_stream_send_eg', test_path / 'eiger_detector_1M.json',
+    stream_send = build_command('std_stream_send_eg', test_path / 'eiger_detector_0_5M.json',
                                 "tcp://127.0.0.1:50001", "7")
 
     process_result = subprocess.run(args=(shlex.split(stream_send)),
@@ -48,7 +48,7 @@ async def test_sender_should_return_when_nothing_to_do(test_path):
 
 @pytest.mark.asyncio
 async def test_receiver_should_return_when_nothing_to_do(test_path):
-    stream_receive = build_command('std_stream_receive_eg', test_path / 'eiger_detector_1M.json',
+    stream_receive = build_command('std_stream_receive_eg', test_path / 'eiger_detector_0_5M.json',
                                    "tcp://127.0.0.1:50001", "7")
 
     process_result = subprocess.run(args=(shlex.split(stream_receive)),
@@ -63,11 +63,11 @@ async def test_receiver_should_return_when_nothing_to_do(test_path):
 
 @pytest.mark.asyncio
 async def test_send_receive_stream(test_path):
-    send_gf0 = build_command('std_stream_send_eg', test_path / 'eiger_detector_1M.json', "tcp://127.0.0.1:50001", "0")
-    send_gf1 = build_command('std_stream_send_eg', test_path / 'eiger_detector_1M.json', "tcp://127.0.0.1:50002", "1")
-    receive_fg0 = build_command('std_stream_receive_eg', test_path / 'eiger_detector_1M.json',
+    send_eg0 = build_command('std_stream_send_eg', test_path / 'eiger_detector_0_5M.json', "tcp://127.0.0.1:50001", "0")
+    send_eg1 = build_command('std_stream_send_eg', test_path / 'eiger_detector_0_5M.json', "tcp://127.0.0.1:50002", "1")
+    receive_eg0 = build_command('std_stream_receive_eg', test_path / 'eiger_detector_0_5M.json',
                                 "tcp://127.0.0.1:50001", "0")
-    receive_fg1 = build_command('std_stream_receive_eg', test_path / 'eiger_detector_1M.json',
+    receive_eg1 = build_command('std_stream_receive_eg', test_path / 'eiger_detector_0_5M.json',
                                 "tcp://127.0.0.1:50002", "1")
 
     slot = 3
@@ -76,10 +76,9 @@ async def test_send_receive_stream(test_path):
     eg_config = EigerConfigConverter
     eg_config.socket_name = 'EG-image'
     eg_config.name = 'EG-image'
-    print('teste')
     with start_publisher_communication(ctx, eg_config) as (input_buffer, pub_socket):
-        with run_command_in_parallel(send_gf0), run_command_in_parallel(send_gf1), run_command_in_parallel(
-                receive_fg0), run_command_in_parallel(receive_fg1):
+        with run_command_in_parallel(send_eg0), run_command_in_parallel(send_eg1), run_command_in_parallel(
+                receive_eg0), run_command_in_parallel(receive_eg1):
             eg_config.socket_name = 'EG-sync'
             eg_config.name = 'EG-image'
             

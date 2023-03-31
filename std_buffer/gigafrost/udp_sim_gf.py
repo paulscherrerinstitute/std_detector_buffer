@@ -33,7 +33,8 @@ def adjust_packet_for_module(udp_packet, i_module, image_height):
     link_id = i_module % 2
     swap = 1 if quadrant_id % 2 == 0 else 0
     quadrant_height = image_height // 2
-    # No idea what this means - its just what we dumped when recording the detector.
+    # The correction to be applied to the imaging data (default = 5)
+    # For more information: http://hpdi.gitpages.psi.ch/gf_docs/backend/quick_start.html
     corr_mode = 5
 
     udp_packet.status_flags = 0

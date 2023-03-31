@@ -15,14 +15,14 @@ frame_header_dt = np.dtype(
 		("Column", "u2"),
 		("detSpec2", "u2"),
 		("detSpec3", "u4"),
-		("detSpec4", "u2"),
+		("Round Robin", "u2"),
 		("Detector Type", "u1"),
 		("Header Version", "u1"),
 	]
 )
 
 parser = argparse.ArgumentParser(description='Eiger udp packet streamdebugger.')
-parser.add_argument('-i', '--ip', type=str, help='Network interface ip', default='10.30.30.211')
+parser.add_argument('-i', '--ip', type=str, help='Network interface ip (default is set to work on xbl-daq-28)', default='10.30.30.211')
 parser.add_argument('-p', '--port', type=int, default=50020, help='Initial port number.')
 parser.add_argument('-n', '--number_of_recvs', type=int, default=1, help='Number of receivers to spawn.')
 

@@ -67,8 +67,8 @@ struct EGUdpPacket
 
   uint32_t detSpec3;
   uint16_t round_robin;
-  uint8_t detType;
-  uint8_t version;
+  uint8_t detector_type;
+  uint8_t header_version;
   char data[DATA_BYTES_PER_PACKET];
 };
 #pragma pack(pop)
