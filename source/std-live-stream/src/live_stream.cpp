@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
 
         auto encoded = fmt::format(
             R"({{"htype":"array-1.0", "shape":[{},{}], "type":"{}", "frame":{}}})",
-            config.image_pixel_width, config.image_pixel_height, data_type, meta.image_id());
+            config.image_pixel_height, config.image_pixel_width, data_type, meta.image_id());
         auto encoded_c = encoded.c_str();
 
         zmq_send(sender_socket, encoded_c, encoded.length(), ZMQ_SNDMORE);
