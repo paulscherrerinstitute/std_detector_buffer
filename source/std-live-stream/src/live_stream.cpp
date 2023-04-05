@@ -58,9 +58,9 @@ std::size_t converted_image_n_bytes(const utils::DetectorConfig& config)
 {
   if (config.detector_type == "gigafrost")
     return gf::converted_image_n_bytes(config.image_pixel_height, config.image_pixel_width);
-  if (config.detector_type == "eiger")
+  if (config.detector_type == "eiger" || config.detector_type == "pco")
     return config.image_pixel_width * config.image_pixel_height * config.bit_depth / 8;
-  return 0;
+  throw std::runtime_error("Unsupported detector_type!\n");
 }
 
 std::string get_data_type(const utils::DetectorConfig& config)
