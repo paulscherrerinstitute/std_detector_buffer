@@ -63,6 +63,7 @@ int main(int argc, char* argv[])
           char* ram_buffer = sender.get_data(msg.pulse_id);
           memcpy(ram_buffer, channels[0].buffer.get(), channels[0].buffer_size);
 
+          // TODO: how shape is defined in bsread?
           image_meta.set_height(channels[0].shape[0]);
           image_meta.set_width(channels[0].shape[1]);
           image_meta.set_status(std_daq_protocol::ImageMetadataStatus::good_image);
