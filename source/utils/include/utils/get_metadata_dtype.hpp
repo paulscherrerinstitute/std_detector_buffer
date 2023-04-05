@@ -13,7 +13,7 @@ namespace utils {
 
 std_daq_protocol::ImageMetadataDtype get_metadata_dtype(const DetectorConfig& config)
 {
-  if (config.detector_name == "jungfrau") return std_daq_protocol::ImageMetadataDtype::float32;
+  if (config.detector_type == "jungfrau") return std_daq_protocol::ImageMetadataDtype::float32;
   if (config.bit_depth == 8) return std_daq_protocol::ImageMetadataDtype::uint8;
   if (config.bit_depth == 16) return std_daq_protocol::ImageMetadataDtype::uint16;
   if (config.bit_depth == 32) return std_daq_protocol::ImageMetadataDtype::uint32;
