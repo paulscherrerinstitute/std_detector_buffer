@@ -50,8 +50,6 @@ int main(int argc, char* argv[])
 
   std_daq_protocol::ImageMetadata image_meta;
   image_meta.set_dtype(utils::get_metadata_dtype(config));
-  image_meta.set_height(config.image_pixel_height);
-  image_meta.set_width(config.image_pixel_width);
 
   // TODO: the messages should be sorted by pulse_id before sending
   while (true) {
