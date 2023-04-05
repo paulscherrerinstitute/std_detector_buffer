@@ -4,12 +4,19 @@
 
 #include <bsread_receiver/receiver.hpp>
 #include <fmt/core.h>
-#include <fmt/format.h>
+#include <zmq.h>
 
+#include "core_buffer/buffer_config.hpp"
+#include "core_buffer/communicator.hpp"
 #include "utils/args.hpp"
 #include "utils/detector_config.hpp"
+#include "utils/get_metadata_dtype.hpp"
+#include "std_daq/image_metadata.pb.h"
 
 namespace {
+
+constexpr std::size_t MAGIC_CAMERA_NUMBER = 4;
+constexpr auto type = bsrec::socket_type::pull;
 
 std::tuple<utils::DetectorConfig, std::string> read_arguments(int argc, char* argv[])
 {
@@ -24,18 +31,50 @@ std::tuple<utils::DetectorConfig, std::string> read_arguments(int argc, char* ar
 int main(int argc, char* argv[])
 {
   const auto [config, stream_address] = read_arguments(argc, argv);
-  bsrec::receiver receiver(stream_address, bsrec::socket_type::pull);
 
+  bsrec::receiver receivers_array[MAGIC_CAMERA_NUMBER] = {
+      bsrec::receiver(stream_address, type), bsrec::receiver(stream_address, type),
+      bsrec::receiver(stream_address, type), bsrec::receiver(stream_address, type)};
+
+  const std::size_t max_byte_size =
+      config.image_pixel_width * config.image_pixel_height * config.bit_depth / 8;
+  const auto sync_buffer_name = fmt::format("{}-image", config.detector_name);
+
+  auto ctx = zmq_ctx_new();
+
+  const cb::RamBufferConfig send_buffer_config = {sync_buffer_name, max_byte_size,
+                                                  buffer_config::RAM_BUFFER_N_SLOTS};
+  const cb::CommunicatorConfig send_comm_config = {sync_buffer_name, ctx, cb::CONN_TYPE_CONNECT,
+                                                   ZMQ_PUB};
+  auto sender = cb::Communicator{send_buffer_config, send_comm_config};
+
+  std_daq_protocol::ImageMetadata image_meta;
+  image_meta.set_dtype(utils::get_metadata_dtype(config));
+  image_meta.set_height(config.image_pixel_height);
+  image_meta.set_width(config.image_pixel_width);
+
+  // TODO: the messages should be sorted by pulse_id before sending
   while (true) {
-    auto msg = receiver.receive();
-    if (msg.channels != nullptr) {
-      fmt::print(">>>> Message received: pulseId: {} channels: {}\n", msg.pulse_id,
-                 msg.channels->size());
-      for (const auto& ch : *msg.channels)
-        fmt::print(">> CH: {}, type:{}, size:{}, shape:[{}]", ch.name, ch.type, ch.buffer_size,
-                   fmt::join(ch.shape, ", "));
-      fmt::print("\n");
-      std::fflush(stdout);
+    for (auto& receiver : receivers_array) {
+      auto msg = receiver.receive();
+      if (msg.channels != nullptr) {
+        // TODO: Remove for normal usage
+        fmt::print("Received pulse_id={}\n", msg.pulse_id);
+        auto& channels = *msg.channels.get();
+        if (!channels.empty()) {
+          char* ram_buffer = sender.get_data(msg.pulse_id);
+          memcpy(ram_buffer, channels[0].buffer.get(), channels[0].buffer_size);
+
+          image_meta.set_height(channels[0].shape[0]);
+          image_meta.set_width(channels[0].shape[1]);
+          image_meta.set_status(std_daq_protocol::ImageMetadataStatus::good_image);
+
+          std::string meta_buffer_send;
+          image_meta.SerializeToString(&meta_buffer_send);
+
+          sender.send(msg.pulse_id, meta_buffer_send, nullptr);
+        }
+      }
     }
   }
   return 0;
