@@ -12,6 +12,7 @@
 #include "utils/args.hpp"
 #include "utils/detector_config.hpp"
 #include "utils/sync_stats_collector.hpp"
+#include "utils/get_metadata_dtype.hpp"
 #include "std_daq/image_metadata.pb.h"
 
 #include "synchronizer.hpp"
@@ -39,7 +40,7 @@ int main(int argc, char* argv[])
   auto* common_frame = (CommonFrame*)(&meta_buffer_recv);
 
   std_daq_protocol::ImageMetadata image_meta;
-  image_meta.set_dtype(std_daq_protocol::ImageMetadataDtype::uint16);
+  image_meta.set_dtype(utils::get_metadata_dtype(config));
   image_meta.set_height(config.image_pixel_height);
   image_meta.set_width(config.image_pixel_width);
 

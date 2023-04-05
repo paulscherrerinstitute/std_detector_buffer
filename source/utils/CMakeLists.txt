@@ -15,6 +15,7 @@ target_sources(${PROJECT_NAME}
         include/utils/args.hpp
         include/utils/basic_stats_collector.hpp
         include/utils/detector_config.hpp
+        include/utils/get_metadata_dtype.hpp
         include/utils/module_stats_collector.hpp
         include/utils/stats_collector.hpp
         include/utils/sync_stats_collector.hpp
@@ -28,6 +29,7 @@ target_link_libraries(${PROJECT_NAME}
     PUBLIC
         argparse::argparse
         fmt::fmt
+        std_daq_interface::std_daq_interface
         std_detector_buffer::settings
     PRIVATE
         RapidJSON::RapidJSON
