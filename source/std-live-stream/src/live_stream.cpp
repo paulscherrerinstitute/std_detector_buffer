@@ -14,6 +14,7 @@
 #include "utils/args.hpp"
 #include "utils/basic_stats_collector.hpp"
 #include "utils/detector_config.hpp"
+#include "utils/get_metadata_dtype.hpp"
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
@@ -21,7 +22,6 @@ using namespace std::chrono_literals;
 namespace {
 constexpr auto zmq_io_threads = 1;
 constexpr auto zmq_sndhwm = 100;
-} // namespace
 
 void* bind_sender_socket(void* ctx, const std::string& stream_address)
 {
@@ -58,35 +58,23 @@ std::size_t converted_image_n_bytes(const utils::DetectorConfig& config)
 {
   if (config.detector_type == "gigafrost")
     return gf::converted_image_n_bytes(config.image_pixel_height, config.image_pixel_width);
-  if (config.detector_type == "eiger")
+  if (config.detector_type == "eiger" || config.detector_type == "pco")
     return config.image_pixel_width * config.image_pixel_height * config.bit_depth / 8;
-  return 0;
+  throw std::runtime_error("Unsupported detector_type!\n");
 }
 
-std::string get_data_type(const utils::DetectorConfig& config)
+size_t update_size_for_pco(const std_daq_protocol::ImageMetadata& meta)
 {
-  if (config.detector_type == "gigafrost") return "uint16";
-  if (config.detector_type == "eiger") {
-    switch (config.bit_depth) {
-    case 8:
-      return "uint8";
-    case 16:
-      return "uint16";
-    case 32:
-      return "uint32";
-    default:
-      return "uint8";
-    }
-  }
-  return "uint8";
+  return meta.height() * meta.width() * utils::get_bytes_from_metadata_dtype(meta.dtype());
 }
+
+} // namespace
 
 int main(int argc, char* argv[])
 {
   const auto [config, stream_address, data_rate] = read_arguments(argc, argv);
   const auto data_period = 1000ms / data_rate;
-  const auto converted_bytes = converted_image_n_bytes(config);
-  const auto data_type = get_data_type(config);
+  auto converted_bytes = converted_image_n_bytes(config);
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
@@ -111,10 +99,11 @@ int main(int argc, char* argv[])
       if (const auto now = std::chrono::steady_clock::now(); prev_sent_time + data_period < now) {
         stats.processing_started();
         prev_sent_time = now;
+        if (config.detector_type == "pco") converted_bytes = update_size_for_pco(meta);
 
         auto encoded = fmt::format(
-            R"({{"htype":"array-1.0", "shape":[{},{}], "type":"{}", "frame":{}}})",
-            config.image_pixel_width, config.image_pixel_height, data_type, meta.image_id());
+            R"({{"htype":"array-1.0", "shape":[{},{}], "type":"{}", "frame":{}}})", meta.height(),
+            meta.width(), utils::get_array10_type(meta.dtype()), meta.image_id());
         auto encoded_c = encoded.c_str();
 
         zmq_send(sender_socket, encoded_c, encoded.length(), ZMQ_SNDMORE);
