@@ -42,16 +42,26 @@ std::tuple<utils::DetectorConfig, std::string, int> read_arguments(int argc, cha
 {
   auto program = utils::create_parser("std_live_stream");
   program.add_argument("stream_address").help("address to bind the output stream");
-  program.add_argument("data_rate").help("rate in [Hz]").action([](const std::string& arg) {
+  program.add_argument("-d", "--data_rate").help("rate in [Hz]").action([](const std::string& arg) {
     if (auto value = std::stoi(arg); value < 1 || value > 1000)
       throw std::runtime_error("Unsupported data_rate! [1-100 Hz] is valid");
     else
       return value;
   });
 
+  program.add_argument("-f", "--forward")
+      .help("forward all images")
+      .default_value(false)
+      .implicit_value(true);
+
   program = utils::parse_arguments(program, argc, argv);
+
+  if (program.is_used("--data_rate") && program.is_used("--forward"))
+    throw std::runtime_error(fmt::format("--data_rate and --forward can't be defined together"));
+
   return {utils::read_config_from_json_file(program.get("detector_json_filename")),
-          program.get("stream_address"), program.get<int>("data_rate")};
+          program.get("stream_address"),
+          program["--forward"] == true ? 0 : program.get<int>("data_rate")};
 }
 
 std::size_t converted_image_n_bytes(const utils::DetectorConfig& config)
@@ -73,7 +83,7 @@ size_t update_size_for_pco(const std_daq_protocol::ImageMetadata& meta)
 int main(int argc, char* argv[])
 {
   const auto [config, stream_address, data_rate] = read_arguments(argc, argv);
-  const auto data_period = 1000ms / data_rate;
+  const auto data_period = data_rate == 0 ? 0ms : 1000ms / data_rate;
   auto converted_bytes = converted_image_n_bytes(config);
 
   auto ctx = zmq_ctx_new();

@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
 
   const cb::RamBufferConfig send_buffer_config = {sync_buffer_name, max_byte_size,
                                                   buffer_config::RAM_BUFFER_N_SLOTS};
-  const cb::CommunicatorConfig send_comm_config = {sync_buffer_name, ctx, cb::CONN_TYPE_CONNECT,
+  const cb::CommunicatorConfig send_comm_config = {sync_buffer_name, ctx, cb::CONN_TYPE_BIND,
                                                    ZMQ_PUB};
   auto sender = cb::Communicator{send_buffer_config, send_comm_config};
 

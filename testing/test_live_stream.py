@@ -1,11 +1,10 @@
 import asyncio
 import time
-from ctypes import Structure, c_uint64, c_uint16
 import pytest
 import zmq
 import zmq.asyncio
 
-from std_buffer.gigafrost.data import GigafrostConfigConverter, get_converter_buffer_data
+from std_buffer.gigafrost.data import GigafrostConfigConverter
 from testing.fixtures import test_path
 from testing.communication import start_publisher_communication
 from testing.execution_helpers import build_command, run_command_in_parallel
@@ -15,12 +14,15 @@ import testing.std_daq.image_metadata_pb2 as daq_proto
 @pytest.mark.asyncio
 async def test_send_live_stream(test_path):
     live_stream_cmd = build_command('std_live_stream', test_path / 'gigafrost_detector.json', 'tcp://127.0.0.1:50001',
-                                    '5')
+                                    '-f')
 
     ctx = zmq.asyncio.Context()
 
     metadata = daq_proto.ImageMetadata()
     metadata.image_id = 3
+    metadata.width = 2016
+    metadata.height = 2016
+    metadata.dtype = daq_proto.ImageMetadataDtype.uint16
 
     config = GigafrostConfigConverter
     config.socket_name = 'GF2-image'
