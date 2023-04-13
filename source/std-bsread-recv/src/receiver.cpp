@@ -71,6 +71,7 @@ int main(int argc, char* argv[])
       }
     }
     for (auto [pulse, shape] : pulse_order) {
+      image_meta.set_image_id(pulse);
       // bsread protocol read shape as [x,y,z,...]
       image_meta.set_width(shape.first);
       image_meta.set_height(shape.second);
