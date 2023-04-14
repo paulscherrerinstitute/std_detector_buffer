@@ -23,3 +23,8 @@ target_link_libraries(${PROJECT_NAME}
         std_daq_interface::std_daq_interface
         std_detector_buffer::settings
 )
+
+if(SDB_WITH_BSREAD)
+    include(GNUInstallDirs)
+    install(FILES ${bsread_receiver_LIBS} TYPE LIB)
+endif()
