@@ -15,6 +15,7 @@ class SBD(ConanFile):
         "protobuf/3.20.0",
         "argparse/2.9",
         "bsread_receiver/0.13.0@patro_m/psi",
+        "redis-plus-plus/1.3.7",
         "hdf5/1.13.1"
     ]
 

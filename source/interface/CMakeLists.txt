@@ -8,6 +8,7 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 target_sources(${PROJECT_NAME}
     PUBLIC
+        std_daq/buffered_metadata.proto
         std_daq/image_metadata.proto
         std_daq/writer_command.proto
 )
