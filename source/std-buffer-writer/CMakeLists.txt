@@ -4,7 +4,6 @@ project(std_buffer_writer)
 find_package(fmt REQUIRED)
 find_package(ZeroMQ REQUIRED)
 find_package(redis++ REQUIRED)
-find_package(spdlog REQUIRED)
 
 add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME}
@@ -25,7 +24,6 @@ target_link_libraries(${PROJECT_NAME}
         fmt::fmt
         ZeroMQ::ZeroMQ
         redis++::redis++
-        spdlog::spdlog
         std_daq_interface::std_daq_interface
         std_detector_buffer::settings
 )
