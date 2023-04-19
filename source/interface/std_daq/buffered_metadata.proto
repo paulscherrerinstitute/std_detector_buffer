@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+import "std_daq/image_metadata.proto";
+
+// This is an ugly name. Come up with something better.
+package std_daq_protocol;
+
+message BufferedMetadata {
+  ImageMetadata metadata = 1;
+  uint64 offset = 2;
+}
