@@ -65,9 +65,9 @@ async def test_receiver_should_return_when_nothing_to_do(test_path):
 async def test_send_receive_stream(test_path):
     send_eg0 = build_command('std_stream_send', test_path / 'eiger_detector_0_5M.json', "tcp://127.0.0.1:50001", "0")
     send_eg1 = build_command('std_stream_send', test_path / 'eiger_detector_0_5M.json', "tcp://127.0.0.1:50002", "1")
-    receive_eg0 = build_command('std_stream_receive_eg', test_path / 'eiger_detector_0_5M.json',
+    receive_eg0 = build_command('std_stream_receive', test_path / 'eiger_detector_0_5M.json',
                                 "tcp://127.0.0.1:50001", "0")
-    receive_eg1 = build_command('std_stream_receive_eg', test_path / 'eiger_detector_0_5M.json',
+    receive_eg1 = build_command('std_stream_receive', test_path / 'eiger_detector_0_5M.json',
                                 "tcp://127.0.0.1:50002", "1")
 
     slot = 3
