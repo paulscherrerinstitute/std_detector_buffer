@@ -7,10 +7,9 @@
 #include <zmq.h>
 
 #include "core_buffer/buffer_utils.hpp"
-#include "detectors/common.hpp"
-#include "detectors/gigafrost.hpp"
 #include "utils/args.hpp"
 #include "utils/detector_config.hpp"
+#include "utils/image_size_calc.hpp"
 #include "std_daq/image_metadata.pb.h"
 
 #include "synchronizer.hpp"
@@ -30,10 +29,7 @@ int main(int argc, char* argv[])
 
   auto receiver = buffer_utils::bind_socket(ctx, config.detector_name + "-sync", ZMQ_PULL);
   auto sender = buffer_utils::bind_socket(ctx, config.detector_name + "-image", ZMQ_PUB);
-
-  const auto converted_bytes = static_cast<double>(
-      gf::converted_image_n_bytes(config.image_pixel_height, config.image_pixel_width));
-  const int parts = std::ceil(converted_bytes / gf::max_single_sender_size);
+  const int parts = static_cast<int>(utils::number_of_senders(config));
 
   Synchronizer syncer(parts, 1000);
 

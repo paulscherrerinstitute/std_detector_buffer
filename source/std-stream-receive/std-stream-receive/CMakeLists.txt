@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(std_stream_receive_eg)
+project(std_stream_receive)
 
 find_package(fmt REQUIRED)
 find_package(Threads REQUIRED)
@@ -19,6 +19,7 @@ target_link_libraries(${PROJECT_NAME}
         core_buffer::core_buffer
         detectors::detectors
         fmt::fmt
+        std_daq_interface::std_daq_interface
         Threads::Threads
         utils::utils
         ZeroMQ::ZeroMQ

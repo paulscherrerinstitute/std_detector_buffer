@@ -7,9 +7,9 @@
 
 #include "core_buffer/communicator.hpp"
 #include "core_buffer/ram_buffer.hpp"
-#include "detectors/gigafrost.hpp"
 #include "std_daq/image_metadata.pb.h"
 #include "utils/args.hpp"
+#include "utils/image_size_calc.hpp"
 #include "utils/detector_config.hpp"
 
 #include "sender_stats_collector.hpp"
@@ -53,11 +53,11 @@ int main(int argc, char* argv[])
 {
   const auto [config, stream_address, image_part] = read_arguments(argc, argv);
   const auto sync_name = fmt::format("{}-image", config.detector_name);
-  const auto converted_bytes =
-      gf::converted_image_n_bytes(config.image_pixel_height, config.image_pixel_width);
-  const auto start_index = image_part * gf::max_single_sender_size;
+  const auto converted_bytes = utils::converted_image_n_bytes(config);
+  const auto start_index = image_part * utils::max_single_sender_size(config);
   if (converted_bytes <= start_index) return 0;
-  const auto data_bytes_sent = std::min(converted_bytes - start_index, gf::max_single_sender_size);
+  const auto data_bytes_sent =
+      std::min(converted_bytes - start_index, utils::max_single_sender_size(config));
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
