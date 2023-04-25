@@ -1,5 +1,4 @@
 import argparse
-from functools import cache
 from socket import socket, AF_INET, SOCK_DGRAM
 from time import time, sleep
 import json
@@ -48,7 +47,6 @@ def adjust_packet_for_module(udp_packet, i_module, image_height):
     udp_packet.quadrant_rows = (quadrant_height & 0xFF) + swap
 
 
-@cache
 def generate_data_for_packet(i_module, i_packet, n_rows_packet, n_cols_packet, n_packet_bytes):
     quadrant_id = i_module // 2
     link_id = i_module % 2
