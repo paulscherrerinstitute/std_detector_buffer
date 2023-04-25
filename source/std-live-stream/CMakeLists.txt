@@ -15,7 +15,6 @@ target_sources(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         core_buffer::core_buffer
-        detectors::detectors
         utils::utils
         fmt::fmt
         std_daq_interface::std_daq_interface

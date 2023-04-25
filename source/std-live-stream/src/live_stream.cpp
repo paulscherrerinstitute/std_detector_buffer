@@ -9,10 +9,10 @@
 
 #include "core_buffer/communicator.hpp"
 #include "core_buffer/ram_buffer.hpp"
-#include "detectors/gigafrost.hpp"
 #include "std_daq/image_metadata.pb.h"
 #include "utils/args.hpp"
 #include "utils/basic_stats_collector.hpp"
+#include "utils/converted_image_n_bytes.hpp"
 #include "utils/detector_config.hpp"
 #include "utils/get_metadata_dtype.hpp"
 
@@ -64,15 +64,6 @@ std::tuple<utils::DetectorConfig, std::string, int> read_arguments(int argc, cha
           program["--forward"] == true ? 0 : program.get<int>("data_rate")};
 }
 
-std::size_t converted_image_n_bytes(const utils::DetectorConfig& config)
-{
-  if (config.detector_type == "gigafrost")
-    return gf::converted_image_n_bytes(config.image_pixel_height, config.image_pixel_width);
-  if (config.detector_type == "eiger" || config.detector_type == "pco")
-    return config.image_pixel_width * config.image_pixel_height * config.bit_depth / 8;
-  throw std::runtime_error("Unsupported detector_type!\n");
-}
-
 size_t update_size_for_pco(const std_daq_protocol::ImageMetadata& meta)
 {
   return meta.height() * meta.width() * utils::get_bytes_from_metadata_dtype(meta.dtype());
@@ -84,7 +75,7 @@ int main(int argc, char* argv[])
 {
   const auto [config, stream_address, data_rate] = read_arguments(argc, argv);
   const auto data_period = data_rate == 0 ? 0ms : 1000ms / data_rate;
-  auto converted_bytes = converted_image_n_bytes(config);
+  auto converted_bytes = utils::converted_image_n_bytes(config);
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
