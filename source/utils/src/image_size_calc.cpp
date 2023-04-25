@@ -2,7 +2,7 @@
 // Copyright (c) 2023 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#include "converted_image_n_bytes.hpp"
+#include "image_size_calc.hpp"
 
 #include "detectors/gigafrost.hpp"
 

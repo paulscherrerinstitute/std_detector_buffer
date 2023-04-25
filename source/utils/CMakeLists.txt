@@ -14,7 +14,7 @@ target_sources(${PROJECT_NAME}
     PUBLIC
         include/utils/args.hpp
         include/utils/basic_stats_collector.hpp
-        include/utils/converted_image_n_bytes.hpp
+        include/utils/image_size_calc.hpp
         include/utils/detector_config.hpp
         include/utils/get_metadata_dtype.hpp
         include/utils/module_stats_collector.hpp
@@ -22,7 +22,7 @@ target_sources(${PROJECT_NAME}
         include/utils/sync_stats_collector.hpp
         include/utils/version.hpp
     PRIVATE
-        src/converted_image_n_bytes.cpp
+        src/image_size_calc.cpp
         src/detector_config.cpp
 )
 

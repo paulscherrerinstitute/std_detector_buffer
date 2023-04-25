@@ -12,7 +12,7 @@
 #include "std_daq/image_metadata.pb.h"
 #include "utils/args.hpp"
 #include "utils/basic_stats_collector.hpp"
-#include "utils/converted_image_n_bytes.hpp"
+#include "utils/image_size_calc.hpp"
 #include "utils/detector_config.hpp"
 #include "utils/get_metadata_dtype.hpp"
 
