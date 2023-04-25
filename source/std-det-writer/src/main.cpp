@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
   const auto command_stream_name = fmt::format("{}-writer", config.detector_name);
   auto command_receiver = buffer_utils::connect_socket(ctx, command_stream_name, ZMQ_SUB);
 
-  const auto status_sender_name = fmt::format("{}-writer-status", config.detector_name);
+  const auto status_sender_name = fmt::format("{}-writer-status-sync", config.detector_name);
   auto status_sender = buffer_utils::connect_socket(ctx, status_sender_name, ZMQ_PUSH);
 
   char recv_buffer_meta[512];
