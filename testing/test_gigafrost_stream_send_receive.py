@@ -47,7 +47,7 @@ async def test_sender_should_return_when_nothing_to_do(test_path):
 
 @pytest.mark.asyncio
 async def test_receiver_should_return_when_nothing_to_do(test_path):
-    stream_receive = build_command('std_stream_receive_gf', test_path / 'gigafrost_detector_small_image_2.json',
+    stream_receive = build_command('std_stream_receive', test_path / 'gigafrost_detector_small_image_2.json',
                                    "tcp://127.0.0.1:50001", "7")
 
     process_result = subprocess.run(args=(shlex.split(stream_receive)),
@@ -64,9 +64,9 @@ async def test_receiver_should_return_when_nothing_to_do(test_path):
 async def test_send_receive_stream(test_path):
     send_gf0 = build_command('std_stream_send', test_path / 'gigafrost_detector.json', "tcp://127.0.0.1:50001", "0")
     send_gf1 = build_command('std_stream_send', test_path / 'gigafrost_detector.json', "tcp://127.0.0.1:50002", "1")
-    receive_fg0 = build_command('std_stream_receive_gf', test_path / 'gigafrost_detector_2.json',
+    receive_fg0 = build_command('std_stream_receive', test_path / 'gigafrost_detector_2.json',
                                 "tcp://127.0.0.1:50001", "0")
-    receive_fg1 = build_command('std_stream_receive_gf', test_path / 'gigafrost_detector_2.json',
+    receive_fg1 = build_command('std_stream_receive', test_path / 'gigafrost_detector_2.json',
                                 "tcp://127.0.0.1:50002", "1")
 
     slot = 3
