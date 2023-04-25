@@ -6,10 +6,6 @@ import json
 
 from std_buffer.eiger.data import EgUdpPacket, calculate_udp_packet_info
 
-# Eiger 500k Module = 4 std_daq modules
-EG_N_MODULES = 4
-# Eiger 9M Module = 72 std_daq modules
-# EG_N_MODULES = 72
 PRINT_INTERVAL = 10
 
 
@@ -32,33 +28,22 @@ def init_eg_udp_packet(module_id):
 
     return udp_packet
 
+def get_module_row_col(i_module):
+    return i_module % 4, i_module // 4
 
-# @cache
-# def generate_data_for_packet(i_module, i_packet, n_rows_packet, n_cols_packet, n_packet_bytes):
-#     quadrant_id = i_module // 2
-#     link_id = i_module % 2
-
-#     packet_bytes = 0
-#     i_pixel = 0
-
-#     for i_module_row in range(n_rows_packet):
-#         for i_module_col in range(n_cols_packet):
-#             pixel_value = 0
-#             # Bit 11,10 == module_id
-#             pixel_value |= quadrant_id << 10
-#             # Bit 9 == link_id
-#             pixel_value |= link_id << 9
-#             # Bit 8 == i_packet % 2
-#             pixel_value |= (i_packet % 2) << 8
-#             # Bit 7,6,5,4 == module_row % 16
-#             pixel_value |= (i_module_row % 16) << 4
-#             # Bit 3,2,1,0 == module_col % 16
-#             pixel_value |= (i_module_col % 16)
-
-#             packet_bytes |= pixel_value << (i_pixel * 12)
-#             i_pixel += 1
-
-#     return packet_bytes.to_bytes(n_packet_bytes, 'little')
+def adjust_packet_for_module(udp_packet, i_module, packet_number):  
+    udp_packet.row, udp_packet.column = get_module_row_col(i_module)
+    udp_packet.packet_number = packet_number
+    
+@cache
+def generate_data_for_packet(i_module, i_packet, bit_depth, n_rows_packet, n_cols_packet, n_packet_bytes):
+    packet_bytes = 0
+    i_pixel = 0
+    for i_module_row in range(n_rows_packet):
+        for i_module_col in range(n_cols_packet):
+            packet_bytes |= pixel_value << (i_pixel * bit_depth / 8)
+            i_pixel += 1
+    return packet_bytes.to_bytes(n_packet_bytes, 'little')
 
 
 def generate_eg_udp_stream(output_address, start_udp_port, n_modules, rep_rate=0.1,
@@ -78,58 +63,58 @@ def generate_eg_udp_stream(output_address, start_udp_port, n_modules, rep_rate=0
     n_rows_last_packet = udp_packet_info['last_packet_n_rows']
     n_cols_packet = image_width // 2
 
-    # //TODO continue here
-    # if not n_images:
-    #     n_images = float('inf')
+    if not n_images:
+        n_images = float('inf')
 
-    # try:
-    #     iteration_start = time()
-    #     print_start = iteration_start
+    try:
+        iteration_start = time()
+        print_start = iteration_start
 
-    #     while udp_packet.frame_index < n_images:
+        while udp_packet.frame_index < n_images:
 
-    #         # First n-1 packets
-    #         for i_packet in range(n_packets-1):
-    #             udp_packet.packet_starting_row = udp_packet_info['packet_n_rows'] * i_packet
+            # First n-1 packets
+            for i_packet in range(n_packets-1):
+                udp_packet.packet_starting_row = udp_packet_info['packet_n_rows'] * i_packet
+                
+                for i_module in range(n_modules):
+                    adjust_packet_for_module(udp_packet, i_module, i_packet)
+                    data = generate_data_for_packet(i_module, i_packet, bit_depth,
+                                                    n_rows_packet=n_rows_packet,
+                                                    n_cols_packet=n_cols_packet,
+                                                    n_packet_bytes=n_data_bytes)
 
-    #             for i_module in range(EG_N_MODULES):
-    #                 data = generate_data_for_packet(i_module, i_packet,
-    #                                                 n_rows_packet=n_rows_packet,
-    #                                                 n_cols_packet=n_cols_packet,
-    #                                                 n_packet_bytes=n_data_bytes)
+                    udp_socket.sendto(bytes(udp_packet)+data,
+                                      (output_address, start_udp_port + i_module))
 
-    #                 udp_socket.sendto(bytes(udp_packet)+data,
-    #                                   (output_address, start_udp_port + i_module))
+            # Last packet (may have different size and  number of lines)
+            udp_packet.packet_starting_row = udp_packet_info['last_packet_starting_row']
+            for i_module in range(n_modules):
+                adjust_packet_for_module(udp_packet, i_module, i_packet)
+                last_packet_data = generate_data_for_packet(i_module, n_packets-1, bit_depth,
+                                                            n_rows_packet=n_rows_last_packet,
+                                                            n_cols_packet=image_width//2,
+                                                            n_packet_bytes=n_data_bytes_last_packet)
 
-    #         # Last packet (may have different size and  number of lines)
-    #         udp_packet.packet_starting_row = udp_packet_info['last_packet_starting_row']
-    #         for i_module in range(EG_N_MODULES):
-    #             adjust_packet_for_module(udp_packet, i_module, image_height)
-    #             last_packet_data = generate_data_for_packet(i_module, n_packets-1,
-    #                                                         n_rows_packet=n_rows_last_packet,
-    #                                                         n_cols_packet=image_width//2,
-    #                                                         n_packet_bytes=n_data_bytes_last_packet)
+                udp_socket.sendto(bytes(udp_packet)+last_packet_data,
+                                  (output_address, start_udp_port + i_module))
 
-    #             udp_socket.sendto(bytes(udp_packet)+last_packet_data,
-    #                               (output_address, start_udp_port + i_module))
+            iteration_end = time()
+            iteration_time = iteration_end - iteration_start
+            time_left_to_sleep = time_to_sleep - iteration_time
 
-    #         iteration_end = time()
-    #         iteration_time = iteration_end - iteration_start
-    #         time_left_to_sleep = time_to_sleep - iteration_time
+            # We do not sleep for less then 1ms.
+            if time_left_to_sleep > 0.01:
+                sleep(time_left_to_sleep)
 
-    #         # We do not sleep for less then 1ms.
-    #         if time_left_to_sleep > 0.01:
-    #             sleep(time_left_to_sleep)
+            if iteration_end - print_start > PRINT_INTERVAL:
+                print(f'Send all frames up to {udp_packet.frame_index}.')
+                print_start = iteration_end
 
-    #         if iteration_end - print_start > PRINT_INTERVAL:
-    #             print(f'Send all frames up to {udp_packet.frame_index}.')
-    #             print_start = iteration_end
+            udp_packet.frame_index += 1
+            iteration_start = time()
 
-    #         udp_packet.frame_index += 1
-    #         iteration_start = time()
-
-    # except KeyboardInterrupt:
-    #     pass
+    except KeyboardInterrupt:
+        pass
 
 
 def main():
@@ -137,7 +122,7 @@ def main():
     parser.add_argument('detector_config_file', type=str, help='JSON file with detector configuration.')
     parser.add_argument('output_address', type=str, help='Address to send the UPD packets to.')
     parser.add_argument('-r', '--rep_rate', type=int, help='Repetition rate of the stream.', default=10)
-    parser.add_argument('-n', '--n_images', type=int, default=None, help='Number of images to generate.')
+    parser.add_argument('-n', '--n_images', type=int, help='Number of images to generate.', default=None)
 
     args = parser.parse_args()
     output_stream = args.output_address

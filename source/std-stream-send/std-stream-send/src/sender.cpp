@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////
-// Copyright (c) 2023 Paul Scherrer Institute. All rights reserved.
+// Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
 #include <zmq.h>
@@ -7,7 +7,6 @@
 
 #include "core_buffer/communicator.hpp"
 #include "core_buffer/ram_buffer.hpp"
-#include "detectors/eiger.hpp"
 #include "detectors/gigafrost.hpp"
 #include "std_daq/image_metadata.pb.h"
 #include "utils/args.hpp"
@@ -20,25 +19,6 @@ constexpr auto zmq_io_threads = 1;
 constexpr auto zmq_sndhwm = 100;
 constexpr auto zmq_success = 0;
 } // namespace
-
-std::size_t converted_image_n_bytes(const utils::DetectorConfig& config)
-{
-  if (config.detector_type == "gigafrost")
-    return gf::converted_image_n_bytes(config.image_pixel_height, config.image_pixel_width);
-  if (config.detector_type == "eiger")
-    return eg::converted_image_n_bytes(config.image_pixel_height, config.image_pixel_width,
-                                       config.bit_depth);
-  return 0;
-}
-
-std::size_t max_single_sender_size(const utils::DetectorConfig& config)
-{
-  if (config.detector_type == "gigafrost")
-    return gf::max_single_sender_size;
-  if (config.detector_type == "eiger")
-    return eg::max_single_sender_size;
-  return 0;
-}
 
 void* bind_sender_socket(void* ctx, const std::string& stream_address)
 {
@@ -57,12 +37,14 @@ void* bind_sender_socket(void* ctx, const std::string& stream_address)
 
 std::tuple<utils::DetectorConfig, std::string, int> read_arguments(int argc, char* argv[])
 {
-  auto program = utils::create_parser("std_stream_send_eg");
+  auto program = utils::create_parser("std_stream_send_gf");
   program.add_argument("stream_address").help("address to bind the input stream");
   program.add_argument("image_part")
-      .help("0..7 responsible for sending a quadrant of image")
+      .help("0..7 responsible for sending n-th part of image")
       .scan<'d', int>();
+
   program = utils::parse_arguments(program, argc, argv);
+
   return {utils::read_config_from_json_file(program.get("detector_json_filename")),
           program.get("stream_address"), program.get<int>("image_part")};
 }
@@ -71,12 +53,11 @@ int main(int argc, char* argv[])
 {
   const auto [config, stream_address, image_part] = read_arguments(argc, argv);
   const auto sync_name = fmt::format("{}-image", config.detector_name);
-
-  const auto converted_bytes = converted_image_n_bytes(config);
-  const auto start_index = image_part * max_single_sender_size(config);
+  const auto converted_bytes =
+      gf::converted_image_n_bytes(config.image_pixel_height, config.image_pixel_width);
+  const auto start_index = image_part * gf::max_single_sender_size;
   if (converted_bytes <= start_index) return 0;
-
-  const auto data_bytes_sent = std::min(converted_bytes - start_index, max_size(config));
+  const auto data_bytes_sent = std::min(converted_bytes - start_index, gf::max_single_sender_size);
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
@@ -87,18 +68,22 @@ int main(int argc, char* argv[])
   auto sender_socket = bind_sender_socket(ctx, stream_address);
   gf::send::SenderStatsCollector stats(config.detector_name, image_part);
 
-  std_daq_protocol::ImageMetadata meta{};
+  char buffer[512];
+  std_daq_protocol::ImageMetadata meta;
 
   while (true) {
-    auto [id, image_data] = receiver.receive(std::span<char>((char*)&meta, sizeof(meta)));
-    stats.processing_started();
+    if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
+      stats.processing_started();
 
-    std::size_t zmq_failed =
-        zmq_success == zmq_send(sender_socket, &meta, sizeof(meta), ZMQ_SNDMORE);
-    zmq_failed +=
-        zmq_success == zmq_send(sender_socket, image_data + start_index, data_bytes_sent, 0);
+      meta.ParseFromArray(buffer, n_bytes);
+      auto* image_data = receiver.get_data(meta.image_id());
 
-    stats.processing_finished(zmq_failed);
+      std::size_t zmq_failed = zmq_success == zmq_send(sender_socket, buffer, n_bytes, ZMQ_SNDMORE);
+      zmq_failed +=
+          zmq_success == zmq_send(sender_socket, image_data + start_index, data_bytes_sent, 0);
+
+      stats.processing_finished(zmq_failed);
+    }
   }
   return 0;
 }
