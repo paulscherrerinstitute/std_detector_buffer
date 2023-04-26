@@ -18,7 +18,7 @@ class ReceiverStatsCollector : public utils::StatsCollector<ReceiverStatsCollect
 {
 public:
   explicit ReceiverStatsCollector(std::string_view detector_name)
-      : utils::StatsCollector<ReceiverStatsCollector>("std_stream_receive_gf", detector_name)
+      : utils::StatsCollector<ReceiverStatsCollector>("std_stream_receive", detector_name)
   {}
 
   [[nodiscard]] std::string additional_message()
