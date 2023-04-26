@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(std_stream_send)
+project(std_stream_send_gf)
 
 find_package(fmt REQUIRED)
 find_package(Threads REQUIRED)
