@@ -2,8 +2,6 @@
 // Copyright (c) 2023 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#include <iostream>
-
 #include <zmq.h>
 #include <fmt/core.h>
 
