@@ -17,7 +17,7 @@ class RedisSender
 {
 public:
   explicit RedisSender(std::string detector_name, const std::string& address);
-  void set(uint64_t image_id, const std_daq_protocol::BufferedMetadata& meta);
+  void send(uint64_t image_id, const std_daq_protocol::BufferedMetadata& meta);
 
 private:
   std::string prefix;

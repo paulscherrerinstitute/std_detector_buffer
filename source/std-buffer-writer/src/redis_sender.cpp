@@ -19,7 +19,7 @@ RedisSender::RedisSender(std::string detector_name, const std::string& address)
     throw std::runtime_error(fmt::format("Connection to Redis API on address={} failed.", address));
 }
 
-void RedisSender::set(uint64_t image_id, const std_daq_protocol::BufferedMetadata& meta)
+void RedisSender::send(uint64_t image_id, const std_daq_protocol::BufferedMetadata& meta)
 {
   std::string meta_buffer_send;
   meta.SerializeToString(&meta_buffer_send);

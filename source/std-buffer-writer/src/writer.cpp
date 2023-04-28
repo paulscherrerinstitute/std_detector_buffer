@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
   auto receiver = cb::Communicator{{sync_name, max_data_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
                                    {sync_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
 
-  sbw::RedisSender redis_send(config.detector_name, db_address);
+  sbw::RedisSender sender(config.detector_name, db_address);
   // TODO this should be configurable
   sbw::BufferWriter writer("/tmp/testing/" + config.detector_name);
 
@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
       const auto offset = writer.write(meta->image_id(), std::span<char>(image_data, size));
 
       buffered_meta.set_offset(offset);
-      redis_send.set(meta->image_id(), buffered_meta);
+      sender.send(meta->image_id(), buffered_meta);
     }
   }
   return 0;
