@@ -2,6 +2,8 @@
 // Copyright (c) 2023 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
+#include <iostream>
+
 #include <zmq.h>
 #include <fmt/core.h>
 
@@ -20,6 +22,12 @@ namespace {
 constexpr auto zmq_io_threads = 1;
 constexpr auto zmq_sndhwm = 100;
 constexpr auto zmq_success = 0;
+
+auto calculate_size(const std_daq_protocol::ImageMetadata* meta)
+{
+  return meta->height() * meta->width() * utils::get_bytes_from_metadata_dtype(meta->dtype());
+}
+
 } // namespace
 
 std::tuple<utils::DetectorConfig, std::string> read_arguments(int argc, char* argv[])
@@ -45,25 +53,24 @@ int main(int argc, char* argv[])
   auto receiver = cb::Communicator{{sync_name, max_data_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
                                    {sync_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
 
-  sbw::RedisSender redis_send(db_address);
-  // TODO: should path be defined as parameter? or fixed with detector name
-  sbw::BufferWriter writer("/tmp");
+  sbw::RedisSender redis_send(config.detector_name, db_address);
+  // TODO this should be configurable
+  sbw::BufferWriter writer("/tmp/testing/" + config.detector_name);
 
   char buffer[512];
-  std_daq_protocol::ImageMetadata meta;
   std_daq_protocol::BufferedMetadata buffered_meta;
+  auto* meta = buffered_meta.mutable_metadata();
 
   while (true) {
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
-      meta.ParseFromArray(buffer, n_bytes);
+      meta->ParseFromArray(buffer, n_bytes);
 
-      auto* image_data = receiver.get_data(meta.image_id());
-      auto size = meta.height() * meta.width() * utils::get_bytes_from_metadata_dtype(meta.dtype());
-      const auto offset = writer.write(meta.image_id(), std::span<char>(image_data, size));
+      auto* image_data = receiver.get_data(meta->image_id());
+      const auto size = calculate_size(meta);
+      const auto offset = writer.write(meta->image_id(), std::span<char>(image_data, size));
 
       buffered_meta.set_offset(offset);
-      buffered_meta.set_allocated_metadata(&meta);
-      redis_send.set(meta.image_id(), buffered_meta);
+      redis_send.set(meta->image_id(), buffered_meta);
     }
   }
   return 0;

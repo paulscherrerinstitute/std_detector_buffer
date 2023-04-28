@@ -20,11 +20,12 @@ uint64_t BufferWriter::write(uint64_t image_id, std::span<char> buffered_data)
 void BufferWriter::open_new_file(uint64_t image_id, const std::string& filename)
 {
   std::filesystem::create_directories(get_folder_path(image_id));
+  current_file_.flush();
   current_file_.close();
   current_filename_ = filename;
   current_offset_ = 0;
 
-  current_file_.open(current_filename_, std::ios::binary | std::ios::app);
+  current_file_.open(current_filename_, std::ios::out | std::ios::binary | std::ios::app);
 }
 
 uint64_t BufferWriter::write_data_and_update_offset(std::span<char> buffered_data)
@@ -37,12 +38,12 @@ uint64_t BufferWriter::write_data_and_update_offset(std::span<char> buffered_dat
 
 std::string BufferWriter::get_filename(uint64_t image_id) const
 {
-  return get_folder_path(image_id) + '/' + std::to_string(image_id % 1000) + ".dat";
+  return get_folder_path(image_id) + '/' + std::to_string(image_id / 1000) + "000.dat";
 }
 
 std::string BufferWriter::get_folder_path(uint64_t image_id) const
 {
-  return root_directory_ + '/' + std::to_string(image_id % 1000000);
+  return root_directory_ + '/' + std::to_string(image_id / 1000000) + "000000";
 }
 
 } // namespace sbw
