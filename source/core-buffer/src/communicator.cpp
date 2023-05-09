@@ -28,7 +28,7 @@ Communicator::Communicator(const RamBufferConfig& ram_config, const Communicator
 void Communicator::send(uint64_t id, std::span<const char> meta, char* data)
 {
   buffer.write(id, data);
-  zmq_send(socket, meta.data(), meta.size(), 0);
+  zmq_send(socket, meta.data(), meta.size(), ZMQ_NOBLOCK);
 }
 
 char* Communicator::get_data(uint64_t id)
