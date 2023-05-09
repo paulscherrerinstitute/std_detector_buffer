@@ -18,7 +18,7 @@ class SenderStatsCollector : public utils::StatsCollector<SenderStatsCollector>
 {
 public:
   explicit SenderStatsCollector(std::string_view detector_name, int part)
-      : utils::StatsCollector<SenderStatsCollector>("std_stream_send_gf", detector_name)
+      : utils::StatsCollector<SenderStatsCollector>("std_stream_send", detector_name)
       , image_part(part)
   {}
 

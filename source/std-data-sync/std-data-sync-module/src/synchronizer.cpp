@@ -28,15 +28,12 @@ std::size_t Synchronizer::process_image_metadata(CommonFrame meta)
 
 std::size_t Synchronizer::push_new_image_to_queue(CommonFrame meta)
 {
+  if (is_queue_too_long()) cache.erase(cache.begin());
   // Initialize the module mask to 1 for n_modules the least significant bits.
   auto mask = new_image_mask;
   mask.reset(meta.module_id % n_modules);
   cache.emplace(meta.image_id, std::make_pair(mask, meta));
-  if (is_queue_too_long()) {
-    cache.erase(cache.begin());
-    return 1;
-  }
-  return 0;
+  return is_queue_too_long();
 }
 
 size_t Synchronizer::update_module_mask_for_image(image_id id, size_t module_id)
