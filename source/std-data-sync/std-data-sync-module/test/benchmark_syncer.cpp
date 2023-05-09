@@ -30,7 +30,7 @@ int correct_stream_sync(Synchronizer& syncer)
 
 void GF_sync_normal(benchmark::State& state)
 {
-  Synchronizer syncer(n_modules, sync_n_images_buffer);
+  Synchronizer syncer(n_modules, sync_n_images_buffer, std::chrono::milliseconds(1000));
 
   for (auto _ : state) {
     benchmark::DoNotOptimize(correct_stream_sync(syncer));
@@ -60,7 +60,7 @@ int missing_stream_sync(Synchronizer& syncer)
 
 void GF_sync_missing(benchmark::State& state)
 {
-  Synchronizer syncer(n_modules, sync_n_images_buffer);
+  Synchronizer syncer(n_modules, sync_n_images_buffer, std::chrono::milliseconds(1000));
 
   for (auto _ : state) {
     benchmark::DoNotOptimize(missing_stream_sync(syncer));
