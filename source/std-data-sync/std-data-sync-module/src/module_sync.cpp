@@ -27,7 +27,10 @@ std::tuple<utils::DetectorConfig, std::chrono::milliseconds> read_arguments(int 
 {
   using namespace std::chrono_literals;
   auto program = utils::create_parser("std_data_sync_module");
-  program.add_argument("--drop_time").default_value(300).scan<'d', uint16_t>();
+  program.add_argument("--drop_time")
+      .default_value(300)
+      .scan<'d', uint16_t>()
+      .help("time in milliseconds after which the image is considered stale and dropped");
 
   program = utils::parse_arguments(program, argc, argv);
 
