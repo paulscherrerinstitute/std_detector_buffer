@@ -3,7 +3,6 @@
 /////////////////////////////////////////////////////////////////////
 
 #include <string>
-#include <chrono>
 
 #include <zmq.h>
 
@@ -21,35 +20,21 @@
 using namespace std;
 using namespace buffer_config;
 
-namespace {
-
-std::tuple<utils::DetectorConfig, std::chrono::milliseconds> read_arguments(int argc, char* argv[])
-{
-  using namespace std::chrono_literals;
-  auto program = utils::create_parser("std_data_sync_module");
-  program.add_argument("--drop_time").default_value(300).scan<'d', uint16_t>();
-
-  program = utils::parse_arguments(program, argc, argv);
-
-  return {utils::read_config_from_json_file(program.get("detector_json_filename")),
-          1ms * program.get<uint16_t>("--drop_time")};
-}
-
-} // namespace
-
 int main(int argc, char* argv[])
 {
-  const auto [config, drop_time] = read_arguments(argc, argv);
+  static const std::string prog_name{"std_data_sync_module"};
+  auto program = utils::create_parser(prog_name);
+  program = utils::parse_arguments(program, argc, argv);
+  const auto config = utils::read_config_from_json_file(program.get("detector_json_filename"));
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, 1);
 
   auto receiver = buffer_utils::bind_socket(ctx, config.detector_name + "-sync", ZMQ_PULL);
   auto sender = buffer_utils::bind_socket(ctx, config.detector_name + "-image", ZMQ_PUB);
-  Synchronizer syncer(config.n_modules, SYNC_N_IMAGES_BUFFER, drop_time,
-                      utils::get_modules_mask(config));
+  Synchronizer syncer(config.n_modules, SYNC_N_IMAGES_BUFFER, utils::get_modules_mask(config));
 
-  utils::SyncStatsCollector stats("std_data_sync_module", config.detector_name);
+  utils::SyncStatsCollector stats(prog_name, config.detector_name);
 
   char meta_buffer_recv[DET_FRAME_STRUCT_BYTES];
   auto* common_frame = (CommonFrame*)(&meta_buffer_recv);
