@@ -66,11 +66,12 @@ def set_udp_header(backend):
     Build the header table for the communication
     """
     # xbl-daq-33 parameters
-    north_mac = [0x94, 0x40, 0xc9, 0xb4, 0xb8, 0x01]
-    south_mac = [0x94, 0x40, 0xc9, 0xb4, 0xa8, 0xd9]
-    north_ip = [10, 4, 0, 102]
-    south_ip = [10, 0, 0, 102]
-    if backend == 'xbl-daq-35':
+    if backend == 'xbl-daq-33':
+        north_mac = [0x94, 0x40, 0xc9, 0xb4, 0xb8, 0x01]
+        south_mac = [0x94, 0x40, 0xc9, 0xb4, 0xa8, 0xd9]
+        north_ip = [10, 4, 0, 102]
+        south_ip = [10, 0, 0, 102]
+    elif backend == 'xbl-daq-35':
         north_mac = [0x94, 0x40, 0xc9, 0xb4, 0xa8, 0xe1]
         south_mac = [0x94, 0x40, 0xc9, 0xb4, 0xa8, 0xb9]
         north_ip = [10, 4, 0, 103]
