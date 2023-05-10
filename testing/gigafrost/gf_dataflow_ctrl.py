@@ -5,6 +5,46 @@ from epics import pv
 
 IOC_NAME_GF1 = 'X02DA-CAM-GF1'
 IOC_NAME_GF2 = 'X02DA-CAM-GF2'
+EPICS_SETERROR_FAILED_CHANNEL = "failed to set channel %s \n"
+EPICS_GETERROR_FAILED_CHANNEL = "failed to get channel %s \n"
+
+
+class EpicsError(Exception):
+    pass
+
+
+def get(ioc_name, name, as_string=False, get_meta=False):
+    """
+    Get channel value.
+
+    Parameters
+    ----------
+    ioc_name : str
+        Name of the ioc 
+    name : str
+        Name of the channel to retrieve the data.
+    as_string : bool, optional
+        If set to true, return the string representation of the PV.
+        Otherwise, the numeric representation is returned.
+        (default = False)
+    get_meta : bool, optional
+        Flag to retrieve the data and metadata. (default=False)
+
+    """
+
+    this_pv = pv.get_pv(pvname="%s:%s" % (ioc_name, name), connect=True)
+    if not get_meta:
+        value = this_pv.get(as_string=as_string, timeout=10)
+        if value is None:
+            raise EpicsError(EPICS_GETERROR_FAILED_CHANNEL % name)
+        return value
+    else:
+        value_dict = this_pv.get_with_metadata(
+            as_string=as_string, timeout=10)
+        # The PV status, which will be 0 for a normal, connected PV
+        if value_dict is None or 'value' not in value_dict:
+            raise EpicsError(EPICS_GETERROR_FAILED_CHANNEL % name)
+        return value_dict
 
 
 def set(ioc_name, name, value, wait=True):
@@ -13,6 +53,8 @@ def set(ioc_name, name, value, wait=True):
 
     Parameters
     ----------
+    ioc_name : str
+        Name of the ioc
     name : str
         Name of the PV
     value
@@ -30,7 +72,7 @@ def set(ioc_name, name, value, wait=True):
         val_str = str(value)
         if len(val_str) > 800:
             val_str = val_str[:780] + " ...\n...\n... " + val_str[-20:]
-        raise EpicsError(const.EPICS_SETERROR_FAILED_CHANNEL %
+        raise EpicsError(EPICS_SETERROR_FAILED_CHANNEL %
                             (name, val_str))
 
 def port2byte(port):
@@ -114,6 +156,13 @@ def configure_cam_header(camera, backend, roix, roiy, n_images):
     set(camera, 'SET_PARAM.PROC', 1)
 
 
+def get_cam_status():
+    status_gf1 = "IDLE" if get(IOC_NAME_GF1, 'START_CAM') == 0 else "RUNNING"
+    status_gf2 = "IDLE" if get(IOC_NAME_GF2, 'START_CAM') == 0 else "RUNNING"
+    print(f'Status GF1 : {status_gf1}')
+    print(f'Status GF2 : {status_gf2}')
+
+
 def start_dataflow(camera, backend, roix, roiy, n_images):
     configure_cam_header(camera, backend, roix, roiy, n_images)
     # Start & triggers soft enable
@@ -140,6 +189,8 @@ def main():
 
     group.add_argument('--stop', action='store_true', help='Stop the stream from a gigafrost camera.')
 
+    group.add_argument('--status', action='store_true', help='Gets the status of the gigafrost cameras.')
+
     args = parser.parse_args()
     
     os.environ['EPICS_CA_ADDR_LIST']='129.129.99.127 129.129.99.119'
@@ -152,14 +203,17 @@ def main():
         backend = args.backend
         configure_cam_header(camera, backend, roix, roiy, n_images)
         print(f'Starting the camera gigafrost ({camera}) '
-          f'with image_shape {(roix, roiy)} '
+          f'with image_shape ({roix, roiy}) '
           f'for {n_images} images.')
         start_dataflow(camera, backend, roix, roiy, n_images)
-    if args.stop:
+    elif args.stop:
         camera = args.camera
         print(f'Stopping the camera gigafrost ({camera})...')
         stop_dataflow(camera)
-        
+    elif args.status:
+        get_cam_status()
+
 
 if __name__ == '__main__':
     main()
+
