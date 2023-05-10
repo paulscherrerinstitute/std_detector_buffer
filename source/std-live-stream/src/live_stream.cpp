@@ -93,12 +93,12 @@ int main(int argc, char* argv[])
   auto prev_sent_time = std::chrono::steady_clock::now();
 
   while (true) {
+    stats.processing_started();
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
       meta.ParseFromArray(buffer, n_bytes);
       auto image_data = receiver.get_data(meta.image_id());
 
       if (const auto now = std::chrono::steady_clock::now(); prev_sent_time + data_period < now) {
-        stats.processing_started();
         prev_sent_time = now;
         if (config.detector_type == "pco") converted_bytes = update_size_for_pco(meta);
 
@@ -109,9 +109,9 @@ int main(int argc, char* argv[])
 
         zmq_send(sender_socket, encoded_c, encoded.length(), ZMQ_SNDMORE);
         zmq_send(sender_socket, image_data, converted_bytes, 0);
-        stats.processing_finished();
       }
     }
+    stats.processing_finished();
   }
   return 0;
 }

@@ -72,18 +72,17 @@ int main(int argc, char* argv[])
   std_daq_protocol::ImageMetadata meta;
 
   while (true) {
+    std::size_t zmq_failed = 0;
+    stats.processing_started();
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
-      stats.processing_started();
-
       meta.ParseFromArray(buffer, n_bytes);
       auto* image_data = receiver.get_data(meta.image_id());
 
-      std::size_t zmq_failed = zmq_success == zmq_send(sender_socket, buffer, n_bytes, ZMQ_SNDMORE);
+      zmq_failed = zmq_success == zmq_send(sender_socket, buffer, n_bytes, ZMQ_SNDMORE);
       zmq_failed +=
           zmq_success == zmq_send(sender_socket, image_data + start_index, data_bytes_sent, 0);
-
-      stats.processing_finished(zmq_failed);
     }
+    stats.processing_finished(zmq_failed);
   }
   return 0;
 }

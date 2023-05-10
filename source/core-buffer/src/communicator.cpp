@@ -38,7 +38,8 @@ char* Communicator::get_data(uint64_t id)
 
 std::tuple<uint64_t, char*> Communicator::receive(std::span<char> meta)
 {
-  zmq_recv(socket, meta.data(), meta.size(), 0);
+  if (auto output = zmq_recv(socket, meta.data(), meta.size(), 0); output == -1)
+    return {INVALID_IMAGE_ID, nullptr};
 
   // First 8 bytes in any struct must represent the image_id (by convention).
   const auto id = reinterpret_cast<CommonFrame*>(meta.data())->image_id;

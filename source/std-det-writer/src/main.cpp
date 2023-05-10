@@ -61,7 +61,6 @@ int main(int argc, char* argv[])
   status.set_i_writer(i_writer);
   status.set_n_writers(n_writers);
 
-
   while (true) {
     auto nbytes = zmq_recv(command_receiver, &recv_buffer_meta, sizeof(recv_buffer_meta), 0);
     if (nbytes == -1) continue;
@@ -71,57 +70,62 @@ int main(int argc, char* argv[])
     const auto run_id = command.run_info().run_id();
     const auto output_file = command.run_info().output_file();
     const auto n_images = command.run_info().n_images();
-    
+
     const auto image_id = command.metadata().image_id();
     const auto i_image = command.i_image();
     const auto data = image_buffer.get_data(image_id);
 
     // Handle start and stop commands.
     switch (command.command_type()) {
-       	case std_daq_protocol::CommandType::START_WRITING:
-       	fmt::print("Start writing run_id={} output_file={} n_images={}\n", run_id, output_file, n_images);
+    case std_daq_protocol::CommandType::START_WRITING:
+      fmt::print("Start writing run_id={} output_file={} n_images={}\n", run_id, output_file,
+                 n_images);
 
-       	writer.open_run(output_file, run_id, n_images, config.image_height, config.image_width, config.bit_depth);
-       	current_run_id = run_id;
-       	highest_run_image_index = 0;
+      writer.open_run(output_file, run_id, n_images, config.image_height, config.image_width,
+                      config.bit_depth);
+      current_run_id = run_id;
+      highest_run_image_index = 0;
 
-       	status.set_command_type(std_daq_protocol::CommandType::START_WRITING);
-       	status.set_i_image(0);
-       	status.set_allocated_run_info(command.release_run_info());
-       	status.SerializeToString(&status_buffer_send);
-       	zmq_send(status_sender, status_buffer_send.c_str(), status_buffer_send.size(), 0);
+      status.set_command_type(std_daq_protocol::CommandType::START_WRITING);
+      status.set_i_image(0);
+      status.set_allocated_run_info(command.release_run_info());
+      status.SerializeToString(&status_buffer_send);
+      zmq_send(status_sender, status_buffer_send.c_str(), status_buffer_send.size(), 0);
 
-       	continue;
-          
-     	case std_daq_protocol::CommandType::STOP_WRITING:
-       	fmt::print("Stop writing run_id={} output_file={} last_i_image={}\n", run_id, output_file, i_image);
-       	writer.close_run(highest_run_image_index);
-       	stats.end_run();
+      continue;
 
-       	status.set_command_type(std_daq_protocol::CommandType::STOP_WRITING);
-       	status.set_i_image(0);
-       	status.SerializeToString(&status_buffer_send);
-       	zmq_send(status_sender, status_buffer_send.c_str(), status_buffer_send.size(), 0);
+    case std_daq_protocol::CommandType::STOP_WRITING:
+      fmt::print("Stop writing run_id={} output_file={} last_i_image={}\n", run_id, output_file,
+                 i_image);
+      writer.close_run(highest_run_image_index);
+      stats.end_run();
 
-       	current_run_id = -1;
-       	continue;
+      status.set_command_type(std_daq_protocol::CommandType::STOP_WRITING);
+      status.set_i_image(0);
+      status.SerializeToString(&status_buffer_send);
+      zmq_send(status_sender, status_buffer_send.c_str(), status_buffer_send.size(), 0);
 
-     	default:
-       	if (current_run_id == -1LU) continue;
+      current_run_id = -1;
+      continue;
+
+    default:
+      if (current_run_id == -1LU) continue;
     }
-    
+
     // Check if we got a message for the wrong run_id - should not happen, driver problem.
     if (run_id != current_run_id) {
-        fmt::print("Received write request for run_id={} but current_run_id={}\n", run_id, current_run_id);
-        continue;
+      fmt::print("Received write request for run_id={} but current_run_id={}\n", run_id,
+                 current_run_id);
+      continue;
     }
 
     highest_run_image_index = max(highest_run_image_index, i_image);
 
     // Fair distribution of images among writers.
-    if (i_image % n_writers == (uint) i_writer) {
-      fmt::print("i_writer={} i_image={} image_id={} run_id={}\n", i_writer, i_image, image_id, run_id);
-      
+    if (i_image % n_writers == (uint)i_writer) {
+      fmt::print("i_writer={} i_image={} image_id={} run_id={}\n", i_writer, i_image, image_id,
+                 run_id);
+
       stats.start_image_write();
       writer.write_data(run_id, i_image, data);
       stats.end_image_write();
@@ -138,4 +142,3 @@ int main(int argc, char* argv[])
     }
   }
 }
-

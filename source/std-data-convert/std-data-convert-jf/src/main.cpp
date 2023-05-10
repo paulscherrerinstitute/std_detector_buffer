@@ -68,10 +68,12 @@ int main(int argc, char* argv[])
     auto [id, image] = receiver.receive(std::span<char>((char*)&meta, sizeof(meta)));
 
     stats_collector.processing_started();
-    // I treat sending of the message as part of processing for now
-    auto converted = converter.convert_data({(uint16_t*)image, MODULE_N_PIXELS});
-    sender.send(id, std::span<char>((char*)&meta, sizeof(meta)), (char*)converted.data());
 
+    if (id != INVALID_IMAGE_ID) {
+      // I treat sending of the message as part of processing for now
+      auto converted = converter.convert_data({(uint16_t*)image, MODULE_N_PIXELS});
+      sender.send(id, std::span<char>((char*)&meta, sizeof(meta)), (char*)converted.data());
+    }
     stats_collector.processing_finished();
   }
 

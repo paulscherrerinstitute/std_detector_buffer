@@ -45,23 +45,25 @@ int main(int argc, char* argv[])
   image_meta.set_width(config.image_pixel_width);
 
   while (true) {
-    zmq_recv(receiver, meta_buffer_recv, DET_FRAME_STRUCT_BYTES, 0);
+    auto received = zmq_recv(receiver, meta_buffer_recv, DET_FRAME_STRUCT_BYTES, 0);
     stats.processing_started();
 
-    auto n_corrupted_images = syncer.process_image_metadata(*common_frame);
+    if (received > 0) {
+      auto n_corrupted_images = syncer.process_image_metadata(*common_frame);
 
-    for (auto m = syncer.pop_next_full_image(); m.image_id != INVALID_IMAGE_ID;
-         m = syncer.pop_next_full_image())
-    {
-      image_meta.set_image_id(m.image_id);
-      if (m.n_missing_packets == 0)
-        image_meta.set_status(std_daq_protocol::ImageMetadataStatus::good_image);
-      else
-        image_meta.set_status(std_daq_protocol::ImageMetadataStatus::missing_packets);
+      for (auto m = syncer.pop_next_full_image(); m.image_id != INVALID_IMAGE_ID;
+           m = syncer.pop_next_full_image())
+      {
+        image_meta.set_image_id(m.image_id);
+        if (m.n_missing_packets == 0)
+          image_meta.set_status(std_daq_protocol::ImageMetadataStatus::good_image);
+        else
+          image_meta.set_status(std_daq_protocol::ImageMetadataStatus::missing_packets);
 
-      std::string meta_buffer_send;
-      image_meta.SerializeToString(&meta_buffer_send);
-      zmq_send(sender, meta_buffer_send.c_str(), meta_buffer_send.size(), 0);
+        std::string meta_buffer_send;
+        image_meta.SerializeToString(&meta_buffer_send);
+        zmq_send(sender, meta_buffer_send.c_str(), meta_buffer_send.size(), 0);
+      }
     }
     stats.processing_finished(n_corrupted_images);
   }
