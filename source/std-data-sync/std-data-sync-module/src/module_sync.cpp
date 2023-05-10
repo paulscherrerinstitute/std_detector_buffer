@@ -43,14 +43,11 @@ int main(int argc, char* argv[])
   image_meta.set_dtype(utils::get_metadata_dtype(config));
   image_meta.set_height(config.image_pixel_height);
   image_meta.set_width(config.image_pixel_width);
-  auto n_corrupted_images = 0u;
 
   while (true) {
-    auto received = zmq_recv(receiver, meta_buffer_recv, DET_FRAME_STRUCT_BYTES, 0);
-    stats.processing_started();
-
-    if (received > 0) {
-      n_corrupted_images = syncer.process_image_metadata(*common_frame);
+    if (zmq_recv(receiver, meta_buffer_recv, DET_FRAME_STRUCT_BYTES, 0) > 0) {
+      stats.processing_started();
+      auto n_corrupted_images = syncer.process_image_metadata(*common_frame);
 
       for (auto m = syncer.pop_next_full_image(); m.image_id != INVALID_IMAGE_ID;
            m = syncer.pop_next_full_image())
@@ -65,7 +62,8 @@ int main(int argc, char* argv[])
         image_meta.SerializeToString(&meta_buffer_send);
         zmq_send(sender, meta_buffer_send.c_str(), meta_buffer_send.size(), 0);
       }
+      stats.processing_finished(n_corrupted_images);
     }
-    stats.processing_finished(n_corrupted_images);
+    stats.print_stats();
   }
 }

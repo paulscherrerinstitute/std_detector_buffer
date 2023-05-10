@@ -47,9 +47,6 @@ int main(int argc, char* argv[])
       if (cached_id != INVALID_IMAGE_ID) zmq_send(sender, buffer, n_bytes, 0);
       stats.processing_finished(n_corrupted_images, syncer.get_queue_length());
     }
-    else {
-      stats.processing_started();
-      stats.processing_finished(0, syncer.get_queue_length());
-    }
+    stats.print_stats();
   }
 }

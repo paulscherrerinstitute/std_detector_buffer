@@ -82,6 +82,7 @@ int main(int argc, char* argv[])
     }
     pulse_order.clear();
     stats.processing_finished();
+    stats.print_stats();
   }
   return 0;
 }

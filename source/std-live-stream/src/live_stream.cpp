@@ -93,8 +93,8 @@ int main(int argc, char* argv[])
   auto prev_sent_time = std::chrono::steady_clock::now();
 
   while (true) {
-    stats.processing_started();
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
+      utils::process_stats p{stats};
       meta.ParseFromArray(buffer, n_bytes);
       auto image_data = receiver.get_data(meta.image_id());
 
@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
         zmq_send(sender_socket, image_data, converted_bytes, 0);
       }
     }
-    stats.processing_finished();
+    stats.print_stats();
   }
   return 0;
 }

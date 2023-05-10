@@ -72,18 +72,17 @@ int main(int argc, char* argv[])
   while (true) {
     unsigned int zmq_fails = 0;
     meta.set_image_id(0);
-    stats.processing_started();
     if (auto n_bytes = zmq_recv(socket, buffer, sizeof(buffer), 0); n_bytes > 0) {
+      stats.processing_started();
       meta.ParseFromArray(buffer, n_bytes);
       char* data = sender.get_data(meta.image_id());
       if (received_successfully_data(socket, data + start_index, data_bytes_sent))
         sender.send(meta.image_id(), std::span{buffer, static_cast<std::size_t>(n_bytes)}, nullptr);
       else
         zmq_fails++;
+      stats.processing_finished(zmq_fails, meta.image_id());
     }
-    else
-      zmq_fails++;
-    stats.processing_finished(zmq_fails, meta.image_id());
+    stats.print_stats();
   }
   return 0;
 }

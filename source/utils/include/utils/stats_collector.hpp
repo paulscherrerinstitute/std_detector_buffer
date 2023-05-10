@@ -22,12 +22,11 @@ public:
       , detector_name(detector_name_)
   {}
   void processing_started() { processing_start = std::chrono::steady_clock::now(); }
-  void processing_finished()
+  void processing_finished() { update_stats(std::chrono::steady_clock::now()); }
+  void print_stats()
   {
     using namespace std::chrono_literals;
     const auto now = std::chrono::steady_clock::now();
-
-    update_stats(now);
 
     if (10s < now - last_flush_time) {
       fmt::print("{},detector={},average_process_time_ns={},max_process_time_ns={},processed_times="
@@ -35,7 +34,6 @@ public:
                  app_name, detector_name, (stats.first / stats.second).count(),
                  max_processing_time.count(), stats.second, additional_info(), timestamp());
       std::fflush(stdout);
-
       last_flush_time = now;
       reset_stats();
     }
@@ -78,6 +76,20 @@ private:
   std::pair<std::chrono::nanoseconds, std::size_t> stats{};
   std::chrono::nanoseconds max_processing_time{};
 };
+
+template <typename StatsCollector> class process_stats
+{
+public:
+  explicit process_stats(StatsCollector& c)
+      : collector(c)
+  {
+    collector.processing_started();
+  }
+  ~process_stats() { collector.processing_finished(); }
+
+private:
+  StatsCollector& collector;
+}
 
 } // namespace utils
 

@@ -77,15 +77,14 @@ int main(int argc, char* argv[])
 
   while (true) {
     auto [id, image] = receiver.receive(std::span<char>((char*)&meta, sizeof(meta)));
-    stats_collector.processing_started();
-
     if (id != INVALID_IMAGE_ID) {
+      utils::process_stats p{stats_collector};
       converter.convert(std::span<char>(image, module_bytes),
                         std::span<char>(sender.get_data(id), converted_bytes));
 
       sender.send(id, std::span((char*)(&meta), sizeof(meta)), nullptr);
     }
-    stats_collector.processing_finished();
+    stats_collector.print_stats();
   }
   return 0;
 }
