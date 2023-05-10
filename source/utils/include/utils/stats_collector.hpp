@@ -31,7 +31,7 @@ public:
     if (10s < now - last_flush_time) {
       fmt::print("{},detector={},average_process_time_ns={},max_process_time_ns={},processed_times="
                  "{}{} {}\n",
-                 app_name, detector_name, (stats.first / stats.second).count(),
+                 app_name, detector_name, (stats.first / std::max(stats.second, 1ul)).count(),
                  max_processing_time.count(), stats.second, additional_info(), timestamp());
       std::fflush(stdout);
       last_flush_time = now;
