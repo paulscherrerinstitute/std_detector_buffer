@@ -89,7 +89,7 @@ public:
 
 private:
   StatsCollector& collector;
-}
+};
 
 } // namespace utils
 
