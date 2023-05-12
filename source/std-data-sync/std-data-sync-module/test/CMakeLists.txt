@@ -6,7 +6,7 @@ add_executable(${PROJECT_NAME}_tests)
 
 target_sources(${PROJECT_NAME}_tests
     PRIVATE
-        test_syncer.cpp
+        test_synchronizer.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}_tests
