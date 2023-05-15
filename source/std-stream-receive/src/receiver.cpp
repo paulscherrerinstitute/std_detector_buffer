@@ -7,6 +7,7 @@
 
 #include "core_buffer/communicator.hpp"
 #include "core_buffer/ram_buffer.hpp"
+#include "core_buffer/buffer_utils.hpp"
 #include "std_daq/image_metadata.pb.h"
 #include "utils/args.hpp"
 #include "utils/detector_config.hpp"
@@ -18,11 +19,10 @@ namespace {
 constexpr auto zmq_io_threads = 1;
 } // namespace
 
-void* zmq_socket_bind(void* ctx, const std::string& stream_address)
+void* zmq_socket_connect(void* ctx, const std::string& stream_address)
 {
-  void* socket = zmq_socket(ctx, ZMQ_SUB);
+  void* socket = buffer_utils::create_socket(ctx, ZMQ_SUB);
   if (zmq_connect(socket, stream_address.c_str())) throw std::runtime_error(zmq_strerror(errno));
-  if (zmq_setsockopt(socket, ZMQ_SUBSCRIBE, "", 0)) throw std::runtime_error(zmq_strerror(errno));
   return socket;
 }
 
@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
   auto sender = cb::Communicator{{image_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
                                  {sync_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_PUSH}};
 
-  auto socket = zmq_socket_bind(ctx, stream_address);
+  auto socket = zmq_socket_connect(ctx, stream_address);
   while (true) {
     unsigned int zmq_fails = 0;
     meta.set_image_id(0);
