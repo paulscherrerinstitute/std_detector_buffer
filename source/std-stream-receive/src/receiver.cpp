@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
   auto sender = cb::Communicator{{image_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
                                  {sync_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_PUSH}};
 
-  auto socket = buffer_utils::bind_socket(ctx, stream_address, ZMQ_SUB);
+  auto socket = buffer_utils::connect_socket(ctx, stream_address, ZMQ_SUB);
   while (true) {
     unsigned int zmq_fails = 0;
     meta.set_image_id(0);
