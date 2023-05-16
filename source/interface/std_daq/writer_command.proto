@@ -32,4 +32,5 @@ message WriterStatus {
 
   uint32 i_writer = 4;
   uint32 n_writers = 5;
+  string error_message = 6;
 }

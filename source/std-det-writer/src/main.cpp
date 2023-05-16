@@ -25,6 +25,7 @@
 using namespace std;
 using namespace live_writer_config;
 
+
 int main(int argc, char* argv[])
 {
   auto program = utils::create_parser("std_det_writer");
@@ -61,6 +62,13 @@ int main(int argc, char* argv[])
   status.set_i_writer(i_writer);
   status.set_n_writers(n_writers);
 
+  const auto process_exception = [&](std::string message){
+    status.set_command_type(std_daq_protocol::CommandType::STOP_WRITING);
+    status.set_error_message("ERROR: " + message);
+    status.SerializeToString(&status_buffer_send);
+    zmq_send(status_sender, status_buffer_send.c_str(), status_buffer_send.size(), 0);
+  };
+
   while (true) {
     auto nbytes = zmq_recv(command_receiver, &recv_buffer_meta, sizeof(recv_buffer_meta), 0);
     if (nbytes == -1) continue;
@@ -81,14 +89,21 @@ int main(int argc, char* argv[])
       fmt::print("Start writing run_id={} output_file={} n_images={}\n", run_id, output_file,
                  n_images);
 
-      writer.open_run(output_file, run_id, n_images, config.image_height, config.image_width,
-                      config.bit_depth);
+      try {
+        writer.open_run(output_file, run_id, n_images, config.image_height, config.image_width,
+                        config.bit_depth);
+      } catch(const std::exception& ex) {
+        process_exception(ex.what());
+        continue;
+      }
+
       current_run_id = run_id;
       highest_run_image_index = 0;
 
       status.set_command_type(std_daq_protocol::CommandType::START_WRITING);
       status.set_i_image(0);
       status.set_allocated_run_info(command.release_run_info());
+      status.set_error_message("");
       status.SerializeToString(&status_buffer_send);
       zmq_send(status_sender, status_buffer_send.c_str(), status_buffer_send.size(), 0);
 
@@ -97,14 +112,23 @@ int main(int argc, char* argv[])
     case std_daq_protocol::CommandType::STOP_WRITING:
       fmt::print("Stop writing run_id={} output_file={} last_i_image={}\n", run_id, output_file,
                  i_image);
-      writer.close_run(highest_run_image_index);
+      try {
+        writer.close_run(highest_run_image_index);
+
+        if ((uint32_t)n_images != highest_run_image_index+1) {
+          status.set_error_message("Interrupted.");
+        } else {
+          status.set_error_message("Completed.");
+        }
+
+        status.set_command_type(std_daq_protocol::CommandType::STOP_WRITING);
+        status.set_i_image(0);
+        status.SerializeToString(&status_buffer_send);
+        zmq_send(status_sender, status_buffer_send.c_str(), status_buffer_send.size(), 0);
+      } catch (const std::exception& ex) {
+        process_exception(ex.what());
+      }
       stats.end_run();
-
-      status.set_command_type(std_daq_protocol::CommandType::STOP_WRITING);
-      status.set_i_image(0);
-      status.SerializeToString(&status_buffer_send);
-      zmq_send(status_sender, status_buffer_send.c_str(), status_buffer_send.size(), 0);
-
       current_run_id = -1;
       continue;
 
