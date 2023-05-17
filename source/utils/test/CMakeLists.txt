@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
 
-find_package(range-v3 REQUIRED)
 find_package(GTest REQUIRED)
 add_executable(${PROJECT_NAME}_tests)
 

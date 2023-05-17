@@ -2,8 +2,8 @@
 // Copyright (c) 2023 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_BUFFER_WRITER_HPP
-#define STD_DETECTOR_BUFFER_BUFFER_WRITER_HPP
+#ifndef STD_DETECTOR_BUFFER_BUFFER_HANDLER_HPP
+#define STD_DETECTOR_BUFFER_BUFFER_HANDLER_HPP
 
 #include <fstream>
 #include <filesystem>
@@ -11,13 +11,14 @@
 #include <string>
 #include <span>
 
-namespace sbw {
+namespace sbc {
 
-class BufferWriter
+class BufferHandler
 {
 public:
-  explicit BufferWriter(std::string root_directory);
+  explicit BufferHandler(std::string root_directory);
   uint64_t write(uint64_t image_id, std::span<char> buffered_data);
+  bool read(uint64_t image_id, std::span<char> buffered_data, uint64_t offset);
 
 private:
   void open_new_file(uint64_t image_id, const std::string& filename);
@@ -31,6 +32,6 @@ private:
   uint64_t current_offset_ = 0;
 };
 
-} // namespace sbw
+} // namespace sbc
 
-#endif // STD_DETECTOR_BUFFER_BUFFER_WRITER_HPP
+#endif // STD_DETECTOR_BUFFER_BUFFER_HANDLER_HPP

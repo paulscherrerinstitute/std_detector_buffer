@@ -7,14 +7,13 @@
 
 #include "core_buffer/communicator.hpp"
 #include "core_buffer/ram_buffer.hpp"
+#include "std_buffer_common/buffer_handler.hpp"
+#include "std_buffer_common/redis_handler.hpp"
 #include "std_daq/buffered_metadata.pb.h"
 #include "std_daq/image_metadata.pb.h"
 #include "utils/args.hpp"
 #include "utils/detector_config.hpp"
 #include "utils/get_metadata_dtype.hpp"
-
-#include "redis_sender.hpp"
-#include "buffer_writer.hpp"
 
 namespace {
 constexpr auto zmq_io_threads = 1;
@@ -44,8 +43,8 @@ std::tuple<utils::DetectorConfig, std::string, std::string> read_arguments(int a
 int main(int argc, char* argv[])
 {
   const auto [config, db_address, root_dir] = read_arguments(argc, argv);
-  sbw::RedisSender sender(config.detector_name, db_address);
-  sbw::BufferWriter writer(root_dir + config.detector_name);
+  sbc::RedisHandler sender(config.detector_name, db_address);
+  sbc::BufferHandler writer(root_dir + config.detector_name);
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
