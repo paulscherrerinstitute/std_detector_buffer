@@ -64,9 +64,11 @@ void* create_socket(void *ctx, const std::string ipc_address, const int zmq_sock
 int main(int argc, char* argv[])
 {
   auto program = utils::create_parser("std_det_writer");
+  program.add_argument("user_id");
   program = utils::parse_arguments(program, argc, argv);
   const auto config = converter::from_json_file(program.get("detector_json_filename"));
   const size_t image_n_bytes = config.image_width * config.image_height * config.bit_depth / 8;
+  const int user_id = program.get<int>("user_id");
 
   MPI_Init(nullptr, nullptr);
   int n_writers;
@@ -103,6 +105,10 @@ int main(int argc, char* argv[])
     status.SerializeToString(&status_buffer_send);
     zmq_send(status_sender, status_buffer_send.c_str(), status_buffer_send.size(), 0);
   };
+
+  if (seteuid(user_id) == -1) {
+    throw runtime_error('Cannot set uid');
+  }
 
   while (true) {
     auto nbytes = zmq_recv(command_receiver, &recv_buffer_meta, sizeof(recv_buffer_meta), 0);
