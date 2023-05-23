@@ -44,11 +44,15 @@ std::vector<uint64_t> RedisHandler::get_more_recent_image_ids(uint64_t start_id,
 {
   std::vector<std::string> keys = get_image_ids();
 
+  auto get_id = [](const auto& data) {
+    std::size_t pos = data.find(":");
+    return data.substr(pos + 1);
+  };
   auto to_number = [](const auto& data) { return static_cast<uint64_t>(stoll(data)); };
-  auto get_ids_from_range = [=](auto c) { return c >= start_id && c < stop_id; };
+  auto filter_ids_from_range = [=](auto c) { return c >= start_id && c < stop_id; };
 
-  auto image_ids = keys | ::ranges::view::transform(to_number) |
-                   ::ranges::view::filter(get_ids_from_range) | ::ranges::to_vector;
+  auto image_ids = keys | ::ranges::view::transform(get_id) | ::ranges::view::transform(to_number) |
+                   ::ranges::view::filter(filter_ids_from_range) | ::ranges::to_vector;
 
   return ::ranges::action::sort(image_ids);
 }

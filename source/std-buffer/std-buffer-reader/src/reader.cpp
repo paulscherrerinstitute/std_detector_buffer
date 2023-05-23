@@ -34,12 +34,12 @@ struct arguments
 
 arguments read_arguments(int argc, char* argv[])
 {
-  auto program = utils::create_parser("std_buffer_writer");
+  auto program = utils::create_parser("std_buffer_reader");
   program.add_argument("--root_dir").help("Root directory where files will be stored").required();
   program.add_argument("--db_address")
       .help("Address of Redis API compatible database to connect")
       .required();
-  program.add_argument("--start_id").help("Starting ID for read").required();
+  program.add_argument("--start_id").help("Starting ID for read").scan<'i', uint64_t>().required();
   program.add_argument("--end_id")
       .help("Root directory where files will be stored")
       .scan<'i', uint64_t>()
@@ -47,7 +47,7 @@ arguments read_arguments(int argc, char* argv[])
   program = utils::parse_arguments(program, argc, argv);
 
   return {utils::read_config_from_json_file(program.get("detector_json_filename")),
-          program.get("--db_address"), program.get("--root_dir"),
+          program.get("--root_dir"), program.get("--db_address"),
           program.get<uint64_t>("--start_id"), program.get<uint64_t>("--end_id")};
 }
 
@@ -74,7 +74,6 @@ int main(int argc, char* argv[])
 
   sbc::RedisHandler redis_handler(args.config.detector_name, args.db_address);
   sbc::BufferHandler reader(args.root_dir + args.config.detector_name);
-
   std_daq_protocol::BufferedMetadata buffered_meta;
 
   auto images = redis_handler.get_more_recent_image_ids(args.start_image_id, args.end_image_id);
@@ -88,7 +87,7 @@ int main(int argc, char* argv[])
       buffered_meta.metadata().SerializeToString(&meta_buffer_send);
       sender.send(image, meta_buffer_send, nullptr);
       // TODO: delay should be more useful than this one
-      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+      std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
   }
   return 0;
