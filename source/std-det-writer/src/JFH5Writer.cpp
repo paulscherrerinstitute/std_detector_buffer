@@ -266,7 +266,7 @@ void JFH5Writer::write_data(const uint64_t run_id, const uint32_t index, const c
     throw runtime_error("Cannot write data to image dataset.");
   }
 
-  H5Sclose(plist_id);
+  H5Pclose(plist_id);
   H5Sclose(file_ds);
   H5Sclose(ram_ds);
 }

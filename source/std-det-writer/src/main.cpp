@@ -30,32 +30,33 @@ void* create_socket(void *ctx, const std::string ipc_address, const int zmq_sock
 
   void *socket = zmq_socket(ctx, zmq_socket_type);
   if (socket == nullptr)
-    throw runtime_error(zmq_strerror(errno));
+    throw runtime_error(std::string("Cannot create socket: ") + zmq_strerror(errno));
 
   if (zmq_socket_type == ZMQ_SUB && zmq_setsockopt(socket, ZMQ_SUBSCRIBE, "", 0) != 0)
-    throw runtime_error(zmq_strerror(errno));
+    throw runtime_error(std::string("Cannot subscrive socket: ") + zmq_strerror(errno));
 
   // SUB and PULL sockets are used for receiving, the rest for sending.
   if (zmq_socket_type == ZMQ_SUB || zmq_socket_type == ZMQ_PULL) {
     int rcvhwm = 0;
     if (zmq_setsockopt(socket, ZMQ_RCVHWM, &rcvhwm, sizeof(rcvhwm)) != 0)
-      throw runtime_error(zmq_strerror(errno));
+      throw runtime_error(std::string("Cannot set RCVHWM: ") + zmq_strerror(errno));
 
     const int timeout = 1000;
     if (zmq_setsockopt(socket, ZMQ_RCVTIMEO, &timeout, sizeof(timeout)) != 0)
-      throw runtime_error(zmq_strerror(errno));
+      throw runtime_error(std::string("Cannot set timeout: ") + zmq_strerror(errno));
 
   } else {
     const int sndhwm = 10000;
     if (zmq_setsockopt(socket, ZMQ_SNDHWM, &sndhwm, sizeof(sndhwm)) != 0)
-      throw runtime_error(zmq_strerror(errno));
+      throw runtime_error(std::string("Cannot set SNDHWM:") + zmq_strerror(errno));
   }
 
   const int linger = 0;
   if (zmq_setsockopt(socket, ZMQ_LINGER, &linger, sizeof(linger)) != 0)
-    throw runtime_error(zmq_strerror(errno));
+    throw runtime_error(std::string("Cannot set linger: ") + zmq_strerror(errno));
 
-  if (zmq_connect(socket, ipc_address.c_str()) != 0)
+  const auto ipc = std::string("ipc:///tmp/") + ipc_address;
+  if (zmq_connect(socket, ipc.c_str()) != 0)
     throw runtime_error(zmq_strerror(errno));
 
   return socket;
@@ -68,7 +69,7 @@ int main(int argc, char* argv[])
   program = utils::parse_arguments(program, argc, argv);
   const auto config = converter::from_json_file(program.get("detector_json_filename"));
   const size_t image_n_bytes = config.image_width * config.image_height * config.bit_depth / 8;
-  const int user_id = program.get<int>("user_id");
+  const auto user_id = std::stoul(program.get("user_id"));
 
   MPI_Init(nullptr, nullptr);
   int n_writers;
@@ -81,7 +82,6 @@ int main(int argc, char* argv[])
   const auto buffer_name = fmt::format("{}-image", config.detector_name);
   RamBuffer image_buffer(buffer_name, image_n_bytes, buffer_config::RAM_BUFFER_N_SLOTS);
   auto ctx = zmq_ctx_new();
-
   const auto command_stream_name = fmt::format("{}-writer", config.detector_name);
   auto command_receiver = create_socket(ctx, command_stream_name, ZMQ_SUB);
 
@@ -188,8 +188,8 @@ int main(int argc, char* argv[])
 
     // Fair distribution of images among writers.
     if (i_image % n_writers == (uint)i_writer) {
-      fmt::print("i_writer={} i_image={} image_id={} run_id={}\n", i_writer, i_image, image_id,
-                 run_id);
+      //fmt::print("i_writer={} i_image={} image_id={} run_id={}\n", i_writer, i_image, image_id,
+      //           run_id);
 
       stats.start_image_write();
       writer.write_data(run_id, i_image, data);
@@ -203,7 +203,7 @@ int main(int argc, char* argv[])
 
     // Only the first instance writes metadata.
     if (i_writer == 0) {
-      writer.write_meta(run_id, i_image, command.metadata());
+       writer.write_meta(run_id, i_image, command.metadata());
     }
   }
 }
