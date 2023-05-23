@@ -246,21 +246,27 @@ void JFH5Writer::write_data(const uint64_t run_id, const uint32_t index, const c
   }
 
   const hsize_t file_ds_start[] = {index, 0, 0};
-  const hsize_t file_ds_stride[] = {1, 1, 1};
+  constexpr hsize_t file_ds_stride[] = {1, 1, 1};
   const hsize_t file_ds_count[] = {1, image_y_size_, image_x_size_};
-  const hsize_t file_ds_block[] = {1, 1, 1};
+  constexpr hsize_t file_ds_block[] = {1, 1, 1};
   if (H5Sselect_hyperslab(file_ds, H5S_SELECT_SET, file_ds_start, file_ds_stride, file_ds_count,
                           file_ds_block) < 0)
   {
     throw runtime_error("Cannot select image dataset file hyperslab.");
   }
 
-  if (H5Dwrite(image_data_dataset_, get_datatype(bit_depth_), ram_ds, file_ds, H5P_DEFAULT,
+  const auto plist_id = H5Pcreate(H5P_DATASET_XFER);
+  if (H5Pset_dxpl_mpio(plist_id, H5FD_MPIO_INDEPENDENT) < 0) {
+	throw runtime_error("Cannot set independent transfer list");
+}
+
+  if (H5Dwrite(image_data_dataset_, get_datatype(bit_depth_), ram_ds, file_ds, plist_id,
                data) < 0)
   {
     throw runtime_error("Cannot write data to image dataset.");
   }
 
+  H5Sclose(plist_id);
   H5Sclose(file_ds);
   H5Sclose(ram_ds);
 }

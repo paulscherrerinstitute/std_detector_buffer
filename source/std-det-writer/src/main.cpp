@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
   };
 
   if (seteuid(user_id) == -1) {
-    throw runtime_error('Cannot set uid');
+    throw runtime_error("Cannot set uid");
   }
 
   while (true) {
