@@ -26,6 +26,41 @@ using namespace std;
 using namespace live_writer_config;
 
 
+void* create_socket(void *ctx, const std::string ipc_address, const int zmq_socket_type) {
+
+  void *socket = zmq_socket(ctx, zmq_socket_type);
+  if (socket == nullptr)
+    throw runtime_error(zmq_strerror(errno));
+
+  if (zmq_socket_type == ZMQ_SUB && zmq_setsockopt(socket, ZMQ_SUBSCRIBE, "", 0) != 0)
+    throw runtime_error(zmq_strerror(errno));
+
+  // SUB and PULL sockets are used for receiving, the rest for sending.
+  if (zmq_socket_type == ZMQ_SUB || zmq_socket_type == ZMQ_PULL) {
+    int rcvhwm = 0;
+    if (zmq_setsockopt(socket, ZMQ_RCVHWM, &rcvhwm, sizeof(rcvhwm)) != 0)
+      throw runtime_error(zmq_strerror(errno));
+
+    const int timeout = 1000;
+    if (zmq_setsockopt(socket, ZMQ_RCVTIMEO, &timeout, sizeof(timeout)) != 0)
+      throw runtime_error(zmq_strerror(errno));
+
+  } else {
+    const int sndhwm = 10000;
+    if (zmq_setsockopt(socket, ZMQ_SNDHWM, &sndhwm, sizeof(sndhwm)) != 0)
+      throw runtime_error(zmq_strerror(errno));
+  }
+
+  const int linger = 0;
+  if (zmq_setsockopt(socket, ZMQ_LINGER, &linger, sizeof(linger)) != 0)
+    throw runtime_error(zmq_strerror(errno));
+
+  if (zmq_connect(socket, ipc_address.c_str()) != 0)
+    throw runtime_error(zmq_strerror(errno));
+
+  return socket;
+}
+
 int main(int argc, char* argv[])
 {
   auto program = utils::create_parser("std_det_writer");
@@ -46,10 +81,10 @@ int main(int argc, char* argv[])
   auto ctx = zmq_ctx_new();
 
   const auto command_stream_name = fmt::format("{}-writer", config.detector_name);
-  auto command_receiver = buffer_utils::connect_socket(ctx, command_stream_name, ZMQ_SUB);
+  auto command_receiver = create_socket(ctx, command_stream_name, ZMQ_SUB);
 
   const auto status_sender_name = fmt::format("{}-writer-status-sync", config.detector_name);
-  auto status_sender = buffer_utils::connect_socket(ctx, status_sender_name, ZMQ_PUSH);
+  auto status_sender = create_socket(ctx, status_sender_name, ZMQ_PUSH);
 
   char recv_buffer_meta[512];
   uint64_t current_run_id = -1;
