@@ -26,6 +26,7 @@ struct converter
         config_parameters["image_pixel_height"].GetInt(),
         config_parameters["image_pixel_width"].GetInt(),
         config_parameters["bit_depth"].GetInt(),
+        config_parameters["writer_user_id"].GetInt()
     };
   }
 
@@ -33,6 +34,7 @@ struct converter
   const int image_height;
   const int image_width;
   const int bit_depth;
+  const int writer_user_id;
 };
 
 #endif // STD_DETECTOR_BUFFER_DET_WRITER_CONFIG_HPP
