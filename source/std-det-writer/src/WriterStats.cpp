@@ -7,6 +7,7 @@
 #include <iostream>
 #include <utility>
 
+inline constexpr int STATS_PRINT_TIME_SECONDS = 1;
 using namespace std;
 using namespace chrono;
 
@@ -23,11 +24,12 @@ void WriterStats::reset_counters()
   total_buffer_write_us_ = 0;
   max_buffer_write_us_ = 0;
   total_bytes_ = 0;
+  stats_interval_start_ = steady_clock::now();
 }
 
 void WriterStats::start_image_write()
 {
-  stats_interval_start_ = steady_clock::now();
+  stats_writing_start_ = steady_clock::now();
 }
 
 void WriterStats::end_image_write()
@@ -36,42 +38,46 @@ void WriterStats::end_image_write()
   total_bytes_ += image_n_bytes_;
 
   uint32_t write_us_duration =
-      duration_cast<microseconds>(steady_clock::now() - stats_interval_start_).count();
+      duration_cast<microseconds>(steady_clock::now() - stats_writing_start_).count();
 
   total_buffer_write_us_ += write_us_duration;
   max_buffer_write_us_ = max(max_buffer_write_us_, write_us_duration);
 }
 
-void WriterStats::end_run()
-{
-  print_stats();
-  reset_counters();
-}
-
 void WriterStats::print_stats()
 {
-  float avg_buffer_write_us = 0;
-  uint64_t avg_throughput = 0;
-  if (image_counter_ > 0) {
-    avg_buffer_write_us = total_buffer_write_us_ / image_counter_;
-    avg_throughput =
-        // bytes -> megabytes
-        (image_n_bytes_ / 1024 / 1024) /
-        // micro seconds -> seconds
-        (avg_buffer_write_us * 1000 * 1000);
+
+  uint32_t interval_us_duration =
+      duration_cast<microseconds>(steady_clock::now() - stats_writing_start_).count();
+
+  if (interval_us_duration > STATS_PRINT_TIME_SECONDS * 1000 * 1000) {
+
+    float avg_buffer_write_us = 0;
+    uint64_t avg_throughput = 0;
+    if (image_counter_ > 0) {
+      avg_buffer_write_us = total_buffer_write_us_ / image_counter_;
+      avg_throughput =
+          // bytes -> megabytes
+          (total_bytes_ / 1024 / 1024) /
+          // micro seconds -> seconds
+          (avg_buffer_write_us * 1000 * 1000);
+    }
+
+    const uint64_t timestamp =
+        time_point_cast<nanoseconds>(system_clock::now()).time_since_epoch().count();
+
+    // Output in InfluxDB line protocol
+    cout << "jf_buffer_writer";
+    cout << ",detector_name=" << detector_name_;
+    cout << " ";
+    cout << "n_written_images=" << image_counter_ << "i";
+    cout << " ,avg_buffer_write_us=" << avg_buffer_write_us;
+    cout << " ,max_buffer_write_us=" << max_buffer_write_us_ << "i";
+    cout << " ,avg_throughput=" << avg_throughput;
+    cout << timestamp;
+    cout << endl;
+
+    reset_counters();
   }
 
-  const uint64_t timestamp =
-      time_point_cast<nanoseconds>(system_clock::now()).time_since_epoch().count();
-
-  // Output in InfluxDB line protocol
-  cout << "jf_buffer_writer";
-  cout << ",detector_name=" << detector_name_;
-  cout << " ";
-  cout << "n_written_images=" << image_counter_ << "i";
-  cout << " ,avg_buffer_write_us=" << avg_buffer_write_us;
-  cout << " ,max_buffer_write_us=" << max_buffer_write_us_ << "i";
-  cout << " ,avg_throughput=" << avg_throughput;
-  cout << timestamp;
-  cout << endl;
 }

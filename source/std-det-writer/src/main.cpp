@@ -111,6 +111,9 @@ int main(int argc, char* argv[])
   }
 
   while (true) {
+    // Print only 1 every second.
+    stats.print_stats();
+
     auto nbytes = zmq_recv(command_receiver, &recv_buffer_meta, sizeof(recv_buffer_meta), 0);
     if (nbytes == -1) continue;
 
@@ -169,7 +172,6 @@ int main(int argc, char* argv[])
       } catch (const std::exception& ex) {
         process_exception(ex.what());
       }
-      stats.end_run();
       current_run_id = -1;
       continue;
 
@@ -179,7 +181,7 @@ int main(int argc, char* argv[])
 
     // Check if we got a message for the wrong run_id - should not happen, driver problem.
     if (run_id != current_run_id) {
-      fmt::print("Received write request for run_id={} but current_run_id={}\n", run_id,
+      fmt::print("ERROR: Received write request for run_id={} but current_run_id={}\n", run_id,
                  current_run_id);
       continue;
     }

@@ -23,15 +23,15 @@ class WriterStats
   uint32_t total_buffer_write_us_{};
   uint32_t max_buffer_write_us_{};
   std::chrono::time_point<std::chrono::steady_clock> stats_interval_start_;
+  std::chrono::time_point<std::chrono::steady_clock> stats_writing_start_;
 
   void reset_counters();
-  void print_stats();
 
 public:
   explicit WriterStats(std::string detector_name, const uint64_t image_n_bytes);
-  void end_run();
   void start_image_write();
   void end_image_write();
+  void print_stats();
 };
 
 #endif // STD_DETECTOR_BUFFER_WRITER_STATS_HPP
