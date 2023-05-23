@@ -5,6 +5,7 @@
   "bit_depth": 4,
   "image_pixel_height": 1024,
   "image_pixel_width": 512,
+  "writer_user_id": 0,
   "start_udp_port": 50020,
   "module_positions": {}
 }

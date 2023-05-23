@@ -106,8 +106,10 @@ int main(int argc, char* argv[])
     zmq_send(status_sender, status_buffer_send.c_str(), status_buffer_send.size(), 0);
   };
 
-  if (seteuid(user_id) == -1) {
-    throw runtime_error("Cannot set uid");
+  if (user_id > 0) {
+    if (seteuid(user_id) == -1) {
+      throw runtime_error("Cannot set uid=" + std::to_string(user_id));
+    }
   }
 
   while (true) {
