@@ -18,6 +18,7 @@
 #include "utils/args.hpp"
 #include "utils/detector_config.hpp"
 #include "utils/get_metadata_dtype.hpp"
+#include "utils/image_size_calc.hpp"
 
 namespace {
 
@@ -66,9 +67,7 @@ int main(int argc, char* argv[])
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
 
   const auto sync_name = fmt::format("{}-image", args.config.detector_name);
-  const std::size_t max_data_bytes =
-      args.config.image_pixel_width * args.config.image_pixel_height * args.config.bit_depth / 8u;
-
+  const std::size_t max_data_bytes = utils::converted_image_n_bytes(args.config);
   auto sender = cb::Communicator{{sync_name, max_data_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
                                  {sync_name, ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
 

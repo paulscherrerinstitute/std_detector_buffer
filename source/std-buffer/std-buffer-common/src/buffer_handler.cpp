@@ -31,7 +31,7 @@ void BufferHandler::open_new_file(uint64_t image_id, const std::string& filename
 uint64_t BufferHandler::write_data_and_update_offset(std::span<char> buffered_data)
 {
   uint64_t start_position = current_offset_;
-  current_file_.write(buffered_data.data(), buffered_data.size());
+  current_file_.write(buffered_data.data(), static_cast<std::streamsize>(buffered_data.size()));
   current_offset_ += buffered_data.size();
   return start_position;
 }
@@ -50,11 +50,14 @@ bool BufferHandler::read(uint64_t image_id, std::span<char> buffered_data, uint6
 {
   if (std::string filename = get_filename(image_id); filename != current_filename_) {
     current_filename_ = filename;
+    current_file_.close();
     current_file_.open(current_filename_, std::ios::in | std::ios::binary);
   }
+  if (!current_file_.is_open()) return false;
 
   if (current_file_.good()) current_file_.seekg(static_cast<long>(offset), std::ios::beg);
-  if (current_file_.good()) current_file_.read(buffered_data.data(), buffered_data.size());
+  if (current_file_.good())
+    current_file_.read(buffered_data.data(), static_cast<std::streamsize>(buffered_data.size()));
   return current_file_.good();
 }
 
