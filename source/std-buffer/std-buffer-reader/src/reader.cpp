@@ -75,8 +75,11 @@ int main(int argc, char* argv[])
   sbc::BufferHandler reader(args.root_dir + args.config.detector_name);
   std_daq_protocol::BufferedMetadata buffered_meta;
 
-  auto images = redis_handler.get_more_recent_image_ids(args.start_image_id, args.end_image_id);
+  // zmq flags set to 0 to ensure that first data transfer for buffer reader is blocking
+  // this is done to ensure that there is someone receiving the replayed stream
+  auto zmq_flags = 0;
 
+  auto images = redis_handler.get_more_recent_image_ids(args.start_image_id, args.end_image_id);
   for (auto image : images) {
     redis_handler.receive(image, buffered_meta);
     if (auto size = get_size(buffered_meta.metadata()); size <= max_data_bytes) {
@@ -84,9 +87,10 @@ int main(int argc, char* argv[])
 
       std::string meta_buffer_send;
       buffered_meta.metadata().SerializeToString(&meta_buffer_send);
-      sender.send(image, meta_buffer_send, nullptr);
+      sender.send(image, meta_buffer_send, nullptr, zmq_flags);
       // TODO: delay should be more useful than this one
       std::this_thread::sleep_for(std::chrono::milliseconds(50));
+      zmq_flags = ZMQ_NOBLOCK;
     }
   }
   return 0;
