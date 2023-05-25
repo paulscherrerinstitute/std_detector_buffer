@@ -21,7 +21,6 @@ public:
   std::tuple<uint64_t, char*> receive(std::span<char> meta);
   int receive_meta(std::span<char> meta);
   char* get_data(uint64_t id);
-  void await_sub_connection();
 
 private:
   RamBuffer buffer;

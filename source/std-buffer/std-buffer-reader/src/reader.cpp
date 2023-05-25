@@ -75,9 +75,6 @@ int main(int argc, char* argv[])
   sbc::BufferHandler reader(args.root_dir + args.config.detector_name);
   std_daq_protocol::BufferedMetadata buffered_meta;
 
-  // Streaming images should only be started when someone starts listening
-  sender.await_sub_connection();
-
   auto images = redis_handler.get_more_recent_image_ids(args.start_image_id, args.end_image_id);
 
   for (auto image : images) {

@@ -51,13 +51,4 @@ int Communicator::receive_meta(std::span<char> meta)
   return zmq_recv(socket, meta.data(), meta.size(), 0);
 }
 
-void Communicator::await_sub_connection()
-{
-  zmq_pollitem_t items[] = {{socket, 0, ZMQ_POLLIN, 0}};
-  while (true) {
-    zmq_poll(items, 1, -1);
-    if (items[0].revents & ZMQ_POLLIN) break;
-  }
-}
-
 } // namespace cb
