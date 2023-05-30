@@ -18,6 +18,9 @@
 using namespace std;
 using namespace buffer_config;
 
+// In Bytes. Align the writes from the H5 to this.
+constexpr size_t GPFS_BLOCK_SIZE = ;
+
 H5Writer::H5Writer(std::string detector_name)
     : detector_name_(std::move(detector_name))
 {}
@@ -89,21 +92,34 @@ void H5Writer::close_run(const uint32_t highest_written_index)
 void H5Writer::open_file(const string& output_file, const uint32_t n_images)
 {
   // Create file
-  auto fcpl_id = H5Pcreate(H5P_FILE_ACCESS);
+  auto fapl_id = H5Pcreate(H5P_FILE_ACCESS);
+  if (fapl_id == -1) {
+    throw runtime_error("Error in file access property list.");
+  }
+
+  if (H5Pset_alignment(fapl, 0, GPFS_BLOCK_SIZE) < 0) {
+    throw runtime_error("Cannot set alignment to property list.");
+  }
+
+  if (H5Pset_fapl_mpio(fapl_id, MPI_COMM_WORLD, MPI_INFO_NULL) < 0) {
+    throw runtime_error("Cannot set mpio to property list.");
+  }
+
+  auto fcpl_id = H5Pcreate(H5P_FILE_CREATE);
   if (fcpl_id == -1) {
     throw runtime_error("Error in file access property list.");
   }
 
-  if (H5Pset_fapl_mpio(fcpl_id, MPI_COMM_WORLD, MPI_INFO_NULL) < 0) {
-    throw runtime_error("Cannot set mpio to property list.");
+  if (H5Pset_istore_k(fcpl, (GPFS_BLOCK_SIZE - 4096) / 96) < 0) {
+    throw runtime_error("Cannot set btree size.");
   }
 
   // Force compatibility versions on file.
-  // if (H5Pset_libver_bounds(fcpl_id, H5F_LIBVER_V114, H5F_LIBVER_LATEST) < 0) {
+  // if (H5Pset_libver_bounds(fapl_id, H5F_LIBVER_V114, H5F_LIBVER_LATEST) < 0) {
   //    throw runtime_error("Cannot set library version bounds.");
   // }
 
-  file_id_ = H5Fcreate(output_file.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, fcpl_id);
+  file_id_ = H5Fcreate(output_file.c_str(), H5F_ACC_TRUNC, fcpl_id, fapl_id);
   if (file_id_ < 0) {
     throw runtime_error("Cannot create output file.");
   }
