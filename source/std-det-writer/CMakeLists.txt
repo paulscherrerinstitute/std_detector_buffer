@@ -27,7 +27,7 @@ target_link_libraries(${PROJECT_NAME}_lib
 
 target_sources(${PROJECT_NAME}_lib
     PRIVATE
-        src/JFH5Writer.cpp
+        src/H5Writer.cpp
         src/WriterStats.cpp
 )
 
