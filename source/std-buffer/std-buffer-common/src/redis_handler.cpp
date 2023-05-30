@@ -26,8 +26,10 @@ void RedisHandler::send(uint64_t image_id, const std_daq_protocol::BufferedMetad
   std::string meta_buffer_send;
   meta.SerializeToString(&meta_buffer_send);
 
+  const auto id = std::to_string(image_id);
   // TODO: For now expiry is fixed to 48 hours - most likely should be improved
-  redis.setex(prefix + std::to_string(image_id), 48h, meta_buffer_send);
+  redis.setex(prefix + id, 48h, meta_buffer_send);
+  redis.set(prefix + "last", id);
 }
 
 bool RedisHandler::receive(uint64_t image_id, std_daq_protocol::BufferedMetadata& meta)
