@@ -11,8 +11,8 @@ RUN yum update -y \
         openssh-clients \
         patch \
         centos-release-scl \
-        devtoolset-11 \
-        devtoolset-11-make \
+        devtoolset-12 \
+        devtoolset-12-make \
         rpm-build \
         vim \
         hdf5-mpich-devel \
@@ -24,7 +24,7 @@ RUN yum update -y \
 RUN scl enable rh-python39 "python3 -m pip install --upgrade pip"
 RUN scl enable rh-python39 "python3 -m pip install cmake conan ninja pyinstaller numpy"
 
-RUN echo "source /opt/rh/devtoolset-11/enable" >> /etc/bashrc
+RUN echo "source /opt/rh/devtoolset-12/enable" >> /etc/bashrc
 RUN echo "source /opt/rh/rh-python39/enable" >> /etc/bashrc
 RUN echo "module load mpi" >> /etc/bashrc
 SHELL [ "/bin/bash", "-c", "-l" ]
