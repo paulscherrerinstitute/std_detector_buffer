@@ -32,6 +32,7 @@ struct arguments
   std::string db_address;
   uint64_t start_image_id;
   uint64_t end_image_id;
+  uint64_t delay;
 };
 
 arguments read_arguments(int argc, char* argv[])
@@ -41,6 +42,8 @@ arguments read_arguments(int argc, char* argv[])
   program.add_argument("--db_address")
       .help("Address of Redis API compatible database to connect")
       .required();
+  program.add_argument("--delay").help("Delay in between sending loaded images.")
+      .scan<'i', uint64_t>().required();
   program.add_argument("--start_id").help("Starting ID for read").scan<'i', uint64_t>().required();
   program.add_argument("--end_id")
       .help("Root directory where files will be stored")
@@ -50,13 +53,41 @@ arguments read_arguments(int argc, char* argv[])
 
   return {utils::read_config_from_json_file(program.get("detector_json_filename")),
           program.get("--root_dir"), program.get("--db_address"),
-          program.get<uint64_t>("--start_id"), program.get<uint64_t>("--end_id")};
+          program.get<uint64_t>("--start_id"), program.get<uint64_t>("--end_id"), program.get<uint64_t>("--delay")};
 }
 
 std::size_t get_size(const std_daq_protocol::ImageMetadata& data)
 {
   return data.width() * data.height() * utils::get_bytes_from_metadata_dtype(data.dtype());
 }
+
+class end_tester
+{
+  using time_point = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
+
+public:
+  explicit end_tester(sbc::RedisHandler& handler)
+      : redis_handler(handler)
+  {}
+
+  uint64_t test_end_id()
+  {
+    using namespace std::chrono_literals;
+    if (auto id = redis_handler.read_last_saved_image_id();
+        id.has_value() && id.value() != last_saved_id)
+    {
+      last_saved_id = id.value();
+      last_update = std::chrono::steady_clock::now();
+    }
+    if (10s > std::chrono::steady_clock::now() - last_update) std::exit(0);
+    return last_saved_id;
+  }
+
+private:
+  uint64_t last_saved_id = INVALID_IMAGE_ID;
+  time_point last_update = std::chrono::steady_clock::now();
+  sbc::RedisHandler& redis_handler;
+};
 
 } // namespace
 
@@ -75,24 +106,27 @@ int main(int argc, char* argv[])
   sbc::RedisHandler redis_handler(args.config.detector_name, args.db_address);
   sbc::BufferHandler reader(args.root_dir + args.config.detector_name);
   std_daq_protocol::BufferedMetadata buffered_meta;
+  end_tester end_id_tester(redis_handler);
 
   // zmq flags set to 0 to ensure that first data transfer for buffer reader is blocking
   // this is done to ensure that there is someone receiving the replayed stream
   auto zmq_flags = 0;
 
-  for (auto image : std::views::iota(args.start_image_id, args.end_image_id)) {
-    if(redis_handler.receive(image, buffered_meta))
-    {
-       if (auto size = get_size(buffered_meta.metadata()); size <= max_data_bytes) {
-         reader.read(image, {sender.get_data(image), size}, buffered_meta.offset());
+  while (true) {
+    const auto end_id = std::min(args.end_image_id, end_id_tester.test_end_id());
 
-         std::string meta_buffer_send;
-         buffered_meta.metadata().SerializeToString(&meta_buffer_send);
-         sender.send(image, meta_buffer_send, nullptr, zmq_flags);
-         // TODO: delay should be more useful than this one
-         std::this_thread::sleep_for(std::chrono::milliseconds(50));
-         zmq_flags = ZMQ_NOBLOCK;
-       }
+    for (std::weakly_incrementable auto image : std::views::iota(args.start_image_id, end_id)) {
+      if (redis_handler.receive(image, buffered_meta)) {
+        if (auto size = get_size(buffered_meta.metadata()); size <= max_data_bytes) {
+          reader.read(image, {sender.get_data(image), size}, buffered_meta.offset());
+
+          std::string meta_buffer_send;
+          buffered_meta.metadata().SerializeToString(&meta_buffer_send);
+          sender.send(image, meta_buffer_send, nullptr, zmq_flags);
+          std::this_thread::sleep_for(std::chrono::milliseconds(args.delay));
+          zmq_flags = ZMQ_NOBLOCK;
+        }
+      }
     }
   }
   return 0;

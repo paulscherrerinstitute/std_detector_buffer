@@ -3,6 +3,7 @@
 /////////////////////////////////////////////////////////////////////
 
 #include <chrono>
+#include <charconv>
 
 #include <fmt/core.h>
 #include <range/v3/all.hpp>
@@ -40,6 +41,18 @@ bool RedisHandler::receive(uint64_t image_id, std_daq_protocol::BufferedMetadata
   }
   else
     return false;
+}
+
+std::optional<uint64_t> RedisHandler::read_last_saved_image_id()
+{
+  auto to_uint64 = [](std::string_view sv) -> std::optional<uint64_t> {
+    if (uint64_t value; std::from_chars(sv.begin(), sv.end(), value).ec == std::errc{})
+      return value;
+    return std::nullopt;
+  };
+
+  if (auto id = redis.get(prefix + "last")) return to_uint64(id.value());
+  return std::nullopt;
 }
 
 } // namespace sbc
