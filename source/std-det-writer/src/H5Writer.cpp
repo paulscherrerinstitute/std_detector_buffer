@@ -18,8 +18,8 @@
 using namespace std;
 using namespace buffer_config;
 
-// In Bytes. Align the writes from the H5 to this.
-constexpr size_t GPFS_BLOCK_SIZE = ;
+// In Bytes. Align the writes from the H5 to this. Read it with: mmlsfs all | grep Block
+constexpr size_t GPFS_BLOCK_SIZE = 512 * 1024;
 
 H5Writer::H5Writer(std::string detector_name)
     : detector_name_(std::move(detector_name))
