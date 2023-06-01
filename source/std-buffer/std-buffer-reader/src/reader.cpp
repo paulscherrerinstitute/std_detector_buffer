@@ -76,10 +76,10 @@ public:
     if (auto id = redis_handler.read_last_saved_image_id();
         id.has_value() && id.value() != last_saved_id)
     {
-      last_saved_id = id.value();
+      last_saved_id = id.value() + 1;
       last_update = std::chrono::steady_clock::now();
     }
-    if (10s > std::chrono::steady_clock::now() - last_update) std::exit(0);
+    if (10s < std::chrono::steady_clock::now() - last_update) std::exit(0);
     return last_saved_id;
   }
 
