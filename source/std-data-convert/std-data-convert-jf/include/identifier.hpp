@@ -12,9 +12,9 @@ namespace jf::sdc {
 class Identifier
 {
 public:
-  explicit Identifier(std::string_view name, uint16_t module, uint16_t converter_id)
-      : repr(fmt::format("{}-{}-converted-{}", name, module, converter_id))
-      , source(fmt::format("{}-{}", name, module))
+  explicit Identifier(std::string_view name, uint16_t module_id, uint16_t converter_id)
+      : repr(fmt::format("{}-{}-converted-{}", name, module_id, converter_id))
+      , source(fmt::format("{}-{}", name, module_id))
   {}
   [[nodiscard]] std::string converter_name() const { return repr; }
   [[nodiscard]] std::string source_name() const { return source; }

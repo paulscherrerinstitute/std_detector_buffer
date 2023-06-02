@@ -2,13 +2,11 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#include <iostream>
 #include <cstring>
 
 #include <zmq.h>
 #include <fmt/core.h>
 
-#include "core_buffer/formats.hpp"
 #include "core_buffer/buffer_config.hpp"
 #include "core_buffer/communicator.hpp"
 #include "detectors/jungfrau.hpp"
