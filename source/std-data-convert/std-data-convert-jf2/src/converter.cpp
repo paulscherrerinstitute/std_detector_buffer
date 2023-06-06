@@ -7,7 +7,7 @@
 #include <fmt/core.h>
 
 #include "converter.hpp"
-#include "detectors/eiger.hpp"
+#include "detectors/jungfrau.hpp"
 
 namespace jf::sdc {
 

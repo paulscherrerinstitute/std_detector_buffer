@@ -20,7 +20,7 @@ def generate_simulated_image(image_shape, beam_shape, noise, dtype):
 
 
 def generate_jf_binary_stream(output_stream_address, rep_rate=10,
-                              image_shape=(1024, 512), beam_shape=(20, 100), dtype="float32", noise=0.1):
+                              image_shape=(512, 1024), beam_shape=(20, 100), dtype="float32", noise=0.1):
     """Generate a simulated Jungfrau binary stream
 
     Use this function to generate a ZMQ stream in binary format using the ImageMetadata header. If you want a
@@ -79,7 +79,7 @@ def main():
 
     print(f'Starting simulated JF with n_modules {n_modules} and rep_rate {rep_rate} on {output_stream}.')
 
-    image_shape = (1024 * n_modules, 512)
+    image_shape = (512 * n_modules, 1024)
     print(f'Expected image shape: {image_shape}.')
 
     generate_jf_binary_stream(output_stream, rep_rate, image_shape)
