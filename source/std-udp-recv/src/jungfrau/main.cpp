@@ -48,6 +48,7 @@ int main(int argc, char* argv[])
   JFFrame meta = {};
   meta.frame_index = INVALID_IMAGE_ID;
   meta.module_id = module_id;
+  meta.common.module_id = module_id;
 
   char* frame_buffer = new char[MODULE_N_BYTES];
 
@@ -89,7 +90,6 @@ int main(int argc, char* argv[])
         meta.common.n_missing_packets = N_PACKETS_PER_FRAME;
         meta.frame_index = packet.framenum;
         meta.daq_rec = packet.debug;
-        meta.module_id = module_id;
 
         // Accumulate packets data into the frame buffer.
         memcpy(frame_buffer + frame_buffer_offset, packet.data, DATA_BYTES_PER_PACKET);
