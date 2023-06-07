@@ -1,7 +1,6 @@
 import argparse
 from socket import socket, AF_INET, SOCK_DGRAM
 from time import time, sleep
-from concurrent.futures import ThreadPoolExecutor
 import json
 
 from std_buffer.jungfrau.data import UdpPacket
@@ -35,11 +34,13 @@ def generate_data_for_packet(i_module, i_packet, n_packet_bytes):
 
     for pixel in range(int(n_packet_bytes / 2)):
         pixel_value = pixel
-        pixel_value |= i_module << 10
+        pixel_value |= i_module << 14
+        pixel_value |= (i_packet % 16) << 10
         packet_bytes |= pixel_value << (i_pixel * 16)
         i_pixel += 1
 
     return packet_bytes.to_bytes(n_packet_bytes, 'little')
+
 
 def generate_jf_udp_stream(output_address, start_udp_port, rep_rate=0.1, n_modules=1, n_images=None):
     time_to_sleep = 1 / rep_rate
@@ -57,39 +58,33 @@ def generate_jf_udp_stream(output_address, start_udp_port, rep_rate=0.1, n_modul
         iteration_start = time()
         print_start = iteration_start
 
-        with ThreadPoolExecutor(max_workers=n_modules) as executor:
-            while udp_packet.framenum < n_images:
-                for i_packet in range(n_packets):
-                    futures = [executor.submit(send_module, i_module, i_packet, n_data_bytes, udp_socket, udp_packet, output_address, start_udp_port) for i_module in range(n_modules)]
-                for future in futures:
-                    future.result()
+        while udp_packet.framenum < n_images:
+            for i_packet in range(n_packets):
+                for i_module in range(n_modules):
+                    udp_packet.moduleID = i_module
+                    data = generate_data_for_packet(i_module, i_packet, n_packet_bytes=n_data_bytes)
 
-                iteration_end = time()
-                iteration_time = iteration_end - iteration_start
-                time_left_to_sleep = time_to_sleep - iteration_time
+                    udp_socket.sendto(bytes(udp_packet)+data,
+                                      (output_address, start_udp_port + i_module))
 
-                # We do not sleep for less than 1ms.
-                if time_left_to_sleep > 0.01:
-                    sleep(time_left_to_sleep)
+            iteration_end = time()
+            iteration_time = iteration_end - iteration_start
+            time_left_to_sleep = time_to_sleep - iteration_time
 
-                if iteration_end - print_start > PRINT_INTERVAL:
-                    print(f'Send all frames up to {udp_packet.framenum}.')
-                    print_start = iteration_end
+            # We do not sleep for less then 1ms.
+            if time_left_to_sleep > 0.01:
+                sleep(time_left_to_sleep)
 
-                udp_packet.framenum += 1
-                udp_packet.bunchid = udp_packet.framenum
-                iteration_start = time()
+            if iteration_end - print_start > PRINT_INTERVAL:
+                print(f'Send all frames up to {udp_packet.framenum}.')
+                print_start = iteration_end
+
+            udp_packet.framenum += 1
+            udp_packet.bunchid = udp_packet.framenum
+            iteration_start = time()
 
     except KeyboardInterrupt:
         pass
-
-
-def send_module(i_module, i_packet, n_data_bytes, udp_socket, udp_packet, output_address, start_udp_port):
-    udp_packet.moduleID = i_module
-    data = generate_data_for_packet(i_module, i_packet, n_packet_bytes=n_data_bytes)
-
-    udp_socket.sendto(bytes(udp_packet)+data,
-                      (output_address, start_udp_port + i_module))
 
 
 def main():
