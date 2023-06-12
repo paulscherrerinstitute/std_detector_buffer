@@ -32,8 +32,8 @@ def parse_file(file_path):
 
 
 def generate_output_file(output_file, config, indexes, image_pixel_height, image_pixel_width, total_rows, total_columns):
-    n_modules = len(config['hostnames'])
-    n_ms = int(n_modules/4)
+    n_modules = len(config['hostnames']) * 2
+    n_ms = int(len(config['hostnames'])/4)
     output_data = {
         "detector_name": f'EG{n_ms}M',
         "detector_type": "eiger",
@@ -202,9 +202,6 @@ def get_module_xy_position(n_modules, total_size_x, total_size_y, total_rows, to
     # Return the dictionary of module positions
     return dict_results
 
-
-
-
 def get_row_column(lst):
     rows = max(lst, key=lambda x: x[0])[0] + 1
     columns = max(lst, key=lambda x: x[1])[1] + 1
@@ -271,8 +268,22 @@ class SubmoduleIndexCalculatorTest(unittest.TestCase):
         indexes = calculate_submodule_index(detsize, hostnames)
         self.assertEqual(indexes, expected_indexes)
 
+    def test_get_columns_total_size(self):
+        n_columns_list = [i for i in range(12,0,-1)]
+        initial_sizes_list = [size for size in range(3072,0,-256)]
+        expected_results_list = [3264, 3006, 2714, 2456, 2164, 1906, 1614, 1356, 1064, 806, 514, 256]
+        for index, n_columns in enumerate(n_columns_list):
+            self.assertEqual(get_columns_total_size(n_columns, initial_sizes_list[index]), expected_results_list[index])
+
+    def test_get_rows_total_size(self):
+        n_rows_list = [i for i in range(6,0,-2)]
+        initial_sizes_list = [size for size in range(3072,0,-1024)]
+        expected_results_list = [3106, 2068, 1030]
+        for index, n_row in enumerate(n_rows_list):
+            self.assertEqual(get_rows_total_size(n_row, initial_sizes_list[index]), expected_results_list[index])
 
 if __name__ == '__main__':
     # Run the unit tests
     # unittest.main()
     main()
+
