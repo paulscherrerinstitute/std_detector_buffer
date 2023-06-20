@@ -1,6 +1,7 @@
-
 import os
 import argparse
+import numpy as np
+
 from epics import pv
 
 IOC_NAME_GF1 = 'X02DA-CAM-GF1'
@@ -173,7 +174,23 @@ def stop_dataflow(camera):
     set(camera, 'START_CAM', 0)
     set(camera, 'SOFT_ENABLE', 0)
 
-
+def validate_cam_config(camera, backend, roix, roiy, n_images):
+    get_values_list = [get(camera, 'START_CAM'),
+                       get(camera, 'SOFT_ENABLE'), 
+                       get(camera, 'EXPOSURE'), 
+                       get(camera, 'FRAMERATE'),
+                       get(camera, 'ROIX'),
+                       get(camera, 'ROIY'),
+                       get(camera, 'SCAN_ID'),
+                       get(camera, 'CNT_NUM'),
+                       get(camera, 'CORR_MODE'),
+                       get(camera, 'SET_PARAM.PROC')]
+    
+    expected_values = [0, 0, 0.1, 1.0, roix, roiy, 0, n_images, 5, 1]
+    if any(value != expected_value for value, expected_value in zip(get_values_list, expected_values)):
+        raise ValueError(f'Problem with the definition of the configuration on the camera ({camera})')
+    if not np.array_equal(np.array(get(camera, 'CONN_PARM')), np.array(set_udp_header(backend))):
+        raise ValueError(f'Problem with the header on camera {camera} and configuration to the backend {backend}')
 
 def main():
     parser = argparse.ArgumentParser(description='Script to start and stop the datastream from a gigafrost camera.')
@@ -196,18 +213,23 @@ def main():
     os.environ['EPICS_CA_ADDR_LIST']='129.129.99.127 129.129.99.119'
 
     if args.start:
-        camera = args.camera
+        camera = args.camera.upper()
         roiy = args.roiy
         roix = args.roix
         n_images = args.n_images
-        backend = args.backend
-        configure_cam_header(camera, backend, roix, roiy, n_images)
-        print(f'Starting the camera gigafrost ({camera}) '
-          f'with image_shape ({roix, roiy}) '
-          f'for {n_images} images.')
-        start_dataflow(camera, backend, roix, roiy, n_images)
+        backend = args.backend.lower()
+        
+        if get(camera, 'START_CAM') != 1:
+            configure_cam_header(camera, backend, roix, roiy, n_images)
+            validate_cam_config(camera,backend,roix,roiy,n_images)
+            print(f'Starting the camera gigafrost ({camera}) '
+              f'with image_shape ({roix, roiy}) '
+              f'for {n_images} images.')
+            start_dataflow(camera, backend, roix, roiy, n_images)
+        else:
+            print(f'Camera {camera} is already running...')
     elif args.stop:
-        camera = args.camera
+        camera = args.camera.upper()
         print(f'Stopping the camera gigafrost ({camera})...')
         stop_dataflow(camera)
     elif args.status:
