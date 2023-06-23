@@ -5,3 +5,5 @@ pytest-asyncio
 protobuf
 pyzmq
 numpy
+twine
+wheel
