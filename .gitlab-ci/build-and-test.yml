@@ -13,6 +13,7 @@
     source .venv/bin/activate
     python3 -m pip install -r requirements.txt
     pytest testing --junitxml=release/integration_tests.xml
+    python3 setup.py bdist_wheel
   artifacts:
     when: always
     expire_in: 1 week
