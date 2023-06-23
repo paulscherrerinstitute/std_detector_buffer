@@ -1,7 +1,11 @@
+import os
 from setuptools import setup
 
+
+version = os.getenv('PACKAGE_VERSION', '0.0.0')
+
 setup(name="std_buffer",
-      version="1.0.7",
+      version=version,
       maintainer="Paul Scherrer Institute",
       maintainer_email="daq@psi.ch",
       author="Paul Scherrer Institute",
