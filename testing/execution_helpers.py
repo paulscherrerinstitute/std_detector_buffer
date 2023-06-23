@@ -9,7 +9,7 @@ import numpy as np
 import zmq
 import zmq.asyncio
 
-import testing.std_daq.image_metadata_pb2 as daq_proto
+import std_buffer.image_metadata_pb2 as daq_proto
 
 
 def executable(name) -> Path:

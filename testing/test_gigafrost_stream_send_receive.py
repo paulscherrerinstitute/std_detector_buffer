@@ -9,7 +9,7 @@ import pytest
 import zmq
 import zmq.asyncio
 
-import testing.std_daq.image_metadata_pb2
+import std_buffer.image_metadata_pb2
 from std_buffer.gigafrost.data import GigafrostConfigConverter, GigafrostConfigUdp, get_converter_buffer_data
 from testing.fixtures import test_path
 from testing.communication import start_publisher_communication, start_subscriber_communication, \

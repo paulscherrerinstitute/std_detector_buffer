@@ -8,7 +8,7 @@ from std_buffer.gigafrost.data import GigafrostConfigConverter
 from testing.fixtures import test_path
 from testing.communication import start_publisher_communication
 from testing.execution_helpers import build_command, run_command_in_parallel
-import testing.std_daq.image_metadata_pb2 as daq_proto
+import std_buffer.image_metadata_pb2 as daq_proto
 
 
 @pytest.mark.asyncio
