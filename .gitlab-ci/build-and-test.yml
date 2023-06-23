@@ -15,6 +15,7 @@
     pytest testing --junitxml=release/integration_tests.xml
     echo ">>>>> Building Python package:"
     python3 setup.py bdist_wheel
+    twine upload dist/*
   artifacts:
     when: always
     expire_in: 1 week
