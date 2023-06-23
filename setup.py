@@ -14,6 +14,5 @@ setup(name="std_buffer",
       packages=["std_buffer",
                 "std_buffer.gigafrost",
                 "std_buffer.jungfrau",
-                "std_daq"
                 ],
       )
