@@ -20,7 +20,7 @@
 #include "DetWriterConfig.hpp"
 #include "core_buffer/ram_buffer.hpp"
 
-#include "std_daq/writer_command.pb.h"
+#include "std_buffer/writer_command.pb.h"
 
 using namespace std;
 using namespace live_writer_config;

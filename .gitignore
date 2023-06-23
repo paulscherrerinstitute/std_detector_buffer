@@ -60,7 +60,7 @@ testing/gigafrost/**/*.dat
 
 # auto-generated files
 source/utils/include/utils/version.hpp
-source/interface/generated/std_daq/*.pb.cc
-source/interface/generated/std_daq/*.pb.h
+source/interface/generated/std_buffer/*.pb.cc
+source/interface/generated/std_buffer/*.pb.h
 *_pb2.py
 std_buffer.egg-info/

@@ -8,7 +8,7 @@
 #include "core_buffer/communicator.hpp"
 #include "core_buffer/ram_buffer.hpp"
 #include "core_buffer/buffer_utils.hpp"
-#include "std_daq/image_metadata.pb.h"
+#include "std_buffer/image_metadata.pb.h"
 #include "utils/args.hpp"
 #include "utils/detector_config.hpp"
 #include "utils/image_size_calc.hpp"

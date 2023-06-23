@@ -9,7 +9,7 @@
 #include <string>
 #include "core_buffer/buffer_utils.hpp"
 #include "core_buffer/formats.hpp"
-#include "std_daq/image_metadata.pb.h"
+#include "std_buffer/image_metadata.pb.h"
 
 #include <hdf5.h>
 

@@ -8,9 +8,9 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 target_sources(${PROJECT_NAME}
     PUBLIC
-        std_daq/buffered_metadata.proto
-        std_daq/image_metadata.proto
-        std_daq/writer_command.proto
+        std_buffer/buffered_metadata.proto
+        std_buffer/image_metadata.proto
+        std_buffer/writer_command.proto
 )
 
 protobuf_generate(

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "std_daq/image_metadata.proto";
+import "std_buffer/image_metadata.proto";
 
 // This is an ugly name. Come up with something better.
 package std_daq_protocol;

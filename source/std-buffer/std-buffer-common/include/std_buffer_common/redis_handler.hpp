@@ -10,7 +10,7 @@
 
 #include <sw/redis++/redis++.h>
 
-#include "std_daq/buffered_metadata.pb.h"
+#include "std_buffer/buffered_metadata.pb.h"
 
 namespace sbc {
 

@@ -5,7 +5,7 @@
 #ifndef STD_DETECTOR_BUFFER_GET_METADATA_DTYPE_HPP
 #define STD_DETECTOR_BUFFER_GET_METADATA_DTYPE_HPP
 
-#include "std_daq/image_metadata.pb.h"
+#include "std_buffer/image_metadata.pb.h"
 
 #include "detector_config.hpp"
 

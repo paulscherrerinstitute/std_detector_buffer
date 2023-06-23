@@ -10,7 +10,7 @@
 #include "utils/args.hpp"
 #include "utils/detector_config.hpp"
 #include "utils/image_size_calc.hpp"
-#include "std_daq/image_metadata.pb.h"
+#include "std_buffer/image_metadata.pb.h"
 
 #include "synchronizer.hpp"
 #include "queue_len_stats_collector.hpp"
