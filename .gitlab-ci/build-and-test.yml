@@ -11,7 +11,7 @@
     echo ">>>>> Integration testing:"
     [[ ! -d .venv ]] && python3 -m venv .venv
     source .venv/bin/activate
-    python3 -m pip install -r testing/requirements.txt
+    python3 -m pip install -r requirements.txt
     pytest testing --junitxml=release/integration_tests.xml
   artifacts:
     when: always

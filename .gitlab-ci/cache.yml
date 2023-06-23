@@ -5,7 +5,7 @@ cache:
   key:
     files:
       - conan/conanfile.py
-      - testing/requirements.txt
+      - requirements.txt
   paths:
     - $CONAN_USER_HOME
     - .venv
