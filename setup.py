@@ -2,7 +2,7 @@ import os
 from setuptools import setup
 
 
-version = os.getenv('PACKAGE_VERSION', '0.0.0')
+version = os.getenv('CI_COMMIT_TAG', '0.0.0')
 
 setup(name="std_buffer",
       version=version,
