@@ -1,7 +1,8 @@
-import re
 import argparse
-import unittest
 import json
+import re
+import unittest
+
 
 def parse_file(file_path):
     with open(file_path, 'r') as file:
@@ -11,9 +12,10 @@ def parse_file(file_path):
         'detsize': None,
         'hostnames': None,
         'dr': None,
-        'udp_dstport': None
+        'udp_dstport': None,
+        'deactivate': []
     }
-
+    
     for line in lines:
         if line.startswith('detsize') and config['detsize'] is None:
             config['detsize'] = re.findall(r'\d+', line)
@@ -27,7 +29,9 @@ def parse_file(file_path):
             match = re.search(r'udp_dstport\s+(\d+)', line)
             if match:
                 config['udp_dstport'] = int(match.group(1))
-
+        elif ':activate 0' in line:
+            match = re.search(r'(\d+):activate 0', line)
+            config['deactivate'].append(int(match.group(1)))
     return config
 
 
@@ -47,8 +51,18 @@ def generate_output_file(output_file, config, indexes, image_pixel_height, image
     }
 
     submodules_per_module = 2
+
+    # clean up deactivate list
+    remove_modules = []
+    for deact_module in config['deactivate']:
+        remove_modules.append(deact_module*2)
+        remove_modules.append(deact_module*2+1)
+    output_data['deactivate'] = remove_modules
     
     list_module_positions = get_module_xy_position(len(indexes),int(image_pixel_height), int(image_pixel_width), total_rows, total_columns)
+    # remove deactivate modules from module_positions
+    for module in remove_modules:
+        list_module_positions.pop(module)
     # Generate submodule information
     for i, index in enumerate(indexes):
         hostname = config['hostnames'][i // submodules_per_module]
@@ -57,9 +71,12 @@ def generate_output_file(output_file, config, indexes, image_pixel_height, image
             "submodule": i,
             "port": int(config['udp_dstport']) + i,
             "row": index[0],
-            "column": index[1]
+            "column": index[1],
+            "activate": 1
         }
-        
+        if i in remove_modules:
+            submodule_info['activate'] = 0
+
         output_data["submodule_info"].append(submodule_info)
     output_data['module_positions'] = list_module_positions
 
