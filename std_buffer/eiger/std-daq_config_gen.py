@@ -223,7 +223,7 @@ def main():
         raise ValueError("Error: 'detsize' or 'hostnames' cannot be None. Terminating the program.")
 
     columns, rows = get_row_column(indexes)
-    image_pixel_width,image_pixel_height = calculate_total_image_size(config['detsize'], columns, rows)
+    image_pixel_height,image_pixel_width = calculate_total_image_size(config['detsize'], columns, rows)
     generate_output_file(output_file, config, indexes, image_pixel_height, image_pixel_width, rows, columns)
 
 
