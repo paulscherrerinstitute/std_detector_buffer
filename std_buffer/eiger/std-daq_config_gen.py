@@ -43,9 +43,11 @@ def generate_output_file(output_file, config, indexes, image_pixel_height, image
         "detector_type": "eiger",
         "n_modules": n_modules,
         "bit_depth": config['dr'],
-        "image_pixel_height": int(image_pixel_height),
-        "image_pixel_width": int(image_pixel_width),
+        # Y and X in the detector vs std-daq are inverted: image is rotaate.
+        "image_pixel_height": int(image_pixel_width),
+        "image_pixel_width": int(image_pixel_height),
         "start_udp_port": config['udp_dstport'],
+        "writer_user_id": 21206, # 21206 defaulted for now
         "submodule_info": [],
         "module_positions": {}
     }
@@ -146,7 +148,7 @@ def calculate_total_image_size(detsize, columns, rows):
     total_size_y = int(detsize[0])
     total_size_x = get_columns_total_size(columns, total_size_x)
     total_size_y = get_rows_total_size(rows, total_size_y)
-    return total_size_x, total_size_y
+    return total_size_y, total_size_x
 
 def get_module_xy_position(n_modules, total_size_x, total_size_y, total_rows, total_columns):
     # Calculate gaps
