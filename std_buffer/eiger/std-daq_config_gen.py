@@ -185,12 +185,12 @@ def get_module_xy_position(n_modules, total_size_x, total_size_y, total_rows, to
                 if row != 0 and y_big_counter == 1:  # Add big y_big_gap
                     current_y1 = right_current_y1 - y_big_gap - 1
                     current_y2 = current_y1 - module_size_y + 1
-                    dict_results[i_mod] = [current_x1, current_y1, current_x2, current_y2]
+                    dict_results[i_mod] = [current_x1, current_y2, current_x2, current_y1]
                     y_big_counter = 0
                 else:
                     current_y2 = current_y2 - y_small_gap - 1
                     current_y1 = current_y2 - module_size_y + 1
-                    dict_results[i_mod] = [current_x1, current_y1, current_x2, current_y2]
+                    dict_results[i_mod] = [current_x1, current_y2, current_x2, current_y1]
                     y_big_counter += 1
                     row -= 1
             else:  # Internal right side of the module (index + 1 same row and +1 column)
@@ -199,7 +199,7 @@ def get_module_xy_position(n_modules, total_size_x, total_size_y, total_rows, to
                 right_current_x2 = right_current_x1 + module_size_x + x_small_gap - 1
                 right_current_y1 = current_y1
                 right_current_y2 = current_y2
-                dict_results[i_mod] = [right_current_x1, right_current_y1, right_current_x2, right_current_y2]
+                dict_results[i_mod] = [right_current_x1, right_current_y2, right_current_x2, right_current_y1]
                 column -= 1
             if row == 0:  # Last row
                 if increase_column == 1:
@@ -216,7 +216,7 @@ def get_module_xy_position(n_modules, total_size_x, total_size_y, total_rows, to
                     increase_column = 1
         else:
             raw_add = 0
-            dict_results[i_mod] = [current_x1, current_y1, current_x2, current_y2]
+            dict_results[i_mod] = [current_x1, current_y2, current_x2, current_y1]
     
     # Return the dictionary of module positions
     return dict_results
