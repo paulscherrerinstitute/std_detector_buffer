@@ -18,24 +18,8 @@ Converter::Converter(const utils::DetectorConfig& config, int module_id)
                calculate_row_jump_direction(config, module_id))
     , start_index(calculate_start_index(config, module_id))
 {
-  const auto module_end = utils::get_module_end_position(config, module_id);
-  const auto module_start = utils::get_module_start_position(config, module_id);
-
-  if (module_start.x > config.image_pixel_width || module_start.y > config.image_pixel_height)
-    throw std::runtime_error(fmt::format(
-        "Start of module is out-of-bound! start({}, {}), image size({}, {})!", module_start.x,
-        module_start.y, config.image_pixel_width, config.image_pixel_height));
-  if (module_end.x > config.image_pixel_width || module_end.y > config.image_pixel_height)
-    throw std::runtime_error(fmt::format(
-        "End of module is out-of-bound! start({}, {}), image size({}, {})!", module_end.x,
-        module_end.y, config.image_pixel_width, config.image_pixel_height));
-
-  if (auto diff = std::abs(module_start.x - module_end.x); diff != MODULE_X_SIZE + 1)
-    throw std::runtime_error(fmt::format("Eiger module width cannot be different than {} (set {})!",
-                                         MODULE_X_SIZE, diff));
-  if (auto diff = std::abs(module_start.y - module_end.y); diff != MODULE_Y_SIZE - 1)
-    throw std::runtime_error(fmt::format(
-        "Eiger module height cannot be different than {} (set {})!", MODULE_Y_SIZE, diff));
+  test_if_module_is_inside_image(config, module_id);
+  test_if_module_size_fits_eiger(config, module_id);
 }
 
 void Converter::convert(std::span<char> input, std::span<char> output_buffer) const
@@ -71,6 +55,34 @@ int Converter::calculate_row_jump_direction(const utils::DetectorConfig& config,
   const auto start_position = utils::get_module_start_position(config, module_id);
   const auto end_position = utils::get_module_end_position(config, module_id);
   return end_position.y < start_position.y ? -1 : 1;
+}
+
+void Converter::test_if_module_is_inside_image(const utils::DetectorConfig& config, int module_id)
+{
+  const auto module_end = utils::get_module_end_position(config, module_id);
+  const auto module_start = utils::get_module_start_position(config, module_id);
+
+  if (module_start.x > config.image_pixel_width || module_start.y > config.image_pixel_height)
+    throw std::runtime_error(fmt::format(
+        "Start of module is out-of-bound! start({}, {}), image size({}, {})!", module_start.x,
+        module_start.y, config.image_pixel_width, config.image_pixel_height));
+  if (module_end.x > config.image_pixel_width || module_end.y > config.image_pixel_height)
+    throw std::runtime_error(fmt::format(
+        "End of module is out-of-bound! start({}, {}), image size({}, {})!", module_end.x,
+        module_end.y, config.image_pixel_width, config.image_pixel_height));
+}
+
+void Converter::test_if_module_size_fits_eiger(const utils::DetectorConfig& config, int module_id)
+{
+  const auto module_end = utils::get_module_end_position(config, module_id);
+  const auto module_start = utils::get_module_start_position(config, module_id);
+
+  if (auto diff = abs(module_start.x - module_end.x); diff != MODULE_X_SIZE + 1)
+    throw std::runtime_error(fmt::format("Eiger module width cannot be different than {} (set {})!",
+                                         MODULE_X_SIZE, diff));
+  if (auto diff = abs(module_start.y - module_end.y); diff != MODULE_Y_SIZE - 1)
+    throw std::runtime_error(fmt::format(
+        "Eiger module height cannot be different than {} (set {})!", MODULE_Y_SIZE, diff));
 }
 
 } // namespace eg::sdc
