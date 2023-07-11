@@ -97,7 +97,7 @@ void H5Writer::open_file(const string& output_file, const uint32_t n_images)
     throw runtime_error("Error in file access property list.");
   }
 
-  if (H5Pset_alignment(fapl, 0, GPFS_BLOCK_SIZE) < 0) {
+  if (H5Pset_alignment(fapl_id, 0, GPFS_BLOCK_SIZE) < 0) {
     throw runtime_error("Cannot set alignment to property list.");
   }
 
@@ -110,7 +110,7 @@ void H5Writer::open_file(const string& output_file, const uint32_t n_images)
     throw runtime_error("Error in file access property list.");
   }
 
-  if (H5Pset_istore_k(fcpl, (GPFS_BLOCK_SIZE - 4096) / 96) < 0) {
+  if (H5Pset_istore_k(fcpl_id, (GPFS_BLOCK_SIZE - 4096) / 96) < 0) {
     throw runtime_error("Cannot set btree size.");
   }
 
@@ -252,7 +252,7 @@ void H5Writer::write_data(const uint64_t run_id, const uint32_t index, std::span
   }
 
   hsize_t offset[3] = {index, 0, 0};
-  if(H5Dwrite_chunk(image_data_dataset_, plist_id, 0, offset, buff.size(), buffer.data()) < 0) {
+  if(H5Dwrite_chunk(image_data_dataset_, H5P_DEFAULT, 0, offset, buffer.size(), buffer.data()) < 0) {
     throw runtime_error("Cannot write data to image dataset.");
   }
 }

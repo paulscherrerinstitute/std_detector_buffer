@@ -16,7 +16,7 @@
 
 #include "live_writer_config.hpp"
 #include "WriterStats.hpp"
-#include "JFH5Writer.hpp"
+#include "H5Writer.hpp"
 #include "DetWriterConfig.hpp"
 #include "core_buffer/ram_buffer.hpp"
 
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
   int i_writer;
   MPI_Comm_rank(MPI_COMM_WORLD, &i_writer);
 
-  JFH5Writer writer(config.detector_name);
+  H5Writer writer(config.detector_name);
   WriterStats stats(config.detector_name, image_n_bytes);
   const auto buffer_name = fmt::format("{}-image", config.detector_name);
   RamBuffer image_buffer(buffer_name, image_n_bytes, buffer_config::RAM_BUFFER_N_SLOTS);
