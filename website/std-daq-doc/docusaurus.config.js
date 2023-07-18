@@ -23,6 +23,12 @@ const config = {
       ({
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
+          showLastUpdateAuthor: true,
+          showLastUpdateTime: true,
+          sidebarCollapsible: true,
+          remarkPlugins: [[require('@docusaurus/remark-plugin-npm2yarn'), { sync: true }]],
+          editUrl: ({ docPath }) =>
+            `'https://git.psi.ch/controls-ci/std_detector_buffer/-/edit/master/website/std-daq-doc/docs/${docPath}`,
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
@@ -35,7 +41,7 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({ 
-      editUrl: 'https://git.psi.ch/controls-ci/std_detector_buffer/-/edit/master/website/',
+      editUrl: ',
       navbar: {
         title: 'STD DAQ DOC',
         logo: {
