@@ -26,7 +26,6 @@ const config = {
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
           sidebarCollapsible: true,
-          remarkPlugins: [[require('@docusaurus/remark-plugin-npm2yarn'), { sync: true }]],
           editUrl: ({ docPath }) =>
             `'https://git.psi.ch/controls-ci/std_detector_buffer/-/edit/master/website/std-daq-doc/docs/${docPath}`,
         },
