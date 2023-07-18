@@ -27,7 +27,7 @@ const config = {
           showLastUpdateTime: true,
           sidebarCollapsible: true,
           editUrl: ({ docPath }) =>
-            `'https://git.psi.ch/controls-ci/std_detector_buffer/-/edit/master/website/std-daq-doc/docs/${docPath}`,
+            `https://git.psi.ch/controls-ci/std_detector_buffer/-/edit/master/website/std-daq-doc/docs/${docPath}`,
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
