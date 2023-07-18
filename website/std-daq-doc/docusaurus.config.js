@@ -35,9 +35,7 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({ 
-      themeConfig: {
-        editUrl: 'https://git.psi.ch/controls-ci/std_detector_buffer/-/edit/master/website/',
-      },
+      editUrl: 'https://git.psi.ch/controls-ci/std_detector_buffer/-/edit/master/website/',
       navbar: {
         title: 'STD DAQ DOC',
         logo: {
