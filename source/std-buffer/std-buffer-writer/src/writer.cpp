@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 {
   const auto [config, db_address, root_dir] = read_arguments(argc, argv);
   sbc::RedisHandler sender(config.detector_name, db_address);
-  sbc::BufferHandler writer(root_dir + config.detector_name);
+  sbc::BufferHandler writer(root_dir + config.detector_name, config.bit_depth / 8);
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);

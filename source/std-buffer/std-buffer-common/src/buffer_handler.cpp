@@ -6,15 +6,28 @@
 
 namespace sbc {
 
-BufferHandler::BufferHandler(std::string root_directory)
+BufferHandler::BufferHandler(std::string root_directory, std::size_t type_size)
     : root_directory_(std::move(root_directory))
-{}
+    , type_size_(type_size)
+{
+  blosc2_cparams compression_params = BLOSC2_CPARAMS_DEFAULTS;
+  compression_params.typesize = static_cast<int32_t>(type_size);
+  compression_params.compcode = BLOSC_LZ4;
+  compression_params.clevel = 5;
+  compression_params.filters[BLOSC2_MAX_FILTERS - 1] = BLOSC_BITSHUFFLE;
+  compression_ctx = blosc2_create_cctx(compression_params);
+}
+
+BufferHandler::~BufferHandler()
+{
+  if (compression_ctx != nullptr) blosc2_free_ctx(compression_ctx);
+}
 
 uint64_t BufferHandler::write(uint64_t image_id, std::span<char> buffered_data)
 {
   if (std::string filename = get_filename(image_id); filename != current_filename_)
     open_new_file(image_id, filename);
-  return write_data_and_update_offset(buffered_data);
+  return write_data_and_update_offset(compress(buffered_data));
 }
 
 void BufferHandler::open_new_file(uint64_t image_id, const std::string& filename)
@@ -59,6 +72,18 @@ bool BufferHandler::read(uint64_t image_id, std::span<char> buffered_data, uint6
   if (current_file_.good())
     current_file_.read(buffered_data.data(), static_cast<std::streamsize>(buffered_data.size()));
   return current_file_.good();
+}
+
+std::span<char> BufferHandler::compress(std::span<char> buffered_data)
+{
+  buffer.resize(buffered_data.size() + BLOSC2_MAX_OVERHEAD);
+  if (auto compressed_size =
+          blosc2_compress_ctx(compression_ctx, buffered_data.data(), buffered_data.size(),
+                              buffer.data(), buffer.size());
+      compressed_size > 0)
+    return {buffer.data(), (std::size_t)compressed_size};
+  else
+    return buffered_data;
 }
 
 } // namespace sbc
