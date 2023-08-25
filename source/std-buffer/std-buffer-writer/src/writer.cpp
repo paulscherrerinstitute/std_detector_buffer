@@ -66,9 +66,11 @@ int main(int argc, char* argv[])
 
       auto* image_data = receiver.get_data(meta->image_id());
       const auto size = calculate_size(meta);
-      const auto offset = writer.write(meta->image_id(), std::span<char>(image_data, size));
+      const auto [offset, compressed_size] =
+          writer.write(meta->image_id(), std::span<char>(image_data, size));
 
       buffered_meta.set_offset(offset);
+      buffered_meta.set_size(compressed_size);
       sender.send(meta->image_id(), buffered_meta);
     }
   }

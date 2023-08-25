@@ -23,7 +23,7 @@ BufferHandler::~BufferHandler()
   if (compression_ctx != nullptr) blosc2_free_ctx(compression_ctx);
 }
 
-uint64_t BufferHandler::write(uint64_t image_id, std::span<char> buffered_data)
+std::pair<uint64_t, uint64_t> BufferHandler::write(uint64_t image_id, std::span<char> buffered_data)
 {
   if (std::string filename = get_filename(image_id); filename != current_filename_)
     open_new_file(image_id, filename);
@@ -41,12 +41,13 @@ void BufferHandler::open_new_file(uint64_t image_id, const std::string& filename
   current_file_.open(current_filename_, std::ios::out | std::ios::binary | std::ios::app);
 }
 
-uint64_t BufferHandler::write_data_and_update_offset(std::span<char> buffered_data)
+std::pair<uint64_t, uint64_t> BufferHandler::write_data_and_update_offset(
+    std::span<char> buffered_data)
 {
   uint64_t start_position = current_offset_;
   current_file_.write(buffered_data.data(), static_cast<std::streamsize>(buffered_data.size()));
   current_offset_ += buffered_data.size();
-  return start_position;
+  return {start_position, buffered_data.size()};
 }
 
 std::string BufferHandler::get_filename(uint64_t image_id) const
