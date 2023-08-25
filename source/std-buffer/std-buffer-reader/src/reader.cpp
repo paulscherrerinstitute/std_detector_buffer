@@ -123,7 +123,8 @@ int main(int argc, char* argv[])
     for (std::weakly_incrementable auto image : std::views::iota(args.start_image_id, end_id)) {
       if (redis_handler.receive(image, buffered_meta)) {
         if (auto size = get_size(buffered_meta.metadata()); size <= max_data_bytes) {
-          reader.read(image, {sender.get_data(image), size}, buffered_meta.offset());
+          reader.read(image, {sender.get_data(image), size}, buffered_meta.offset(),
+                      buffered_meta.size());
 
           std::string meta_buffer_send;
           buffered_meta.metadata().SerializeToString(&meta_buffer_send);
