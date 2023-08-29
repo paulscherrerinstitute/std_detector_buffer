@@ -28,21 +28,23 @@ enum ImageMetadataDtype {
 
 enum ImageMetadataStatus {
   good_image=0;
-  missing_packets=1;
-  id_missmatch=2;
+  compressed_image=1;
+  missing_packets=2;
+  id_missmatch=3;
 };
 
 message ImageMetadata {
   uint64 image_id=1;
   uint64 height=2;
   uint64 width=3;
+  uint64 size=4;
 
-  ImageMetadataDtype dtype=4;
-  ImageMetadataStatus status=5;
+  ImageMetadataDtype dtype=5;
+  ImageMetadataStatus status=6;
 
   oneof image_metadata {
-    GFImageMetadata gf = 6;
-    JFImageMetadata jf = 7;
-    EGImageMetadata eg = 8;
+    GFImageMetadata gf = 7;
+    JFImageMetadata jf = 8;
+    EGImageMetadata eg = 9;
   }
 }
