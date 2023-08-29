@@ -10,9 +10,10 @@
 #include "core_buffer/ram_buffer.hpp"
 #include "std_buffer/image_metadata.pb.h"
 #include "utils/args.hpp"
-#include "utils/basic_stats_collector.hpp"
 #include "utils/image_size_calc.hpp"
 #include "utils/detector_config.hpp"
+
+#include "compression_stats_collector.hpp"
 
 namespace {
 
@@ -79,7 +80,7 @@ int main(int argc, char* argv[])
   auto sender = cb::Communicator{{sink_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
                                  {sink_name, ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
 
-  utils::BasicStatsCollector stats("std_data_compress", config.detector_name);
+  CompressionStatsCollector stats("std_data_compress", config.detector_name, converted_bytes);
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;
   compression compress(threads, config.bit_depth);
@@ -88,21 +89,23 @@ int main(int argc, char* argv[])
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
       meta.ParseFromArray(buffer, n_bytes);
       if (meta.status() == std_daq_protocol::good_image) {
-        utils::process_stats p{stats};
-        auto image_data = receiver.get_data(meta.image_id());
-        auto compressed_data = sender.get_data(meta.image_id());
+        stats.processing_started();
 
-        if (auto compressed_size = blosc2_compress_ctx(compress.ctx(), image_data, converted_bytes,
-                                                       compressed_data, converted_bytes);
-            compressed_size > 0)
-        {
+        auto compressed_size =
+            blosc2_compress_ctx(compress.ctx(), receiver.get_data(meta.image_id()), converted_bytes,
+                                sender.get_data(meta.image_id()), converted_bytes);
+
+        if (compressed_size > 0) {
           meta.set_size(compressed_size);
           meta.set_status(std_daq_protocol::compressed_image);
+
           std::string meta_buffer_send;
           meta.SerializeToString(&meta_buffer_send);
+
           sender.send(meta.image_id(), {meta_buffer_send.c_str(), meta_buffer_send.size()},
                       nullptr);
         }
+        stats.processing_finished(compressed_size);
       }
     }
     stats.print_stats();
