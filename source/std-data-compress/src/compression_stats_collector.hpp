@@ -10,25 +10,22 @@
 
 #include <fmt/core.h>
 
-#include "utils/sync_stats_collector.hpp"
+#include "utils/stats_collector.hpp"
 
-class CompressionStatsCollector : public utils::SyncStatsCollector
+class CompressionStatsCollector : public utils::StatsCollector<CompressionStatsCollector>
 {
-  using Parent = utils::SyncStatsCollector;
-
 public:
   explicit CompressionStatsCollector(const std::string& prog_name,
                                      std::string_view detector_name,
                                      std::size_t image_size)
-      : SyncStatsCollector(prog_name, detector_name)
+      : utils::StatsCollector<CompressionStatsCollector>(prog_name, detector_name)
       , image_size(image_size)
   {}
 
-  [[nodiscard]] std::string additional_message() override
+  [[nodiscard]] virtual std::string additional_message()
   {
     auto ratio = (double)compressed_size / ((double)compressed_images * (double)image_size);
-    auto outcome = fmt::format("{},compressed_images={},ratio={}", Parent::additional_message(),
-                               compressed_images, ratio);
+    auto outcome = fmt::format("compressed_images={},ratio={}", compressed_images, ratio);
     compressed_images = 0;
     compressed_size = 0;
     return outcome;
@@ -40,6 +37,7 @@ public:
       compressed_images++;
       compressed_size += compressed;
     }
+    static_cast<utils::StatsCollector<CompressionStatsCollector>*>(this)->processing_finished();
   }
 
 private:
