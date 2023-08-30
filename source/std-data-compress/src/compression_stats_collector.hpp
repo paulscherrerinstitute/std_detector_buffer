@@ -15,7 +15,7 @@
 class CompressionStatsCollector : public utils::StatsCollector<CompressionStatsCollector>
 {
 public:
-  explicit CompressionStatsCollector(const std::string& prog_name,
+  explicit CompressionStatsCollector(std::string_view prog_name,
                                      std::string_view detector_name,
                                      std::size_t image_size)
       : utils::StatsCollector<CompressionStatsCollector>(prog_name, detector_name)
