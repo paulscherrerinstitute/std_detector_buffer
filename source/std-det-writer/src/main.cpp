@@ -194,7 +194,7 @@ int main(int argc, char* argv[])
       //           run_id);
 
       stats.start_image_write();
-      writer.write_data(run_id, i_image, std::span<const char>(data, image_n_bytes));
+      writer.write_data(run_id, i_image, data);
       stats.end_image_write();
 
       status.set_command_type(std_daq_protocol::CommandType::WRITE_IMAGE);

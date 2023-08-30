@@ -244,7 +244,7 @@ void H5Writer::close_file(const uint32_t highest_written_index)
   file_id_ = -1;
 }
 
-void H5Writer::write_data(const uint64_t run_id, const uint32_t index, std::span<const char> buffer)
+void H5Writer::write_data(const uint64_t run_id, const uint32_t index, const char* data)
 {
   if (run_id != current_run_id_) {
     throw runtime_error("Invalid run_id.");
