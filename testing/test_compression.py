@@ -6,6 +6,7 @@ import pytest
 import zmq
 import zmq.asyncio
 import numpy as np
+import copy
 
 from std_buffer.gigafrost.data import GigafrostConfigConverter, get_converter_buffer_data
 from testing.fixtures import test_path
@@ -21,12 +22,12 @@ async def test_compression(test_path):
     ctx = zmq.asyncio.Context()
 
     metadata = daq_proto.ImageMetadata()
-    metadata.image_id = 3
+    metadata.image_id = 1
     metadata.width = 2016
     metadata.height = 2016
     metadata.dtype = daq_proto.ImageMetadataDtype.uint16
 
-    config = GigafrostConfigConverter
+    config = copy.copy(GigafrostConfigConverter)
     config.socket_name = 'GF2-image'
 
     with start_publisher_communication(ctx, config) as (input_buffer, pub_socket):
@@ -40,11 +41,14 @@ async def test_compression(test_path):
 
                 await send_receive(metadata, pub_socket, sub_socket)
 
-                assert metadata.image_id == 3
+                assert metadata.image_id == 1
                 assert metadata.status == daq_proto.ImageMetadataStatus.compressed_image
 
                 decoded_data = await get_decoded_data(metadata, output_buffer)
 
+
+                print(uncompressed_data)
+                print(decoded_data)
                 for i in range(len(uncompressed_data)):
                     assert uncompressed_data[i] == decoded_data[i]
 

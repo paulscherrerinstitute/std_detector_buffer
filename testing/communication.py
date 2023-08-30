@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 from multiprocessing import shared_memory
 
+import os
 import zmq
 import zmq.asyncio
 
@@ -13,6 +14,10 @@ def start_publisher_communication(zmq_context: zmq.asyncio.Context, config,
         socket.bind(f'ipc:///tmp/{config.socket_name}')
     except AttributeError:
         socket.bind(f'ipc:///tmp/{config.name}')
+
+    file = '/dev/shm/' + config.name
+    if os.path.exists(file):
+        os.remove(file)
 
     memory = shared_memory.SharedMemory(name=config.name, size=config.buffer_size, create=True)
 

@@ -20,6 +20,9 @@ async def test_converter_send_real_image_with_custom_slot(test_path):
     with start_publisher_communication(ctx, GigafrostConfigUdp) as (input_buffer, pub_socket):
         with run_command_in_parallel(command):
             # time.sleep(2)
+            config = GigafrostConfigConverter
+            config.name = 'GF2-image'
+            config.socket_name = 'GF2-sync'
             with start_pull_communication(ctx, GigafrostConfigConverter) as (output_buffer, pull_socket):
                 sent_data = get_udp_packet_array(input_buffer, slot)
                 # 513, 514, 515, 516 - 4 pixels
