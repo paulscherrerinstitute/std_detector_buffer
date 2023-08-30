@@ -251,10 +251,41 @@ void H5Writer::write_data(const uint64_t run_id, const uint32_t index, std::span
     throw runtime_error("Invalid run_id.");
   }
 
-  hsize_t offset[3] = {index, 0, 0};
-  if(H5Dwrite_chunk(image_data_dataset_, H5P_DEFAULT, 0, offset, buffer.size(), buffer.data()) < 0) {
+  const hsize_t ram_dims[3] = {1, image_y_size_, image_x_size_};
+  auto ram_ds = H5Screate_simple(3, ram_dims, nullptr);
+  if (ram_ds < 0) {
+    throw runtime_error("Cannot create image ram dataspace.");
+  }
+
+  auto file_ds = H5Dget_space(image_data_dataset_);
+  if (file_ds < 0) {
+    throw runtime_error("Cannot get image dataset file dataspace.");
+  }
+
+  const hsize_t file_ds_start[] = {index, 0, 0};
+  constexpr hsize_t file_ds_stride[] = {1, 1, 1};
+  const hsize_t file_ds_count[] = {1, image_y_size_, image_x_size_};
+  constexpr hsize_t file_ds_block[] = {1, 1, 1};
+  if (H5Sselect_hyperslab(file_ds, H5S_SELECT_SET, file_ds_start, file_ds_stride, file_ds_count,
+                          file_ds_block) < 0)
+  {
+    throw runtime_error("Cannot select image dataset file hyperslab.");
+  }
+
+  const auto plist_id = H5Pcreate(H5P_DATASET_XFER);
+  if (H5Pset_dxpl_mpio(plist_id, H5FD_MPIO_INDEPENDENT) < 0) {
+    throw runtime_error("Cannot set independent transfer list");
+  }
+
+  if (H5Dwrite(image_data_dataset_, get_datatype(bit_depth_), ram_ds, file_ds, plist_id,
+               data) < 0)
+  {
     throw runtime_error("Cannot write data to image dataset.");
   }
+
+  H5Pclose(plist_id);
+  H5Sclose(file_ds);
+  H5Sclose(ram_ds);
 }
 
 void H5Writer::write_meta(const uint64_t run_id, const uint32_t index, const std_daq_protocol::ImageMetadata& meta)
