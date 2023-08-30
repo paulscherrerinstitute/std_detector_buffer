@@ -199,13 +199,12 @@ void H5Writer::open_file(const string& output_file, const uint32_t n_images)
     throw runtime_error("Cannot create image dataset space.");
   }
 
-  // TODO: Enable compression.
-  //    bshuf_register_h5filter();
-  //    uint filter_prop[] = {0, BSHUF_H5_COMPRESS_LZ4};
-  //    if (H5Pset_filter(dcpl_id, BSHUF_H5FILTER, H5Z_FLAG_MANDATORY,
-  //                      2, filter_prop) < 0) {
-  //        throw runtime_error("Cannot set compression filter on dataset.");
-  //    }
+  bshuf_register_h5filter();
+  uint filter_prop[] = {0, BSHUF_H5_COMPRESS_LZ4};
+  if (H5Pset_filter(dcpl_id, BSHUF_H5FILTER, H5Z_FLAG_MANDATORY,
+                    2, filter_prop) < 0) {
+      throw runtime_error("Cannot set compression filter on dataset.");
+  }
 
   image_data_dataset_ = H5Dcreate(data_group_id, "data", get_datatype(bit_depth_),
                                   image_space_id, H5P_DEFAULT, dcpl_id, H5P_DEFAULT);
