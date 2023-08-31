@@ -8,7 +8,7 @@
 
 #include <utility>
 
-#include <mpi.h>
+//#include <mpi.h>
 #include <H5version.h>
 #include <bitshuffle/bshuf_h5filter.h>
 
@@ -18,8 +18,8 @@
 using namespace std;
 using namespace buffer_config;
 
-// In Bytes. Align the writes from the H5 to this. Read it with: mmlsfs all | grep Block
-constexpr size_t GPFS_BLOCK_SIZE = 512 * 1024;
+// In Bytes. Read it with: mmlsfs all -B on target machine.
+constexpr size_t GPFS_BLOCK_SIZE = 16777216;
 
 H5Writer::H5Writer(std::string detector_name)
     : detector_name_(std::move(detector_name))
@@ -101,9 +101,9 @@ void H5Writer::open_file(const string& output_file, const uint32_t n_images)
     throw runtime_error("Cannot set alignment to property list.");
   }
 
-  if (H5Pset_fapl_mpio(fapl_id, MPI_COMM_WORLD, MPI_INFO_NULL) < 0) {
-    throw runtime_error("Cannot set mpio to property list.");
-  }
+//  if (H5Pset_fapl_mpio(fapl_id, MPI_COMM_WORLD, MPI_INFO_NULL) < 0) {
+//    throw runtime_error("Cannot set mpio to property list.");
+//  }
 
   auto fcpl_id = H5Pcreate(H5P_FILE_CREATE);
   if (fcpl_id == -1) {
@@ -244,47 +244,53 @@ void H5Writer::close_file(const uint32_t highest_written_index)
   file_id_ = -1;
 }
 
-void H5Writer::write_data(const uint64_t run_id, const uint32_t index, const char* data)
+void H5Writer::write_data(const uint64_t run_id, const uint32_t index,
+                          const size_t data_size, const char* data)
 {
   if (run_id != current_run_id_) {
     throw runtime_error("Invalid run_id.");
   }
 
-  const hsize_t ram_dims[3] = {1, image_y_size_, image_x_size_};
-  auto ram_ds = H5Screate_simple(3, ram_dims, nullptr);
-  if (ram_ds < 0) {
-    throw runtime_error("Cannot create image ram dataspace.");
-  }
-
-  auto file_ds = H5Dget_space(image_data_dataset_);
-  if (file_ds < 0) {
-    throw runtime_error("Cannot get image dataset file dataspace.");
-  }
-
-  const hsize_t file_ds_start[] = {index, 0, 0};
-  constexpr hsize_t file_ds_stride[] = {1, 1, 1};
-  const hsize_t file_ds_count[] = {1, image_y_size_, image_x_size_};
-  constexpr hsize_t file_ds_block[] = {1, 1, 1};
-  if (H5Sselect_hyperslab(file_ds, H5S_SELECT_SET, file_ds_start, file_ds_stride, file_ds_count,
-                          file_ds_block) < 0)
-  {
-    throw runtime_error("Cannot select image dataset file hyperslab.");
-  }
-
-  const auto plist_id = H5Pcreate(H5P_DATASET_XFER);
-  if (H5Pset_dxpl_mpio(plist_id, H5FD_MPIO_INDEPENDENT) < 0) {
-    throw runtime_error("Cannot set independent transfer list");
-  }
-
-  if (H5Dwrite(image_data_dataset_, get_datatype(bit_depth_), ram_ds, file_ds, plist_id,
-               data) < 0)
-  {
+  hsize_t offset[3] = {index, 0, 0};
+  if(H5Dwrite_chunk(image_data_dataset_, H5P_DEFAULT, 0, offset, data_size, data) < 0) {
     throw runtime_error("Cannot write data to image dataset.");
   }
+//
+//  const hsize_t ram_dims[3] = {1, image_y_size_, image_x_size_};
+//  auto ram_ds = H5Screate_simple(3, ram_dims, nullptr);
+//  if (ram_ds < 0) {
+//    throw runtime_error("Cannot create image ram dataspace.");
+//  }
+//
+//  auto file_ds = H5Dget_space(image_data_dataset_);
+//  if (file_ds < 0) {
+//    throw runtime_error("Cannot get image dataset file dataspace.");
+//  }
+//
+//  const hsize_t file_ds_start[] = {index, 0, 0};
+//  constexpr hsize_t file_ds_stride[] = {1, 1, 1};
+//  const hsize_t file_ds_count[] = {1, image_y_size_, image_x_size_};
+//  constexpr hsize_t file_ds_block[] = {1, 1, 1};
+//  if (H5Sselect_hyperslab(file_ds, H5S_SELECT_SET, file_ds_start, file_ds_stride, file_ds_count,
+//                          file_ds_block) < 0)
+//  {
+//    throw runtime_error("Cannot select image dataset file hyperslab.");
+//  }
 
-  H5Pclose(plist_id);
-  H5Sclose(file_ds);
-  H5Sclose(ram_ds);
+//  const auto plist_id = H5Pcreate(H5P_DATASET_XFER);
+//  if (H5Pset_dxpl_mpio(plist_id, H5FD_MPIO_INDEPENDENT) < 0) {
+//    throw runtime_error("Cannot set independent transfer list");
+//  }
+
+//  if (H5Dwrite(image_data_dataset_, get_datatype(bit_depth_), ram_ds, file_ds, plist_id,
+//               data) < 0)
+//  {
+//    throw runtime_error("Cannot write data to image dataset.");
+//  }
+//
+//  H5Pclose(plist_id);
+//  H5Sclose(file_ds);
+//  H5Sclose(ram_ds);
 }
 
 void H5Writer::write_meta(const uint64_t run_id, const uint32_t index, const std_daq_protocol::ImageMetadata& meta)

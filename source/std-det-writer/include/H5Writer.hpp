@@ -50,7 +50,7 @@ public:
                 const int bit_depth);
   void close_run(const uint32_t highest_written_index);
 
-  void write_data(const uint64_t run_id, const uint32_t index, const char* data);
+  void write_data(const uint64_t run_id, const uint32_t index, const size_t data_size, const char* data);
   void write_meta(const uint64_t run_id, const uint32_t index, const std_daq_protocol::ImageMetadata& meta);
 };
 
