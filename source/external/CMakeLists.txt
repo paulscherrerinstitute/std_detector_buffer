@@ -11,7 +11,7 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(${PROJECT_NAME} PRIVATE _OPENMP USEAVX2)
-target_compile_options(${PROJECT_NAME} PRIVATE -mavx2)
+target_compile_options(${PROJECT_NAME} PRIVATE -mavx2 -fopenmp)
 
 target_sources(${PROJECT_NAME}
     PUBLIC
