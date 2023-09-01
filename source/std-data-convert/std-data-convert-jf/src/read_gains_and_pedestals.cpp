@@ -6,7 +6,7 @@
 
 #include <memory>
 
-#include <mpi.h>
+//#include <mpi.h>
 #include <hdf5.h>
 #include <fmt/core.h>
 

@@ -3,7 +3,7 @@ project(bitshuffle)
 
 find_package(lz4 REQUIRED)
 find_package(HDF5 REQUIRED)
-find_package(MPI REQUIRED)
+#find_package(MPI REQUIRED)
 find_package(OpenMP REQUIRED)
 
 add_library(${PROJECT_NAME})
@@ -31,6 +31,6 @@ target_link_libraries(${PROJECT_NAME}
     PUBLIC
         lz4::lz4
         hdf5::hdf5
-        MPI::MPI_CXX
+#        MPI::MPI_CXX
         OpenMP::OpenMP_CXX
 )

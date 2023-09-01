@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.17)
 project(std_data_convert_jf)
 
 find_package(fmt REQUIRED)
-find_package(MPI REQUIRED)
+#find_package(MPI REQUIRED)
 find_package(HDF5 REQUIRED)
 find_package(ZeroMQ REQUIRED)
 
@@ -14,7 +14,7 @@ target_include_directories(${PROJECT_NAME}_lib PUBLIC include)
 target_link_libraries(${PROJECT_NAME}_lib
     PRIVATE
         fmt::fmt
-        MPI::MPI_CXX
+#        MPI::MPI_CXX
         hdf5::hdf5
         std_detector_buffer::settings
 )
