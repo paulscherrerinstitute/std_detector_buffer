@@ -2,9 +2,10 @@
 // Copyright (c) 2023 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#include <blosc2.h>
 #include <zmq.h>
+#include <omp.h>
 #include <fmt/core.h>
+#include <bitshuffle/bitshuffle.h>
 
 #include "core_buffer/communicator.hpp"
 #include "core_buffer/ram_buffer.hpp"
@@ -16,30 +17,6 @@
 #include "compression_stats_collector.hpp"
 
 namespace {
-
-class compression
-{
-public:
-  compression(int threads, std::size_t bit_depth)
-  {
-    blosc2_cparams compression_params = BLOSC2_CPARAMS_DEFAULTS;
-    compression_params.nthreads = static_cast<int16_t>(threads);
-    compression_params.typesize = static_cast<int32_t>(bit_depth / 8);
-    compression_params.compcode = BLOSC_LZ4;
-    compression_params.clevel = 5;
-    compression_params.filters[BLOSC2_MAX_FILTERS - 1] = BLOSC_BITSHUFFLE;
-    compression_ctx = blosc2_create_cctx(compression_params);
-  }
-  ~compression()
-  {
-    if (compression_ctx != nullptr) blosc2_free_ctx(compression_ctx);
-  }
-  blosc2_context* ctx() { return compression_ctx; }
-
-private:
-  blosc2_context* compression_ctx;
-};
-
 constexpr auto zmq_io_threads = 1;
 
 std::tuple<utils::DetectorConfig, int> read_arguments(int argc, char* argv[])
@@ -66,6 +43,7 @@ std::tuple<utils::DetectorConfig, int> read_arguments(int argc, char* argv[])
 int main(int argc, char* argv[])
 {
   const auto [config, threads] = read_arguments(argc, argv);
+  omp_set_num_threads(threads);
   auto converted_bytes = utils::converted_image_n_bytes(config);
 
   auto ctx = zmq_ctx_new();
@@ -83,7 +61,6 @@ int main(int argc, char* argv[])
   CompressionStatsCollector stats("std_data_compress", config.detector_name, converted_bytes);
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;
-  compression compress(threads, config.bit_depth);
 
   while (true) {
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
@@ -91,12 +68,13 @@ int main(int argc, char* argv[])
       if (meta.status() == std_daq_protocol::good_image) {
         stats.processing_started();
 
-        auto compressed_size =
-            blosc2_compress_ctx(compress.ctx(), receiver.get_data(meta.image_id()), converted_bytes,
-                                sender.get_data(meta.image_id()), converted_bytes);
+        auto element_size = config.bit_depth / 8;
+        int size =
+            bshuf_compress_lz4(receiver.get_data(meta.image_id()), sender.get_data(meta.image_id()),
+                               converted_bytes / element_size, element_size, 0);
 
-        if (compressed_size > 0) {
-          meta.set_size(compressed_size);
+        if (size > 0) {
+          meta.set_size(size);
           meta.set_status(std_daq_protocol::compressed_image);
 
           std::string meta_buffer_send;
@@ -105,7 +83,7 @@ int main(int argc, char* argv[])
           sender.send(meta.image_id(), {meta_buffer_send.c_str(), meta_buffer_send.size()},
                       nullptr);
         }
-        stats.processing_finished(compressed_size);
+        stats.processing_finished(size);
       }
     }
     stats.print_stats();
