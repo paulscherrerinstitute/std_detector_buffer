@@ -21,6 +21,6 @@ class SBD(ConanFile):
     ]
 
     default_options = {"date:header_only": True,
-                       # "hdf5:parallel": True,
+                       "hdf5:parallel": False,
                        "hdf5:enable_cxx": False,
                        "c-blosc2:with_zstd": False}
