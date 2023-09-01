@@ -42,8 +42,10 @@ arguments read_arguments(int argc, char* argv[])
   program.add_argument("--db_address")
       .help("Address of Redis API compatible database to connect")
       .required();
-  program.add_argument("--delay").help("Delay in between sending loaded images.")
-      .scan<'i', uint64_t>().required();
+  program.add_argument("--delay")
+      .help("Delay in between sending loaded images.")
+      .scan<'i', uint64_t>()
+      .required();
   program.add_argument("--start_id").help("Starting ID for read").scan<'i', uint64_t>().required();
   program.add_argument("--end_id")
       .help("Root directory where files will be stored")
@@ -52,8 +54,11 @@ arguments read_arguments(int argc, char* argv[])
   program = utils::parse_arguments(program, argc, argv);
 
   return {utils::read_config_from_json_file(program.get("detector_json_filename")),
-          program.get("--root_dir"), program.get("--db_address"),
-          program.get<uint64_t>("--start_id"), program.get<uint64_t>("--end_id"), program.get<uint64_t>("--delay")};
+          program.get("--root_dir"),
+          program.get("--db_address"),
+          program.get<uint64_t>("--start_id"),
+          program.get<uint64_t>("--end_id"),
+          program.get<uint64_t>("--delay")};
 }
 
 std::size_t get_size(const std_daq_protocol::ImageMetadata& data)
@@ -104,7 +109,7 @@ int main(int argc, char* argv[])
                                  {sync_name, ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
 
   sbc::RedisHandler redis_handler(args.config.detector_name, args.db_address);
-  sbc::BufferHandler reader(args.root_dir + args.config.detector_name);
+  sbc::BufferHandler reader(args.root_dir + args.config.detector_name, args.config.bit_depth / 8);
   std_daq_protocol::BufferedMetadata buffered_meta;
   end_tester end_id_tester(redis_handler);
 
@@ -118,7 +123,8 @@ int main(int argc, char* argv[])
     for (std::weakly_incrementable auto image : std::views::iota(args.start_image_id, end_id)) {
       if (redis_handler.receive(image, buffered_meta)) {
         if (auto size = get_size(buffered_meta.metadata()); size <= max_data_bytes) {
-          reader.read(image, {sender.get_data(image), size}, buffered_meta.offset());
+          reader.read(image, {sender.get_data(image), size}, buffered_meta.offset(),
+                      buffered_meta.size());
 
           std::string meta_buffer_send;
           buffered_meta.metadata().SerializeToString(&meta_buffer_send);

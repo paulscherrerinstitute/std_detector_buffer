@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 {
   const auto [config, db_address, root_dir] = read_arguments(argc, argv);
   sbc::RedisHandler sender(config.detector_name, db_address);
-  sbc::BufferHandler writer(root_dir + config.detector_name);
+  sbc::BufferHandler writer(root_dir + config.detector_name, config.bit_depth / 8);
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
@@ -66,9 +66,11 @@ int main(int argc, char* argv[])
 
       auto* image_data = receiver.get_data(meta->image_id());
       const auto size = calculate_size(meta);
-      const auto offset = writer.write(meta->image_id(), std::span<char>(image_data, size));
+      const auto [offset, compressed_size] =
+          writer.write(meta->image_id(), std::span<char>(image_data, size));
 
       buffered_meta.set_offset(offset);
+      buffered_meta.set_size(compressed_size);
       sender.send(meta->image_id(), buffered_meta);
     }
   }

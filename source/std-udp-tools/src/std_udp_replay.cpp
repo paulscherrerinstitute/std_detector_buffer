@@ -59,14 +59,6 @@ void read_and_send(const uint16_t udp_port, atomic_bool& run, const int ms_delay
 
   while (run) {
 	uint64_t n_packet_bytes = 0;	
-
-    //if (file.peek() == EOF) {
-    // Reset the file pointer to the beginning of the file
-    //   file.clear(); // Clear any error flags
-    //   file.seekg(0, ios::beg);
-    //   fmt::print("[Thread {}] Reached end of file, resetting pointer.\n", udp_port);
-    // }
-    	
 	file.read(reinterpret_cast<char*>(&n_packet_bytes), sizeof(n_packet_bytes));
 	file.read(buffer, n_packet_bytes);
 
@@ -88,12 +80,6 @@ void read_and_send(const uint16_t udp_port, atomic_bool& run, const int ms_delay
 		std::lock_guard<std::mutex> lock(barrier_mutex);
         fmt::print("[Thread {}] Sent {} packets and reached barrier.\n", udp_port, n_packets);
 	}
-//	if (file.eof()) {
-//		// Reset the file pointer to the beginning of the file
-//		file.clear(); // Clear any error flags
-//		file.seekg(0, ios::beg);
-//		fmt::print("[Thread {}] Reached end of file, resetting pointer.\n", udp_port);
-//	}
 
     std::this_thread::sleep_for(std::chrono::milliseconds(ms_delay));
   }

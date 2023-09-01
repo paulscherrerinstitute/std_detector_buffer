@@ -23,6 +23,11 @@ const config = {
       ({
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
+          showLastUpdateAuthor: true,
+          showLastUpdateTime: true,
+          sidebarCollapsible: true,
+          editUrl: ({ docPath }) =>
+            `https://git.psi.ch/-/ide/project/controls-ci/std_detector_buffer/tree/master/-/website/std-daq-doc/docs/${docPath}`,
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
@@ -34,7 +39,7 @@ const config = {
 
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
-    ({
+    ({ 
       navbar: {
         title: 'STD DAQ DOC',
         logo: {
@@ -55,21 +60,6 @@ const config = {
           },
         ],
       },
-      // footer: {
-      //   style: 'dark',
-      //   links: [
-      //     {
-      //       title: 'Docs',
-      //       items: [
-      //         {
-      //           label: 'Tutorial',
-      //           to: '/docs/intro',
-      //         },
-      //       ],
-      //     },
-      //   ],
-      //   copyright: `STD DAQ DOC - Paul Scherrer Institut ${new Date().getFullYear()}`,
-      // },
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,

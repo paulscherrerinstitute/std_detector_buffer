@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 #include <zmq.h>
-#include <mpi.h>
+//#include <mpi.h>
 #include <rapidjson/document.h>
 #include <fmt/core.h>
 
@@ -16,7 +16,7 @@
 
 #include "live_writer_config.hpp"
 #include "WriterStats.hpp"
-#include "JFH5Writer.hpp"
+#include "H5Writer.hpp"
 #include "DetWriterConfig.hpp"
 #include "core_buffer/ram_buffer.hpp"
 
@@ -69,13 +69,13 @@ int main(int argc, char* argv[])
   const auto config = converter::from_json_file(program.get("detector_json_filename"));
   const size_t image_n_bytes = config.image_width * config.image_height * config.bit_depth / 8;
 
-  MPI_Init(nullptr, nullptr);
+//  MPI_Init(nullptr, nullptr);
   int n_writers;
-  MPI_Comm_size(MPI_COMM_WORLD, &n_writers);
+//  MPI_Comm_size(MPI_COMM_WORLD, &n_writers);
   int i_writer;
-  MPI_Comm_rank(MPI_COMM_WORLD, &i_writer);
+//  MPI_Comm_rank(MPI_COMM_WORLD, &i_writer);
 
-  JFH5Writer writer(config.detector_name);
+  H5Writer writer(config.detector_name);
   WriterStats stats(config.detector_name, image_n_bytes);
   const auto buffer_name = fmt::format("{}-image", config.detector_name);
   RamBuffer image_buffer(buffer_name, image_n_bytes, buffer_config::RAM_BUFFER_N_SLOTS);
@@ -126,6 +126,7 @@ int main(int argc, char* argv[])
     const auto image_id = command.metadata().image_id();
     const auto i_image = command.i_image();
     const auto data = image_buffer.get_data(image_id);
+    const auto data_size = command.metadata().size();
 
     // Handle start and stop commands.
     switch (command.command_type()) {
@@ -194,7 +195,7 @@ int main(int argc, char* argv[])
       //           run_id);
 
       stats.start_image_write();
-      writer.write_data(run_id, i_image, data);
+      writer.write_data(run_id, i_image, data_size, data);
       stats.end_image_write();
 
       status.set_command_type(std_daq_protocol::CommandType::WRITE_IMAGE);

@@ -2,18 +2,19 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_JF_LIVE_WRITER_HPP
-#define STD_DETECTOR_BUFFER_JF_LIVE_WRITER_HPP
+#ifndef STD_DETECTOR_BUFFER_H5_WRITER
+#define STD_DETECTOR_BUFFER_H5_WRITER
 
 #include <memory>
 #include <string>
+#include <span>
 #include "core_buffer/buffer_utils.hpp"
 #include "core_buffer/formats.hpp"
 #include "std_buffer/image_metadata.pb.h"
 
 #include <hdf5.h>
 
-class JFH5Writer
+class H5Writer
 {
 
   const std::string detector_name_;
@@ -38,8 +39,8 @@ class JFH5Writer
   void close_file(const uint32_t highest_written_index);
 
 public:
-  JFH5Writer(std::string detector_name);
-  ~JFH5Writer();
+  H5Writer(std::string detector_name);
+  ~H5Writer();
 
   void open_run(const std::string& output_file,
                 const uint64_t run_id,
@@ -49,8 +50,8 @@ public:
                 const int bit_depth);
   void close_run(const uint32_t highest_written_index);
 
-  void write_data(const uint64_t run_id, const uint32_t index, const char* data);
+  void write_data(const uint64_t run_id, const uint32_t index, const size_t data_size, const char* data);
   void write_meta(const uint64_t run_id, const uint32_t index, const std_daq_protocol::ImageMetadata& meta);
 };
 
-#endif // STD_DETECTOR_BUFFER_JF_LIVE_WRITER_HPP
+#endif // STD_DETECTOR_BUFFER_H5_WRITER
