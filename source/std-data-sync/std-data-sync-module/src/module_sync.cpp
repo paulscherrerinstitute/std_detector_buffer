@@ -13,6 +13,7 @@
 #include "utils/detector_config.hpp"
 #include "utils/sync_stats_collector.hpp"
 #include "utils/get_metadata_dtype.hpp"
+#include "utils/image_size_calc.hpp"
 #include "std_buffer/image_metadata.pb.h"
 
 #include "synchronizer.hpp"
@@ -43,6 +44,7 @@ int main(int argc, char* argv[])
   image_meta.set_dtype(utils::get_metadata_dtype(config));
   image_meta.set_height(config.image_pixel_height);
   image_meta.set_width(config.image_pixel_width);
+  image_meta.set_size(utils::converted_image_n_bytes(config));
 
   while (true) {
     if (zmq_recv(receiver, meta_buffer_recv, DET_FRAME_STRUCT_BYTES, 0) > 0) {

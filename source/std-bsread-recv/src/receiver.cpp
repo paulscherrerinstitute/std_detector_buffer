@@ -54,8 +54,8 @@ int main(int argc, char* argv[])
   std_daq_protocol::ImageMetadata image_meta;
   image_meta.set_dtype(utils::get_metadata_dtype(config));
   image_meta.set_status(std_daq_protocol::ImageMetadataStatus::good_image);
-
-  std::map<pulse_id_t, std::pair<uint32_t, uint32_t>> pulse_order;
+  // TODO: to be improved in future
+  std::map<pulse_id_t, std::tuple<uint32_t, uint32_t,std::size_t>> pulse_order;
 
   while (true) {
     stats.processing_started();
@@ -66,15 +66,17 @@ int main(int argc, char* argv[])
         if (!channels.empty()) {
           char* ram_buffer = sender.get_data(msg.pulse_id);
           memcpy(ram_buffer, channels[0].buffer.get(), channels[0].buffer_size);
-          pulse_order[msg.pulse_id] = std::make_pair(channels[0].shape[0], channels[0].shape[1]);
+          pulse_order[msg.pulse_id] = {channels[0].shape[0], channels[0].shape[1], channels[0].buffer_size};
         }
       }
     }
     for (auto [pulse, shape] : pulse_order) {
       image_meta.set_image_id(pulse);
       // bsread protocol read shape as [x,y,z,...]
-      image_meta.set_width(shape.first);
-      image_meta.set_height(shape.second);
+      image_meta.set_width(std::get<0>(shape));
+      image_meta.set_height(std::get<1>(shape));
+      image_meta.set_size(std::get<2>(shape));
+
       std::string meta_buffer_send;
       image_meta.SerializeToString(&meta_buffer_send);
 
