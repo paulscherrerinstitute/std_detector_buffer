@@ -16,7 +16,7 @@ async def test_converter_send_real_image_with_custom_slot(test_path):
 
     ctx = zmq.asyncio.Context()
 
-    with (start_publisher_communication(ctx, GigafrostConfigUdp()) as (input_buffer, pub_socket)):
+    with start_publisher_communication(ctx, GigafrostConfigUdp()) as (input_buffer, pub_socket):
         with run_command_in_parallel(command):
             with start_pull_communication(ctx, GigafrostConfigConverter()) as (output_buffer, pull_socket):
                 sent_data = get_array(input_buffer, slot, 'i1', GigafrostConfigUdp())
