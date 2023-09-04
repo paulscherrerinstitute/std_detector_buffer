@@ -70,9 +70,9 @@ int main(int argc, char* argv[])
   const size_t image_n_bytes = config.image_width * config.image_height * config.bit_depth / 8;
 
 //  MPI_Init(nullptr, nullptr);
-  int n_writers;
+  int n_writers = 1;
 //  MPI_Comm_size(MPI_COMM_WORLD, &n_writers);
-  int i_writer;
+  int i_writer = 0;
 //  MPI_Comm_rank(MPI_COMM_WORLD, &i_writer);
 
   H5Writer writer(config.detector_name);
@@ -191,8 +191,9 @@ int main(int argc, char* argv[])
 
     // Fair distribution of images among writers.
     if (i_image % n_writers == (uint)i_writer) {
-      //fmt::print("i_writer={} i_image={} image_id={} run_id={}\n", i_writer, i_image, image_id,
-      //           run_id);
+      #ifdef DEBUG_OUTPUT
+      fmt::print("i_writer={} i_image={} image_id={} run_id={}\n", i_writer, i_image, image_id, run_id);
+      #endif
 
       stats.start_image_write();
       writer.write_data(run_id, i_image, data_size, data);
