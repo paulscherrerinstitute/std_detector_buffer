@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 
   H5Writer writer(config.detector_name);
   WriterStats stats(config.detector_name, image_n_bytes);
-  const auto buffer_name = fmt::format("{}-image", config.detector_name);
+  const auto buffer_name = fmt::format("{}-compressed", config.detector_name);
   RamBuffer image_buffer(buffer_name, image_n_bytes, buffer_config::RAM_BUFFER_N_SLOTS);
   auto ctx = zmq_ctx_new();
   const auto command_stream_name = fmt::format("{}-writer", config.detector_name);
@@ -126,7 +126,12 @@ int main(int argc, char* argv[])
     const auto image_id = command.metadata().image_id();
     const auto i_image = command.i_image();
     const auto data = image_buffer.get_data(image_id);
-    const auto data_size = command.metadata().size();
+    auto data_size = command.metadata().size();
+
+    // TODO: Remove this once we have the size in the metadata stream, make data_size const again.
+    if (data_size == 0) {
+        data_size = image_n_bytes;
+    }
 
     // Handle start and stop commands.
     switch (command.command_type()) {
