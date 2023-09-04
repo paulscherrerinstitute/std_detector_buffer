@@ -127,11 +127,6 @@ int main(int argc, char* argv[])
     const auto data = image_buffer.get_data(image_id);
     auto data_size = command.metadata().size();
 
-    // TODO: Remove this once we have the size in the metadata stream, make data_size const again.
-    if (data_size == 0) {
-        data_size = image_n_bytes;
-    }
-
     // Handle start and stop commands.
     switch (command.command_type()) {
     case std_daq_protocol::CommandType::START_WRITING:
