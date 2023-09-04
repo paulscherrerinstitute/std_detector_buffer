@@ -70,9 +70,9 @@ int main(int argc, char* argv[])
   const size_t image_n_bytes = config.image_width * config.image_height * config.bit_depth / 8;
 
 //  MPI_Init(nullptr, nullptr);
-  int n_writers;
+  int n_writers{0};
+  int i_writer{0};
 //  MPI_Comm_size(MPI_COMM_WORLD, &n_writers);
-  int i_writer;
 //  MPI_Comm_rank(MPI_COMM_WORLD, &i_writer);
 
   H5Writer writer(config.detector_name);
