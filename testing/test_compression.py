@@ -7,10 +7,10 @@ import zmq
 import zmq.asyncio
 import numpy as np
 
-from std_buffer.gigafrost.data import GigafrostConfigConverter, get_converter_buffer_data
+from std_buffer.gigafrost.data import GigafrostConfigConverter
 from testing.fixtures import test_path
 from testing.communication import start_publisher_communication, start_subscriber_communication
-from testing.execution_helpers import build_command, run_command_in_parallel
+from testing.execution_helpers import build_command, run_command_in_parallel, get_array
 import std_buffer.image_metadata_pb2 as daq_proto
 
 
@@ -34,7 +34,7 @@ async def test_compression(test_path):
             config.socket_name = 'GF2-compressed'
             config.name = 'GF2-compressed'
             with start_subscriber_communication(ctx, config) as (output_buffer, sub_socket):
-                uncompressed_data = get_converter_buffer_data(input_buffer, metadata.image_id)
+                uncompressed_data = get_array(input_buffer, metadata.image_id,'u2', GigafrostConfigConverter())
                 for i in range(len(uncompressed_data)):
                     uncompressed_data[i] = i % 256
 

@@ -8,8 +8,8 @@ import zmq.asyncio
 
 from testing.fixtures import test_path
 from testing.communication import start_publisher_communication, start_pull_communication
-from testing.execution_helpers import build_command, run_command_in_parallel, send_receive
-from std_buffer.eiger.data import EigerConfigUdp, EigerConfigConverter, get_udp_packet_array, get_converter_buffer_data
+from testing.execution_helpers import build_command, run_command_in_parallel, send_receive, get_array
+from std_buffer.eiger.data import EigerConfigUdp, EigerConfigConverter
 
 
 def build_eiger_converter_command_full(test_path: Path, detector_file: str, module_id: int) -> str:
@@ -17,7 +17,7 @@ def build_eiger_converter_command_full(test_path: Path, detector_file: str, modu
 
 
 def fill_data_to_send(input_buffer, slot):
-    sent_data = get_udp_packet_array(input_buffer, slot)
+    sent_data = get_array(input_buffer, slot, 'i2', EigerConfigUdp())
     for i in range(256):
         for j in range(256):
             sent_data[i * 512 + j] = i
@@ -40,13 +40,13 @@ async def test_converter_half_m_for_eiger_first_quarter(test_path):
                 msg = await send_receive(pub_socket=pub_socket, sub_socket=pull_socket, slot=slot)
 
                 assert np.frombuffer(msg, dtype='i8')[0] == slot
-                output_data = get_converter_buffer_data(output_buffer, slot)
+                output_data = get_array(output_buffer, slot, 'i2', EigerConfigConverter())
 
                 for i in range(256):
                     for j in range(256):
-                        assert output_data[i*1030+j] == i
-                    for j in range(258,514):
-                        assert output_data[i*1030+j] == i + 100
+                        assert output_data[i * 1030 + j] == i
+                    for j in range(258, 514):
+                        assert output_data[i * 1030 + j] == i + 100
 
 
 @pytest.mark.asyncio
@@ -67,11 +67,11 @@ async def test_converter_half_m_for_eiger_fourth_quarter(test_path):
                 msg = await send_receive(pub_socket=pub_socket, sub_socket=pull_socket, slot=slot)
 
                 assert np.frombuffer(msg, dtype='i8')[0] == slot
-                output_data = get_converter_buffer_data(output_buffer, slot)
+                output_data = get_array(output_buffer, slot, 'i2', EigerConfigConverter())
                 for i in range(256):
                     for j in range(256):
                         jump = ((258 + i) * 1030) + 516 + j
-                        assert output_data[jump] == 255-i
+                        assert output_data[jump] == 255 - i
                     for j in range(258, 514):
                         jump = ((258 + i) * 1030) + 516 + j
-                        assert output_data[jump] == 255-i + 100
+                        assert output_data[jump] == 255 - i + 100

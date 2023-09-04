@@ -119,18 +119,3 @@ class EigerConfigConverter:
         self.udp_port_base = udp.udp_port_base
         self.slots = udp.slots
         self.buffer_size = self.data_bytes_per_packet * self.slots
-
-
-def get_converter_buffer_data(buffer: memoryview, slot: int) -> np.ndarray:
-    config_converter = EigerConfigConverter()
-    slot_start = slot * config_converter.data_bytes_per_packet
-    data_of_slot = buffer[slot_start:slot_start + config_converter.data_bytes_per_packet]
-    return np.ndarray((int(config_converter.data_bytes_per_packet / 2),), dtype='u2',
-                      buffer=data_of_slot)
-
-
-def get_udp_packet_array(input_buffer: memoryview, slot: int) -> np.ndarray:
-    config_udp = EigerConfigUdp()
-    slot_start = slot * config_udp.data_bytes_per_packet
-    data_of_slot = input_buffer[slot_start:slot_start + config_udp.data_bytes_per_packet]
-    return np.ndarray((int(config_udp.data_bytes_per_packet / 2),), dtype='i2', buffer=data_of_slot)

@@ -7,7 +7,6 @@ from pathlib import Path
 from contextlib import contextmanager
 
 import numpy as np
-import zmq
 import zmq.asyncio
 
 import std_buffer.image_metadata_pb2 as daq_proto
@@ -21,8 +20,7 @@ def executable(name) -> Path:
 
     filename = shutil.which(name)
     if filename:
-        return filename
-
+        return Path(filename)
     assert False
 
 
@@ -89,3 +87,10 @@ async def send_receive_proto(pub_socket: zmq.asyncio.Socket, slot: int, sub_sock
     data = await msg
     metadata.ParseFromString(data)
     return metadata
+
+
+def get_array(input_buffer: memoryview, slot: int, dtype, config) -> np.ndarray:
+    data_type = np.dtype(dtype)
+    slot_start = slot * config.data_bytes_per_packet
+    data_of_slot = input_buffer[slot_start:slot_start + config.data_bytes_per_packet]
+    return np.ndarray((int(config.data_bytes_per_packet / data_type.itemsize),), dtype=data_type, buffer=data_of_slot)

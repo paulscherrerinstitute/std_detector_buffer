@@ -10,11 +10,11 @@ import zmq
 import zmq.asyncio
 
 import std_buffer.image_metadata_pb2
-from std_buffer.gigafrost.data import GigafrostConfigConverter, GigafrostConfigUdp, get_converter_buffer_data
+from std_buffer.gigafrost.data import GigafrostConfigConverter, GigafrostConfigUdp
 from testing.fixtures import test_path
-from testing.communication import start_publisher_communication, start_subscriber_communication, \
-    start_pull_communication
-from testing.execution_helpers import build_command, run_command_in_parallel, send_receive, send_receive_proto
+from testing.communication import start_publisher_communication, start_pull_communication
+from testing.execution_helpers import build_command, run_command_in_parallel, send_receive, send_receive_proto, \
+    get_array
 
 
 class GFFrame(Structure):
@@ -83,7 +83,7 @@ async def test_send_receive_stream(test_path):
             gf_config.name = 'GF22-image'
 
             with start_pull_communication(ctx, gf_config) as (output_buffer, sub_socket):
-                sent_data = get_converter_buffer_data(input_buffer, slot)
+                sent_data = get_array(input_buffer, slot, 'u2', GigafrostConfigConverter())
                 for i in range(8):
                     index_start = int(i * len(sent_data) / 8)
                     sent_data[index_start] = 500 + i
@@ -92,7 +92,7 @@ async def test_send_receive_stream(test_path):
                 msg = await send_receive_proto(pub_socket=pub_socket, sub_socket=sub_socket, slot=slot)
                 assert msg.image_id == slot
 
-                data = get_converter_buffer_data(output_buffer, slot)
+                data = get_array(output_buffer, slot, 'u2', GigafrostConfigConverter())
                 assert data[0] == 500
                 assert data[1] == 600
                 start_index = int(GigafrostConfigUdp().image_pixel_height * GigafrostConfigUdp().image_pixel_width / 8)

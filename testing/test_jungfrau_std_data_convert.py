@@ -7,22 +7,9 @@ import zmq.asyncio
 
 from testing.fixtures import test_path
 from testing.communication import start_publisher_communication, start_subscriber_communication
-from testing.execution_helpers import executable, run_command, build_command, run_command_in_parallel, push_to_buffer, \
-    send_receive
+from testing.execution_helpers import executable, run_command, build_command, run_command_in_parallel, send_receive, \
+    get_array
 from std_buffer.jungfrau.data import JungfrauConfigUdp, JungfrauConfigConverter
-
-
-def get_udp_packet_array(input_buffer: memoryview, slot: int) -> np.ndarray:
-    slot_start = slot * JungfrauConfigUdp().data_bytes_per_packet
-    data_of_slot = input_buffer[slot_start:slot_start + JungfrauConfigUdp().data_bytes_per_packet]
-    return np.ndarray((int(JungfrauConfigUdp().data_bytes_per_packet / 2),), dtype='i2', buffer=data_of_slot)
-
-
-def get_converter_packet_array(output_buffer: memoryview, slot: int) -> np.ndarray:
-    slot_start = slot * JungfrauConfigConverter().data_bytes_per_packet
-    data_of_slot = output_buffer[slot_start:slot_start + JungfrauConfigConverter().data_bytes_per_packet]
-    return np.ndarray((int(JungfrauConfigConverter().data_bytes_per_packet / 4),), dtype='f4',
-                      buffer=data_of_slot)
 
 
 def build_jungfrau_converter_command(test_path, pedestals='gains_1_pedestals_0.h5') -> str:
@@ -50,14 +37,14 @@ async def test_converter_send_real_image_with_custom_slot(test_path):
         with run_command_in_parallel(command):
             with start_subscriber_communication(ctx, JungfrauConfigConverter()) as (output_buffer, sub_socket):
                 # fill data array with incremented data
-                sent_data = get_udp_packet_array(input_buffer, slot)
+                sent_data = get_array(input_buffer, slot, 'i2', JungfrauConfigUdp())
                 for i in range(len(sent_data)):
                     sent_data[i] = i % 1000
 
                 msg = await send_receive(pub_socket=pub_socket, sub_socket=sub_socket, slot=slot)
 
                 assert np.frombuffer(msg, dtype='i8')[0] == slot
-                assert np.array_equal(get_converter_packet_array(output_buffer, slot), sent_data)
+                assert np.array_equal(get_array(output_buffer, slot, 'f4', JungfrauConfigConverter()), sent_data)
 
 
 @pytest.mark.asyncio
@@ -71,13 +58,13 @@ async def test_converter_modifying_image_with_gains_and_pedestals(test_path):
         with run_command_in_parallel(command):
             with start_subscriber_communication(ctx, JungfrauConfigConverter()) as (output_buffer, sub_socket):
                 # fill data array with incremented data
-                sent_data = get_udp_packet_array(input_buffer, slot)
+                sent_data = get_array(input_buffer, slot, 'i2', JungfrauConfigUdp())
                 for i in range(len(sent_data)):
                     sent_data[i] = i % 1000
 
                 msg = await send_receive(pub_socket=pub_socket, sub_socket=sub_socket, slot=slot)
 
                 assert np.frombuffer(msg, dtype='i8')[0] == slot
-                converted_data = get_converter_packet_array(output_buffer, slot)
+                converted_data = get_array(output_buffer, slot, 'f4', JungfrauConfigConverter())
                 for i in range(len(converted_data)):
                     assert converted_data[i] == (i % 1000 + 1) * 2

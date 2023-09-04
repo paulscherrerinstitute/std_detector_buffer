@@ -158,18 +158,3 @@ class GigafrostConfigConverter:
         self.slots = udp.slots
         self.data_bytes_per_packet = udp.image_pixel_width * udp.image_pixel_height * 2
         self.buffer_size = self.data_bytes_per_packet * self.slots
-
-
-def get_converter_buffer_data(buffer: memoryview, slot: int) -> np.ndarray:
-    config_converter = GigafrostConfigConverter()
-    slot_start = slot * config_converter.data_bytes_per_packet
-    data_of_slot = buffer[slot_start:slot_start + config_converter.data_bytes_per_packet]
-    return np.ndarray((int(config_converter.data_bytes_per_packet / 2),), dtype='u2',
-                      buffer=data_of_slot)
-
-
-def get_udp_packet_array(input_buffer: memoryview, slot: int) -> np.ndarray:
-    config_udp = GigafrostConfigUdp()
-    slot_start = slot * config_udp.data_bytes_per_packet
-    data_of_slot = input_buffer[slot_start:slot_start + config_udp.data_bytes_per_packet]
-    return np.ndarray((int(config_udp.data_bytes_per_packet),), dtype='i1', buffer=data_of_slot)
