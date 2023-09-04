@@ -130,39 +130,46 @@ def calculate_udp_packet_info(image_pixel_height, image_pixel_width):
 
 
 class GigafrostConfigUdp:
-    quadrant_id = 0
-    id = 0
-    name = f'GF2-{id}'
-    udp_port_base = 50020
-    image_pixel_height = 2016
-    image_pixel_width = 2016
-    meta_bytes_per_packet = 64
-    data_bytes_per_packet = calculate_udp_packet_info(image_pixel_height, image_pixel_width)['packet_n_data_bytes'] * \
-                            (calculate_udp_packet_info(image_pixel_height, image_pixel_width)['frame_n_packets'] - 1) + \
-                            calculate_udp_packet_info(image_pixel_height, image_pixel_width)[
-                                'last_packet_n_data_bytes']
-    slots = 10  # should be 1000 but for testing purposes 10 is enough
-    buffer_size = data_bytes_per_packet * slots
+    def __init__(self):
+        self.quadrant_id = 0
+        self.id = 0
+        self.name = f'GF2-{self.id}'
+        self.udp_port_base = 50020
+        self.image_pixel_height = 2016
+        self.image_pixel_width = 2016
+        self.meta_bytes_per_packet = 64
+        self.data_bytes_per_packet = calculate_udp_packet_info(self.image_pixel_height, self.image_pixel_width)[
+                                         'packet_n_data_bytes'] * \
+                                     (calculate_udp_packet_info(self.image_pixel_height, self.image_pixel_width)[
+                                          'frame_n_packets'] - 1) + \
+                                     calculate_udp_packet_info(self.image_pixel_height, self.image_pixel_width)[
+                                         'last_packet_n_data_bytes']
+        self.slots = 10  # should be 1000 but for testing purposes 10 is enough
+        self.buffer_size = self.data_bytes_per_packet * self.slots
 
 
 class GigafrostConfigConverter:
-    id = GigafrostConfigUdp.id
-    name = 'GF2-image'
-    socket_name = 'GF2-sync'
-    udp_port_base = GigafrostConfigUdp.udp_port_base
-    slots = GigafrostConfigUdp.slots
-    data_bytes_per_packet = GigafrostConfigUdp.image_pixel_width * GigafrostConfigUdp.image_pixel_height * 2
-    buffer_size = data_bytes_per_packet * slots
+    def __init__(self):
+        udp = GigafrostConfigUdp()
+        self.id = udp.id
+        self.name = 'GF2-image'
+        self.socket_name = 'GF2-sync'
+        self.udp_port_base = udp.udp_port_base
+        self.slots = udp.slots
+        self.data_bytes_per_packet = udp.image_pixel_width * udp.image_pixel_height * 2
+        self.buffer_size = self.data_bytes_per_packet * self.slots
 
 
 def get_converter_buffer_data(buffer: memoryview, slot: int) -> np.ndarray:
-    slot_start = slot * GigafrostConfigConverter.data_bytes_per_packet
-    data_of_slot = buffer[slot_start:slot_start + GigafrostConfigConverter.data_bytes_per_packet]
-    return np.ndarray((int(GigafrostConfigConverter.data_bytes_per_packet / 2),), dtype='u2',
+    config_converter = GigafrostConfigConverter()
+    slot_start = slot * config_converter.data_bytes_per_packet
+    data_of_slot = buffer[slot_start:slot_start + config_converter.data_bytes_per_packet]
+    return np.ndarray((int(config_converter.data_bytes_per_packet / 2),), dtype='u2',
                       buffer=data_of_slot)
 
 
 def get_udp_packet_array(input_buffer: memoryview, slot: int) -> np.ndarray:
-    slot_start = slot * GigafrostConfigUdp.data_bytes_per_packet
-    data_of_slot = input_buffer[slot_start:slot_start + GigafrostConfigUdp.data_bytes_per_packet]
-    return np.ndarray((int(GigafrostConfigUdp.data_bytes_per_packet),), dtype='i1', buffer=data_of_slot)
+    config_udp = GigafrostConfigUdp()
+    slot_start = slot * config_udp.data_bytes_per_packet
+    data_of_slot = input_buffer[slot_start:slot_start + config_udp.data_bytes_per_packet]
+    return np.ndarray((int(config_udp.data_bytes_per_packet),), dtype='i1', buffer=data_of_slot)

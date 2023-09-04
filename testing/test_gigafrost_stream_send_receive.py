@@ -72,7 +72,7 @@ async def test_send_receive_stream(test_path):
     slot = 3
     ctx = zmq.asyncio.Context()
 
-    gf_config = GigafrostConfigConverter
+    gf_config = GigafrostConfigConverter()
     gf_config.socket_name = 'GF2-image'
     gf_config.name = 'GF2-image'
 
@@ -95,6 +95,6 @@ async def test_send_receive_stream(test_path):
                 data = get_converter_buffer_data(output_buffer, slot)
                 assert data[0] == 500
                 assert data[1] == 600
-                start_index = int(GigafrostConfigUdp.image_pixel_height * GigafrostConfigUdp.image_pixel_width / 8)
+                start_index = int(GigafrostConfigUdp().image_pixel_height * GigafrostConfigUdp().image_pixel_width / 8)
                 assert data[start_index] == 501
                 assert data[start_index + 1] == 601

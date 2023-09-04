@@ -13,21 +13,21 @@ from std_buffer.jungfrau.data import JungfrauConfigUdp, JungfrauConfigConverter
 
 
 def get_udp_packet_array(input_buffer: memoryview, slot: int) -> np.ndarray:
-    slot_start = slot * JungfrauConfigUdp.data_bytes_per_packet
-    data_of_slot = input_buffer[slot_start:slot_start + JungfrauConfigUdp.data_bytes_per_packet]
-    return np.ndarray((int(JungfrauConfigUdp.data_bytes_per_packet / 2),), dtype='i2', buffer=data_of_slot)
+    slot_start = slot * JungfrauConfigUdp().data_bytes_per_packet
+    data_of_slot = input_buffer[slot_start:slot_start + JungfrauConfigUdp().data_bytes_per_packet]
+    return np.ndarray((int(JungfrauConfigUdp().data_bytes_per_packet / 2),), dtype='i2', buffer=data_of_slot)
 
 
 def get_converter_packet_array(output_buffer: memoryview, slot: int) -> np.ndarray:
-    slot_start = slot * JungfrauConfigConverter.data_bytes_per_packet
-    data_of_slot = output_buffer[slot_start:slot_start + JungfrauConfigConverter.data_bytes_per_packet]
-    return np.ndarray((int(JungfrauConfigConverter.data_bytes_per_packet / 4),), dtype='f4',
+    slot_start = slot * JungfrauConfigConverter().data_bytes_per_packet
+    data_of_slot = output_buffer[slot_start:slot_start + JungfrauConfigConverter().data_bytes_per_packet]
+    return np.ndarray((int(JungfrauConfigConverter().data_bytes_per_packet / 4),), dtype='f4',
                       buffer=data_of_slot)
 
 
 def build_jungfrau_converter_command(test_path, pedestals='gains_1_pedestals_0.h5') -> str:
     return build_command('std_data_convert_jf', test_path / 'jungfrau_detector.json', test_path / pedestals,
-                         JungfrauConfigUdp.id, JungfrauConfigConverter.converter_index)
+                         JungfrauConfigUdp().id, JungfrauConfigConverter().converter_index)
 
 
 def test_converter_should_return_without_needed_arguments():
@@ -46,9 +46,9 @@ async def test_converter_send_real_image_with_custom_slot(test_path):
 
     ctx = zmq.asyncio.Context()
 
-    with start_publisher_communication(ctx, JungfrauConfigUdp) as (input_buffer, pub_socket):
+    with start_publisher_communication(ctx, JungfrauConfigUdp()) as (input_buffer, pub_socket):
         with run_command_in_parallel(command):
-            with start_subscriber_communication(ctx, JungfrauConfigConverter) as (output_buffer, sub_socket):
+            with start_subscriber_communication(ctx, JungfrauConfigConverter()) as (output_buffer, sub_socket):
                 # fill data array with incremented data
                 sent_data = get_udp_packet_array(input_buffer, slot)
                 for i in range(len(sent_data)):
@@ -67,9 +67,9 @@ async def test_converter_modifying_image_with_gains_and_pedestals(test_path):
 
     ctx = zmq.asyncio.Context()
 
-    with start_publisher_communication(ctx, JungfrauConfigUdp) as (input_buffer, pub_socket):
+    with start_publisher_communication(ctx, JungfrauConfigUdp()) as (input_buffer, pub_socket):
         with run_command_in_parallel(command):
-            with start_subscriber_communication(ctx, JungfrauConfigConverter) as (output_buffer, sub_socket):
+            with start_subscriber_communication(ctx, JungfrauConfigConverter()) as (output_buffer, sub_socket):
                 # fill data array with incremented data
                 sent_data = get_udp_packet_array(input_buffer, slot)
                 for i in range(len(sent_data)):
