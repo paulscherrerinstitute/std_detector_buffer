@@ -6,6 +6,7 @@
 #include <omp.h>
 #include <fmt/core.h>
 #include <bitshuffle/bitshuffle.h>
+#include <bitshuffle/bitshuffle.h>
 
 #include "core_buffer/communicator.hpp"
 #include "core_buffer/ram_buffer.hpp"
@@ -15,6 +16,7 @@
 #include "utils/detector_config.hpp"
 
 #include "compression_stats_collector.hpp"
+
 
 namespace {
 constexpr auto zmq_io_threads = 1;
@@ -43,6 +45,8 @@ std::tuple<utils::DetectorConfig, int> read_arguments(int argc, char* argv[])
 int main(int argc, char* argv[])
 {
   const auto [config, threads] = read_arguments(argc, argv);
+  const size_t image_n_bytes = config.image_pixel_width * config.image_pixel_height * config.bit_depth / 8;
+
   omp_set_num_threads(threads);
   auto converted_bytes = utils::converted_image_n_bytes(config);
 
@@ -62,19 +66,31 @@ int main(int argc, char* argv[])
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;
 
+  const auto element_size = config.bit_depth / 8;
+  const auto block_size = 0;
+  const size_t header_n_bytes = 12;
+  const int64_t header_image_n_bytes = __builtin_bswap64(static_cast<int64_t>(image_n_bytes));
+  const int32_t header_block_size = __builtin_bswap32(static_cast<int32_t>(block_size * element_size));
+
   while (true) {
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
       meta.ParseFromArray(buffer, n_bytes);
       if (meta.status() == std_daq_protocol::good_image) {
         stats.processing_started();
 
-        auto element_size = config.bit_depth / 8;
+        char* compression_buffer = receiver.get_data(meta.image_id());
+        
+        // How bithusffle + LZ4 HDF5 filter sets the header.. talk to them.
+        // https://github.com/kiyo-masui/bitshuffle/blob/04e58bd553304ec26e222654f1d9b6ff64e97d10/src/bshuf_h5filter.c#L166C13-L167C80
+        std::memcpy(compression_buffer + 0, &header_image_n_bytes, 8);
+        std::memcpy(compression_buffer + 8, &header_block_size, 4);
+
         int size =
-            bshuf_compress_lz4(receiver.get_data(meta.image_id()), sender.get_data(meta.image_id()),
-                               converted_bytes / element_size, element_size, 0);
+            bshuf_compress_lz4(receiver.get_data(meta.image_id()), compression_buffer + 12,
+                               converted_bytes / element_size, element_size, block_size);
 
         if (size > 0) {
-          meta.set_size(size);
+          meta.set_size(size + header_n_bytes);
           meta.set_status(std_daq_protocol::compressed_image);
 
           std::string meta_buffer_send;
