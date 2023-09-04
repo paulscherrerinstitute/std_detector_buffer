@@ -20,6 +20,7 @@ using namespace buffer_config;
 
 // In Bytes. Read it with: mmlsfs all -B on target machine.
 constexpr size_t GPFS_BLOCK_SIZE = 16777216;
+constexpr size_t MAX_IK_STORE = 8192;
 
 H5Writer::H5Writer(std::string detector_name)
     : detector_name_(std::move(detector_name))
@@ -110,7 +111,7 @@ void H5Writer::open_file(const string& output_file, const uint32_t n_images)
     throw runtime_error("Error in file access property list.");
   }
 
-  if (H5Pset_istore_k(fcpl_id, (GPFS_BLOCK_SIZE - 4096) / 96) < 0) {
+  if (H5Pset_istore_k(fcpl_id, MAX_IK_STORE) < 0) {
     throw runtime_error("Cannot set btree size.");
   }
 
