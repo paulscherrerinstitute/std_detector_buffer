@@ -18,6 +18,7 @@
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
+using namespace std::string_literals;
 
 namespace {
 constexpr auto zmq_io_threads = 1;
@@ -38,7 +39,8 @@ void* bind_sender_socket(void* ctx, const std::string& stream_address)
   return socket;
 }
 
-std::tuple<utils::DetectorConfig, std::string, int> read_arguments(int argc, char* argv[])
+std::tuple<utils::DetectorConfig, std::string, std::string, int> read_arguments(int argc,
+                                                                                char* argv[])
 {
   auto program = utils::create_parser("std_live_stream");
   program.add_argument("stream_address").help("address to bind the output stream");
@@ -48,6 +50,9 @@ std::tuple<utils::DetectorConfig, std::string, int> read_arguments(int argc, cha
     else
       return value;
   });
+  program.add_argument("-s", "--source_suffix")
+      .help("suffix for ipc source for ram_buffer - default \"image\"")
+      .default_value("image"s);
 
   program.add_argument("-f", "--forward")
       .help("forward all images")
@@ -60,31 +65,25 @@ std::tuple<utils::DetectorConfig, std::string, int> read_arguments(int argc, cha
     throw std::runtime_error(fmt::format("--data_rate and --forward can't be defined together"));
 
   return {utils::read_config_from_json_file(program.get("detector_json_filename")),
-          program.get("stream_address"),
+          program.get("stream_address"), program.get("--source_suffix"),
           program["--forward"] == true ? 0 : program.get<int>("data_rate")};
-}
-
-size_t update_size_for_pco(const std_daq_protocol::ImageMetadata& meta)
-{
-  return meta.height() * meta.width() * utils::get_bytes_from_metadata_dtype(meta.dtype());
 }
 
 } // namespace
 
 int main(int argc, char* argv[])
 {
-  const auto [config, stream_address, data_rate] = read_arguments(argc, argv);
+  const auto [config, stream_address, source_suffix, data_rate] = read_arguments(argc, argv);
   const auto data_period = data_rate == 0 ? 0ms : 1000ms / data_rate;
-  auto converted_bytes = utils::converted_image_n_bytes(config);
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
 
-  const auto source_name = fmt::format("{}-image", config.detector_name);
+  const auto source_name = fmt::format("{}-{}", config.detector_name, source_suffix);
 
-  auto receiver =
-      cb::Communicator{{source_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
-                       {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
+  auto receiver = cb::Communicator{
+      {source_name, utils::converted_image_n_bytes(config), buffer_config::RAM_BUFFER_N_SLOTS},
+      {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
   auto sender_socket = bind_sender_socket(ctx, stream_address);
   utils::BasicStatsCollector stats("std_live_stream", config.detector_name);
 
@@ -100,7 +99,6 @@ int main(int argc, char* argv[])
 
       if (const auto now = std::chrono::steady_clock::now(); prev_sent_time + data_period < now) {
         prev_sent_time = now;
-        if (config.detector_type == "pco") converted_bytes = update_size_for_pco(meta);
 
         auto encoded = fmt::format(
             R"({{"htype":"array-1.0", "shape":[{},{}], "type":"{}", "frame":{}}})", meta.height(),
@@ -108,7 +106,7 @@ int main(int argc, char* argv[])
         auto encoded_c = encoded.c_str();
 
         zmq_send(sender_socket, encoded_c, encoded.length(), ZMQ_SNDMORE);
-        zmq_send(sender_socket, image_data, converted_bytes, 0);
+        zmq_send(sender_socket, image_data, meta.size(), 0);
       }
     }
     stats.print_stats();
