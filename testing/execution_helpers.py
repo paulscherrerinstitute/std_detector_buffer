@@ -37,7 +37,6 @@ def run_command_in_parallel(command: str, sleep=1):
     try:
         process = subprocess.Popen(args=args, cwd=Path(__file__).parent)
         time.sleep(sleep)
-        # assert process.poll() is not None
         yield
     finally:
         if process:
