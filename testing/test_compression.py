@@ -6,7 +6,6 @@ import pytest
 import zmq
 import zmq.asyncio
 import numpy as np
-import copy
 
 from std_buffer.gigafrost.data import GigafrostConfigConverter, get_converter_buffer_data
 from testing.fixtures import test_path
@@ -28,8 +27,7 @@ async def test_compression(test_path):
     metadata.height = 2016
     metadata.dtype = daq_proto.ImageMetadataDtype.uint16
 
-    config = copy.copy(GigafrostConfigConverter)
-    config.socket_name = 'GF2-image'
+    config = GigafrostConfigConverter()
 
     with start_publisher_communication(ctx, config) as (input_buffer, pub_socket):
         with run_command_in_parallel(compression_cmd):
@@ -58,10 +56,10 @@ async def test_compression(test_path):
 
 
 async def get_decoded_data(metadata, output_buffer):
-    slot_start = metadata.image_id * GigafrostConfigConverter.data_bytes_per_packet
-    compressed_data = output_buffer[slot_start:slot_start + GigafrostConfigConverter.data_bytes_per_packet]
+    slot_start = metadata.image_id * GigafrostConfigConverter().data_bytes_per_packet
+    compressed_data = output_buffer[slot_start:slot_start + GigafrostConfigConverter().data_bytes_per_packet]
     data = np.frombuffer(compressed_data, dtype=np.uint16)
-    return bitshuffle.decompress_lz4(data, (int(GigafrostConfigConverter.data_bytes_per_packet/2),), np.dtype('u2'))
+    return bitshuffle.decompress_lz4(data, (int(GigafrostConfigConverter().data_bytes_per_packet/2),), np.dtype('u2'))
 
 
 async def send_receive(metadata, pub_socket, sub_socket):

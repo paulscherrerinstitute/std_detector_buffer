@@ -2,6 +2,7 @@ import shlex
 import shutil
 import subprocess
 import time
+import asyncio
 from pathlib import Path
 from contextlib import contextmanager
 
@@ -36,6 +37,7 @@ def run_command_in_parallel(command: str, sleep=1):
     try:
         process = subprocess.Popen(args=args, cwd=Path(__file__).parent)
         time.sleep(sleep)
+        # assert process.poll() is not None
         yield
     finally:
         if process:
@@ -75,7 +77,7 @@ async def send_receive(pub_socket: zmq.asyncio.Socket, slot: int, sub_socket: zm
     time.sleep(0.1)
     await pub_socket.send(np.array([slot], dtype='i8'))
     time.sleep(0.1)
-    return await msg
+    return await asyncio.wait_for(msg, timeout=3)
 
 
 async def send_receive_proto(pub_socket: zmq.asyncio.Socket, slot: int, sub_socket: zmq.asyncio.Socket):

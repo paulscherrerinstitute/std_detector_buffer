@@ -24,7 +24,7 @@ async def test_send_live_stream(test_path):
     metadata.height = 2016
     metadata.dtype = daq_proto.ImageMetadataDtype.uint16
 
-    config = GigafrostConfigConverter
+    config = GigafrostConfigConverter()
     config.socket_name = 'GF2-image'
 
     with start_publisher_communication(ctx, config) as (input_buffer, pub_socket):

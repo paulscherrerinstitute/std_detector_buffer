@@ -13,6 +13,7 @@ EG_GAPPIXELS_BETWEEN_MODULES_Y = 36
 MODULE_X_SIZE = 256
 MODULE_Y_SIZE = 512
 
+
 class EgUdpPacket(Structure):
     _pack_ = 1
     _fields_ = [
@@ -32,7 +33,6 @@ class EgUdpPacket(Structure):
     ]
 
 
-
 class EGFrame(Structure):
     _pack_ = 1
     _fields_ = [("frame_index", c_uint64),
@@ -43,7 +43,7 @@ class EGFrame(Structure):
                 ("exptime", c_uint32)]
 
     def __str__(self):
-        return f"frame_index: {self.frame_index} "\
+        return f"frame_index: {self.frame_index} " \
                f"bit_depth: {self.bit_depth} " \
                f"n_missing_packets: {self.n_missing_packets} " \
                f"exptime: {self.exptime}"
@@ -59,23 +59,23 @@ def eg_udp_packet_to_frame(packet, module_n_x_pixels, module_n_y_pixels, frame_n
     meta.frame_index = packet.frame_num
 
     meta.frame_timestamp = packet.timestamp
-    
+
     meta.bit_depth = bit_depth
     meta.row = packet.row
     meta.column = packet.column
 
     return meta
 
-def calculate_udp_packet_info(image_width, image_height, bit_depth, n_modules):
 
+def calculate_udp_packet_info(image_width, image_height, bit_depth, n_modules):
     image_size_bytes = (image_width * image_height * bit_depth) / 8
     num_packets = image_size_bytes / EG_MAX_PAYLOAD
 
     pixel_size = bit_depth // 8  # Calculate pixel size in bytes
-    pixels_per_packet = EG_MAX_PAYLOAD // pixel_size 
+    pixels_per_packet = EG_MAX_PAYLOAD // pixel_size
     total_pixels = image_width * image_height
-    total_packets = (total_pixels * bit_depth) // EG_MAX_PAYLOAD  // 8
-    
+    total_packets = (total_pixels * bit_depth) // EG_MAX_PAYLOAD // 8
+
     image_size_bytes = (image_width * image_height * bit_depth) // 8
 
     num_packets = int(image_size_bytes / EG_MAX_PAYLOAD)
@@ -86,9 +86,6 @@ def calculate_udp_packet_info(image_width, image_height, bit_depth, n_modules):
     last_packet_starting_row = (total_packets - 1) * pixels_per_packet // image_width
     last_packet_n_rows = image_height % pixels_per_packet
 
-    
-
-
     packet_info = {
         'packet_n_data_bytes': EG_MAX_PAYLOAD,
         'last_packet_starting_row': last_packet_starting_row,
@@ -96,38 +93,44 @@ def calculate_udp_packet_info(image_width, image_height, bit_depth, n_modules):
         'packet_n_rows': pixels_per_packet // image_width,
         'last_packet_n_rows': last_packet_n_rows,
         'last_packet_n_data_bytes': last_packet_n_data_bytes,
-        'total_img_size':image_size_bytes
+        'total_img_size': image_size_bytes
     }
     return packet_info
 
 
 class EigerConfigUdp:
-    id = 0
-    name = f'EG05M-{id}'
-    udp_port_base = 50020
-    data_bytes_per_packet = 512 * 256 * 2
-    # packets_per_frame = 128
-    slots = 10  # should be 1000 but for testing purposes 10 is enough
-    buffer_size = data_bytes_per_packet * slots
+    def __init__(self):
+        self.id = 0
+        self.name = f'EG05M-{self.id}'
+        self.udp_port_base = 50020
+        self.data_bytes_per_packet = 512 * 256 * 2
+        self.slots = 10  # should be 1000 but for testing purposes 10 is enough
+        self.buffer_size = self.data_bytes_per_packet * self.slots
+
 
 class EigerConfigConverter:
-    id = EigerConfigUdp.id
-    converter_index = 0
-    name = 'EG05M-image'
-    socket_name = 'EG05M-sync'
-    data_bytes_per_packet = (4 * EigerConfigUdp.data_bytes_per_packet) + (12 * 514) + (4 * 1024)
-    udp_port_base = EigerConfigUdp.udp_port_base
-    slots = EigerConfigUdp.slots
-    buffer_size = data_bytes_per_packet * slots
+    def __init__(self):
+        udp = EigerConfigUdp()
+        self.id = udp.id
+        self.converter_index = 0
+        self.name = 'EG05M-image'
+        self.socket_name = 'EG05M-sync'
+        self.data_bytes_per_packet = (4 * udp.data_bytes_per_packet) + (12 * 514) + (4 * 1024)
+        self.udp_port_base = udp.udp_port_base
+        self.slots = udp.slots
+        self.buffer_size = self.data_bytes_per_packet * self.slots
+
 
 def get_converter_buffer_data(buffer: memoryview, slot: int) -> np.ndarray:
-    slot_start = slot * EigerConfigConverter.data_bytes_per_packet
-    data_of_slot = buffer[slot_start:slot_start + EigerConfigConverter.data_bytes_per_packet]
-    return np.ndarray((int(EigerConfigConverter.data_bytes_per_packet / 2),), dtype='u2',
+    config_converter = EigerConfigConverter()
+    slot_start = slot * config_converter.data_bytes_per_packet
+    data_of_slot = buffer[slot_start:slot_start + config_converter.data_bytes_per_packet]
+    return np.ndarray((int(config_converter.data_bytes_per_packet / 2),), dtype='u2',
                       buffer=data_of_slot)
 
 
 def get_udp_packet_array(input_buffer: memoryview, slot: int) -> np.ndarray:
-    slot_start = slot * EigerConfigUdp.data_bytes_per_packet
-    data_of_slot = input_buffer[slot_start:slot_start + EigerConfigUdp.data_bytes_per_packet]
-    return np.ndarray((int(EigerConfigUdp.data_bytes_per_packet),), dtype='i1', buffer=data_of_slot)
+    config_udp = EigerConfigUdp()
+    slot_start = slot * config_udp.data_bytes_per_packet
+    data_of_slot = input_buffer[slot_start:slot_start + config_udp.data_bytes_per_packet]
+    return np.ndarray((int(config_udp.data_bytes_per_packet / 2),), dtype='i2', buffer=data_of_slot)
