@@ -68,9 +68,10 @@ int main(int argc, char* argv[])
 
   const auto element_size = config.bit_depth / 8;
   const auto block_size = 0;
+
   const size_t header_n_bytes = 12;
-  const int64_t header_image_n_bytes = __builtin_bswap64(static_cast<int64_t>(image_n_bytes));
-  const int32_t header_block_size = __builtin_bswap32(static_cast<int32_t>(block_size * element_size));
+  const auto header_image_n_bytes = __builtin_bswap64(static_cast<int64_t>(image_n_bytes));
+  const auto header_block_size = __builtin_bswap32(static_cast<int32_t>(block_size * element_size));
 
   while (true) {
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
@@ -78,9 +79,9 @@ int main(int argc, char* argv[])
       if (meta.status() == std_daq_protocol::good_image) {
         stats.processing_started();
 
-        char* compression_buffer = receiver.get_data(meta.image_id());
+        char* compression_buffer = sender.get_data(meta.image_id());
         
-        // How bithusffle + LZ4 HDF5 filter sets the header.. talk to them.
+        // How bithusffle + LZ4 HDF5 filter sets the header - needed to decompress HDF5 with filters.
         // https://github.com/kiyo-masui/bitshuffle/blob/04e58bd553304ec26e222654f1d9b6ff64e97d10/src/bshuf_h5filter.c#L166C13-L167C80
         std::memcpy(compression_buffer + 0, &header_image_n_bytes, 8);
         std::memcpy(compression_buffer + 8, &header_block_size, 4);
