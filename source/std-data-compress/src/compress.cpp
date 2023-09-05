@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
 
   const auto source_name = fmt::format("{}-image", config.detector_name);
-  const auto sink_name = fmt::format("{}-compressed", config.detector_name);
+  const auto sink_name = fmt::format("{}-h5bitshuffle-lz4", config.detector_name);
 
   auto receiver =
       cb::Communicator{{source_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
