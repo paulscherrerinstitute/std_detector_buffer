@@ -24,11 +24,18 @@ public:
 
   [[nodiscard]] virtual std::string additional_message()
   {
-    auto ratio = (double)compressed_size / ((double)compressed_images * (double)image_size);
+    double ratio = calculate_ratio();
     auto outcome = fmt::format("compressed_images={},ratio={}", compressed_images, ratio);
     compressed_images = 0;
     compressed_size = 0;
     return outcome;
+  }
+
+  [[nodiscard]] double calculate_ratio() const
+  {
+    if (compressed_images > 0)
+      return (double)compressed_size / ((double)compressed_images * (double)image_size);
+    return 0.0;
   }
 
   void processing_finished(int compressed)
