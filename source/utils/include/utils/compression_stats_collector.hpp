@@ -10,15 +10,17 @@
 
 #include <fmt/core.h>
 
-#include "utils/stats_collector.hpp"
+#include "stats_collector.hpp"
 
-class CompressionStatsCollector : public utils::StatsCollector<CompressionStatsCollector>
+namespace utils {
+
+class CompressionStatsCollector : public StatsCollector<CompressionStatsCollector>
 {
 public:
   explicit CompressionStatsCollector(std::string_view prog_name,
                                      std::string_view detector_name,
                                      std::size_t image_size)
-      : utils::StatsCollector<CompressionStatsCollector>(prog_name, detector_name)
+      : StatsCollector<CompressionStatsCollector>(prog_name, detector_name)
       , image_size(image_size)
   {}
 
@@ -44,7 +46,7 @@ public:
       compressed_images++;
       compressed_size += compressed;
     }
-    static_cast<utils::StatsCollector<CompressionStatsCollector>*>(this)->processing_finished();
+    static_cast<StatsCollector<CompressionStatsCollector>*>(this)->processing_finished();
   }
 
 private:
@@ -52,5 +54,7 @@ private:
   std::size_t compressed_images = 0;
   std::size_t compressed_size = 0;
 };
+
+} // namespace utils
 
 #endif // STD_DETECTOR_BUFFER_COMPRESSION_STATS_COLLECTOR_HPP

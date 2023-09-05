@@ -17,6 +17,7 @@ target_sources(${PROJECT_NAME}
         include/utils/image_size_calc.hpp
         include/utils/detector_config.hpp
         include/utils/get_metadata_dtype.hpp
+        include/utils/compression_stats_collector.hpp
         include/utils/module_stats_collector.hpp
         include/utils/stats_collector.hpp
         include/utils/sync_stats_collector.hpp
