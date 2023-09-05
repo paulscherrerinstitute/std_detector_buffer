@@ -28,9 +28,10 @@ enum ImageMetadataDtype {
 
 enum ImageMetadataStatus {
   good_image=0;
-  compressed_image=1;
-  missing_packets=2;
-  id_missmatch=3;
+  compressed_h5bsh_lz4=1;
+  compressed_blosc2=2;
+  missing_packets=3;
+  id_missmatch=4;
 };
 
 message ImageMetadata {

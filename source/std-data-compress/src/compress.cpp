@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
         stats.processing_started();
 
         char* compression_buffer = sender.get_data(meta.image_id());
-        
+
         // How bithusffle + LZ4 HDF5 filter sets the header - needed to decompress HDF5 with filters.
         // https://github.com/kiyo-masui/bitshuffle/blob/04e58bd553304ec26e222654f1d9b6ff64e97d10/src/bshuf_h5filter.c#L166C13-L167C80
         std::memcpy(compression_buffer + 0, &header_image_n_bytes, 8);
@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
 
         if (size > 0) {
           meta.set_size(size + header_n_bytes);
-          meta.set_status(std_daq_protocol::compressed_image);
+          meta.set_status(std_daq_protocol::compressed_h5bsh_lz4);
 
           std::string meta_buffer_send;
           meta.SerializeToString(&meta_buffer_send);
