@@ -5,7 +5,6 @@ project(std_det_writer)
 find_package(date REQUIRED)
 find_package(fmt REQUIRED)
 find_package(ZeroMQ REQUIRED)
-find_package(nlohmann_json REQUIRED)
 find_package(HDF5 REQUIRED)
 
 add_library(${PROJECT_NAME}_lib)
@@ -15,7 +14,6 @@ target_include_directories(${PROJECT_NAME}_lib PUBLIC include)
 
 target_link_libraries(${PROJECT_NAME}_lib
     PUBLIC
-        nlohmann_json::nlohmann_json
         hdf5::hdf5
         std_daq_interface::std_daq_interface
     PRIVATE
@@ -41,7 +39,6 @@ target_link_libraries(${PROJECT_NAME}
         fmt::fmt
         date::date
         ZeroMQ::ZeroMQ
-        nlohmann_json::nlohmann_json
         utils::utils
         hdf5::hdf5
 #        MPI::MPI_CXX

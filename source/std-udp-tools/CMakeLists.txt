@@ -4,7 +4,6 @@ project(std_udp_tools)
 find_package(Threads REQUIRED)
 find_package(ZeroMQ REQUIRED)
 find_package(date REQUIRED)
-find_package(nlohmann_json REQUIRED)
 find_package(fmt REQUIRED)
 
 add_executable(${PROJECT_NAME}_dump src/std_udp_dump.cpp)

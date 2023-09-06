@@ -4,7 +4,6 @@ project(std_data_compress_blosc2)
 find_package(fmt REQUIRED)
 find_package(Threads REQUIRED)
 find_package(ZeroMQ REQUIRED)
-find_package(nlohmann_json REQUIRED)
 find_package(c-blosc2 REQUIRED)
 
 add_executable(${PROJECT_NAME})
