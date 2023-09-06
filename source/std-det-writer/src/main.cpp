@@ -2,33 +2,27 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#include <iostream>
 #include <string>
 #include <unistd.h>
 
 #include <zmq.h>
-//#include <mpi.h>
-#include <rapidjson/document.h>
 #include <fmt/core.h>
 
-#include "core_buffer/buffer_utils.hpp"
 #include "utils/args.hpp"
+#include "utils/detector_config.hpp"
 
-#include "live_writer_config.hpp"
 #include "WriterStats.hpp"
 #include "H5Writer.hpp"
-#include "DetWriterConfig.hpp"
 #include "core_buffer/ram_buffer.hpp"
 
 #include "std_buffer/writer_command.pb.h"
 
 using namespace std;
-using namespace live_writer_config;
 
+void* create_socket(void* ctx, const std::string& ipc_address, const int zmq_socket_type)
+{
 
-void* create_socket(void *ctx, const std::string ipc_address, const int zmq_socket_type) {
-
-  void *socket = zmq_socket(ctx, zmq_socket_type);
+  void* socket = zmq_socket(ctx, zmq_socket_type);
   if (socket == nullptr)
     throw runtime_error(std::string("Cannot create socket: ") + zmq_strerror(errno));
 
@@ -44,8 +38,8 @@ void* create_socket(void *ctx, const std::string ipc_address, const int zmq_sock
     const int timeout = 1000;
     if (zmq_setsockopt(socket, ZMQ_RCVTIMEO, &timeout, sizeof(timeout)) != 0)
       throw runtime_error(std::string("Cannot set timeout: ") + zmq_strerror(errno));
-
-  } else {
+  }
+  else {
     const int sndhwm = 10000;
     if (zmq_setsockopt(socket, ZMQ_SNDHWM, &sndhwm, sizeof(sndhwm)) != 0)
       throw runtime_error(std::string("Cannot set SNDHWM:") + zmq_strerror(errno));
@@ -56,8 +50,7 @@ void* create_socket(void *ctx, const std::string ipc_address, const int zmq_sock
     throw runtime_error(std::string("Cannot set linger: ") + zmq_strerror(errno));
 
   const auto ipc = std::string("ipc:///tmp/") + ipc_address;
-  if (zmq_connect(socket, ipc.c_str()) != 0)
-    throw runtime_error(zmq_strerror(errno));
+  if (zmq_connect(socket, ipc.c_str()) != 0) throw runtime_error(zmq_strerror(errno));
 
   return socket;
 }
@@ -66,13 +59,14 @@ int main(int argc, char* argv[])
 {
   auto program = utils::create_parser("std_det_writer");
   program = utils::parse_arguments(program, argc, argv);
-  const auto config = converter::from_json_file(program.get("detector_json_filename"));
-  const size_t image_n_bytes = config.image_width * config.image_height * config.bit_depth / 8;
+  const auto config = utils::read_config_from_json_file(program.get("detector_json_filename"));
+  const size_t image_n_bytes =
+      config.image_pixel_width * config.image_pixel_height * config.bit_depth / 8;
 
-//  MPI_Init(nullptr, nullptr);
+  //  MPI_Init(nullptr, nullptr);
   int n_writers{1};
   int i_writer{0};
-//  MPI_Comm_size(MPI_COMM_WORLD, &n_writers);
+  //  MPI_Comm_size(MPI_COMM_WORLD, &n_writers);
 
   H5Writer writer(config.detector_name);
   WriterStats stats(config.detector_name, image_n_bytes);
@@ -96,7 +90,7 @@ int main(int argc, char* argv[])
   status.set_i_writer(i_writer);
   status.set_n_writers(n_writers);
 
-  const auto process_exception = [&](std::string message){
+  const auto process_exception = [&](std::string message) {
     status.set_command_type(std_daq_protocol::CommandType::STOP_WRITING);
     status.set_error_message("ERROR: " + message);
     status.SerializeToString(&status_buffer_send);
@@ -134,9 +128,10 @@ int main(int argc, char* argv[])
                  n_images);
 
       try {
-        writer.open_run(output_file, run_id, n_images, config.image_height, config.image_width,
-                        config.bit_depth);
-      } catch(const std::exception& ex) {
+        writer.open_run(output_file, run_id, n_images, config.image_pixel_height,
+                        config.image_pixel_width, config.bit_depth);
+      }
+      catch (const std::exception& ex) {
         process_exception(ex.what());
         continue;
       }
@@ -159,9 +154,10 @@ int main(int argc, char* argv[])
       try {
         writer.close_run(highest_run_image_index);
 
-        if ((uint32_t)n_images != highest_run_image_index+1) {
+        if ((uint32_t)n_images != highest_run_image_index + 1) {
           status.set_error_message("Interrupted.");
-        } else {
+        }
+        else {
           status.set_error_message("Completed.");
         }
 
@@ -169,7 +165,8 @@ int main(int argc, char* argv[])
         status.set_i_image(0);
         status.SerializeToString(&status_buffer_send);
         zmq_send(status_sender, status_buffer_send.c_str(), status_buffer_send.size(), 0);
-      } catch (const std::exception& ex) {
+      }
+      catch (const std::exception& ex) {
         process_exception(ex.what());
       }
       current_run_id = -1;
@@ -190,9 +187,10 @@ int main(int argc, char* argv[])
 
     // Fair distribution of images among writers.
     if (i_image % n_writers == (uint)i_writer) {
-      #ifdef DEBUG_OUTPUT
-      fmt::print("i_writer={} i_image={} image_id={} run_id={}\n", i_writer, i_image, image_id, run_id);
-      #endif
+#ifdef DEBUG_OUTPUT
+      fmt::print("i_writer={} i_image={} image_id={} run_id={}\n", i_writer, i_image, image_id,
+                 run_id);
+#endif
 
       stats.start_image_write();
       writer.write_data(run_id, i_image, data_size, data);
@@ -206,7 +204,7 @@ int main(int argc, char* argv[])
 
     // Only the first instance writes metadata.
     if (i_writer == 0) {
-       writer.write_meta(run_id, i_image, command.metadata());
+      writer.write_meta(run_id, i_image, command.metadata());
     }
   }
 }

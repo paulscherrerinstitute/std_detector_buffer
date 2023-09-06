@@ -17,8 +17,9 @@ namespace {
 DetectorConfig read_config(const rapidjson::Document& doc)
 {
   static const std::string required_parameters[] = {
-      "detector_name",      "detector_type",     "n_modules",      "bit_depth",
-      "image_pixel_height", "image_pixel_width", "start_udp_port", "module_positions"};
+      "detector_name",  "detector_type",      "n_modules",
+      "bit_depth",      "image_pixel_height", "image_pixel_width",
+      "start_udp_port", "module_positions",   "writer_user_id"};
 
   for (auto& s : required_parameters)
     if (!doc.HasMember(s.c_str()))
@@ -36,6 +37,7 @@ DetectorConfig read_config(const rapidjson::Document& doc)
           doc["image_pixel_height"].GetInt(),
           doc["image_pixel_width"].GetInt(),
           static_cast<uint16_t>(doc["start_udp_port"].GetUint()),
+          doc["writer_user_id"].GetInt(),
           std::move(modules)};
 }
 } // namespace
@@ -69,7 +71,7 @@ Point get_module_end_position(const DetectorConfig& config, module_id id)
 modules_mask get_modules_mask(const DetectorConfig& config)
 {
   modules_mask m;
-  for(auto [key, _] : config.modules)
+  for (auto [key, _] : config.modules)
     m.set(key % config.n_modules);
   return m;
 }

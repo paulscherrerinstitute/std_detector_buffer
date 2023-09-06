@@ -29,6 +29,7 @@ struct DetectorConfig
   const int image_pixel_height;
   const int image_pixel_width;
   const uint16_t start_udp_port;
+  const int writer_user_id;
   const std::unordered_map<module_id, std::pair<Point, Point>> modules;
 
   friend std::ostream& operator<<(std::ostream& os, DetectorConfig const& det_config)
@@ -36,7 +37,7 @@ struct DetectorConfig
     return os << det_config.detector_name << ' ' << det_config.detector_type << ' '
               << det_config.n_modules << ' ' << det_config.bit_depth << ' '
               << det_config.image_pixel_height << ' ' << det_config.image_pixel_width << ' '
-              << det_config.start_udp_port << ' ';
+              << det_config.start_udp_port << ' ' << det_config.writer_user_id;
   }
 };
 
