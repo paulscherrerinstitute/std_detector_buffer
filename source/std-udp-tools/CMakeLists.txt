@@ -15,7 +15,6 @@ target_link_libraries(${PROJECT_NAME}_dump
         ZeroMQ::ZeroMQ
         core_buffer::core_buffer
         utils::utils
-        std_udp_recv::std_udp_recv_lib
         fmt::fmt
         rt
         std_detector_buffer::settings
@@ -27,7 +26,6 @@ target_link_libraries(${PROJECT_NAME}_replay
         ZeroMQ::ZeroMQ
         core_buffer::core_buffer
         utils::utils
-        std_udp_recv::std_udp_recv_lib
         fmt::fmt
         rt
         std_detector_buffer::settings
