@@ -3,16 +3,15 @@
 /////////////////////////////////////////////////////////////////////
 
 #include <netinet/in.h>
-#include <unistd.h>
-#include <cstdint>
+#include <fstream>
 #include <iostream>
 #include <thread>
 #include <vector>
 
 #include <fmt/core.h>
 
-#include "udp_recv_config.hpp"
-
+#include "utils/args.hpp"
+#include "utils/detector_config.hpp"
 
 // Since jumbo frames are 9000, there should be no packet larger than that.
 const int UDP_BUFFER_MAX_SIZE = 1024 * 10;
@@ -48,8 +47,8 @@ int bind_udp_socket(uint16_t udp_port)
     throw runtime_error("Cannot set SO_RCVBUF. " + string(strerror(errno)));
   };
 
-  auto bind_result = ::bind(socket_fd, reinterpret_cast<const sockaddr*>(&server_address),
-                            sizeof(server_address));
+  auto bind_result =
+      ::bind(socket_fd, reinterpret_cast<const sockaddr*>(&server_address), sizeof(server_address));
 
   if (bind_result < 0) {
     throw runtime_error("Cannot bind socket.");
@@ -62,7 +61,7 @@ void receive_and_dump(uint16_t udp_port, atomic_bool& run)
 {
   auto socket_fd = bind_udp_socket(udp_port);
   const auto file_name = fmt::format("{}.dat", udp_port);
-  ofstream file (file_name, ios::out | ios::binary);
+  ofstream file(file_name, ios::out | ios::binary);
 
   char* buffer = new char[UDP_BUFFER_MAX_SIZE];
   size_t n_packets = 0;
@@ -95,28 +94,19 @@ void receive_and_dump(uint16_t udp_port, atomic_bool& run)
   delete[] buffer;
 }
 
-
 int main(int argc, char** argv)
 {
-
-  if (argc != 2) {
-    cout << endl;
-    cout << "Usage: std_udp_tools_dump [detector_json_filename]";
-    cout << endl;
-    cout << "\tdetector_json_filename: detector config file path." << endl;
-    cout << endl;
-    exit(-1);
-  }
-
-  const auto config = UdpRecvConfig::from_json_file(string(argv[1]));
+  auto program = utils::create_parser("std_live_stream");
+  program = utils::parse_arguments(program, argc, argv);
+  const auto config = utils::read_config_from_json_file(program.get("detector_json_filename"));
 
   std::vector<std::thread> threads;
   atomic_bool running(true);
 
-  fmt::print("Starting UDP dump for detector {} with n_modules {}\n",
-             config.detector_name, config.n_modules);
+  fmt::print("Starting UDP dump for detector {} with n_modules {}\n", config.detector_name,
+             config.n_modules);
 
-  for (int i=0; i<config.n_modules; i++) {
+  for (int i = 0; i < config.n_modules; i++) {
     auto udp_port = config.start_udp_port + i;
     threads.emplace_back(receive_and_dump, udp_port, std::ref(running));
   }

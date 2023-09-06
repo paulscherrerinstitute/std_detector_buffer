@@ -14,19 +14,21 @@ target_link_libraries(${PROJECT_NAME}_dump
     PRIVATE
         ZeroMQ::ZeroMQ
         core_buffer::core_buffer
+        utils::utils
         std_udp_recv::std_udp_recv_lib
         fmt::fmt
         rt
         std_detector_buffer::settings
-        )
+)
 
 add_executable(${PROJECT_NAME}_replay src/std_udp_replay.cpp)
 target_link_libraries(${PROJECT_NAME}_replay
-        PRIVATE
+    PRIVATE
         ZeroMQ::ZeroMQ
         core_buffer::core_buffer
+        utils::utils
         std_udp_recv::std_udp_recv_lib
         fmt::fmt
         rt
         std_detector_buffer::settings
-        )
+)
