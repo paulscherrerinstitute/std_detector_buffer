@@ -6,7 +6,6 @@
 #include <omp.h>
 #include <fmt/core.h>
 #include <bitshuffle/bitshuffle.h>
-#include <bitshuffle/bitshuffle.h>
 
 #include "core_buffer/communicator.hpp"
 #include "core_buffer/ram_buffer.hpp"
@@ -19,7 +18,7 @@
 namespace {
 constexpr auto zmq_io_threads = 1;
 
-std::tuple<utils::DetectorConfig, int> read_arguments(int argc, char* argv[])
+std::tuple<utils::DetectorConfig, int, int> read_arguments(int argc, char* argv[])
 {
   auto program = utils::create_parser("std_data_compress_h5bitshuffle_lz4");
   program.add_argument("-t", "--threads")
@@ -31,21 +30,27 @@ std::tuple<utils::DetectorConfig, int> read_arguments(int argc, char* argv[])
           return value;
       })
       .required();
+  program.add_argument("-b", "--block_size")
+      .help("block size in bytes")
+      .action([](const std::string& arg) {
+        if (auto value = std::stoi(arg); value < 0)
+          throw std::runtime_error("block size must be greater than or equal 0 ...");
+        else
+           return value;
+      })
+      .default_value(0);
 
   program = utils::parse_arguments(program, argc, argv);
 
   return {utils::read_config_from_json_file(program.get("detector_json_filename")),
-          program.get<int>("--threads")};
+          program.get<int>("--threads"), program.get<int>("--block_size")};
 }
 
 } // namespace
 
 int main(int argc, char* argv[])
 {
-  const auto [config, threads] = read_arguments(argc, argv);
-  const size_t image_n_bytes =
-      config.image_pixel_width * config.image_pixel_height * config.bit_depth / 8;
-
+  const auto [config, threads, block_size] = read_arguments(argc, argv);
   omp_set_num_threads(threads);
   auto converted_bytes = utils::converted_image_n_bytes(config);
 
@@ -67,11 +72,10 @@ int main(int argc, char* argv[])
   std_daq_protocol::ImageMetadata meta;
 
   const auto element_size = config.bit_depth / 8;
-  const auto block_size = 0;
 
   const size_t header_n_bytes = 12;
-  const auto header_image_n_bytes = __builtin_bswap64(static_cast<int64_t>(image_n_bytes));
-  const auto header_block_size = __builtin_bswap32(static_cast<int32_t>(block_size * element_size));
+  const auto header_image_n_bytes = htobe64(static_cast<int64_t>(converted_bytes));
+  const auto header_block_size = htobe32(static_cast<int32_t>(block_size / element_size));
 
   while (true) {
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
