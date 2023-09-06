@@ -5,11 +5,8 @@
 #include "buffer_utils.hpp"
 
 #include <iostream>
-#include <fstream>
 #include <stdexcept>
 
-#include <rapidjson/istreamwrapper.h>
-#include <rapidjson/document.h>
 #include <zmq.h>
 #include <fmt/core.h>
 

@@ -19,5 +19,5 @@ target_link_libraries(${PROJECT_NAME}_tests
 
 sbd_add_uts(${PROJECT_NAME}_tests)
 
-find_package(RapidJSON REQUIRED)
+find_package(nlohmann_json REQUIRED)
 find_package(fmt REQUIRED)

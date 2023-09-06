@@ -4,7 +4,7 @@ project(std_udp_recv)
 find_package(fmt REQUIRED)
 find_package(date REQUIRED)
 find_package(ZeroMQ REQUIRED)
-find_package(RapidJSON REQUIRED)
+find_package(nlohmann_json REQUIRED)
 
 add_library(${PROJECT_NAME}_lib)
 add_library(${PROJECT_NAME}::${PROJECT_NAME}_lib ALIAS ${PROJECT_NAME}_lib)
@@ -20,7 +20,7 @@ target_link_libraries(${PROJECT_NAME}_lib
     PUBLIC
         core_buffer::core_buffer
         detectors::detectors
-        RapidJSON::RapidJSON
+        nlohmann_json::nlohmann_json
     PRIVATE
         date::date
         ZeroMQ::ZeroMQ

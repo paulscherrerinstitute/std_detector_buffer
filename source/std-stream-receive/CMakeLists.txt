@@ -4,7 +4,7 @@ project(std_stream_receive)
 find_package(fmt REQUIRED)
 find_package(Threads REQUIRED)
 find_package(ZeroMQ REQUIRED)
-find_package(RapidJSON REQUIRED)
+find_package(nlohmann_json REQUIRED)
 
 add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME}

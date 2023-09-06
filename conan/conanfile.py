@@ -6,7 +6,7 @@ class SBD(ConanFile):
     requires = [
         "zeromq/4.3.4",
         "gtest/1.13.0",
-        "rapidjson/cci.20220822",
+        "nlohmann_json/3.11.2",
         "lz4/1.9.4",
         "date/3.0.1",
         "range-v3/0.12.0",

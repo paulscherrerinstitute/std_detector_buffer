@@ -4,7 +4,7 @@ project(core_buffer)
 find_package(date REQUIRED)
 find_package(ZeroMQ REQUIRED)
 find_package(fmt REQUIRED)
-find_package(RapidJSON REQUIRED)
+find_package(nlohmann_json REQUIRED)
 
 add_library(${PROJECT_NAME})
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
@@ -24,7 +24,7 @@ target_link_libraries(${PROJECT_NAME}
         bitshuffle::bitshuffle
         fmt::fmt
         date::date
-        RapidJSON::RapidJSON
+        nlohmann_json::nlohmann_json
         detectors::detectors
         std_detector_buffer::settings
 )

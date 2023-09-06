@@ -4,7 +4,7 @@ project(std_data_compress_h5bitshuffle_lz4)
 find_package(fmt REQUIRED)
 find_package(Threads REQUIRED)
 find_package(ZeroMQ REQUIRED)
-find_package(RapidJSON REQUIRED)
+find_package(nlohmann_json REQUIRED)
 find_package(OpenMP REQUIRED)
 
 add_executable(${PROJECT_NAME})

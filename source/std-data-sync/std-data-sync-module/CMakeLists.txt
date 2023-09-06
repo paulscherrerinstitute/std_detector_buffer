@@ -3,7 +3,7 @@ project(std_data_sync_module)
 
 find_package(date REQUIRED)
 find_package(fmt REQUIRED)
-find_package(RapidJSON REQUIRED)
+find_package(nlohmann_json REQUIRED)
 find_package(Threads REQUIRED)
 find_package(ZeroMQ REQUIRED)
 
@@ -26,7 +26,7 @@ target_link_libraries(${PROJECT_NAME}_lib
         detectors::detectors
     PRIVATE
         date::date
-        RapidJSON::RapidJSON
+        nlohmann_json::nlohmann_json
         ZeroMQ::ZeroMQ
         std_detector_buffer::settings
 )
@@ -39,7 +39,7 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE
         ${PROJECT_NAME}_lib
         ZeroMQ::ZeroMQ
-        RapidJSON::RapidJSON
+        nlohmann_json::nlohmann_json
         Threads::Threads
         utils::utils
         std_daq_interface::std_daq_interface

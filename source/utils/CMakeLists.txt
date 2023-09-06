@@ -3,7 +3,7 @@ project(utils)
 
 find_package(argparse REQUIRED)
 find_package(fmt REQUIRED)
-find_package(RapidJSON REQUIRED)
+find_package(nlohmann_json REQUIRED)
 
 add_library(${PROJECT_NAME})
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
@@ -35,7 +35,7 @@ target_link_libraries(${PROJECT_NAME}
         std_daq_interface::std_daq_interface
         std_detector_buffer::settings
     PRIVATE
-        RapidJSON::RapidJSON
+        nlohmann_json::nlohmann_json
         detectors::detectors
 )
 
