@@ -18,6 +18,7 @@ TEST(DetectorConfig, ShouldReadModuleSettingsCorrectly)
 "image_pixel_height": 2016,
 "image_pixel_width": 2016,
 "start_udp_port": 50020,
+"writer_user_id": 1,
 "module_positions": { "0": [0, 1, 100, 101], "2": [1,2,3,4], "15": [5,6,7,8]}
 }
 )"""";
