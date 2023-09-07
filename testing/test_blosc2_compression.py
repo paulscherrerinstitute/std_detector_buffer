@@ -40,7 +40,7 @@ async def test_compression(test_path):
                 await send_receive(metadata, pub_socket, sub_socket)
 
                 assert metadata.image_id == 3
-                assert metadata.status == daq_proto.ImageMetadataStatus.compressed_blosc2
+                assert metadata.compression == daq_proto.ImageMetadataCompression.blosc2
                 decoded_data = await get_decoded_data(metadata, output_buffer)
 
                 for i in range(len(uncompressed_data)):

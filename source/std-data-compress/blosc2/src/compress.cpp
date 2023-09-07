@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
 
         if (compressed_size > 0) {
           meta.set_size(compressed_size);
-          meta.set_status(std_daq_protocol::compressed_blosc2);
+          meta.set_compression(std_daq_protocol::blosc2);
 
           std::string meta_buffer_send;
           meta.SerializeToString(&meta_buffer_send);

@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
 
         if (size > 0) {
           meta.set_size(size + header_n_bytes);
-          meta.set_status(std_daq_protocol::compressed_h5bsh_lz4);
+          meta.set_compression(std_daq_protocol::h5bitshuffle_lz4);
 
           std::string meta_buffer_send;
           meta.SerializeToString(&meta_buffer_send);

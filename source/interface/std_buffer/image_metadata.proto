@@ -28,10 +28,14 @@ enum ImageMetadataDtype {
 
 enum ImageMetadataStatus {
   good_image=0;
-  compressed_h5bsh_lz4=1;
-  compressed_blosc2=2;
-  missing_packets=3;
-  id_missmatch=4;
+  missing_packets=1;
+  id_missmatch=2;
+};
+
+enum ImageMetadataCompression {
+  none=0;
+  h5bitshuffle_lz4=1;
+  blosc2=2;
 };
 
 message ImageMetadata {
@@ -42,10 +46,11 @@ message ImageMetadata {
 
   ImageMetadataDtype dtype=5;
   ImageMetadataStatus status=6;
+  ImageMetadataCompression compression=7;
 
   oneof image_metadata {
-    GFImageMetadata gf = 7;
-    JFImageMetadata jf = 8;
-    EGImageMetadata eg = 9;
+    GFImageMetadata gf = 8;
+    JFImageMetadata jf = 9;
+    EGImageMetadata eg = 10;
   }
 }

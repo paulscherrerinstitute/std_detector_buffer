@@ -45,6 +45,7 @@ int main(int argc, char* argv[])
   image_meta.set_height(config.image_pixel_height);
   image_meta.set_width(config.image_pixel_width);
   image_meta.set_size(utils::converted_image_n_bytes(config));
+  image_meta.set_compression(std_daq_protocol::none);
 
   while (true) {
     if (zmq_recv(receiver, meta_buffer_recv, DET_FRAME_STRUCT_BYTES, 0) > 0) {
