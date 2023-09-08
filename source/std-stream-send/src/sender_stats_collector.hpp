@@ -10,15 +10,15 @@
 #include <string>
 #include <string_view>
 
-#include "utils/stats_collector.hpp"
+#include "utils/stats/stats_collector.hpp"
 
 namespace gf::send {
 
-class SenderStatsCollector : public utils::StatsCollector<SenderStatsCollector>
+class SenderStatsCollector : public utils::stats::StatsCollector<SenderStatsCollector>
 {
 public:
   explicit SenderStatsCollector(std::string_view detector_name, int part)
-      : utils::StatsCollector<SenderStatsCollector>("std_stream_send", detector_name)
+      : utils::stats::StatsCollector<SenderStatsCollector>("std_stream_send", detector_name)
       , image_part(part)
   {}
 
@@ -32,7 +32,7 @@ public:
   void processing_finished(std::size_t send_fails)
   {
     zmq_fails += send_fails;
-    static_cast<utils::StatsCollector<SenderStatsCollector>*>(this)->processing_finished();
+    static_cast<utils::stats::StatsCollector<SenderStatsCollector>*>(this)->processing_finished();
   }
 
 private:

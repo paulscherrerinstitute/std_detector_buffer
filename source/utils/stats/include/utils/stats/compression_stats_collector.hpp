@@ -12,7 +12,7 @@
 
 #include "stats_collector.hpp"
 
-namespace utils {
+namespace utils::stats {
 
 class CompressionStatsCollector : public StatsCollector<CompressionStatsCollector>
 {

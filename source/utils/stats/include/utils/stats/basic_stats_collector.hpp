@@ -7,13 +7,13 @@
 
 #include "stats_collector.hpp"
 
-namespace utils {
+namespace utils::stats {
 
-class BasicStatsCollector : public utils::StatsCollector<BasicStatsCollector>
+class BasicStatsCollector : public utils::stats::StatsCollector<BasicStatsCollector>
 {
 public:
   explicit BasicStatsCollector(std::string_view app_name, std::string_view detector_name)
-      : utils::StatsCollector<BasicStatsCollector>(app_name, detector_name)
+      : utils::stats::StatsCollector<BasicStatsCollector>(app_name, detector_name)
   {}
 
   static std::string additional_message() { return {}; }

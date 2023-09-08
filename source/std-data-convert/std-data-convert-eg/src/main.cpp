@@ -12,7 +12,7 @@
 #include "detectors/eiger.hpp"
 #include "utils/args.hpp"
 #include "utils/detector_config.hpp"
-#include "utils/module_stats_collector.hpp"
+#include "utils/stats/module_stats_collector.hpp"
 #include "converter.hpp"
 
 using namespace buffer_config;
@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
   const size_t converted_bytes = eg::converted_image_n_bytes(
       config.image_pixel_height, config.image_pixel_width, config.bit_depth);
 
-  utils::ModuleStatsCollector stats_collector("std_data_convert_eg", config.detector_name,
+  utils::stats::ModuleStatsCollector stats_collector("std_data_convert_eg", config.detector_name,
                                               module_id);
 
   auto ctx = zmq_ctx_new();
@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
   while (true) {
     auto [id, image] = receiver.receive(std::span<char>((char*)&meta, sizeof(meta)));
     if (id != INVALID_IMAGE_ID) {
-      utils::process_stats p{stats_collector};
+      utils::stats::process_stats p{stats_collector};
       converter.convert(std::span<char>(image, frame_n_bytes),
                         std::span<char>(sender.get_data(id), converted_bytes));
 

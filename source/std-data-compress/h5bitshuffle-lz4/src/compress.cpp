@@ -11,7 +11,7 @@
 #include "core_buffer/ram_buffer.hpp"
 #include "std_buffer/image_metadata.pb.h"
 #include "utils/args.hpp"
-#include "utils/compression_stats_collector.hpp"
+#include "utils/stats/compression_stats_collector.hpp"
 #include "utils/image_size_calc.hpp"
 #include "utils/detector_config.hpp"
 
@@ -36,7 +36,7 @@ std::tuple<utils::DetectorConfig, int, int> read_arguments(int argc, char* argv[
         if (auto value = std::stoi(arg); value < 0)
           throw std::runtime_error("block size must be greater than or equal 0 ...");
         else
-           return value;
+          return value;
       })
       .default_value(0);
 
@@ -66,8 +66,8 @@ int main(int argc, char* argv[])
   auto sender = cb::Communicator{{sink_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
                                  {sink_name, ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
 
-  utils::CompressionStatsCollector stats("std_data_compress_h5bitshuffle_lz4", config.detector_name,
-                                         converted_bytes);
+  utils::stats::CompressionStatsCollector stats("std_data_compress_h5bitshuffle_lz4",
+                                                config.detector_name, converted_bytes);
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;
 

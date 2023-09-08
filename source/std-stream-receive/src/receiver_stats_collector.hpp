@@ -10,15 +10,15 @@
 #include <string>
 #include <string_view>
 
-#include "utils/stats_collector.hpp"
+#include "utils/stats/stats_collector.hpp"
 
 namespace gf::rec {
 
-class ReceiverStatsCollector : public utils::StatsCollector<ReceiverStatsCollector>
+class ReceiverStatsCollector : public utils::stats::StatsCollector<ReceiverStatsCollector>
 {
 public:
   explicit ReceiverStatsCollector(std::string_view detector_name)
-      : utils::StatsCollector<ReceiverStatsCollector>("std_stream_receive", detector_name)
+      : utils::stats::StatsCollector<ReceiverStatsCollector>("std_stream_receive", detector_name)
   {}
 
   [[nodiscard]] std::string additional_message()
@@ -34,7 +34,7 @@ public:
     zmq_fails += receive_fails;
     if (prev_image_id + 1 != id) images_missed++;
     prev_image_id = id > 0 ? id : prev_image_id;
-    static_cast<utils::StatsCollector<ReceiverStatsCollector>*>(this)->processing_finished();
+    static_cast<utils::stats::StatsCollector<ReceiverStatsCollector>*>(this)->processing_finished();
   }
 
 private:

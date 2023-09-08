@@ -10,13 +10,13 @@
 
 #include <fmt/core.h>
 
-#include "utils/sync_stats_collector.hpp"
+#include "utils/stats/sync_stats_collector.hpp"
 
 namespace sdss {
 
-class QueueStatsCollector : public utils::SyncStatsCollector
+class QueueStatsCollector : public utils::stats::SyncStatsCollector
 {
-  using Parent = utils::SyncStatsCollector;
+  using Parent = utils::stats::SyncStatsCollector;
 
 public:
   explicit QueueStatsCollector(const std::string& prog_name, std::string_view detector_name)

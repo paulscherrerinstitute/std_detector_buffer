@@ -10,7 +10,7 @@
 #include "core_buffer/ram_buffer.hpp"
 #include "std_buffer/image_metadata.pb.h"
 #include "utils/args.hpp"
-#include "utils/compression_stats_collector.hpp"
+#include "utils/stats/compression_stats_collector.hpp"
 #include "utils/image_size_calc.hpp"
 #include "utils/detector_config.hpp"
 
@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
   auto sender = cb::Communicator{{sink_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
                                  {sink_name, ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
 
-  utils::CompressionStatsCollector stats("std_data_compress_blosc2", config.detector_name,
+  utils::stats::CompressionStatsCollector stats("std_data_compress_blosc2", config.detector_name,
                                          converted_bytes);
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;

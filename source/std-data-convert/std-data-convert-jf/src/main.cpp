@@ -9,7 +9,7 @@
 #include "detectors/jungfrau.hpp"
 #include "utils/args.hpp"
 #include "utils/detector_config.hpp"
-#include "utils/module_stats_collector.hpp"
+#include "utils/stats/module_stats_collector.hpp"
 
 #include "identifier.hpp"
 #include "converter.hpp"
@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
   const uint16_t module_id = parser.get<uint16_t>("module_id");
   const uint16_t converter_index = parser.get<uint16_t>("converter_index");
   const jf::sdc::Identifier converter_id(config.detector_name, module_id, converter_index);
-  utils::ModuleStatsCollector stats_collector("std_data_convert_jf", config.detector_name,
+  utils::stats::ModuleStatsCollector stats_collector("std_data_convert_jf", config.detector_name,
                                               module_id);
 
   auto converter = create_converter(parser.get("gains_and_pedestal_h5_filename"),
@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
   while (true) {
     auto [id, image] = receiver.receive(std::span<char>((char*)&meta, sizeof(meta)));
     if (id != INVALID_IMAGE_ID) {
-      utils::process_stats p{stats_collector};
+      utils::stats::process_stats p{stats_collector};
       // I treat sending of the message as part of processing for now
       auto converted = converter.convert_data({(uint16_t*)image, MODULE_N_PIXELS});
       sender.send(id, std::span<char>((char*)&meta, sizeof(meta)), (char*)converted.data());

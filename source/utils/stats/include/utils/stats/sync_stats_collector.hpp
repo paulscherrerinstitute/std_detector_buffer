@@ -12,13 +12,13 @@
 
 #include "stats_collector.hpp"
 
-namespace utils {
+namespace utils::stats {
 
-class SyncStatsCollector : public utils::StatsCollector<SyncStatsCollector>
+class SyncStatsCollector : public utils::stats::StatsCollector<SyncStatsCollector>
 {
 public:
   explicit SyncStatsCollector(const std::string& prog_name, std::string_view detector_name)
-      : utils::StatsCollector<SyncStatsCollector>(prog_name, detector_name)
+      : utils::stats::StatsCollector<SyncStatsCollector>(prog_name, detector_name)
   {}
 
   [[nodiscard]] virtual std::string additional_message()
@@ -31,7 +31,7 @@ public:
   void processing_finished(unsigned int n_corrupted)
   {
     n_corrupted_images += n_corrupted;
-    static_cast<utils::StatsCollector<SyncStatsCollector>*>(this)->processing_finished();
+    static_cast<utils::stats::StatsCollector<SyncStatsCollector>*>(this)->processing_finished();
   }
 
 private:

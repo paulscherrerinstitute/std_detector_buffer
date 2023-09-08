@@ -11,7 +11,7 @@
 #include "utils/args.hpp"
 #include "utils/detector_config.hpp"
 #include "utils/get_metadata_dtype.hpp"
-#include "utils/basic_stats_collector.hpp"
+#include "utils/stats/basic_stats_collector.hpp"
 #include "std_buffer/image_metadata.pb.h"
 
 namespace {

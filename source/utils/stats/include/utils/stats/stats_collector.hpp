@@ -10,7 +10,7 @@
 
 #include <fmt/core.h>
 
-namespace utils {
+namespace utils::stats {
 
 template <typename Derived> class StatsCollector
 {

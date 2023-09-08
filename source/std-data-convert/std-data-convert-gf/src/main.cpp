@@ -11,7 +11,7 @@
 #include "core_buffer/communicator.hpp"
 #include "detectors/gigafrost.hpp"
 #include "utils/args.hpp"
-#include "utils/module_stats_collector.hpp"
+#include "utils/stats/module_stats_collector.hpp"
 #include "utils/detector_config.hpp"
 #include "converter.hpp"
 
@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
   const auto converter_name = fmt::format("{}-{}-converted", config.detector_name, module_id);
   const auto [module_bytes, converted_bytes] = calculate_data_sizes(config);
 
-  utils::ModuleStatsCollector stats_collector("std_data_convert_gf", config.detector_name,
+  utils::stats::ModuleStatsCollector stats_collector("std_data_convert_gf", config.detector_name,
                                               module_id);
 
   auto ctx = zmq_ctx_new();
@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
   while (true) {
     auto [id, image] = receiver.receive(std::span<char>((char*)&meta, sizeof(meta)));
     if (id != INVALID_IMAGE_ID) {
-      utils::process_stats p{stats_collector};
+      utils::stats::process_stats p{stats_collector};
       converter.convert(std::span<char>(image, module_bytes),
                         std::span<char>(sender.get_data(id), converted_bytes));
 

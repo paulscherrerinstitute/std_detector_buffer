@@ -11,7 +11,7 @@
 #include "core_buffer/ram_buffer.hpp"
 #include "std_buffer/image_metadata.pb.h"
 #include "utils/args.hpp"
-#include "utils/basic_stats_collector.hpp"
+#include "utils/stats/basic_stats_collector.hpp"
 #include "utils/image_size_calc.hpp"
 #include "utils/detector_config.hpp"
 #include "utils/get_metadata_dtype.hpp"
@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
       {source_name, utils::converted_image_n_bytes(config), buffer_config::RAM_BUFFER_N_SLOTS},
       {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
   auto sender_socket = bind_sender_socket(ctx, stream_address);
-  utils::BasicStatsCollector stats("std_live_stream", config.detector_name);
+  utils::stats::BasicStatsCollector stats("std_live_stream", config.detector_name);
 
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;
@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
 
   while (true) {
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
-      utils::process_stats p{stats};
+      utils::stats::process_stats p{stats};
       meta.ParseFromArray(buffer, n_bytes);
       auto image_data = receiver.get_data(meta.image_id());
 

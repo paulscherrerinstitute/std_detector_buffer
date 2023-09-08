@@ -11,7 +11,7 @@
 #include "detectors/common.hpp"
 #include "utils/args.hpp"
 #include "utils/detector_config.hpp"
-#include "utils/sync_stats_collector.hpp"
+#include "utils/stats/sync_stats_collector.hpp"
 #include "utils/get_metadata_dtype.hpp"
 #include "utils/image_size_calc.hpp"
 #include "std_buffer/image_metadata.pb.h"
@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
   auto sender = buffer_utils::bind_socket(ctx, config.detector_name + "-image", ZMQ_PUB);
   Synchronizer syncer(config.n_modules, SYNC_N_IMAGES_BUFFER, utils::get_modules_mask(config));
 
-  utils::SyncStatsCollector stats(prog_name, config.detector_name);
+  utils::stats::SyncStatsCollector stats(prog_name, config.detector_name);
 
   char meta_buffer_recv[DET_FRAME_STRUCT_BYTES];
   auto* common_frame = (CommonFrame*)(&meta_buffer_recv);
