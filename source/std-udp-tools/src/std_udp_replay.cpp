@@ -11,8 +11,7 @@
 
 #include <fmt/core.h>
 
-#include "utils/args.hpp"
-#include "utils/detector_config.hpp"
+#include "utils/utils.hpp"
 
 const int UDP_BUFFER_MAX_SIZE = 1024 * 10;
 const int BUFFER_UDP_US_TIMEOUT = 1000 * 100;

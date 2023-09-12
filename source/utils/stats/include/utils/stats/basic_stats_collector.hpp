@@ -12,13 +12,13 @@ namespace utils::stats {
 class BasicStatsCollector : public utils::stats::StatsCollector<BasicStatsCollector>
 {
 public:
-  explicit BasicStatsCollector(std::string_view app_name, std::string_view detector_name)
-      : utils::stats::StatsCollector<BasicStatsCollector>(app_name, detector_name)
+  explicit BasicStatsCollector(std::string_view detector_name)
+      : utils::stats::StatsCollector<BasicStatsCollector>(detector_name)
   {}
 
   static std::string additional_message() { return {}; }
 };
 
-} // namespace utils
+} // namespace utils::stats
 
 #endif // STD_DETECTOR_BUFFER_BASIC_STATS_COLLECTOR_HPP

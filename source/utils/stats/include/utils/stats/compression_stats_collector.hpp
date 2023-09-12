@@ -17,10 +17,8 @@ namespace utils::stats {
 class CompressionStatsCollector : public StatsCollector<CompressionStatsCollector>
 {
 public:
-  explicit CompressionStatsCollector(std::string_view prog_name,
-                                     std::string_view detector_name,
-                                     std::size_t image_size)
-      : StatsCollector<CompressionStatsCollector>(prog_name, detector_name)
+  explicit CompressionStatsCollector(std::string_view detector_name, std::size_t image_size)
+      : StatsCollector<CompressionStatsCollector>(detector_name)
       , image_size(image_size)
   {}
 
@@ -55,6 +53,6 @@ private:
   std::size_t compressed_size = 0;
 };
 
-} // namespace utils
+} // namespace utils::stats
 
 #endif // STD_DETECTOR_BUFFER_COMPRESSION_STATS_COLLECTOR_HPP

@@ -10,7 +10,6 @@
 
 #include <fmt/core.h>
 
-#include "utils/stats/sync_stats_collector.hpp"
 
 namespace sdss {
 
@@ -19,8 +18,8 @@ class QueueStatsCollector : public utils::stats::SyncStatsCollector
   using Parent = utils::stats::SyncStatsCollector;
 
 public:
-  explicit QueueStatsCollector(const std::string& prog_name, std::string_view detector_name)
-      : SyncStatsCollector(prog_name, detector_name)
+  explicit QueueStatsCollector(std::string_view detector_name)
+      : SyncStatsCollector(detector_name)
   {}
 
   [[nodiscard]] std::string additional_message() override

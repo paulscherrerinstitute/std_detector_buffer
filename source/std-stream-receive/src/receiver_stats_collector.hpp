@@ -10,7 +10,6 @@
 #include <string>
 #include <string_view>
 
-#include "utils/stats/stats_collector.hpp"
 
 namespace gf::rec {
 
@@ -18,7 +17,7 @@ class ReceiverStatsCollector : public utils::stats::StatsCollector<ReceiverStats
 {
 public:
   explicit ReceiverStatsCollector(std::string_view detector_name)
-      : utils::stats::StatsCollector<ReceiverStatsCollector>("std_stream_receive", detector_name)
+      : utils::stats::StatsCollector<ReceiverStatsCollector>(detector_name)
   {}
 
   [[nodiscard]] std::string additional_message()

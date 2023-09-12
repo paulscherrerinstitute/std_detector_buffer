@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.25)
 
 set(HDF5_PREFER_PARALLEL ON)
 set(THREADS_PREFER_PTHREAD_FLAG ON)

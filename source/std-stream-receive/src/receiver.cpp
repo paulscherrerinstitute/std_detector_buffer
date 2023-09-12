@@ -9,9 +9,7 @@
 #include "core_buffer/ram_buffer.hpp"
 #include "core_buffer/buffer_utils.hpp"
 #include "std_buffer/image_metadata.pb.h"
-#include "utils/args.hpp"
-#include "utils/detector_config.hpp"
-#include "utils/image_size_calc.hpp"
+#include "utils/utils.hpp"
 
 #include "receiver_stats_collector.hpp"
 
@@ -57,6 +55,7 @@ int main(int argc, char* argv[])
   const auto data_bytes_sent =
       std::min(converted_bytes - start_index, utils::max_single_sender_size(config));
 
+  [[maybe_unused]] utils::log::logger l{"std_stream_receive", config.log_level};
   gf::rec::ReceiverStatsCollector stats(config.detector_name);
 
   char buffer[512];

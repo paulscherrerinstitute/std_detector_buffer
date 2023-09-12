@@ -8,9 +8,7 @@
 #include "core_buffer/communicator.hpp"
 #include "core_buffer/ram_buffer.hpp"
 #include "std_buffer/image_metadata.pb.h"
-#include "utils/args.hpp"
-#include "utils/image_size_calc.hpp"
-#include "utils/detector_config.hpp"
+#include "utils/utils.hpp"
 
 #include "sender_stats_collector.hpp"
 
@@ -66,6 +64,7 @@ int main(int argc, char* argv[])
                                    {sync_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
 
   auto sender_socket = bind_sender_socket(ctx, stream_address);
+  [[maybe_unused]] utils::log::logger l{"std_stream_send", config.log_level};
   gf::send::SenderStatsCollector stats(config.detector_name, image_part);
 
   char buffer[512];

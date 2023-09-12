@@ -11,9 +11,7 @@
 #include "std_buffer_common/redis_handler.hpp"
 #include "std_buffer/buffered_metadata.pb.h"
 #include "std_buffer/image_metadata.pb.h"
-#include "utils/args.hpp"
-#include "utils/detector_config.hpp"
-#include "utils/get_metadata_dtype.hpp"
+#include "utils/utils.hpp"
 
 namespace {
 constexpr auto zmq_io_threads = 1;

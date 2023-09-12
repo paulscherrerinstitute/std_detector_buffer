@@ -17,8 +17,8 @@ namespace utils::stats {
 class SyncStatsCollector : public utils::stats::StatsCollector<SyncStatsCollector>
 {
 public:
-  explicit SyncStatsCollector(const std::string& prog_name, std::string_view detector_name)
-      : utils::stats::StatsCollector<SyncStatsCollector>(prog_name, detector_name)
+  explicit SyncStatsCollector(std::string_view detector_name)
+      : utils::stats::StatsCollector<SyncStatsCollector>(detector_name)
   {}
 
   [[nodiscard]] virtual std::string additional_message()
@@ -38,6 +38,6 @@ private:
   unsigned long n_corrupted_images = 0;
 };
 
-} // namespace utils
+} // namespace utils::stats
 
 #endif // STD_DETECTOR_BUFFER_SYNC_STATS_COLLECTOR_HPP

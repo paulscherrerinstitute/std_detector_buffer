@@ -10,10 +10,7 @@
 #include "core_buffer/communicator.hpp"
 #include "core_buffer/ram_buffer.hpp"
 #include "std_buffer/image_metadata.pb.h"
-#include "utils/args.hpp"
-#include "utils/stats/compression_stats_collector.hpp"
-#include "utils/image_size_calc.hpp"
-#include "utils/detector_config.hpp"
+#include "utils/utils.hpp"
 
 namespace {
 constexpr auto zmq_io_threads = 1;
@@ -66,8 +63,8 @@ int main(int argc, char* argv[])
   auto sender = cb::Communicator{{sink_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
                                  {sink_name, ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
 
-  utils::stats::CompressionStatsCollector stats("std_data_compress_h5bitshuffle_lz4",
-                                                config.detector_name, converted_bytes);
+  [[maybe_unused]] utils::log::logger l{"std_data_compress_h5bitshuffle_lz4", config.log_level};
+  utils::stats::CompressionStatsCollector stats(config.detector_name, converted_bytes);
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;
 

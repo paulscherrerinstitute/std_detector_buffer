@@ -8,7 +8,7 @@
 #include <chrono>
 #include <string_view>
 
-#include <fmt/core.h>
+#include <spdlog/spdlog.h>
 
 namespace utils::stats {
 
@@ -17,9 +17,8 @@ template <typename Derived> class StatsCollector
   using time_point = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
 
 public:
-  explicit StatsCollector(std::string_view app_name_, std::string_view detector_name_)
-      : app_name(app_name_)
-      , detector_name(detector_name_)
+  explicit StatsCollector(std::string_view detector_name_)
+      : detector_name(detector_name_)
   {}
   void processing_started() { processing_start = std::chrono::steady_clock::now(); }
   void processing_finished() { update_stats(std::chrono::steady_clock::now()); }
@@ -28,13 +27,12 @@ public:
     using namespace std::chrono_literals;
     const auto now = std::chrono::steady_clock::now();
 
-    if (10s < now - last_flush_time) {
-      fmt::print("{},detector={},average_process_time_ns={},max_process_time_ns={},processed_times="
-                 "{}{} {}\n",
-                 app_name, detector_name, (stats.first / std::max(stats.second, 1ul)).count(),
-                 max_processing_time.count(), stats.second, additional_info(), timestamp());
-      std::fflush(stdout);
-      last_flush_time = now;
+    if (10s < now - last_update_time) {
+      spdlog::info("detector={},average_process_time_ns={},"
+                   "max_process_time_ns={},processed_times={}{} {}",
+                   detector_name, (stats.first / std::max(stats.second, 1ul)).count(),
+                   max_processing_time.count(), stats.second, additional_info(), timestamp());
+      last_update_time = now;
       reset_stats();
     }
   }
@@ -69,10 +67,9 @@ private:
       return {};
   }
 
-  std::string_view app_name;
   std::string_view detector_name;
   time_point processing_start{};
-  time_point last_flush_time{std::chrono::steady_clock::now()};
+  time_point last_update_time{std::chrono::steady_clock::now()};
   std::pair<std::chrono::nanoseconds, std::size_t> stats{};
   std::chrono::nanoseconds max_processing_time{};
 };
@@ -91,6 +88,6 @@ private:
   StatsCollector& collector;
 };
 
-} // namespace utils
+} // namespace utils::stats
 
 #endif // STD_DETECTOR_BUFFER_UTILS_STATS_COLLECTOR_HPP

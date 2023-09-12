@@ -10,8 +10,7 @@
 
 #include <fmt/core.h>
 
-#include "utils/args.hpp"
-#include "utils/detector_config.hpp"
+#include "utils/utils.hpp"
 
 // Since jumbo frames are 9000, there should be no packet larger than that.
 const int UDP_BUFFER_MAX_SIZE = 1024 * 10;

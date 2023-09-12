@@ -6,10 +6,8 @@
 
 #include <fstream>
 #include <unordered_map>
-#include <ranges>
 
 #include <nlohmann/json.hpp>
-#include <fmt/core.h>
 
 using json = nlohmann::json;
 
@@ -44,6 +42,8 @@ DetectorConfig read_config(const json doc)
           doc["image_pixel_width"].get<int>(),
           doc["start_udp_port"].get<uint16_t>(),
           doc["writer_user_id"].get<int>(),
+          doc.value("log_level", "info"),
+          doc.value("stats_collection_period", 10),
           std::move(modules)};
 }
 } // namespace

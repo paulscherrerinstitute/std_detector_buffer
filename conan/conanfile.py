@@ -17,10 +17,12 @@ class SBD(ConanFile):
         "bsread_receiver/0.13.0@patro_m/psi",
         "redis-plus-plus/1.3.7",
         "c-blosc2/2.10.0",
+        "spdlog/1.12.0",
         "hdf5/1.14.1"
     ]
 
     default_options = {"date:header_only": True,
                        "hdf5:parallel": False,
                        "hdf5:enable_cxx": False,
-                       "c-blosc2:with_zstd": False}
+                       "c-blosc2:with_zstd": False,
+                       "spdlog:header_only": True}

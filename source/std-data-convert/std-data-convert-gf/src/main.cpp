@@ -10,9 +10,7 @@
 
 #include "core_buffer/communicator.hpp"
 #include "detectors/gigafrost.hpp"
-#include "utils/args.hpp"
-#include "utils/stats/module_stats_collector.hpp"
-#include "utils/detector_config.hpp"
+#include "utils/utils.hpp"
 #include "converter.hpp"
 
 using namespace gf;
@@ -50,8 +48,8 @@ int main(int argc, char* argv[])
   const auto converter_name = fmt::format("{}-{}-converted", config.detector_name, module_id);
   const auto [module_bytes, converted_bytes] = calculate_data_sizes(config);
 
-  utils::stats::ModuleStatsCollector stats_collector("std_data_convert_gf", config.detector_name,
-                                              module_id);
+  [[maybe_unused]] utils::log::logger l{"std_data_convert_gf", config.log_level};
+  utils::stats::ModuleStatsCollector stats_collector(config.detector_name, module_id);
 
   auto ctx = zmq_ctx_new();
   const auto source_name = fmt::format("{}-{}", config.detector_name, module_id);

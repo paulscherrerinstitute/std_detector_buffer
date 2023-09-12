@@ -7,9 +7,7 @@
 #include "core_buffer/buffer_config.hpp"
 #include "core_buffer/communicator.hpp"
 #include "detectors/jungfrau.hpp"
-#include "utils/args.hpp"
-#include "utils/detector_config.hpp"
-#include "utils/stats/module_stats_collector.hpp"
+#include "utils/utils.hpp"
 
 #include "identifier.hpp"
 #include "converter.hpp"
@@ -52,8 +50,8 @@ int main(int argc, char* argv[])
   const uint16_t module_id = parser.get<uint16_t>("module_id");
   const uint16_t converter_index = parser.get<uint16_t>("converter_index");
   const jf::sdc::Identifier converter_id(config.detector_name, module_id, converter_index);
-  utils::stats::ModuleStatsCollector stats_collector("std_data_convert_jf", config.detector_name,
-                                              module_id);
+  [[maybe_unused]] utils::log::logger l{"std_data_convert_jf", config.log_level};
+  utils::stats::ModuleStatsCollector stats_collector(config.detector_name, module_id);
 
   auto converter = create_converter(parser.get("gains_and_pedestal_h5_filename"),
                                     config.image_pixel_height * config.image_pixel_width);

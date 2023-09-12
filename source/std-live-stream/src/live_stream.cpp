@@ -10,11 +10,7 @@
 #include "core_buffer/communicator.hpp"
 #include "core_buffer/ram_buffer.hpp"
 #include "std_buffer/image_metadata.pb.h"
-#include "utils/args.hpp"
-#include "utils/stats/basic_stats_collector.hpp"
-#include "utils/image_size_calc.hpp"
-#include "utils/detector_config.hpp"
-#include "utils/get_metadata_dtype.hpp"
+#include "utils/utils.hpp"
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
@@ -85,7 +81,8 @@ int main(int argc, char* argv[])
       {source_name, utils::converted_image_n_bytes(config), buffer_config::RAM_BUFFER_N_SLOTS},
       {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
   auto sender_socket = bind_sender_socket(ctx, stream_address);
-  utils::stats::BasicStatsCollector stats("std_live_stream", config.detector_name);
+  [[maybe_unused]] utils::log::logger l{"std_live_stream", config.log_level};
+  utils::stats::BasicStatsCollector stats(config.detector_name);
 
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;

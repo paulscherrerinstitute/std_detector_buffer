@@ -8,8 +8,7 @@
 #include <zmq.h>
 #include <fmt/core.h>
 
-#include "utils/args.hpp"
-#include "utils/detector_config.hpp"
+#include "utils/utils.hpp"
 
 #include "WriterStats.hpp"
 #include "H5Writer.hpp"

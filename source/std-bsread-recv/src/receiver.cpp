@@ -8,10 +8,7 @@
 
 #include "core_buffer/buffer_config.hpp"
 #include "core_buffer/communicator.hpp"
-#include "utils/args.hpp"
-#include "utils/detector_config.hpp"
-#include "utils/get_metadata_dtype.hpp"
-#include "utils/stats/basic_stats_collector.hpp"
+#include "utils/utils.hpp"
 #include "std_buffer/image_metadata.pb.h"
 
 namespace {

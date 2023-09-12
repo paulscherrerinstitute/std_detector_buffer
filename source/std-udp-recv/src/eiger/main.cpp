@@ -13,8 +13,7 @@
 #include "core_buffer/buffer_config.hpp"
 #include "core_buffer/communicator.hpp"
 #include "detectors/eiger.hpp"
-#include "utils/args.hpp"
-#include "utils/detector_config.hpp"
+#include "utils/utils.hpp"
 
 #include "frame_stat.hpp"
 #include "packet_udp_receiver.hpp"

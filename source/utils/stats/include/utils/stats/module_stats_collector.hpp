@@ -12,10 +12,8 @@ namespace utils::stats {
 class ModuleStatsCollector : public utils::stats::StatsCollector<ModuleStatsCollector>
 {
 public:
-  explicit ModuleStatsCollector(std::string_view app_name,
-                                std::string_view detector_name,
-                                int module_id)
-      : utils::stats::StatsCollector<ModuleStatsCollector>(app_name, detector_name)
+  explicit ModuleStatsCollector(std::string_view detector_name, int module_id)
+      : utils::stats::StatsCollector<ModuleStatsCollector>(detector_name)
       , module_id(module_id)
   {}
 
@@ -28,6 +26,6 @@ private:
   int module_id;
 };
 
-} // namespace utils
+} // namespace utils::stats
 
 #endif // STD_DETECTOR_BUFFER_MODULE_STATS_COLLECTOR_HPP

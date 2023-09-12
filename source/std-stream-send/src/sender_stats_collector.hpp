@@ -10,7 +10,6 @@
 #include <string>
 #include <string_view>
 
-#include "utils/stats/stats_collector.hpp"
 
 namespace gf::send {
 
@@ -18,7 +17,7 @@ class SenderStatsCollector : public utils::stats::StatsCollector<SenderStatsColl
 {
 public:
   explicit SenderStatsCollector(std::string_view detector_name, int part)
-      : utils::stats::StatsCollector<SenderStatsCollector>("std_stream_send", detector_name)
+      : utils::stats::StatsCollector<SenderStatsCollector>(detector_name)
       , image_part(part)
   {}
 

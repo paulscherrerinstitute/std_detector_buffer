@@ -7,9 +7,7 @@
 #include <zmq.h>
 
 #include "core_buffer/buffer_utils.hpp"
-#include "utils/args.hpp"
-#include "utils/detector_config.hpp"
-#include "utils/image_size_calc.hpp"
+#include "utils/utils.hpp"
 #include "std_buffer/image_metadata.pb.h"
 
 #include "synchronizer.hpp"
@@ -33,7 +31,8 @@ int main(int argc, char* argv[])
 
   Synchronizer syncer(parts, 1000);
 
-  sdss::QueueStatsCollector stats(prog_name, config.detector_name);
+  [[maybe_unused]] utils::log::logger l{prog_name, config.log_level};
+  sdss::QueueStatsCollector stats(config.detector_name);
 
   char buffer[512];
   std_daq_protocol::ImageMetadata image_meta;
