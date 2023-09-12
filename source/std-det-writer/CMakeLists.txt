@@ -25,7 +25,6 @@ target_link_libraries(${PROJECT_NAME}_lib
 target_sources(${PROJECT_NAME}_lib
     PRIVATE
         src/H5Writer.cpp
-        src/WriterStats.cpp
 )
 
 add_executable(${PROJECT_NAME} src/main.cpp)

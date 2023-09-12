@@ -12,8 +12,8 @@
 #include "utils/utils.hpp"
 #include "core_buffer/ram_buffer.hpp"
 #include "std_buffer/writer_command.pb.h"
+#include "writer_stats_collector.hpp"
 #include "H5Writer.hpp"
-#include "WriterStats.hpp"
 
 using namespace std;
 
@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
   //  MPI_Comm_size(MPI_COMM_WORLD, &n_writers);
 
   H5Writer writer(config.detector_name);
-  WriterStats stats(config.detector_name, image_n_bytes);
+  WriterStatsCollector stats(config.detector_name, config.stats_collection_period, image_n_bytes);
   const auto buffer_name = fmt::format("{}-compressed", config.detector_name);
   RamBuffer image_buffer(buffer_name, image_n_bytes, buffer_config::RAM_BUFFER_N_SLOTS);
   auto ctx = zmq_ctx_new();
@@ -102,8 +102,7 @@ int main(int argc, char* argv[])
   }
 
   while (true) {
-    // Print only 1 every second.
-    stats.print_stats();
+    utils::stats::process_stats g{stats};
 
     auto nbytes = zmq_recv(command_receiver, &recv_buffer_meta, sizeof(recv_buffer_meta), 0);
     if (nbytes == -1) continue;

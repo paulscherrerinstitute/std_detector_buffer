@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.17)
 project(std_data_sync_module)
 
-find_package(date REQUIRED)
 find_package(fmt REQUIRED)
 find_package(Threads REQUIRED)
 find_package(ZeroMQ REQUIRED)

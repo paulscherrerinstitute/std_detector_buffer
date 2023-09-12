@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.17)
 project(core_buffer)
 
-find_package(date REQUIRED)
 find_package(ZeroMQ REQUIRED)
 find_package(fmt REQUIRED)
 find_package(spdlog REQUIRED)
