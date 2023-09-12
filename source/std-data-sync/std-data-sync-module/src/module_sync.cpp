@@ -23,6 +23,7 @@ int main(int argc, char* argv[])
   auto program = utils::create_parser(prog_name);
   program = utils::parse_arguments(program, argc, argv);
   const auto config = utils::read_config_from_json_file(program.get("detector_json_filename"));
+  [[maybe_unused]] utils::log::logger l{prog_name, config.log_level};
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, 1);
@@ -31,7 +32,6 @@ int main(int argc, char* argv[])
   auto sender = buffer_utils::bind_socket(ctx, config.detector_name + "-image", ZMQ_PUB);
   Synchronizer syncer(config.n_modules, SYNC_N_IMAGES_BUFFER, utils::get_modules_mask(config));
 
-  [[maybe_unused]] utils::log::logger l{prog_name, config.log_level};
   utils::stats::SyncStatsCollector stats(config.detector_name);
 
   char meta_buffer_recv[DET_FRAME_STRUCT_BYTES];

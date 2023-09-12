@@ -48,8 +48,9 @@ std::tuple<utils::DetectorConfig, int, int> read_arguments(int argc, char* argv[
 int main(int argc, char* argv[])
 {
   const auto [config, threads, block_size] = read_arguments(argc, argv);
-  omp_set_num_threads(threads);
+  [[maybe_unused]] utils::log::logger l{"std_data_compress_h5bitshuffle_lz4", config.log_level};
   auto converted_bytes = utils::converted_image_n_bytes(config);
+  omp_set_num_threads(threads);
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
@@ -63,7 +64,6 @@ int main(int argc, char* argv[])
   auto sender = cb::Communicator{{sink_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
                                  {sink_name, ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
 
-  [[maybe_unused]] utils::log::logger l{"std_data_compress_h5bitshuffle_lz4", config.log_level};
   utils::stats::CompressionStatsCollector stats(config.detector_name, converted_bytes);
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;

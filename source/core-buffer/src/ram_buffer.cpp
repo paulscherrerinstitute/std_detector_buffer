@@ -10,47 +10,31 @@
 
 #include <cstring>
 #include <stdexcept>
-#include <chrono>
-#include <iostream>
+#include <source_location>
 
-#include <date/date.h>
+#include <spdlog/spdlog.h>
 
-using namespace std;
 using namespace buffer_config;
-using namespace chrono;
 
-RamBuffer::RamBuffer(string channel_name,
-                     const size_t data_n_bytes,
-                     const size_t n_slots)
+RamBuffer::RamBuffer(std::string channel_name, const size_t data_n_bytes, const size_t n_slots)
     : buffer_name_(std::move(channel_name))
     , n_slots_(n_slots)
     , data_bytes_(data_n_bytes)
     , buffer_bytes_(data_bytes_ * n_slots_)
 {
-#ifdef DEBUG_OUTPUT
-  using namespace date;
-  cout << "[" << system_clock::now() << "]";
-  cout << " [RamBuffer::RamBuffer] ";
-  cout << " buffer_name " << buffer_name_;
-  cout << " || n_slots " << n_slots_;
-  cout << " || data_bytes " << data_bytes_;
-  cout << endl;
-#endif
+  spdlog::debug("{}: buffer_name: {}, n_slots: {}, data_bytes: {}",
+                std::source_location::current().function_name(), buffer_name_, n_slots_,
+                data_bytes_);
 
   shm_fd_ = shm_open(buffer_name_.c_str(), O_RDWR | O_CREAT, 0777);
-  if (shm_fd_ < 0) {
-    throw runtime_error(string("shm_open failed: ") + strerror(errno));
-  }
+  if (shm_fd_ < 0) throw std::runtime_error(fmt::format("shm_open failed: {}", strerror(errno)));
 
-  if ((ftruncate(shm_fd_, static_cast<off_t>(buffer_bytes_))) == -1) {
-    throw runtime_error(strerror(errno));
-  }
+  if ((ftruncate(shm_fd_, static_cast<off_t>(buffer_bytes_))) == -1)
+    throw std::runtime_error(strerror(errno));
 
   // TODO: Test with MAP_HUGETLB
   buffer_ = static_cast<char*>(mmap(nullptr, buffer_bytes_, PROT_WRITE, MAP_SHARED, shm_fd_, 0));
-  if (buffer_ == MAP_FAILED) {
-    throw runtime_error(strerror(errno));
-  }
+  if (buffer_ == MAP_FAILED) throw std::runtime_error(strerror(errno));
 }
 
 RamBuffer::~RamBuffer()
@@ -62,17 +46,8 @@ RamBuffer::~RamBuffer()
 
 void RamBuffer::write(const uint64_t id, const char* src_data)
 {
-  auto* dst_data = get_data(id);
-
-#ifdef DEBUG_OUTPUT
-  using namespace date;
-  cout << "[" << system_clock::now() << "]";
-  cout << " [RamBuffer::write] id " << id;
-  cout << endl;
-#endif
-
-  if(src_data != nullptr)
-    memcpy(dst_data, src_data, data_bytes_);
+  spdlog::debug("{}: id: {}", std::source_location::current().function_name(), id);
+  if (src_data != nullptr) memcpy(get_data(id), src_data, data_bytes_);
 }
 
 char* RamBuffer::get_data(const uint64_t id)

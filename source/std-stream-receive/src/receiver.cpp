@@ -47,6 +47,7 @@ bool received_successfully_data(void* socket, char* buffer, std::size_t size)
 int main(int argc, char* argv[])
 {
   const auto [config, stream_address, image_part] = read_arguments(argc, argv);
+  [[maybe_unused]] utils::log::logger l{"std_stream_receive", config.log_level};
   const auto image_name = fmt::format("{}-image", config.detector_name);
   const auto sync_name = fmt::format("{}-sync", config.detector_name);
   const auto converted_bytes = utils::converted_image_n_bytes(config);
@@ -55,7 +56,6 @@ int main(int argc, char* argv[])
   const auto data_bytes_sent =
       std::min(converted_bytes - start_index, utils::max_single_sender_size(config));
 
-  [[maybe_unused]] utils::log::logger l{"std_stream_receive", config.log_level};
   gf::rec::ReceiverStatsCollector stats(config.detector_name);
 
   char buffer[512];

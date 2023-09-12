@@ -47,10 +47,10 @@ int main(int argc, char* argv[])
   auto parser = read_arguments(argc, argv);
 
   const auto config = utils::read_config_from_json_file(parser.get("detector_json_filename"));
+  [[maybe_unused]] utils::log::logger l{"std_data_convert_jf", config.log_level};
   const uint16_t module_id = parser.get<uint16_t>("module_id");
   const uint16_t converter_index = parser.get<uint16_t>("converter_index");
   const jf::sdc::Identifier converter_id(config.detector_name, module_id, converter_index);
-  [[maybe_unused]] utils::log::logger l{"std_data_convert_jf", config.log_level};
   utils::stats::ModuleStatsCollector stats_collector(config.detector_name, module_id);
 
   auto converter = create_converter(parser.get("gains_and_pedestal_h5_filename"),

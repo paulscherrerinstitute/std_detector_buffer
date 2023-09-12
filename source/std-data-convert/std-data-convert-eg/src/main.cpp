@@ -32,12 +32,12 @@ int main(int argc, char* argv[])
 {
   const auto [config, module_id] = read_arguments(argc, argv);
   if (config.bit_depth < 8) throw std::runtime_error("Bit depth below 8 is not supported!");
+  [[maybe_unused]] utils::log::logger l{"std_data_convert_eg", config.log_level};
 
   const size_t frame_n_bytes = MODULE_N_PIXELS * config.bit_depth / 8;
   const size_t converted_bytes = eg::converted_image_n_bytes(
       config.image_pixel_height, config.image_pixel_width, config.bit_depth);
 
-  [[maybe_unused]] utils::log::logger l{"std_data_convert_eg", config.log_level};
   utils::stats::ModuleStatsCollector stats_collector(config.detector_name, module_id);
 
   auto ctx = zmq_ctx_new();

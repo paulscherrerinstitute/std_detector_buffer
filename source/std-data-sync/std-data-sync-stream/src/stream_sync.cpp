@@ -21,6 +21,7 @@ int main(int argc, char* argv[])
   auto program = utils::create_parser(prog_name);
   program = utils::parse_arguments(program, argc, argv);
   const auto config = utils::read_config_from_json_file(program.get("detector_json_filename"));
+  [[maybe_unused]] utils::log::logger l{prog_name, config.log_level};
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, 1);
@@ -31,7 +32,6 @@ int main(int argc, char* argv[])
 
   Synchronizer syncer(parts, 1000);
 
-  [[maybe_unused]] utils::log::logger l{prog_name, config.log_level};
   sdss::QueueStatsCollector stats(config.detector_name);
 
   char buffer[512];

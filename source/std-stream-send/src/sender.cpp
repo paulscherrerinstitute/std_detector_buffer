@@ -50,6 +50,7 @@ std::tuple<utils::DetectorConfig, std::string, int> read_arguments(int argc, cha
 int main(int argc, char* argv[])
 {
   const auto [config, stream_address, image_part] = read_arguments(argc, argv);
+  [[maybe_unused]] utils::log::logger l{"std_stream_send", config.log_level};
   const auto sync_name = fmt::format("{}-image", config.detector_name);
   const auto converted_bytes = utils::converted_image_n_bytes(config);
   const auto start_index = image_part * utils::max_single_sender_size(config);
@@ -64,7 +65,6 @@ int main(int argc, char* argv[])
                                    {sync_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
 
   auto sender_socket = bind_sender_socket(ctx, stream_address);
-  [[maybe_unused]] utils::log::logger l{"std_stream_send", config.log_level};
   gf::send::SenderStatsCollector stats(config.detector_name, image_part);
 
   char buffer[512];

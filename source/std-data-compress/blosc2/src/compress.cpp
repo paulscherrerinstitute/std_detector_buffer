@@ -72,6 +72,7 @@ std::tuple<utils::DetectorConfig, int, std::size_t> read_arguments(int argc, cha
 int main(int argc, char* argv[])
 {
   const auto [config, threads, level] = read_arguments(argc, argv);
+  [[maybe_unused]] utils::log::logger l{"std_data_compress_blosc2", config.log_level};
   auto converted_bytes = utils::converted_image_n_bytes(config);
 
   auto ctx = zmq_ctx_new();
@@ -86,7 +87,6 @@ int main(int argc, char* argv[])
   auto sender = cb::Communicator{{sink_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
                                  {sink_name, ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
 
-  [[maybe_unused]] utils::log::logger l{"std_data_compress_blosc2", config.log_level};
   utils::stats::CompressionStatsCollector stats(config.detector_name, converted_bytes);
 
   char buffer[512];
