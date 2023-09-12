@@ -24,7 +24,6 @@ target_link_libraries(${PROJECT_NAME}_lib
         core_buffer::core_buffer
         detectors::detectors
     PRIVATE
-        date::date
         ZeroMQ::ZeroMQ
         std_detector_buffer::settings
 )

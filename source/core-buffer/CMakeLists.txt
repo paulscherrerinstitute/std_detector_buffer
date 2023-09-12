@@ -24,7 +24,6 @@ target_link_libraries(${PROJECT_NAME}
         bitshuffle::bitshuffle
         fmt::fmt
         spdlog::spdlog
-        date::date
         detectors::detectors
         std_detector_buffer::settings
 )

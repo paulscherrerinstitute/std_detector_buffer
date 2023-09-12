@@ -8,6 +8,7 @@ class SBD(ConanFile):
         "gtest/1.13.0",
         "nlohmann_json/3.11.2",
         "lz4/1.9.4",
+        "date/3.0.1",
         "range-v3/0.12.0",
         "fmt/10.0.0",
         "benchmark/1.6.1",
