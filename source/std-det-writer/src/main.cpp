@@ -2,19 +2,18 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#include <string>
 #include <unistd.h>
+#include <string>
 
-#include <zmq.h>
 #include <fmt/core.h>
+#include <spdlog/spdlog.h>
+#include <zmq.h>
 
 #include "utils/utils.hpp"
-
-#include "WriterStats.hpp"
-#include "H5Writer.hpp"
 #include "core_buffer/ram_buffer.hpp"
-
 #include "std_buffer/writer_command.pb.h"
+#include "H5Writer.hpp"
+#include "WriterStats.hpp"
 
 using namespace std;
 
@@ -123,9 +122,8 @@ int main(int argc, char* argv[])
     // Handle start and stop commands.
     switch (command.command_type()) {
     case std_daq_protocol::CommandType::START_WRITING:
-      fmt::print("Start writing run_id={} output_file={} n_images={}\n", run_id, output_file,
-                 n_images);
-
+      spdlog::info("Start writing run_id={} output_file={} n_images={}", run_id, output_file,
+                   n_images);
       try {
         writer.open_run(output_file, run_id, n_images, config.image_pixel_height,
                         config.image_pixel_width, config.bit_depth);
@@ -148,8 +146,8 @@ int main(int argc, char* argv[])
       continue;
 
     case std_daq_protocol::CommandType::STOP_WRITING:
-      fmt::print("Stop writing run_id={} output_file={} last_i_image={}\n", run_id, output_file,
-                 i_image);
+      spdlog::info("Stop writing run_id={} output_file={} last_i_image={}", run_id, output_file,
+                   i_image);
       try {
         writer.close_run(highest_run_image_index);
 
@@ -177,8 +175,8 @@ int main(int argc, char* argv[])
 
     // Check if we got a message for the wrong run_id - should not happen, driver problem.
     if (run_id != current_run_id) {
-      fmt::print("ERROR: Received write request for run_id={} but current_run_id={}\n", run_id,
-                 current_run_id);
+      spdlog::error("Received write request for run_id={} but current_run_id={}", run_id,
+                    current_run_id);
       continue;
     }
 
@@ -186,10 +184,8 @@ int main(int argc, char* argv[])
 
     // Fair distribution of images among writers.
     if (i_image % n_writers == (uint)i_writer) {
-#ifdef DEBUG_OUTPUT
-      fmt::print("i_writer={} i_image={} image_id={} run_id={}\n", i_writer, i_image, image_id,
-                 run_id);
-#endif
+      spdlog::debug("i_writer={} i_image={} image_id={} run_id={}", i_writer, i_image, image_id,
+                    run_id);
 
       stats.start_image_write();
       writer.write_data(run_id, i_image, data_size, data);

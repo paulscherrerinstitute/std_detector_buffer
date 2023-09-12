@@ -5,10 +5,10 @@
 #include "read_gains_and_pedestals.hpp"
 
 #include <memory>
+#include <source_location>
 
-//#include <mpi.h>
 #include <hdf5.h>
-#include <fmt/core.h>
+#include <spdlog/spdlog.h>
 
 namespace jf::sdc {
 namespace {
@@ -35,10 +35,8 @@ parameters decode_parameters(hid_t file_id, const std::string& id, std::size_t i
 std::tuple<parameters, parameters> read_gains_and_pedestals(const std::string& filename,
                                                             std::size_t image_size)
 {
-#ifdef DEBUG_OUTPUT
-  fmt::print("[read_gains_ans_pedestals::read_gains_and_pedestals]"
-             " filename: {}; image_size: {}\n", filename, image_size);
-#endif
+  spdlog::debug("{}: filename: {}, image_size: {}", std::source_location::current().function_name(),
+                filename, image_size);
 
   hid_t file_id = H5Fopen(filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
   auto gains = decode_parameters(file_id, "/gains", image_size);

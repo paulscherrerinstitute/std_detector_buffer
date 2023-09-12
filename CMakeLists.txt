@@ -12,9 +12,6 @@ project(std_detector_buffer
 include(sdb_settings)
 set(CMAKE_CXX_STANDARD 20)
 
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG_OUTPUT")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG_OUTPUT")
-
 include(sdb_conan)
 conan_config_install(ITEM ${CMAKE_HOME_DIRECTORY}/conan/settings.yml)
 conan_config_install(ITEM ${CMAKE_HOME_DIRECTORY}/conan/remotes.json)

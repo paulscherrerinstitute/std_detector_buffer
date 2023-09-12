@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 3.17)
 project(std_det_writer)
 
-#find_package(MPI REQUIRED)
-find_package(date REQUIRED)
 find_package(fmt REQUIRED)
+find_package(spdlog REQUIRED)
 find_package(ZeroMQ REQUIRED)
 find_package(HDF5 REQUIRED)
 
@@ -18,8 +17,8 @@ target_link_libraries(${PROJECT_NAME}_lib
         std_daq_interface::std_daq_interface
     PRIVATE
         core_buffer::core_buffer
+        spdlog::spdlog
         bitshuffle::bitshuffle
-#        MPI::MPI_CXX
         std_detector_buffer::settings
 )
 
@@ -37,10 +36,9 @@ target_link_libraries(${PROJECT_NAME}
         ${PROJECT_NAME}_lib
         core_buffer::core_buffer
         fmt::fmt
-        date::date
+        spdlog::spdlog
         ZeroMQ::ZeroMQ
         utils::utils
         hdf5::hdf5
-#        MPI::MPI_CXX
         std_detector_buffer::settings
 )

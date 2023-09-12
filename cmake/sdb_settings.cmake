@@ -13,4 +13,3 @@ add_library(${PROJECT_NAME}::settings ALIAS settings)
 
 include(sdb_warnings)
 target_link_libraries(settings INTERFACE ${PROJECT_NAME}::compiler_warnings)
-target_compile_definitions(settings INTERFACE $<$<CONFIG:Debug>:DEBUG_OUTPUT>)
