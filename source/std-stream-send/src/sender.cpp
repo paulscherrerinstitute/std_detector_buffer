@@ -65,7 +65,8 @@ int main(int argc, char* argv[])
                                    {sync_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
 
   auto sender_socket = bind_sender_socket(ctx, stream_address);
-  gf::send::SenderStatsCollector stats(config.detector_name, image_part);
+  gf::send::SenderStatsCollector stats(config.detector_name, config.stats_collection_period,
+                                       image_part);
 
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;

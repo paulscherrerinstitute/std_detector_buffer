@@ -10,14 +10,13 @@
 #include <string>
 #include <string_view>
 
-
 namespace gf::rec {
 
 class ReceiverStatsCollector : public utils::stats::StatsCollector<ReceiverStatsCollector>
 {
 public:
-  explicit ReceiverStatsCollector(std::string_view detector_name)
-      : utils::stats::StatsCollector<ReceiverStatsCollector>(detector_name)
+  explicit ReceiverStatsCollector(std::string_view detector_name, std::chrono::seconds period)
+      : utils::stats::StatsCollector<ReceiverStatsCollector>(detector_name, period)
   {}
 
   [[nodiscard]] std::string additional_message()

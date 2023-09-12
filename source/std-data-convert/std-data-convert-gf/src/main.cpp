@@ -49,7 +49,8 @@ int main(int argc, char* argv[])
   const auto converter_name = fmt::format("{}-{}-converted", config.detector_name, module_id);
   const auto [module_bytes, converted_bytes] = calculate_data_sizes(config);
 
-  utils::stats::ModuleStatsCollector stats_collector(config.detector_name, module_id);
+  utils::stats::ModuleStatsCollector stats_collector(config.detector_name,
+                                                     config.stats_collection_period, module_id);
 
   auto ctx = zmq_ctx_new();
   const auto source_name = fmt::format("{}-{}", config.detector_name, module_id);

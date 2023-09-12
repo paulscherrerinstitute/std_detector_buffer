@@ -8,5 +8,6 @@
   "start_udp_port": 50020,
   "writer_user_id": 18600,
   "module_positions": {},
-  "log_level": "debug"
+  "log_level": "debug",
+  "stats_collection_period": 1
 }

@@ -17,8 +17,9 @@ template <typename Derived> class StatsCollector
   using time_point = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
 
 public:
-  explicit StatsCollector(std::string_view detector_name_)
+  explicit StatsCollector(std::string_view detector_name_, std::chrono::seconds period_)
       : detector_name(detector_name_)
+      , period(period_)
   {}
   void processing_started() { processing_start = std::chrono::steady_clock::now(); }
   void processing_finished() { update_stats(std::chrono::steady_clock::now()); }
@@ -27,7 +28,7 @@ public:
     using namespace std::chrono_literals;
     const auto now = std::chrono::steady_clock::now();
 
-    if (10s < now - last_update_time) {
+    if (period < now - last_update_time) {
       spdlog::info("detector={},average_process_time_ns={},"
                    "max_process_time_ns={},processed_times={}{} {}",
                    detector_name, (stats.first / std::max(stats.second, 1ul)).count(),
@@ -68,6 +69,7 @@ private:
   }
 
   std::string_view detector_name;
+  std::chrono::seconds period;
   time_point processing_start{};
   time_point last_update_time{std::chrono::steady_clock::now()};
   std::pair<std::chrono::nanoseconds, std::size_t> stats{};

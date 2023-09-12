@@ -51,7 +51,8 @@ int main(int argc, char* argv[])
   const uint16_t module_id = parser.get<uint16_t>("module_id");
   const uint16_t converter_index = parser.get<uint16_t>("converter_index");
   const jf::sdc::Identifier converter_id(config.detector_name, module_id, converter_index);
-  utils::stats::ModuleStatsCollector stats_collector(config.detector_name, module_id);
+  utils::stats::ModuleStatsCollector stats_collector(config.detector_name,
+                                                     config.stats_collection_period, module_id);
 
   auto converter = create_converter(parser.get("gains_and_pedestal_h5_filename"),
                                     config.image_pixel_height * config.image_pixel_width);

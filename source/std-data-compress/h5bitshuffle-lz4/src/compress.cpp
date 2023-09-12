@@ -64,7 +64,8 @@ int main(int argc, char* argv[])
   auto sender = cb::Communicator{{sink_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
                                  {sink_name, ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
 
-  utils::stats::CompressionStatsCollector stats(config.detector_name, converted_bytes);
+  utils::stats::CompressionStatsCollector stats(config.detector_name,
+                                                config.stats_collection_period, converted_bytes);
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;
 

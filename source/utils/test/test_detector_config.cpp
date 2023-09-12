@@ -35,7 +35,7 @@ TEST(DetectorConfig, ShouldReadModuleSettingsCorrectly)
   EXPECT_EQ(1, get_module_start_position(config, 0).y);
   EXPECT_EQ(100, get_module_end_position(config, 0).x);
   EXPECT_EQ(101, get_module_end_position(config, 0).y);
-  EXPECT_EQ(10, config.stats_collection_period);
+  EXPECT_EQ(10, config.stats_collection_period.count());
   EXPECT_EQ("info", config.log_level);
   EXPECT_EQ(modules_mask{133}, get_modules_mask(config));
 }

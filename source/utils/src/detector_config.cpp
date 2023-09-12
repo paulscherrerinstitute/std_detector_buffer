@@ -43,7 +43,7 @@ DetectorConfig read_config(const json doc)
           doc["start_udp_port"].get<uint16_t>(),
           doc["writer_user_id"].get<int>(),
           doc.value("log_level", "info"),
-          doc.value("stats_collection_period", 10),
+          std::chrono::seconds(doc.value("stats_collection_period", 10)),
           std::move(modules)};
 }
 } // namespace

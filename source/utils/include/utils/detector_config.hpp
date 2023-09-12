@@ -8,6 +8,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <bitset>
+#include <chrono>
 
 #include <fmt/core.h>
 
@@ -32,8 +33,8 @@ struct DetectorConfig
   const int image_pixel_width;
   const uint16_t start_udp_port;
   const int writer_user_id;
-  std::string log_level;
-  const int stats_collection_period;
+  const std::string log_level;
+  const std::chrono::seconds stats_collection_period;
   const std::unordered_map<module_id, std::pair<Point, Point>> modules;
 
   friend std::ostream& operator<<(std::ostream& os, DetectorConfig const& det_config)
@@ -45,7 +46,7 @@ struct DetectorConfig
                              det_config.n_modules, det_config.bit_depth,
                              det_config.image_pixel_height, det_config.image_pixel_width,
                              det_config.start_udp_port, det_config.writer_user_id,
-                             det_config.log_level, det_config.stats_collection_period);
+                             det_config.log_level, det_config.stats_collection_period.count());
   }
 };
 

@@ -37,7 +37,8 @@ int main(int argc, char* argv[])
 
   const size_t frame_n_bytes = MODULE_N_PIXELS * config.bit_depth / 8;
 
-  utils::stats::ModuleStatsCollector stats_collector(config.detector_name, module_id);
+  utils::stats::ModuleStatsCollector stats_collector(config.detector_name,
+                                                     config.stats_collection_period, module_id);
 
   auto ctx = zmq_ctx_new();
   const auto source_name = fmt::format("{}-{}", config.detector_name, module_id);

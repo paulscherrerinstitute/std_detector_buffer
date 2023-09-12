@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 
   Synchronizer syncer(parts, 1000);
 
-  sdss::QueueStatsCollector stats(config.detector_name);
+  sdss::QueueStatsCollector stats(config.detector_name, config.stats_collection_period);
 
   char buffer[512];
   std_daq_protocol::ImageMetadata image_meta;

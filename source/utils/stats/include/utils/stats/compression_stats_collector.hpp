@@ -17,8 +17,10 @@ namespace utils::stats {
 class CompressionStatsCollector : public StatsCollector<CompressionStatsCollector>
 {
 public:
-  explicit CompressionStatsCollector(std::string_view detector_name, std::size_t image_size)
-      : StatsCollector<CompressionStatsCollector>(detector_name)
+  explicit CompressionStatsCollector(std::string_view detector_name,
+                                     std::chrono::seconds period,
+                                     std::size_t image_size)
+      : StatsCollector<CompressionStatsCollector>(detector_name, period)
       , image_size(image_size)
   {}
 

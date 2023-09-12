@@ -17,8 +17,8 @@ namespace utils::stats {
 class SyncStatsCollector : public utils::stats::StatsCollector<SyncStatsCollector>
 {
 public:
-  explicit SyncStatsCollector(std::string_view detector_name)
-      : utils::stats::StatsCollector<SyncStatsCollector>(detector_name)
+  explicit SyncStatsCollector(std::string_view detector_name, std::chrono::seconds period)
+      : utils::stats::StatsCollector<SyncStatsCollector>(detector_name, period)
   {}
 
   [[nodiscard]] virtual std::string additional_message()

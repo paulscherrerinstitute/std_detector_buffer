@@ -12,8 +12,8 @@ namespace utils::stats {
 class BasicStatsCollector : public utils::stats::StatsCollector<BasicStatsCollector>
 {
 public:
-  explicit BasicStatsCollector(std::string_view detector_name)
-      : utils::stats::StatsCollector<BasicStatsCollector>(detector_name)
+  explicit BasicStatsCollector(std::string_view detector_name, std::chrono::seconds period)
+      : utils::stats::StatsCollector<BasicStatsCollector>(detector_name, period)
   {}
 
   static std::string additional_message() { return {}; }

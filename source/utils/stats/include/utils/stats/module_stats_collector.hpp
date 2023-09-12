@@ -12,8 +12,10 @@ namespace utils::stats {
 class ModuleStatsCollector : public utils::stats::StatsCollector<ModuleStatsCollector>
 {
 public:
-  explicit ModuleStatsCollector(std::string_view detector_name, int module_id)
-      : utils::stats::StatsCollector<ModuleStatsCollector>(detector_name)
+  explicit ModuleStatsCollector(std::string_view detector_name,
+                                std::chrono::seconds period,
+                                int module_id)
+      : utils::stats::StatsCollector<ModuleStatsCollector>(detector_name, period)
       , module_id(module_id)
   {}
 

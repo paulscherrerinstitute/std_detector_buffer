@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
   auto sender = buffer_utils::bind_socket(ctx, config.detector_name + "-image", ZMQ_PUB);
   Synchronizer syncer(config.n_modules, SYNC_N_IMAGES_BUFFER, utils::get_modules_mask(config));
 
-  utils::stats::SyncStatsCollector stats(config.detector_name);
+  utils::stats::SyncStatsCollector stats(config.detector_name, config.stats_collection_period);
 
   char meta_buffer_recv[DET_FRAME_STRUCT_BYTES];
   auto* common_frame = (CommonFrame*)(&meta_buffer_recv);

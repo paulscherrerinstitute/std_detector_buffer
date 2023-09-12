@@ -10,14 +10,15 @@
 #include <string>
 #include <string_view>
 
-
 namespace gf::send {
 
 class SenderStatsCollector : public utils::stats::StatsCollector<SenderStatsCollector>
 {
 public:
-  explicit SenderStatsCollector(std::string_view detector_name, int part)
-      : utils::stats::StatsCollector<SenderStatsCollector>(detector_name)
+  explicit SenderStatsCollector(std::string_view detector_name,
+                                std::chrono::seconds period,
+                                int part)
+      : utils::stats::StatsCollector<SenderStatsCollector>(detector_name, period)
       , image_part(part)
   {}
 
