@@ -5,23 +5,23 @@
 #ifndef STD_DETECTOR_BUFFER_MODULE_STATS_COLLECTOR_HPP
 #define STD_DETECTOR_BUFFER_MODULE_STATS_COLLECTOR_HPP
 
-#include "stats_collector.hpp"
+#include "timed_stats_collector.hpp"
 
 namespace utils::stats {
 
-class ModuleStatsCollector : public utils::stats::StatsCollector<ModuleStatsCollector>
+class ModuleStatsCollector : public TimedStatsCollector
 {
 public:
   explicit ModuleStatsCollector(std::string_view detector_name,
                                 std::chrono::seconds period,
                                 int module_id)
-      : utils::stats::StatsCollector<ModuleStatsCollector>(detector_name, period)
+      : TimedStatsCollector(detector_name, period)
       , module_id(module_id)
   {}
 
-  [[nodiscard]] std::string additional_message() const
+  [[nodiscard]] virtual std::string additional_message()
   {
-    return fmt::format("module_id={}", module_id);
+    return fmt::format("{},module_id={}", TimedStatsCollector::additional_message(), module_id);
   }
 
 private:

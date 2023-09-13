@@ -55,9 +55,11 @@ void* create_socket(void* ctx, const std::string& ipc_address, const int zmq_soc
 
 int main(int argc, char* argv[])
 {
-  auto program = utils::create_parser("std_det_writer");
+  const std::string program_name{"std_det_writer"};
+  auto program = utils::create_parser(program_name);
   program = utils::parse_arguments(program, argc, argv);
   const auto config = utils::read_config_from_json_file(program.get("detector_json_filename"));
+  [[maybe_unused]] utils::log::logger l{program_name, config.log_level};
   const size_t image_n_bytes =
       config.image_pixel_width * config.image_pixel_height * config.bit_depth / 8;
 
@@ -102,7 +104,7 @@ int main(int argc, char* argv[])
   }
 
   while (true) {
-    utils::stats::process_stats g{stats};
+    stats.print_stats();
 
     auto nbytes = zmq_recv(command_receiver, &recv_buffer_meta, sizeof(recv_buffer_meta), 0);
     if (nbytes == -1) continue;

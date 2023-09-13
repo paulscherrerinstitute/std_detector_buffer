@@ -25,7 +25,7 @@ public:
     const auto [avg_buffer_write, avg_throughput] = calculate_averages();
 
     auto outcome = fmt::format(
-        "n_written_images={},avg_buffer_write_us={},max_buffer_write_us={},avg_throughput{}",
+        "n_written_images={},avg_buffer_write_us={},max_buffer_write_us={},avg_throughput={}",
         image_counter, avg_buffer_write, max_buffer_write.count(), avg_throughput);
 
     image_counter = 0;

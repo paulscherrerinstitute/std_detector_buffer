@@ -12,11 +12,11 @@ target_sources(${PROJECT_NAME}
         FILE_SET HEADERS
         BASE_DIRS include
         FILES
-            include/utils/stats/basic_stats_collector.hpp
             include/utils/stats/compression_stats_collector.hpp
             include/utils/stats/module_stats_collector.hpp
             include/utils/stats/stats_collector.hpp
             include/utils/stats/sync_stats_collector.hpp
+            include/utils/stats/timed_stats_collector.hpp
 )
 
 target_include_directories(${PROJECT_NAME} INTERFACE include)

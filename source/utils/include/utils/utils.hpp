@@ -11,7 +11,7 @@
 #include "utils/stats/sync_stats_collector.hpp"
 #include "utils/stats/module_stats_collector.hpp"
 #include "utils/stats/compression_stats_collector.hpp"
-#include "utils/stats/basic_stats_collector.hpp"
+#include "utils/stats/timed_stats_collector.hpp"
 
 #include "args.hpp"
 #include "detector_config.hpp"

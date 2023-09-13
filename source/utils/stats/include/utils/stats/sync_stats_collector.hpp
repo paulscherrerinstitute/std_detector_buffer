@@ -10,20 +10,21 @@
 
 #include <fmt/core.h>
 
-#include "stats_collector.hpp"
+#include "timed_stats_collector.hpp"
 
 namespace utils::stats {
 
-class SyncStatsCollector : public utils::stats::StatsCollector<SyncStatsCollector>
+class SyncStatsCollector : public TimedStatsCollector
 {
 public:
   explicit SyncStatsCollector(std::string_view detector_name, std::chrono::seconds period)
-      : utils::stats::StatsCollector<SyncStatsCollector>(detector_name, period)
+      : TimedStatsCollector(detector_name, period)
   {}
 
   [[nodiscard]] virtual std::string additional_message()
   {
-    auto outcome = fmt::format("n_corrupted_images={}", n_corrupted_images);
+    auto outcome = fmt::format("{},n_corrupted_images={}",
+                               TimedStatsCollector::additional_message(), n_corrupted_images);
     n_corrupted_images = 0;
     return outcome;
   }
@@ -31,7 +32,7 @@ public:
   void processing_finished(unsigned int n_corrupted)
   {
     n_corrupted_images += n_corrupted;
-    static_cast<utils::stats::StatsCollector<SyncStatsCollector>*>(this)->processing_finished();
+    static_cast<TimedStatsCollector*>(this)->processing_finished();
   }
 
 private:

@@ -10,21 +10,24 @@
 #include <string>
 #include <string_view>
 
+#include "utils/stats/timed_stats_collector.hpp"
+
 namespace gf::send {
 
-class SenderStatsCollector : public utils::stats::StatsCollector<SenderStatsCollector>
+class SenderStatsCollector : public utils::stats::TimedStatsCollector
 {
 public:
   explicit SenderStatsCollector(std::string_view detector_name,
                                 std::chrono::seconds period,
                                 int part)
-      : utils::stats::StatsCollector<SenderStatsCollector>(detector_name, period)
+      : TimedStatsCollector(detector_name, period)
       , image_part(part)
   {}
 
-  [[nodiscard]] std::string additional_message()
+  [[nodiscard]] std::string additional_message() override
   {
-    auto outcome = fmt::format("image_part={},zmq_fails={}", image_part, zmq_fails);
+    auto outcome = fmt::format("{},image_part={},zmq_fails={}",
+                               TimedStatsCollector::additional_message(), image_part, zmq_fails);
     zmq_fails = 0;
     return outcome;
   }
@@ -32,7 +35,7 @@ public:
   void processing_finished(std::size_t send_fails)
   {
     zmq_fails += send_fails;
-    static_cast<utils::stats::StatsCollector<SenderStatsCollector>*>(this)->processing_finished();
+    static_cast<utils::stats::TimedStatsCollector*>(this)->processing_finished();
   }
 
 private:

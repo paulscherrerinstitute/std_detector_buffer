@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
       {source_name, utils::converted_image_n_bytes(config), buffer_config::RAM_BUFFER_N_SLOTS},
       {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
   auto sender_socket = bind_sender_socket(ctx, stream_address);
-  utils::stats::BasicStatsCollector stats(config.detector_name, config.stats_collection_period);
+  utils::stats::TimedStatsCollector stats(config.detector_name, config.stats_collection_period);
 
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;

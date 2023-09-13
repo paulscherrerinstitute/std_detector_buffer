@@ -10,24 +10,25 @@
 
 #include <fmt/core.h>
 
-#include "stats_collector.hpp"
+#include "timed_stats_collector.hpp"
 
 namespace utils::stats {
 
-class CompressionStatsCollector : public StatsCollector<CompressionStatsCollector>
+class CompressionStatsCollector : public TimedStatsCollector
 {
 public:
   explicit CompressionStatsCollector(std::string_view detector_name,
                                      std::chrono::seconds period,
                                      std::size_t image_size)
-      : StatsCollector<CompressionStatsCollector>(detector_name, period)
+      : TimedStatsCollector(detector_name, period)
       , image_size(image_size)
   {}
 
   [[nodiscard]] virtual std::string additional_message()
   {
     double ratio = calculate_ratio();
-    auto outcome = fmt::format("compressed_images={},ratio={}", compressed_images, ratio);
+    auto outcome = fmt::format("{},compressed_images={},ratio={}",
+                               TimedStatsCollector::additional_message(), compressed_images, ratio);
     compressed_images = 0;
     compressed_size = 0;
     return outcome;
@@ -46,7 +47,7 @@ public:
       compressed_images++;
       compressed_size += compressed;
     }
-    static_cast<StatsCollector<CompressionStatsCollector>*>(this)->processing_finished();
+    static_cast<TimedStatsCollector*>(this)->processing_finished();
   }
 
 private:
