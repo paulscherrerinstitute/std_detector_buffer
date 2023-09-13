@@ -12,7 +12,7 @@
 #include "detectors/jungfrau.hpp"
 #include "utils/utils.hpp"
 
-#include "frame_stat.hpp"
+#include "frame_stats_collector.hpp"
 #include "packet_udp_receiver.hpp"
 
 using namespace std;
@@ -21,11 +21,13 @@ using namespace buffer_config;
 
 int main(int argc, char* argv[])
 {
-  auto program = utils::create_parser("std_udp_recv_jf");
+  const char* prog_name = "std_udp_recv_jf";
+  auto program = utils::create_parser(prog_name);
   program.add_argument("module_id").scan<'d', uint16_t>();
   program = utils::parse_arguments(program, argc, argv);
 
   const auto config = utils::read_config_from_json_file(program.get("detector_json_filename"));
+  [[maybe_unused]] utils::log::logger l{prog_name, config.log_level};
   const auto module_id = program.get<uint16_t>("module_id");
 
   const size_t FRAME_N_BYTES = DATA_BYTES_PER_PACKET * N_PACKETS_PER_FRAME;
@@ -40,7 +42,7 @@ int main(int argc, char* argv[])
 
   PacketUdpReceiver receiver(config.start_udp_port + module_id, sizeof(JFUdpPacket),
                              N_PACKETS_PER_FRAME);
-  FrameStats stats(config.detector_name, module_id, STATS_TIME);
+  FrameStatsCollector stats(config.detector_name, config.stats_collection_period, module_id);
 
   const JFUdpPacket* const packet_buffer =
       reinterpret_cast<JFUdpPacket*>(receiver.get_packet_buffer());
@@ -95,6 +97,7 @@ int main(int argc, char* argv[])
         meta.common.n_missing_packets -= 1;
       }
     }
+    stats.print_stats();
   }
 
   delete[] frame_buffer;

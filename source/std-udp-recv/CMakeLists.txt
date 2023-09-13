@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.17)
 project(std_udp_recv)
 
 find_package(fmt REQUIRED)
-find_package(date REQUIRED)
 find_package(ZeroMQ REQUIRED)
 
 add_library(${PROJECT_NAME}_lib)
@@ -10,7 +9,6 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME}_lib ALIAS ${PROJECT_NAME}_lib)
 
 target_sources(${PROJECT_NAME}_lib
     PRIVATE
-        src/frame_stat.cpp
         src/packet_udp_receiver.cpp
 )
 
@@ -20,7 +18,6 @@ target_link_libraries(${PROJECT_NAME}_lib
         core_buffer::core_buffer
         detectors::detectors
     PRIVATE
-        date::date
         ZeroMQ::ZeroMQ
         fmt::fmt
         std_detector_buffer::settings

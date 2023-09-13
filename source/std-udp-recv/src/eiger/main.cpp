@@ -15,7 +15,7 @@
 #include "detectors/eiger.hpp"
 #include "utils/utils.hpp"
 
-#include "frame_stat.hpp"
+#include "frame_stats_collector.hpp"
 #include "packet_udp_receiver.hpp"
 
 using namespace std;
@@ -41,7 +41,7 @@ inline void init_frame_metadata(const uint16_t module_id,
 inline void send_image_id(EGFrame& meta,
                           char* frame_buffer,
                           cb::Communicator& sender,
-                          FrameStats& stats)
+                          FrameStatsCollector& stats)
 {
   sender.send(meta.common.image_id, std::span<char>((char*)(&meta), sizeof(meta)), frame_buffer);
   stats.record_stats(meta.common.n_missing_packets);
@@ -51,12 +51,14 @@ inline void send_image_id(EGFrame& meta,
 
 int main(int argc, char* argv[])
 {
-  auto program = utils::create_parser("std_udp_recv_eg");
+  const char* prog_name = "std_udp_recv_eg";
+  auto program = utils::create_parser(prog_name);
   program.add_argument("module_id").scan<'d', uint16_t>();
   program = utils::parse_arguments(program, argc, argv);
 
   const auto detector_config =
       utils::read_config_from_json_file(program.get("detector_json_filename"));
+  [[maybe_unused]] utils::log::logger l{prog_name, detector_config.log_level};
   const auto module_id = program.get<uint16_t>("module_id");
 
   const size_t FRAME_N_BYTES = MODULE_N_PIXELS * detector_config.bit_depth / 8;
@@ -71,7 +73,8 @@ int main(int argc, char* argv[])
   cb::Communicator sender{buffer_config, comm_config};
   PacketUdpReceiver receiver(detector_config.start_udp_port + module_id, sizeof(EGUdpPacket),
                              N_PACKETS_PER_FRAME);
-  FrameStats stats(detector_config.detector_name, module_id, STATS_TIME);
+  FrameStatsCollector stats(detector_config.detector_name, detector_config.stats_collection_period,
+                            module_id);
 
   const EGUdpPacket* const packet_buffer =
       reinterpret_cast<EGUdpPacket*>(receiver.get_packet_buffer());
@@ -122,7 +125,7 @@ int main(int argc, char* argv[])
         meta.common.n_missing_packets -= 1;
       }
     }
-    stats.process_stats();
+    stats.print_stats();
   }
   free(frame_buffer);
 }
