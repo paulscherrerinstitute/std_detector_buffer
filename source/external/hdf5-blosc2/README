@@ -1,0 +1,6 @@
+The files contained here are copied from https://github.com/PyTables/PyTables
+repository and are distributed under BSD-3 Clause license.
+
+This is due to the fact that this library doesn't have any reasonable distribution system for c/c++.
+
+The files are corresponding to 416cac8728e40578af77ef91bdee4c754de4b76e version
