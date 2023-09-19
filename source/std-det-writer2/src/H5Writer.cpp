@@ -9,8 +9,8 @@
 
 #include <spdlog/spdlog.h>
 #include <H5version.h>
-#include <bitshuffle/bshuf_h5filter.h>
 
+#include <hdf5-blosc2/blosc2_filter.h>
 #include "core_buffer/buffer_config.hpp"
 
 using namespace std;
@@ -188,9 +188,9 @@ void H5Writer::open_file(const string& output_file, const uint32_t n_images)
     throw runtime_error("Cannot create image dataset space.");
   }
 
-  bshuf_register_h5filter();
-  uint filter_prop[] = {0, BSHUF_H5_COMPRESS_LZ4};
-  if (H5Pset_filter(dcpl_id, BSHUF_H5FILTER, H5Z_FLAG_MANDATORY, 2, filter_prop) < 0) {
+  register_blosc2(nullptr, nullptr);
+  uint filter_prop[] = {0, 0, 0, 0, 5 /*clevel*/, BLOSC_BITSHUFFLE, BLOSC_LZ4};
+  if (H5Pset_filter(dcpl_id, FILTER_BLOSC2, H5Z_FLAG_MANDATORY, 2, filter_prop) < 0) {
     throw runtime_error("Cannot set compression filter on dataset.");
   }
 
