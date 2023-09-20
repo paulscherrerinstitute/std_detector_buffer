@@ -30,6 +30,7 @@ std::tuple<utils::DetectorConfig, std::string> read_arguments(int argc, char* ar
 int main(int argc, char* argv[])
 {
   const auto [config, stream_address] = read_arguments(argc, argv);
+  [[maybe_unused]] utils::log::logger l{"std_bsread_recv", config.log_level};
   auto ctx = zmq_ctx_new();
 
   bsrec::receiver receivers_array[MAGIC_CAMERA_NUMBER] = {
@@ -46,13 +47,13 @@ int main(int argc, char* argv[])
                                                    ZMQ_PUB};
   auto sender = cb::Communicator{send_buffer_config, send_comm_config};
 
-  utils::BasicStatsCollector stats("std_bsread_recv", config.detector_name);
+  utils::stats::TimedStatsCollector stats(config.detector_name, config.stats_collection_period);
 
   std_daq_protocol::ImageMetadata image_meta;
   image_meta.set_dtype(utils::get_metadata_dtype(config));
   image_meta.set_status(std_daq_protocol::ImageMetadataStatus::good_image);
   // TODO: to be improved in future
-  std::map<pulse_id_t, std::tuple<uint32_t, uint32_t,std::size_t>> pulse_order;
+  std::map<pulse_id_t, std::tuple<uint32_t, uint32_t, std::size_t>> pulse_order;
 
   while (true) {
     stats.processing_started();
@@ -63,7 +64,8 @@ int main(int argc, char* argv[])
         if (!channels.empty()) {
           char* ram_buffer = sender.get_data(msg.pulse_id);
           memcpy(ram_buffer, channels[0].buffer.get(), channels[0].buffer_size);
-          pulse_order[msg.pulse_id] = {channels[0].shape[0], channels[0].shape[1], channels[0].buffer_size};
+          pulse_order[msg.pulse_id] = {channels[0].shape[0], channels[0].shape[1],
+                                       channels[0].buffer_size};
         }
       }
     }

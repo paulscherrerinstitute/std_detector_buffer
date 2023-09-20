@@ -4,8 +4,6 @@ set(HDF5_PREFER_PARALLEL ON)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
 
-option(SDB_WITH_BSREAD "bsread library packaged together" OFF)
-
 include(sdb_add_uts)
 
 add_library(settings INTERFACE)

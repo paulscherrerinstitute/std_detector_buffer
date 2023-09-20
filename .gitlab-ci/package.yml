@@ -6,7 +6,7 @@
   script:
     |
       echo ">>>>> Release build:"
-      cmake -B release -DCMAKE_BUILD_TYPE=Release -G Ninja -DSDB_WITH_BSREAD=ON
+      cmake -B release -DCMAKE_BUILD_TYPE=Release -G Ninja
       cmake --build release --target all
       python3 -m pip install -r requirements.txt
       cmake --build release --target pyinstall
