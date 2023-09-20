@@ -22,7 +22,10 @@ public:
   explicit BufferHandler(std::string root_directory, std::size_t type_size);
   ~BufferHandler();
   std::pair<uint64_t, uint64_t> write(uint64_t image_id, std::span<char> buffered_data);
-  bool read(uint64_t image_id, std::span<char> buffered_data, uint64_t offset, uint64_t size);
+  bool read(uint64_t image_id,
+            std::span<char> buffered_data,
+            uint64_t offset,
+            uint64_t compressed_size);
 
 private:
   void open_new_file(uint64_t image_id, const std::string& filename);

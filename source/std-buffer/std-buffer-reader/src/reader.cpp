@@ -58,17 +58,17 @@ arguments read_arguments(int argc, char* argv[])
           program.get<uint64_t>("--delay")};
 }
 
-std::size_t get_size(const std_daq_protocol::ImageMetadata& data)
+std::size_t get_uncompressed_size(const std_daq_protocol::ImageMetadata& data)
 {
   return data.width() * data.height() * utils::get_bytes_from_metadata_dtype(data.dtype());
 }
 
-class end_tester
+class EndTester
 {
   using time_point = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
 
 public:
-  explicit end_tester(sbc::RedisHandler& handler)
+  explicit EndTester(sbc::RedisHandler& handler)
       : redis_handler(handler)
   {}
 
@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
   sbc::RedisHandler redis_handler(args.config.detector_name, args.db_address);
   sbc::BufferHandler reader(args.root_dir + args.config.detector_name, args.config.bit_depth / 8);
   std_daq_protocol::BufferedMetadata buffered_meta;
-  end_tester end_id_tester(redis_handler);
+  EndTester end_id_tester(redis_handler);
 
   // zmq flags set to 0 to ensure that first data transfer for buffer reader is blocking
   // this is done to ensure that there is someone receiving the replayed stream
@@ -119,10 +119,12 @@ int main(int argc, char* argv[])
 
     for (std::weakly_incrementable auto image : std::views::iota(args.start_image_id, end_id)) {
       if (redis_handler.receive(image, buffered_meta)) {
-        if (auto size = get_size(buffered_meta.metadata()); size <= max_data_bytes) {
+        if (auto size = get_uncompressed_size(buffered_meta.metadata()); size <= max_data_bytes) {
           reader.read(image, {sender.get_data(image), size}, buffered_meta.offset(),
-                      buffered_meta.size());
+                      buffered_meta.metadata().size());
 
+          buffered_meta.mutable_metadata()->set_size(size);
+          buffered_meta.mutable_metadata()->set_compression(std_daq_protocol::none);
           std::string meta_buffer_send;
           buffered_meta.metadata().SerializeToString(&meta_buffer_send);
           sender.send(image, meta_buffer_send, nullptr, zmq_flags);
