@@ -67,8 +67,9 @@ int main(int argc, char* argv[])
       const auto [offset, compressed_size] =
           writer.write(meta->image_id(), std::span<char>(image_data, size));
 
+      meta->set_compression(std_daq_protocol::blosc2);
+      meta->set_size(compressed_size);
       buffered_meta.set_offset(offset);
-      buffered_meta.set_size(compressed_size);
       sender.send(meta->image_id(), buffered_meta);
     }
   }

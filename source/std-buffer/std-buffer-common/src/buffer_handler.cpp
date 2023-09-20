@@ -12,11 +12,12 @@ BufferHandler::BufferHandler(std::string root_directory, std::size_t type_size)
 {
   blosc2_cparams compression_params = BLOSC2_CPARAMS_DEFAULTS;
   compression_params.typesize = static_cast<int32_t>(type_size);
-  compression_params.compcode = BLOSC_LZ4;
+  compression_params.compcode = BLOSC_BLOSCLZ;
   compression_params.clevel = 5;
+  compression_params.nthreads = 4;
   compression_params.filters[BLOSC2_MAX_FILTERS - 1] = BLOSC_BITSHUFFLE;
   compression_ctx = blosc2_create_cctx(compression_params);
-  decompression_ctx = blosc2_create_dctx(BLOSC2_DPARAMS_DEFAULTS);
+  decompression_ctx = blosc2_create_dctx(BLOSC2_DPARAMS_DEFAULTS);  
 }
 
 BufferHandler::~BufferHandler()

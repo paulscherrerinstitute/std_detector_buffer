@@ -8,5 +8,4 @@ package std_daq_protocol;
 message BufferedMetadata {
   ImageMetadata metadata = 1;
   uint64 offset = 2;
-  uint64 size = 3;
 }
