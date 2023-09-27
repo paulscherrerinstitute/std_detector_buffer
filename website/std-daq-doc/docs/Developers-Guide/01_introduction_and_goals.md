@@ -1,65 +1,50 @@
 # Introduction and Goals {#section-introduction-and-goals}
 
-The goal of the `std-daq` is to provide an ecosystem for data acquisition from different kind of detectors with high performance limit (more than `1 GB/s`). The secondary goal is to provide generic solution within PSI ecosystem fitting purposes of different beamlines by allowing them extending functionality by extending the pipe-chain. 
+The primary goal of `std-daq` is to offer a high-performance data acquisition ecosystem for various detectors, aiming for speeds exceeding `1 GB/s`. Additionally, we aim to provide a versatile solution within the PSI ecosystem to cater to different beamlines needs. This flexibility allows users to enhance functionality by extending the pipe-chain.
 
 ## Requirements Overview {#_requirements_overview}
 
-In case of `standard` setup the numbers should be similar to provided below - for custom setup these may differ significantly.
+For a `standard` setup, the specifications are as mentioned below. However, custom setups might vary.
 
-### **Network**
+### Network
 
-- We require about 20% overhead in the network capabilities.
-- We require `melanox` connect series cards with correct configuration (datagram mode + permissions)
+- An overhead of approximately 20% in network capabilities is required.
+- `melanox` connect series cards are essential, with the correct configuration (datagram mode + permissions).
 
-### **Storage**
+### Storage
 
 The storage needs to be capable of ingesting single stream image (compressed or uncompressed depending on setup)
 
-### **Server Hardware**
+### Server Hardware
 
-- We require 1 core per 1 `GB/s` of receiving/sending data
-- We require 1 core per 1 Module for convertion/assembly of the image
-- We require 1 core for live streaming (depending on amount of data live streamed it can be more)
-- We require 1 core per 300 `MB/s` (bitshuffle) or 600 `MB/s` (blosc2) of compression
-- 1 core per 3,5 `GB/s` writing data
+- 1 core for every 1 `GB/s` of data transfer (both receiving and sending).
+- 1 core for every module used in image conversion/assembly.
+- 1 core dedicated to live streaming (this might increase based on the volume of live-streamed data).
+- 1 core for every 300 `MB/s` (using bitshuffle) or 600 `MB/s` (using blosc2) for compression.
+- 1 core for every 3.5 `GB/s` of data writing.
 
 ## Quality Goals {#_quality_goals}
 
 ### Usability
 
-Our main goal is usability - the system needs to be easy to understand and learn and attractive for the users to use. We need to focus on "first impression" so the setup of the ecosystem needs to be as user friendly as practical. This goes with documentation, installation process and updating configuration.
+The primary focus is on usability. The system should be intuitive and easy to understand for users. The key is the "first impression", ensuring the ecosystem's setup is user-friendly. This includes aspects like documentation, the installation process, and configuration updates.
 
 ### Stability
 
-The goal is to provide system that can reliably collect the needed data from detectors without degradations over time. With 99%+ uptime as a goal. It also means that updates and roll-back to working version of the system is not only feasible but also easy to execute. The stability of the system and deployment should be tested within each major release.
+The system should consistently and reliably collect data from detectors, aiming for an uptime of 99% or more. Updates should be straightforward, with an easy rollback option to a stable version if needed. System stability and deployment must be tested with every major release.
 
 ### Performance
 
-The software needs to be as performant as possible without degrading the stability of itself. It should be tested not to degrade over time. Our goal is to provide a solution for commodity hardware setup for the users to reduce their costs and need of custom hardware.
+The software should be optimized for performance without compromising its stability. It should not degrade over time. The objective is to offer a solution suitable for standard hardware, reducing the need for specialized equipment and associated costs.
 
 ## Stakeholders {#_stakeholders}
 
-+-------------+---------------------------+---------------------------+
-| Role/Name   | Contact                   | Expectations              |
-+=============+===========================+===========================+
-| *           | * Beamline scientists <todo name them>           | * documentation overview, debugging, understanding the extension possibilities of system, new features,        |
-| End users * |                           |                           |
-+-------------+---------------------------+---------------------------+
-| *           | **Missing MIA**           | * Easy deployment, setup and tuning of the system, possibility of roll-backs, debugging, monitoring, documentation        |
-| Integration expert |                           |                           |
-+-------------+---------------------------+---------------------------+
-| *           | * Network  <Leonardo Sala/Alvise>           | * Provide security requirements and network configuration that fulfils the `std-daq` requirements, documentation,        |
-| Network admin |                           |                           |
-+-------------+---------------------------+---------------------------+
-| *           | Leonardo Sala/...           | Provide standardized base image for operating system, root rights for setup/configuration phase, user access needed by end-users, toolset installation for network team,        |
-| Server admin |                           |                           |
-+-------------+---------------------------+---------------------------+
-| *           | Maciej/Leonardo           | development/architecture decisions       |
-| Developer |                           |                           |
-+-------------+---------------------------+---------------------------+
-| *           | Tadej Humar           | Overview of system and prioritization of tasks       |
-| "Product Owner" |                           |                           |
-+-------------+---------------------------+---------------------------+
-| *           | ????           | stable interface, defined API, documentation/manual, examples,        |
-| "Plug-In Developer" |                           |                           |
-+-------------+---------------------------+---------------------------+
+| Role/Name           | Contact                              | Expectations                                                                                       |
+|---------------------|--------------------------------------|----------------------------------------------------------------------------------------------------|
+| End users           | Beamline scientists <todo name them> | Documentation overview, debugging, understanding system extensions, requesting new features.       |
+| Integration expert  | **Missing MIA**                      | Easy system deployment, setup, tuning, roll-backs, debugging, monitoring, documentation.           |
+| Network admin       | Network <Leonardo Sala/Alvise>       | Security requirements, network configuration in line with `std-daq` requirements, documentation.   |
+| Server admin        | Leonardo Sala/...                    | Standardized OS base image, root rights for setup/configuration, user access, toolset for network. |
+| Developer           | Maciej/Leonardo                      | Development and architecture decisions.                                                            |
+| "Product Owner"     | Tadej Humar                          | System overview and task prioritization.                                                           |
+| "Plug-In Developer" | ????                                 | Stable interface, defined API, documentation/manual, examples.                                     |
