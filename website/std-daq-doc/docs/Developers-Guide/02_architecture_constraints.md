@@ -1,24 +1,31 @@
 # Architecture Constraints {#section-architecture-constraints}
 
-### **Contents**
+### Scalability with the module number
 
-Any requirement that constraints software architects in their freedom of
-design and implementation decisions or decision about the development
-process. These constraints sometimes go beyond individual systems and
-are valid for whole organizations and companies.
+We need to scale with the number of detector modules as we don't know what will change and how many will we have. 
 
-### **Motivation**
+### Storage
 
-Architects should know exactly where they are free in their design
-decisions and where they must adhere to constraints. Constraints must
-always be dealt with; they may be negotiable, though.
+Data flow needs to match the distributed storage characteristics
 
-### **Form**
+### Working set size
 
-Simple tables of constraints with explanations. If needed you can
-subdivide them into technical constraints, organizational and political
-constraints and conventions (e.g. programming or versioning guidelines,
-documentation or naming conventions)
+The working set size needs to fit within `L3` of a high performance cpu
 
-See [Architecture Constraints](https://docs.arc42.org/section-2/) in the
-arc42 documentation.
+###  Melanox cards
+
+Technology used at PSI that we have to adhere to
+
+### HDF5 compatibility as an output file
+
+### Real-time API
+
+We need to provide "real-time" (within 5 seconds) feedback of the state of the system
+
+### We need to support experimental user security mechanism 
+
+Defined by PSI
+
+### Restart time within 10 seconds
+
+### Writing throughtput management

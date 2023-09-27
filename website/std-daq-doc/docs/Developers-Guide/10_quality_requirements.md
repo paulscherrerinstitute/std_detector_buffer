@@ -1,5 +1,29 @@
 # Quality Requirements {#section-quality-scenarios}
 
+
+- Integrators
+  - Easy deploy and update
+  - Monitoring and debug
+  - Stability
+  - Documentation
+  - Interface stability
+- Storage providers
+  - Security
+  - standardisation
+- Beamlines
+  - no complete image is lost (receiving and writing)
+  - 
+- Plugin developers
+  - Interface stability
+  - documentation
+  - Dev workflow
+- Core developers
+  - Maintanability - no human interaction
+  - 
+
+
+stability > standardisation > setup simplicity > performance > user experience > testability > debug-ability > feature rich
+
 ### **Content**
 
 This section contains all quality requirements as quality tree with
@@ -17,6 +41,8 @@ to them, concrete and measurable.
 
 See [Quality Requirements](https://docs.arc42.org/section-10/) in the
 arc42 documentation.
+
+
 
 ## Quality Tree {#_quality_tree}
 

@@ -1,5 +1,28 @@
 # System Scope and Context {#section-system-scope-and-context}
 
+Receive data from the detectors (or cameras), transform data into processable grayscale 2D image, provide the data to the user in one of possible manners: as a file, as a stream.
+
+- Metadata + RamBuffer
+- array-1.0
+- bsread
+- hdf5 files
+- config file
+- deployment file
+- REST API 
+- influx DB logging 
+
+
+
+
+Commodity HW. low level high performance, standardized solution.  cost of integration, hide complexity of getting data. Scalable, flexible, local support/knowledge, integrated in PSI ecosystem, standardized deployment. Plug-in functionality, Tight integration with the detectors.
+
+
+- We support up to x(~20 000) receiving events per core per second.
+- We support up to 1GB tput/s per core true both for receiving and sending out.
+
+
+stability > setup simplicity > performance > user experience > testability > debug-ability > feature rich
+
 ### **Contents**
 
 System scope and context - as the name suggests - delimits your system

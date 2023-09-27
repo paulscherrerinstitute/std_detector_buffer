@@ -1,4 +1,11 @@
 # Solution Strategy {#section-solution-strategy}
+- Streaming oriented architecture to allow interactive feedback with users. 
+- Microservice architecture allows us to scale with the detector modules and implement different features for different users on demand.
+- Separation of data and metadata in order to allow no-copy data transfer between services and allow for metadata based image filtering (not possibe on full data due to throughput issue)
+- Zmq based streaming for user interfaces to allow for client scaling independent of services and easy interoperability with existing ifrastructure
+- Data pipe only - not checking data quality or correctness of sources (what comes in goes out)
+- Single source of config for all services - single source of truth, common service interface
+- Systemd based services management - restarting, logging, configuration, 
 
 ### **Contents**
 
@@ -17,9 +24,10 @@ solution strategies, that shape system architecture. It includes
 
 ### **Motivation**
 
+
+
 These decisions form the cornerstones for your architecture. They are
 the foundation for many other detailed decisions or implementation
-rules.
 
 ### **Form**
 

@@ -1,5 +1,15 @@
 # Architecture Decisions {#section-design-decisions}
 
+- elastic
+- modularity
+- pipe only (reliable source)
+- synchronization mechanism
+- we want to integrate the performance critical algorithms into pipeline ourselves (in store data path)
+- startup-time configuration of services
+- no means of communication/synchronization besides the data pipe to services
+- common configuration file and common logging for services built by us (InfluxDB)
+- separation between data nad metadata streams
+
 ### **Contents**
 
 Important, expensive, large scale or risky architecture decisions
