@@ -39,12 +39,12 @@ The software should be optimized for performance without compromising its stabil
 
 ## Stakeholders {#_stakeholders}
 
-| Role/Name           | Contact                              | Expectations                                                                                       |
-|---------------------|--------------------------------------|----------------------------------------------------------------------------------------------------|
-| End users           | Beamline scientists <todo name them> | Documentation overview, debugging, understanding system extensions, requesting new features.       |
-| Integration expert  | **Missing MIA**                      | Easy system deployment, setup, tuning, roll-backs, debugging, monitoring, documentation.           |
-| Network admin       | Network <Leonardo Sala/Alvise>       | Security requirements, network configuration in line with `std-daq` requirements, documentation.   |
-| Server admin        | Leonardo Sala/...                    | Standardized OS base image, root rights for setup/configuration, user access, toolset for network. |
-| Developer           | Maciej/Leonardo                      | Development and architecture decisions.                                                            |
-| "Product Owner"     | Tadej Humar                          | System overview and task prioritization.                                                           |
-| "Plug-In Developer" | ????                                 | Stable interface, defined API, documentation/manual, examples.                                     |
+| Role/Name           | Contact                            | Expectations                                                                                       |
+|---------------------|------------------------------------|----------------------------------------------------------------------------------------------------|
+| End users           | Beamline scientists todo name them | Documentation overview, debugging, understanding system extensions, requesting new features.       |
+| Integration expert  | **Missing MIA**                    | Easy system deployment, setup, tuning, roll-backs, debugging, monitoring, documentation.           |
+| Network admin       | Network <Leonardo Sala/Alvise>     | Security requirements, network configuration in line with `std-daq` requirements, documentation.   |
+| Server admin        | Leonardo Sala/...                  | Standardized OS base image, root rights for setup/configuration, user access, toolset for network. |
+| Developer           | Maciej/Leonardo                    | Development and architecture decisions.                                                            |
+| "Product Owner"     | Tadej Humar                        | System overview and task prioritization.                                                           |
+| "Plug-In Developer" | ????                               | Stable interface, defined API, documentation/manual, examples.                                     |
