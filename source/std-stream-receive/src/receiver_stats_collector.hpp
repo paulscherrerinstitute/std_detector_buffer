@@ -17,14 +17,18 @@ namespace gf::rec {
 class ReceiverStatsCollector : public utils::stats::TimedStatsCollector
 {
 public:
-  explicit ReceiverStatsCollector(std::string_view detector_name, std::chrono::seconds period)
+  explicit ReceiverStatsCollector(std::string_view detector_name,
+                                  std::chrono::seconds period,
+                                  int part)
       : utils::stats::TimedStatsCollector(detector_name, period)
+      , image_part(part)
   {}
 
   [[nodiscard]] std::string additional_message() override
   {
-    auto outcome = fmt::format("{},zmq_receive_fails={},images_missed={}",
-                               TimedStatsCollector::additional_message(), zmq_fails, images_missed);
+    auto outcome = fmt::format("{},image_part={},zmq_receive_fails={},images_missed={}",
+                               TimedStatsCollector::additional_message(), image_part, zmq_fails,
+                               images_missed);
     images_missed = 0;
     zmq_fails = 0;
     return outcome;
@@ -39,6 +43,7 @@ public:
   }
 
 private:
+  const int image_part;
   unsigned long zmq_fails = 0;
   unsigned long prev_image_id = 0;
   unsigned long images_missed = 0;

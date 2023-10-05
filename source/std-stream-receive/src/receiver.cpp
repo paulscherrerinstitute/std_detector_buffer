@@ -56,7 +56,8 @@ int main(int argc, char* argv[])
   const auto data_bytes_sent =
       std::min(converted_bytes - start_index, utils::max_single_sender_size(config));
 
-  gf::rec::ReceiverStatsCollector stats(config.detector_name, config.stats_collection_period);
+  gf::rec::ReceiverStatsCollector stats(config.detector_name, config.stats_collection_period,
+                                        image_part);
 
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;
