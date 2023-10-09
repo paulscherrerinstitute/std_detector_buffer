@@ -34,12 +34,12 @@ public:
     return outcome;
   }
 
-  void processing_finished(unsigned int receive_fails, unsigned long id = 0)
+  void process(unsigned int receive_fails, unsigned long id = 0)
   {
     zmq_fails += receive_fails;
     if (prev_image_id + 1 != id) images_missed++;
     prev_image_id = id > 0 ? id : prev_image_id;
-    static_cast<utils::stats::TimedStatsCollector*>(this)->processing_finished();
+    static_cast<utils::stats::TimedStatsCollector*>(this)->process();
   }
 
 private:

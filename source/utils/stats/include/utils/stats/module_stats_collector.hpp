@@ -19,9 +19,9 @@ public:
       , module_id(module_id)
   {}
 
-  [[nodiscard]] virtual std::string additional_message()
+  [[nodiscard]] std::string additional_message() override
   {
-    return fmt::format("{},module_id={}", TimedStatsCollector::additional_message(), module_id);
+    return fmt::format("module_id={},{}", module_id, TimedStatsCollector::additional_message());
   }
 
 private:

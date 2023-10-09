@@ -79,7 +79,6 @@ int main(int argc, char* argv[])
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
       meta.ParseFromArray(buffer, n_bytes);
       if (meta.status() == std_daq_protocol::good_image) {
-        stats.processing_started();
 
         char* compression_buffer = sender.get_data(meta.image_id());
 
@@ -102,7 +101,7 @@ int main(int argc, char* argv[])
           sender.send(meta.image_id(), {meta_buffer_send.c_str(), meta_buffer_send.size()},
                       nullptr);
         }
-        stats.processing_finished(size);
+        stats.process(size);
       }
     }
     stats.print_stats();

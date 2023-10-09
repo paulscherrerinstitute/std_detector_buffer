@@ -24,7 +24,7 @@ public:
       , image_size(image_size)
   {}
 
-  [[nodiscard]] virtual std::string additional_message()
+  [[nodiscard]] std::string additional_message() override
   {
     double ratio = calculate_ratio();
     auto outcome = fmt::format("{},compressed_images={},ratio={}",
@@ -41,13 +41,13 @@ public:
     return 0.0;
   }
 
-  void processing_finished(int compressed)
+  void process(int compressed)
   {
     if (compressed > 0) {
       compressed_images++;
       compressed_size += compressed;
     }
-    static_cast<TimedStatsCollector*>(this)->processing_finished();
+    static_cast<TimedStatsCollector*>(this)->process();
   }
 
 private:

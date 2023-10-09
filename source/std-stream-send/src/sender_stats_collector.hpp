@@ -32,10 +32,10 @@ public:
     return outcome;
   }
 
-  void processing_finished(std::size_t send_fails)
+  void process(std::size_t send_fails)
   {
     zmq_fails += send_fails;
-    static_cast<utils::stats::TimedStatsCollector*>(this)->processing_finished();
+    static_cast<utils::stats::TimedStatsCollector*>(this)->process();
   }
 
 private:

@@ -21,7 +21,7 @@ public:
       : TimedStatsCollector(detector_name, period)
   {}
 
-  [[nodiscard]] virtual std::string additional_message()
+  [[nodiscard]] std::string additional_message() override
   {
     auto outcome = fmt::format("{},n_corrupted_images={}",
                                TimedStatsCollector::additional_message(), n_corrupted_images);
@@ -29,10 +29,10 @@ public:
     return outcome;
   }
 
-  void processing_finished(unsigned int n_corrupted)
+  void process(unsigned int n_corrupted)
   {
     n_corrupted_images += n_corrupted;
-    static_cast<TimedStatsCollector*>(this)->processing_finished();
+    static_cast<TimedStatsCollector*>(this)->process();
   }
 
 private:

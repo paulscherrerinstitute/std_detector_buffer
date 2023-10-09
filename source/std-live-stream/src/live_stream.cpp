@@ -90,7 +90,6 @@ int main(int argc, char* argv[])
 
   while (true) {
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
-      utils::stats::process_stats p{stats};
       meta.ParseFromArray(buffer, n_bytes);
       auto image_data = receiver.get_data(meta.image_id());
 
@@ -105,6 +104,7 @@ int main(int argc, char* argv[])
         zmq_send(sender_socket, encoded_c, encoded.length(), ZMQ_SNDMORE);
         zmq_send(sender_socket, image_data, meta.size(), 0);
       }
+      stats.process();
     }
     stats.print_stats();
   }

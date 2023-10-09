@@ -56,7 +56,6 @@ int main(int argc, char* argv[])
   std::map<pulse_id_t, std::tuple<uint32_t, uint32_t, std::size_t>> pulse_order;
 
   while (true) {
-    stats.processing_started();
     for (auto& receiver : receivers_array) {
       auto msg = receiver.receive();
       if (msg.channels != nullptr) {
@@ -82,7 +81,7 @@ int main(int argc, char* argv[])
       sender.send(pulse, meta_buffer_send, nullptr);
     }
     pulse_order.clear();
-    stats.processing_finished();
+    stats.process();
     stats.print_stats();
   }
   return 0;

@@ -28,10 +28,10 @@ public:
     return outcome;
   }
 
-  void processing_finished(unsigned int n_corrupted, std::size_t queue_len)
+  void process(unsigned int n_corrupted, std::size_t queue_len)
   {
     queue = std::max(queue, queue_len);
-    Parent::processing_finished(n_corrupted);
+    Parent::process(n_corrupted);
   }
 
 private:

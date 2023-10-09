@@ -39,12 +39,11 @@ int main(int argc, char* argv[])
 
   while (true) {
     if (auto n_bytes = zmq_recv(receiver, buffer, sizeof(buffer), 0); n_bytes > 0) {
-      stats.processing_started();
-      image_meta.ParseFromArray(buffer, n_bytes);
+        image_meta.ParseFromArray(buffer, n_bytes);
 
       auto [cached_id, n_corrupted_images] = syncer.process_image_metadata(image_meta.image_id());
       if (cached_id != INVALID_IMAGE_ID) zmq_send(sender, buffer, n_bytes, 0);
-      stats.processing_finished(n_corrupted_images, syncer.get_queue_length());
+      stats.process(n_corrupted_images, syncer.get_queue_length());
     }
     stats.print_stats();
   }

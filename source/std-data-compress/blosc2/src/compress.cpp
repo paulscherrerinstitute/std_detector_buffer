@@ -98,7 +98,6 @@ int main(int argc, char* argv[])
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
       meta.ParseFromArray(buffer, n_bytes);
       if (meta.status() == std_daq_protocol::good_image) {
-        stats.processing_started();
 
         auto compressed_size =
             blosc2_compress_ctx(compress.ctx(), receiver.get_data(meta.image_id()), converted_bytes,
@@ -114,7 +113,7 @@ int main(int argc, char* argv[])
           sender.send(meta.image_id(), {meta_buffer_send.c_str(), meta_buffer_send.size()},
                       nullptr);
         }
-        stats.processing_finished(compressed_size);
+        stats.process(compressed_size);
       }
     }
     stats.print_stats();
