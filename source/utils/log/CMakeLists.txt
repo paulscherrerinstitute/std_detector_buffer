@@ -16,4 +16,4 @@ target_sources(${PROJECT_NAME}
 )
 
 target_include_directories(${PROJECT_NAME} INTERFACE include)
-target_link_libraries(${PROJECT_NAME} INTERFACE spdlog::spdlog range-v3::range-v3)
+target_link_libraries(${PROJECT_NAME} INTERFACE utils::version spdlog::spdlog range-v3::range-v3)

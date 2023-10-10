@@ -11,7 +11,7 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <range/v3/all.hpp>
 
-
+#include "utils/version.hpp"
 
 namespace utils::log {
 
@@ -21,7 +21,8 @@ public:
   explicit logger(std::string_view name, std::string_view log_level)
   {
     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-    auto log_pattern = fmt::format("[%m-%d %H:%M:%S.%e]%^[\033[33m{}\033[m][%^%l%$] %v", name);
+    auto log_pattern =
+        fmt::format("[%m-%d %H:%M:%S.%e]%^[\033[33m{}\033[m][v{}][%^%l%$] %v", name, PROJECT_VER);
     console_sink->set_pattern(log_pattern);
     console_sink->set_color_mode(spdlog::color_mode::always);
     auto logger = std::make_shared<spdlog::logger>("global", console_sink);
