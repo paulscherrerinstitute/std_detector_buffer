@@ -13,10 +13,11 @@
 #include "utils/stats/compression_stats_collector.hpp"
 #include "utils/stats/timed_stats_collector.hpp"
 
+#include "utils/version.hpp"
+
 #include "args.hpp"
 #include "detector_config.hpp"
 #include "get_metadata_dtype.hpp"
 #include "image_size_calc.hpp"
-#include "version.hpp"
 
 #endif // STD_DETECTOR_BUFFER_UTILS_HPP

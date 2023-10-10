@@ -12,7 +12,7 @@
 
 #include <argparse/argparse.hpp>
 
-#include "version.hpp"
+#include "utils/version.hpp"
 
 namespace utils {
 

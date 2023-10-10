@@ -8,15 +8,12 @@ find_package(nlohmann_json REQUIRED)
 add_library(${PROJECT_NAME})
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
-configure_file(include/utils/version.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/include/utils/version.hpp)
-
 target_sources(${PROJECT_NAME}
     PUBLIC
         include/utils/args.hpp
         include/utils/image_size_calc.hpp
         include/utils/detector_config.hpp
         include/utils/get_metadata_dtype.hpp
-        include/utils/version.hpp
         include/utils/utils.hpp
     PRIVATE
         src/image_size_calc.cpp
@@ -30,6 +27,7 @@ target_link_libraries(${PROJECT_NAME}
         fmt::fmt
         utils::stats
         utils::log
+        utils::version
         std_daq_interface::std_daq_interface
         std_detector_buffer::settings
     PRIVATE
@@ -39,6 +37,7 @@ target_link_libraries(${PROJECT_NAME}
 
 add_subdirectory(log)
 add_subdirectory(stats)
+add_subdirectory(version)
 
 if(BUILD_TESTING)
     add_subdirectory(test)
