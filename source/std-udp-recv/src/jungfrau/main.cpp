@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
         if (packet.packetnum == N_PACKETS_PER_FRAME - 1) {
           sender.send(meta.common.image_id, std::span<char>((char*)&meta, sizeof(meta)),
                       frame_buffer);
-          stats.record_stats(meta.common.n_missing_packets);
+          stats.process(meta.common.n_missing_packets);
           // Invalidate the current buffer - we already send data out for this one.
           meta.frame_index = INVALID_IMAGE_ID;
         }
@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
         if (meta.frame_index != INVALID_IMAGE_ID) {
           sender.send(meta.common.image_id, std::span<char>((char*)&meta, sizeof(meta)),
                       frame_buffer);
-          stats.record_stats(meta.common.n_missing_packets);
+          stats.process(meta.common.n_missing_packets);
         }
 
         // Initialize new frame metadata from first seen packet.

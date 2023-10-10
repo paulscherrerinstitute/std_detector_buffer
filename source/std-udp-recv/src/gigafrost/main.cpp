@@ -57,7 +57,7 @@ inline void send_image_id(GFFrame& meta,
                           FrameStatsCollector& stats)
 {
   sender.send(meta.common.image_id, std::span<char>((char*)(&meta), sizeof(meta)), frame_buffer);
-  stats.record_stats(meta.common.n_missing_packets);
+  stats.process(meta.common.n_missing_packets);
   // Invalidate the current buffer - we already send data out for this one.
   meta.common.image_id = INVALID_IMAGE_ID;
 }
