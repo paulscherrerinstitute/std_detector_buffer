@@ -21,9 +21,10 @@ public:
   [[nodiscard]] virtual std::string additional_message()
   {
     const auto repetition_rate = calculate_repetition_rate();
+    auto outcome = fmt::format("processed_times={},repetition_rate_hz={:.2f}", processed_times,
+                               repetition_rate);
     reset_stats();
-    return fmt::format("processed_times={},repetition_rate_hz={:.2f}", processed_times,
-                       repetition_rate);
+    return outcome;
   }
   void process() { processed_times++; }
 
