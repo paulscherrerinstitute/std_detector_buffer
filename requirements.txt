@@ -8,4 +8,5 @@ numpy
 urllib3 == 1.26.15
 twine
 wheel
+blosc2
 bitshuffle

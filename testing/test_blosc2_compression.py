@@ -1,6 +1,6 @@
 import asyncio
 import time
-# import blosc2
+import blosc2
 import pytest
 import zmq
 import zmq.asyncio
@@ -14,7 +14,6 @@ import std_buffer.image_metadata_pb2 as daq_proto
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="blosc2 import doesn't install correctly argh - check it!")
 async def test_compression(test_path):
     compression_cmd = build_command('std_data_compress_blosc2', test_path / 'gigafrost_detector.json', '-t', '4')
 
