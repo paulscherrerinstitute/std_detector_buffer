@@ -26,9 +26,8 @@ public:
 
   [[nodiscard]] std::string additional_message() override
   {
-    auto outcome = fmt::format("{},image_part={},zmq_receive_fails={},images_missed={}",
-                               TimedStatsCollector::additional_message(), image_part, zmq_fails,
-                               images_missed);
+    auto outcome = fmt::format("image_part={},{},zmq_receive_fails={},images_missed={}", image_part,
+                               TimedStatsCollector::additional_message(), zmq_fails, images_missed);
     images_missed = 0;
     zmq_fails = 0;
     return outcome;
