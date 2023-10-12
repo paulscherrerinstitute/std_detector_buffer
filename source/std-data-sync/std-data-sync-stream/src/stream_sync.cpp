@@ -42,8 +42,12 @@ int main(int argc, char* argv[])
         image_meta.ParseFromArray(buffer, n_bytes);
 
       auto [cached_id, n_corrupted_images] = syncer.process_image_metadata(image_meta.image_id());
-      if (cached_id != INVALID_IMAGE_ID) zmq_send(sender, buffer, n_bytes, 0);
-      stats.process(n_corrupted_images, syncer.get_queue_length());
+      if (cached_id != INVALID_IMAGE_ID)
+      {
+        zmq_send(sender, buffer, n_bytes, 0);
+        stats.process(n_corrupted_images);
+      }
+      stats.update_queue_length(syncer.get_queue_length());
     }
     stats.print_stats();
   }
