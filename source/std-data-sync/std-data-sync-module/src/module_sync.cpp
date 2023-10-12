@@ -60,8 +60,8 @@ int main(int argc, char* argv[])
         std::string meta_buffer_send;
         image_meta.SerializeToString(&meta_buffer_send);
         zmq_send(sender, meta_buffer_send.c_str(), meta_buffer_send.size(), 0);
+        stats.process(n_corrupted_images);
       }
-      stats.process(n_corrupted_images);
     }
     stats.print_stats();
   }
