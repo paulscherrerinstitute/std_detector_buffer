@@ -1,31 +1,14 @@
 # Architecture Constraints {#section-architecture-constraints}
 
-### Scalability with the module number
+The following table enumerates the architectural constraints identified within the project. Each constraint is accompanied by a rationale clarifying its significance or origin.
 
-We need to scale with the number of detector modules as we don't know what will change and how many will we have. 
-
-### Storage
-
-Data flow needs to match the distributed storage characteristics
-
-### Working set size
-
-The working set size needs to fit within `L3` of a high performance cpu
-
-###  Melanox cards
-
-Technology used at PSI that we have to adhere to
-
-### HDF5 compatibility as an output file
-
-### Real-time API
-
-We need to provide "real-time" (within 5 seconds) feedback of the state of the system
-
-### We need to support experimental user security mechanism 
-
-Defined by PSI
-
-### Restart time within 10 seconds
-
-### Writing throughtput management
+| Constraint                                  | Rationale                                                                                                                                                                                                                                                                |
+|---------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Scalability with Module Count               | The architecture must support scalability concerning the number of modules integrated within the designated detector. Each module represents a fixed hardware entity, necessitating a system design that accommodates varying module counts and physical configurations. |
+| Storage                                     | The data flow architecture should align with the characteristics of the distributed storage system in use.                                                                                                                                                               |
+| Working Set Size                            | The working set size must be accommodated within the `L3` cache of a high-performance CPU to meet the required processing speed in high-demand scenarios.                                                                                                                |
+| Mellanox Cards Utilization                  | Adherence to the Mellanox technology, as utilized at PSI.                                                                                                                                                                                                                |
+| HDF5 Output File Compatibility              | The architecture should support `HDF5` file format for output files, adhering to the current usage by all beamlines and their associated clients.                                                                                                                        |
+| Real-time API                               | Provision of a real-time API is essential to deliver system state feedback within a 5-second interval.                                                                                                                                                                   |
+| Experimental User Security Mechanism        | The project must incorporate a security mechanism for experimental users, as stipulated by PSI.                                                                                                                                                                          |
+| System Restart Capability within 10 Seconds | The architecture should facilitate system configuration changes with a restart time not exceeding 10 seconds, aligning with the user tolerance for wait time.                                                                                                            |
