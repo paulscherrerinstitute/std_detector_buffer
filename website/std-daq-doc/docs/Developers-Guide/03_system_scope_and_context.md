@@ -25,3 +25,11 @@ This section describes the common interface used for communication between servi
 
 2. **Image Data Storage**:
     - Image data is stored in shared memory within a RAM buffer, utilizing a ring buffer mechanism to hold a fixed number of images. Each raw image data is accessible via an `image_id`.
+
+### **Live Streaming Data**
+### **BSREAD PCO Camera Input**
+### **Stored Image Files**
+### **Standard DAQ Config File**
+### **Ansible Deployment File**
+### **Logging Protocol**
+### **REST API**
