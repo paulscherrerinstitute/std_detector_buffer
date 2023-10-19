@@ -18,4 +18,10 @@ This system is designed to receive input data from detectors or cameras, convert
 ## Details {#_details}
 ### **Live image data and metadata**
 
-This interface is a common interface to communicate between services...
+This section describes the common interface used for communication between services within the system. The design allows for the addition of new processing services by beamline users in the future. To integrate with the existing pipeline, these services must follow the current communication protocol to send and receive data to other standard services. The protocol is split into two channels: metadata and image data, allowing services to interact with metadata, avoiding unnecessary transfer or reading of image data if not needed.
+
+1. **Metadata Transmission**:
+    - Metadata for images is transmitted via a `ZeroMQ` Publish/Subscribe (pub/sub) connection using Inter-Process Communication (IPC). The messages follow a standard `Protobuf` structure, detailed [HERE](#protobuf-documentation).
+
+2. **Image Data Storage**:
+    - Image data is stored in shared memory within a RAM buffer, utilizing a ring buffer mechanism to hold a fixed number of images. Each raw image data is accessible via an `image_id`.
