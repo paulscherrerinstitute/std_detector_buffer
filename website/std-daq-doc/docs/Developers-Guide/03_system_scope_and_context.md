@@ -14,8 +14,8 @@ This system is designed to receive input data from detectors or cameras, convert
 | **Standard DAQ Config File**     | A `JSON` configuration file, common across all services, is provided as a startup argument to configure the Data Acquisition (DAQ) system.                                                                                                                                |
 | **Ansible Deployment File**      | An `Ansible` playbook is utilized for setting up and deploying all services on DAQ servers.                                                                                                                                                                               |
 | **Logging Protocol**             | Logging is facilitated using the `InfluxDB` protocol with logs being forwarded by `Filebeat` to `Elasticsearch` for centralized logging and analysis.                                                                                                                     |
-| **REST API**                     | <tbd>                                                                                                                                                                                                                                                                     |
-
-### Live image data and metadata
+| **REST API**                     | TBD                                                                                                                                                                                                                                                                       |
+## Details {#_details}
+### **Live image data and metadata**
 
 This interface is a common interface to communicate between services...
