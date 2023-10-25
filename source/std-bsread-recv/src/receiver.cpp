@@ -25,6 +25,15 @@ std::tuple<utils::DetectorConfig, std::string> read_arguments(int argc, char* ar
   return {utils::read_config_from_json_file(program.get("detector_json_filename")),
           program.get("stream_address")};
 }
+
+struct tmp_meta
+{
+  uint32_t width;
+  uint32_t height;
+  std::string name;
+  bsrec::timestamp timestamp;
+};
+
 } // namespace
 
 int main(int argc, char* argv[])
@@ -53,7 +62,7 @@ int main(int argc, char* argv[])
   image_meta.set_dtype(utils::get_metadata_dtype(config));
   image_meta.set_status(std_daq_protocol::ImageMetadataStatus::good_image);
   // TODO: to be improved in future
-  std::map<pulse_id_t, std::tuple<uint32_t, uint32_t, std::size_t>> pulse_order;
+  std::map<pulse_id_t, tmp_meta> pulse_order;
 
   while (true) {
     for (auto& receiver : receivers_array) {
@@ -63,17 +72,21 @@ int main(int argc, char* argv[])
         if (!channels.empty()) {
           char* ram_buffer = sender.get_data(msg.pulse_id);
           memcpy(ram_buffer, channels[0].buffer.get(), channels[0].buffer_size);
-          pulse_order[msg.pulse_id] = {channels[0].shape[0], channels[0].shape[1],
-                                       channels[0].buffer_size};
+
+          pulse_order.emplace(msg.pulse_id, tmp_meta{channels[0].shape[0], channels[0].shape[1],
+                                                     channels[0].name, msg.time});
         }
       }
     }
-    for (auto [pulse, shape] : pulse_order) {
+    for (auto [pulse, m] : pulse_order) {
       image_meta.set_image_id(pulse);
       // bsread protocol read shape as [x,y,z,...]
-      image_meta.set_width(std::get<0>(shape));
-      image_meta.set_height(std::get<1>(shape));
-      image_meta.set_size(std::get<2>(shape));
+      image_meta.set_width(m.width);
+      image_meta.set_height(m.height);
+      image_meta.set_size(m.width * m.height * config.bit_depth / 8);
+      image_meta.mutable_pco()->set_bsread_name(m.name);
+      image_meta.mutable_pco()->set_global_timestamp_sec(m.timestamp.sec);
+      image_meta.mutable_pco()->set_global_timestamp_ns(m.timestamp.nsec);
 
       std::string meta_buffer_send;
       image_meta.SerializeToString(&meta_buffer_send);

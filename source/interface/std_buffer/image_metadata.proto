@@ -19,6 +19,12 @@ message EGImageMetadata {
   uint64 exptime=1;
 }
 
+message PcoImageMetadata {
+  uint64 global_timestamp_sec=1;
+  uint64 global_timestamp_ns=2;
+  string bsread_name=3;
+}
+
 enum ImageMetadataDtype {
   unknown=0;
   uint8=1; uint16=2; uint32=4; uint64=8;
@@ -52,5 +58,6 @@ message ImageMetadata {
     GFImageMetadata gf = 8;
     JFImageMetadata jf = 9;
     EGImageMetadata eg = 10;
+    PcoImageMetadata pco = 11;
   }
 }

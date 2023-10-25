@@ -18,6 +18,7 @@ class SBD(ConanFile):
         "c-blosc2/2.10.0",
         "spdlog/1.12.0",
         "hdf5/1.14.1",
+        "hash-library/8.0",
         "zlib/1.2.13"
     ]
 
