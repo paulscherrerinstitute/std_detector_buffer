@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
       auto image_data = receiver.get_data(meta.image_id());
 
       auto data_header =
-          fmt::format(R"({{"htype":"bsr_d-1.1","channels":[{{"name":{},"shape":[{},{}])"
+          fmt::format(R"({{"htype":"bsr_d-1.1","channels":[{{"name":"{}","shape":[{},{}])"
                       R"(,"type":"{}","compression":"bitshuffle_lz4"}}]}})",
                       meta.pco().bsread_name(), meta.width(), meta.height(),
                       map_bit_depth_to_type(config.bit_depth));
