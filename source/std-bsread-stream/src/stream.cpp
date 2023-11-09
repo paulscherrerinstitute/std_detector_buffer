@@ -12,11 +12,9 @@
 #include "std_buffer/image_metadata.pb.h"
 
 namespace {
-
 using pulse_id_t = int64_t;
 constexpr auto zmq_io_threads = 1;
 constexpr auto zmq_sndhwm = 100;
-constexpr char empty_timestamp[16] = {0};
 
 void* bind_sender_socket(void* ctx, const std::string& stream_address)
 {
@@ -96,7 +94,8 @@ int main(int argc, char* argv[])
       zmq_send(sender_socket, encoded_main_header, main_header.length(), ZMQ_SNDMORE);
       zmq_send(sender_socket, encoded_data_header, data_header.length(), ZMQ_SNDMORE);
       zmq_send(sender_socket, image_data, meta.size(), ZMQ_SNDMORE);
-      zmq_send(sender_socket, empty_timestamp, sizeof(empty_timestamp), 0);
+      // null message instead of timestamp
+      zmq_send(sender_socket, nullptr, 0, 0);
       stats.process();
     }
     stats.print_stats();
