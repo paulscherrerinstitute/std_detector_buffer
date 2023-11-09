@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
       digest.add(encoded_data_header, data_header.length());
 
       auto main_header = fmt::format(
-          R"({{"htype":"bsr_m-1.1","pulse_id":{},"timestamp":{{"sec":{},"ns":{}}},"hash":"{}"}})",
+          R"({{"htype":"bsr_m-1.1","pulse_id":{},"global_timestamp":{{"sec":{},"ns":{}}},"hash":"{}"}})",
           meta.image_id(), meta.pco().global_timestamp_sec(), meta.pco().global_timestamp_ns(),
           digest.getHash());
 
