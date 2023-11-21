@@ -56,6 +56,7 @@ DetectorConfig read_config_from_json_string(const std::string& data);
 Point get_module_start_position(const DetectorConfig& config, module_id id);
 Point get_module_end_position(const DetectorConfig& config, module_id id);
 modules_mask get_modules_mask(const DetectorConfig& config);
+void test_if_module_is_inside_image(const utils::DetectorConfig& config, int module_id);
 
 } // namespace utils
 

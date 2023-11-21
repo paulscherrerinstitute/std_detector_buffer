@@ -7,10 +7,12 @@
 #include <gtest/gtest.h>
 #include <range/v3/all.hpp>
 
+#include "detectors/jungfrau.hpp"
+
 using namespace ranges;
 
 namespace {
-constexpr std::size_t data_elements = 512 * 1024;
+constexpr std::size_t data_elements = MODULE_X_SIZE * MODULE_Y_SIZE;
 
 const auto iota_data = iota_view<uint16_t>(0) |
                        views::transform([](auto a) -> uint16_t { return a & 0x3FF; }) |
@@ -19,38 +21,95 @@ const auto iota_data = iota_view<uint16_t>(0) |
 jf::sdc::parameters prepare_params(float default_value = 0)
 {
   return jf::sdc::parameters{std::vector(data_elements, default_value),
-                         std::vector(data_elements, default_value),
-                         std::vector(data_elements, default_value)};
+                             std::vector(data_elements, default_value),
+                             std::vector(data_elements, default_value)};
 }
+
+utils::DetectorConfig config{"jf",
+                             "jungfrau-converted",
+                             4,
+                             16,
+                             2 * MODULE_Y_SIZE,
+                             2 * MODULE_X_SIZE,
+                             0,
+                             0,
+                             "debug",
+                             std::chrono::seconds(30),
+                             {{0, {{0, 0}, {1023, 511}}},
+                              {1, {{0, 512}, {1023, 1023}}},
+                              {2, {{1024, 0}, {2047, 511}}},
+                              {3, {{1024, 512}, {2047, 1023}}}}};
 
 } // namespace
 
 TEST(ConverterJf, ShouldThrowWhenDataSizeIsInconsistentWithConfiguredGains)
 {
-  jf::sdc::Converter converter{prepare_params(), prepare_params()};
-  uint16_t invalid_data[] = {1, 2, 3};
-  EXPECT_THROW(converter.convert_data(invalid_data), std::invalid_argument);
+  jf::sdc::Converter converter{prepare_params(), prepare_params(), config, 0};
+  std::vector<float> output(config.image_pixel_width * config.image_pixel_height);
+  uint16_t invalid_data[MODULE_X_SIZE * MODULE_Y_SIZE * 4 + 1] = {};
+  EXPECT_THROW(converter.convert_data(invalid_data, output), std::invalid_argument);
 }
 
 TEST(ConverterJf, ShouldReturnSameOutputAsInputDataWhenPedestalIs0AndGain1)
 {
-  jf::sdc::Converter converter{prepare_params(1), prepare_params(0)};
-  using namespace ranges;
+  jf::sdc::Converter converter{prepare_params(1), prepare_params(0), config, 0};
+  std::vector<float> output(config.image_pixel_width * config.image_pixel_height);
 
-  auto converted = converter.convert_data(iota_data);
-  EXPECT_TRUE(equal(iota_data, converted | views::transform(convert_to<uint16_t>{})));
+  converter.convert_data(iota_data, output);
+  for (auto i = 0u; i < MODULE_Y_SIZE; i++) {
+    const auto expected_line =
+        iota_data | views::drop(i * MODULE_X_SIZE) | views::take(MODULE_X_SIZE);
+    const auto output_line =
+        output | views::drop(i * MODULE_X_SIZE * 2) | views::take(MODULE_X_SIZE);
+    EXPECT_TRUE(equal(expected_line, output_line));
+  }
 }
 
 TEST(ConverterJf, ShouldMultiplyTheInputDataViaGain)
 {
-  jf::sdc::Converter converter{prepare_params(2), prepare_params(0)};
-  auto converted = converter.convert_data(iota_data);
-  EXPECT_TRUE(equal(iota_data | views::transform([](auto a) { return 2.f * a; }), converted));
+  jf::sdc::Converter converter{prepare_params(2), prepare_params(0), config, 0};
+  std::vector<float> output(config.image_pixel_width * config.image_pixel_height);
+
+  converter.convert_data(iota_data, output);
+  for (auto i = 0u; i < MODULE_Y_SIZE; i++) {
+    const auto expected_line = iota_data | views::drop(i * MODULE_X_SIZE) |
+                               views::take(MODULE_X_SIZE) |
+                               views::transform([](auto a) { return 2.f * a; });
+    const auto output_line =
+        output | views::drop(i * MODULE_X_SIZE * 2) | views::take(MODULE_X_SIZE);
+    EXPECT_TRUE(equal(expected_line, output_line));
+  }
 }
 
 TEST(ConverterJf, ShouldCalculateValuesUsingGainAndPedestal)
 {
-  jf::sdc::Converter converter{prepare_params(2), prepare_params(-1)};
-  auto converted = converter.convert_data(iota_data);
-  EXPECT_TRUE(equal(iota_data | views::transform([](auto a) { return 2.f * (a + 1); }), converted));
+  jf::sdc::Converter converter{prepare_params(2), prepare_params(-1), config, 0};
+  std::vector<float> output(config.image_pixel_width * config.image_pixel_height);
+
+  converter.convert_data(iota_data, output);
+  for (auto i = 0u; i < MODULE_Y_SIZE; i++) {
+    const auto expected_line = iota_data | views::drop(i * MODULE_X_SIZE) |
+                               views::take(MODULE_X_SIZE) |
+                               views::transform([](auto a) { return 2.f * (a + 1); });
+    const auto output_line =
+        output | views::drop(i * MODULE_X_SIZE * 2) | views::take(MODULE_X_SIZE);
+    EXPECT_TRUE(equal(expected_line, output_line));
+  }
+}
+
+TEST(ConverterJf, ShouldCalculateValuesUsingGainAndPedestalForModule3)
+{
+  jf::sdc::Converter converter{prepare_params(3), prepare_params(-1), config, 3};
+  std::vector<float> output(config.image_pixel_width * config.image_pixel_height);
+
+  converter.convert_data(iota_data, output);
+  for (auto i = 0u; i < MODULE_Y_SIZE; i++) {
+    const auto expected_line = iota_data | views::drop(i * MODULE_X_SIZE) |
+                               views::take(MODULE_X_SIZE) |
+                               views::transform([](auto a) { return 3.f * (a + 1); });
+    const auto output_line = output |
+                             views::drop((MODULE_Y_SIZE + i) * MODULE_X_SIZE * 2 + MODULE_X_SIZE) |
+                             views::take(MODULE_X_SIZE);
+    EXPECT_TRUE(equal(expected_line, output_line));
+  }
 }

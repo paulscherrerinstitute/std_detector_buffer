@@ -40,10 +40,10 @@ class Frame(Structure):
 
 class JungfrauConfigUdp:
     def __init__(self):
-        self.id = 1
+        self.id = 0
         self.name = f'jungfrau-{self.id}'
         self.udp_port_base = 50020
-        self.data_bytes_per_packet = 8192 * 128
+        self.data_bytes_per_packet = 1024 * 512 * 2
         self.packets_per_frame = 128
         self.slots = 10  # should be 1000 but for testing purposes 10 is enough
         self.buffer_size = self.data_bytes_per_packet * self.slots
@@ -53,9 +53,9 @@ class JungfrauConfigConverter:
     def __init__(self):
         udp = JungfrauConfigUdp()
         self.id = udp.id
-        self.converter_index = 3
-        self.name = f'jungfrau-{self.id}-converted-{self.converter_index}'
-        self.data_bytes_per_packet = udp.data_bytes_per_packet * 2
+        self.name = 'jungfrau-image'
+        self.socket_name = 'jungfrau-sync'
+        self.data_bytes_per_packet = 1024 * 2048 * 4
         self.udp_port_base = udp.udp_port_base
         self.slots = udp.slots
         self.buffer_size = self.data_bytes_per_packet * self.slots

@@ -77,4 +77,19 @@ modules_mask get_modules_mask(const DetectorConfig& config)
   return m;
 }
 
+void test_if_module_is_inside_image(const utils::DetectorConfig& config, int module_id)
+{
+  const auto module_end = get_module_end_position(config, module_id);
+  const auto module_start = get_module_start_position(config, module_id);
+
+  if (module_start.x > config.image_pixel_width || module_start.y > config.image_pixel_height)
+    throw std::runtime_error(fmt::format(
+        "Start of module is out-of-bound! start({}, {}), image size({}, {})!", module_start.x,
+        module_start.y, config.image_pixel_width, config.image_pixel_height));
+  if (module_end.x > config.image_pixel_width || module_end.y > config.image_pixel_height)
+    throw std::runtime_error(fmt::format(
+        "End of module is out-of-bound! start({}, {}), image size({}, {})!", module_end.x,
+        module_end.y, config.image_pixel_width, config.image_pixel_height));
+}
+
 } // namespace utils

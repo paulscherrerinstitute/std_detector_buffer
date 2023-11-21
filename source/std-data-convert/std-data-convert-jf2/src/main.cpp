@@ -4,7 +4,6 @@
 
 #include <span>
 
-#include <argparse/argparse.hpp>
 #include <zmq.h>
 #include <fmt/core.h>
 

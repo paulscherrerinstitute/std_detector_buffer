@@ -11,6 +11,9 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME}_lib ALIAS ${PROJECT_NAME}_lib)
 target_include_directories(${PROJECT_NAME}_lib PUBLIC include)
 
 target_link_libraries(${PROJECT_NAME}_lib
+    PUBLIC
+        detectors::detectors
+        utils::utils
     PRIVATE
         spdlog::spdlog
         hdf5::hdf5

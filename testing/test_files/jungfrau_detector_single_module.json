@@ -1,17 +1,14 @@
 {
   "detector_name": "jungfrau",
   "detector_type": "jungfrau-converted",
-  "n_modules": 4,
+  "n_modules": 1,
   "bit_depth": 16,
-  "image_pixel_height": 1024,
-  "image_pixel_width": 2048,
+  "image_pixel_height": 512,
+  "image_pixel_width": 1024,
   "writer_user_id": 0,
   "start_udp_port": 50020,
   "module_positions": {
-    "0": [0,0,1023,511],
-    "1": [0,512,1023, 1023],
-    "2": [1024,0,2047,511],
-    "3": [1024,512,2047,1023]
+    "0": [0,0,1023,511]
   },
   "log_level": "debug",
   "stats_collection_period": 1
