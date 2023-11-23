@@ -4,14 +4,12 @@
 
 #include "image_size_calc.hpp"
 
-#include "detectors/gigafrost.hpp"
-
 namespace utils {
 
 std::size_t converted_image_n_bytes(const utils::DetectorConfig& config)
 {
   if (config.detector_type == "gigafrost")
-    return gf::converted_image_n_bytes(config.image_pixel_height, config.image_pixel_width);
+    return config.image_pixel_height * config.image_pixel_width * 2;
   if (config.detector_type == "eiger" || config.detector_type == "pco" ||
       config.detector_type == "jungfrau-raw")
     return config.image_pixel_width * config.image_pixel_height * config.bit_depth / 8;

@@ -77,19 +77,4 @@ struct EGUdpPacket
 static_assert(sizeof(EGUdpPacket) == BYTES_PER_PACKET);
 static_assert(sizeof(EGFrame) == DET_FRAME_STRUCT_BYTES);
 
-namespace eg {
-
-inline std::size_t converted_image_n_bytes(int image_pixel_height,
-                                           int image_pixel_width,
-                                           int bit_depth)
-{
-  return image_pixel_width * image_pixel_height * bit_depth / 8;
-}
-// Max image byte size for a 9M eiger detector using 32 bits
-inline constexpr std::size_t max_converted_image_byte_size = 3106 * 3264 * 32 / 8;
-inline constexpr std::size_t max_single_sender_size = max_converted_image_byte_size / 8;
-static_assert(max_single_sender_size * 8 == max_converted_image_byte_size);
-
-} // namespace eg
-
 #endif // STD_DETECTOR_BUFFER_EIGER_HPP

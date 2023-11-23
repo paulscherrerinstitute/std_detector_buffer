@@ -34,9 +34,7 @@ std::tuple<std::size_t, std::size_t> calculate_data_sizes(const utils::DetectorC
       n_data_bytes_per_packet(config.image_pixel_height, config.image_pixel_width) *
           (n_packets_per_frame(config.image_pixel_height, config.image_pixel_width) - 1) +
       last_packet_n_bytes(config.image_pixel_height, config.image_pixel_width);
-  std::size_t CONVERTED_DATA_SIZE =
-      converted_image_n_bytes(config.image_pixel_height, config.image_pixel_width);
-  return {MODULE_DATA_IN_BYTES, CONVERTED_DATA_SIZE};
+  return {MODULE_DATA_IN_BYTES, utils::converted_image_n_bytes(config)};
 }
 
 } // namespace
