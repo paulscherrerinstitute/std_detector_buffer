@@ -11,7 +11,7 @@
 
 namespace utils {
 
-std_daq_protocol::ImageMetadataDtype get_metadata_dtype(const DetectorConfig& config)
+inline std_daq_protocol::ImageMetadataDtype get_metadata_dtype(const DetectorConfig& config)
 {
   if (config.detector_type == "jungfrau-converted")
     return std_daq_protocol::ImageMetadataDtype::float32;
@@ -21,7 +21,7 @@ std_daq_protocol::ImageMetadataDtype get_metadata_dtype(const DetectorConfig& co
   throw std::runtime_error("Unsupported bit_depth of the image");
 }
 
-std::size_t get_bytes_from_metadata_dtype(std_daq_protocol::ImageMetadataDtype type)
+inline std::size_t get_bytes_from_metadata_dtype(std_daq_protocol::ImageMetadataDtype type)
 {
   if (type == std_daq_protocol::ImageMetadataDtype::float32) return 4;
   if (type == std_daq_protocol::ImageMetadataDtype::uint8) return 1;
@@ -30,7 +30,7 @@ std::size_t get_bytes_from_metadata_dtype(std_daq_protocol::ImageMetadataDtype t
   throw std::runtime_error("Unsupported bit_depth of the image");
 }
 
-std::string get_array10_type(std_daq_protocol::ImageMetadataDtype type)
+inline std::string get_array10_type(std_daq_protocol::ImageMetadataDtype type)
 {
   if (type == std_daq_protocol::ImageMetadataDtype::float32) return "float32";
   if (type == std_daq_protocol::ImageMetadataDtype::uint8) return "uint8";

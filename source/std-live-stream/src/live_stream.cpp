@@ -4,6 +4,7 @@
 
 #include <chrono>
 
+#include <md5.h>
 #include <zmq.h>
 #include <fmt/core.h>
 
@@ -11,6 +12,9 @@
 #include "core_buffer/ram_buffer.hpp"
 #include "std_buffer/image_metadata.pb.h"
 #include "utils/utils.hpp"
+
+#include "arguments.hpp"
+#include "live_stream_stats_collector.hpp"
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
@@ -35,54 +39,73 @@ void* bind_sender_socket(void* ctx, const std::string& stream_address)
   return socket;
 }
 
-std::tuple<utils::DetectorConfig, std::string, std::string, int> read_arguments(int argc,
-                                                                                char* argv[])
+void send_array_1_0_stream(void* sender_socket,
+                           const std_daq_protocol::ImageMetadata& meta,
+                           const char* image_data)
 {
-  auto program = utils::create_parser("std_live_stream");
-  program.add_argument("stream_address").help("address to bind the output stream");
-  program.add_argument("-d", "--data_rate").help("rate in [Hz]").action([](const std::string& arg) {
-    if (auto value = std::stoi(arg); value < 1 || value > 1000)
-      throw std::runtime_error("Unsupported data_rate! [1-100 Hz] is valid");
-    else
-      return value;
-  });
-  program.add_argument("-s", "--source_suffix")
-      .help("suffix for ipc source for ram_buffer - default \"image\"")
-      .default_value("image"s);
+  auto encoded = fmt::format(R"({{"htype":"array-1.0", "shape":[{},{}], "type":"{}", "frame":{}}})",
+                             meta.height(), meta.width(), utils::get_array10_type(meta.dtype()),
+                             meta.image_id());
+  auto encoded_c = encoded.c_str();
 
-  program.add_argument("-f", "--forward")
-      .help("forward all images")
-      .default_value(false)
-      .implicit_value(true);
+  zmq_send(sender_socket, encoded_c, encoded.length(), ZMQ_SNDMORE);
+  zmq_send(sender_socket, image_data, meta.size(), 0);
+}
 
-  program = utils::parse_arguments(program, argc, argv);
+std::string map_bit_depth_to_type(int bit_depth)
+{
+  if (bit_depth == 8) return "uint8";
+  if (bit_depth == 16) return "uint16";
+  if (bit_depth == 32) return "uint32";
+  return "uint64";
+}
 
-  if (program.is_used("--data_rate") && program.is_used("--forward"))
-    throw std::runtime_error(fmt::format("--data_rate and --forward can't be defined together"));
+void send_bsread_stream(std::size_t bit_depth,
+                        void* sender_socket,
+                        const std_daq_protocol::ImageMetadata& meta,
+                        const char* image_data)
+{
+  auto data_header = fmt::format(
+      R"({{"htype":"bsr_d-1.1","channels":[{{"name":"{}","shape":[{},{}])"
+      R"(,"type":"{}","compression":"bitshuffle_lz4"}}]}})",
+      meta.pco().bsread_name(), meta.width(), meta.height(), map_bit_depth_to_type(bit_depth));
 
-  return {utils::read_config_from_json_file(program.get("detector_json_filename")),
-          program.get("stream_address"), program.get("--source_suffix"),
-          program["--forward"] == true ? 0 : program.get<int>("data_rate")};
+  MD5 digest;
+  auto encoded_data_header = data_header.c_str();
+  digest.add(encoded_data_header, data_header.length());
+
+  auto main_header = fmt::format(
+      R"({{"htype":"bsr_m-1.1","pulse_id":{},"global_timestamp":{{"sec":{},"ns":{}}},"hash":"{}"}})",
+      meta.image_id(), meta.pco().global_timestamp_sec(), meta.pco().global_timestamp_ns(),
+      digest.getHash());
+
+  auto encoded_main_header = main_header.c_str();
+  zmq_send(sender_socket, encoded_main_header, main_header.length(), ZMQ_SNDMORE);
+  zmq_send(sender_socket, encoded_data_header, data_header.length(), ZMQ_SNDMORE);
+  zmq_send(sender_socket, image_data, meta.size(), ZMQ_SNDMORE);
+  // null message instead of timestamp
+  zmq_send(sender_socket, nullptr, 0, 0);
 }
 
 } // namespace
 
 int main(int argc, char* argv[])
 {
-  const auto [config, stream_address, source_suffix, data_rate] = read_arguments(argc, argv);
-  [[maybe_unused]] utils::log::logger l{"std_live_stream", config.log_level};
-  const auto data_period = data_rate == 0 ? 0ms : 1000ms / data_rate;
+  const auto args = ls::read_arguments(argc, argv);
+  [[maybe_unused]] utils::log::logger l{"std_live_stream", args.config.log_level};
+  const auto data_period = args.data_rate == 0 ? 0ms : 1000ms / (int)args.data_rate;
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
 
-  const auto source_name = fmt::format("{}-{}", config.detector_name, source_suffix);
+  const auto source_name = fmt::format("{}-{}", args.config.detector_name, args.source_suffix);
 
   auto receiver = cb::Communicator{
-      {source_name, utils::converted_image_n_bytes(config), buffer_config::RAM_BUFFER_N_SLOTS},
+      {source_name, utils::converted_image_n_bytes(args.config), buffer_config::RAM_BUFFER_N_SLOTS},
       {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
-  auto sender_socket = bind_sender_socket(ctx, stream_address);
-  utils::stats::TimedStatsCollector stats(config.detector_name, config.stats_collection_period);
+  auto sender_socket = bind_sender_socket(ctx, args.stream_address);
+  LiveStreamStatsCollector stats(args.config.detector_name, args.type,
+                                 args.config.stats_collection_period);
 
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;
@@ -96,13 +119,10 @@ int main(int argc, char* argv[])
       if (const auto now = std::chrono::steady_clock::now(); prev_sent_time + data_period < now) {
         prev_sent_time = now;
 
-        auto encoded = fmt::format(
-            R"({{"htype":"array-1.0", "shape":[{},{}], "type":"{}", "frame":{}}})", meta.height(),
-            meta.width(), utils::get_array10_type(meta.dtype()), meta.image_id());
-        auto encoded_c = encoded.c_str();
-
-        zmq_send(sender_socket, encoded_c, encoded.length(), ZMQ_SNDMORE);
-        zmq_send(sender_socket, image_data, meta.size(), 0);
+        if (args.type == ls::stream_type::array10)
+          send_array_1_0_stream(sender_socket, meta, image_data);
+        else if (args.type == ls::stream_type::bsread)
+          send_bsread_stream(args.config.bit_depth, sender_socket, meta, image_data);
       }
       stats.process();
     }
