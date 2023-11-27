@@ -20,8 +20,10 @@ std::size_t converted_image_n_bytes(const utils::DetectorConfig& config)
 
 std::size_t max_converted_image_byte_size(const utils::DetectorConfig& config)
 {
-  if (config.detector_type == "gigafrost") return 2016 * 2016 * 2;
-  if (config.detector_type == "eiger") return 3106 * 3264 * 32 / 8;
+  if (config.detector_type == "gigafrost") return 2016 * 2016 * sizeof(uint16_t);
+  if (config.detector_type == "eiger") return 3106 * 3264 * sizeof(uint32_t);
+  if (config.detector_type == "jungfrau-raw") return 1024 * 512 * 32 * sizeof(uint16_t);
+  if (config.detector_type == "jungfrau-converted") return 1024 * 512 * 32 * sizeof(float);
   throw std::runtime_error("Unsupported detector_type!\n");
 }
 
