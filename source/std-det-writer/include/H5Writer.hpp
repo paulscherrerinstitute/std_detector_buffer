@@ -36,22 +36,24 @@ class H5Writer
 
   static hid_t get_datatype(int bit_depth);
   void open_file(const std::string& output_file, uint32_t n_images);
-  void close_file(const uint32_t highest_written_index);
+  void close_file(uint32_t highest_written_index);
+  void create_metadata_datasets(uint32_t n_images, hid_t data_group_id);
+  void create_image_dataset(uint32_t n_images, hid_t data_group_id);
 
 public:
-  H5Writer(std::string detector_name);
+  explicit H5Writer(std::string detector_name);
   ~H5Writer();
 
   void open_run(const std::string& output_file,
-                const uint64_t run_id,
-                const int n_images,
-                const int image_y_size,
-                const int image_x_size,
-                const int bit_depth);
-  void close_run(const uint32_t highest_written_index);
+                uint64_t run_id,
+                int n_images,
+                int image_y_size,
+                int image_x_size,
+                int bit_depth);
+  void close_run(uint32_t highest_written_index);
 
-  void write_data(const uint64_t run_id, const uint32_t index, const size_t data_size, const char* data);
-  void write_meta(const uint64_t run_id, const uint32_t index, const std_daq_protocol::ImageMetadata& meta);
+  void write_data(uint64_t run_id, uint32_t index, size_t data_size, const char* data);
+  void write_meta(uint64_t run_id, uint32_t index, const std_daq_protocol::ImageMetadata& meta);
 };
 
 #endif // STD_DETECTOR_BUFFER_H5_WRITER

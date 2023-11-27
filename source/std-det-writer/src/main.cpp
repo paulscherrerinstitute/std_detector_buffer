@@ -25,7 +25,7 @@ void* create_socket(void* ctx, const std::string& ipc_address, const int zmq_soc
     throw runtime_error(std::string("Cannot create socket: ") + zmq_strerror(errno));
 
   if (zmq_socket_type == ZMQ_SUB && zmq_setsockopt(socket, ZMQ_SUBSCRIBE, "", 0) != 0)
-    throw runtime_error(std::string("Cannot subscrive socket: ") + zmq_strerror(errno));
+    throw runtime_error(std::string("Cannot subscribe socket: ") + zmq_strerror(errno));
 
   // SUB and PULL sockets are used for receiving, the rest for sending.
   if (zmq_socket_type == ZMQ_SUB || zmq_socket_type == ZMQ_PULL) {

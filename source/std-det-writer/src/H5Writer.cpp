@@ -82,26 +82,19 @@ void H5Writer::open_file(const string& output_file, const uint32_t n_images)
 {
   // Create file
   auto fapl_id = H5Pcreate(H5P_FILE_ACCESS);
-  if (fapl_id == -1) {
-    throw runtime_error("Error in file access property list.");
-  }
+  if (fapl_id == -1) throw runtime_error("Error in file access property list.");
 
-  if (H5Pset_alignment(fapl_id, 0, GPFS_BLOCK_SIZE) < 0) {
+  if (H5Pset_alignment(fapl_id, 0, GPFS_BLOCK_SIZE) < 0)
     throw runtime_error("Cannot set alignment to property list.");
-  }
 
   //  if (H5Pset_fapl_mpio(fapl_id, MPI_COMM_WORLD, MPI_INFO_NULL) < 0) {
   //    throw runtime_error("Cannot set mpio to property list.");
   //  }
 
   auto fcpl_id = H5Pcreate(H5P_FILE_CREATE);
-  if (fcpl_id == -1) {
-    throw runtime_error("Error in file access property list.");
-  }
+  if (fcpl_id == -1) throw runtime_error("Error in file access property list.");
 
-  if (H5Pset_istore_k(fcpl_id, MAX_IK_STORE) < 0) {
-    throw runtime_error("Cannot set btree size.");
-  }
+  if (H5Pset_istore_k(fcpl_id, MAX_IK_STORE) < 0) throw runtime_error("Cannot set btree size.");
 
   // Force compatibility versions on file.
   // if (H5Pset_libver_bounds(fapl_id, H5F_LIBVER_V114, H5F_LIBVER_LATEST) < 0) {
@@ -109,50 +102,75 @@ void H5Writer::open_file(const string& output_file, const uint32_t n_images)
   // }
 
   file_id_ = H5Fcreate(output_file.c_str(), H5F_ACC_TRUNC, fcpl_id, fapl_id);
-  if (file_id_ < 0) {
-    throw runtime_error("Cannot create output file.");
-  }
-
+  if (file_id_ < 0) throw runtime_error("Cannot create output file.");
   H5Pclose(fcpl_id);
 
   // Create group
   auto data_group_id =
       H5Gcreate(file_id_, detector_name_.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-  if (data_group_id < 0) {
-    throw runtime_error("Cannot create data group.");
-  }
+  if (data_group_id < 0) throw runtime_error("Cannot create data group.");
 
-  // Create metadata datasets.
+  create_metadata_datasets(n_images, data_group_id);
+  create_image_dataset(n_images, data_group_id);
+
+  H5Gclose(data_group_id);
+}
+
+void H5Writer::create_image_dataset(const uint32_t n_images, hid_t data_group_id)
+{
+  auto dcpl_id = H5Pcreate(H5P_DATASET_CREATE);
+  if (dcpl_id < 0) throw runtime_error("Error in creating dataset create property list.");
+
+  hsize_t image_dataset_chunking[] = {1, image_y_size_, image_x_size_};
+  if (H5Pset_chunk(dcpl_id, 3, image_dataset_chunking) < 0)
+    throw runtime_error("Cannot set image dataset chunking.");
+
+  if (H5Pset_fill_time(dcpl_id, H5D_FILL_TIME_NEVER) < 0)
+    throw runtime_error("Cannot set image dataset fill time.");
+
+  if (H5Pset_alloc_time(dcpl_id, H5D_ALLOC_TIME_EARLY) < 0)
+    throw runtime_error("Cannot set image dataset allocation time.");
+
+  hsize_t image_dataset_dims[] = {n_images, image_y_size_, image_x_size_};
+  auto image_space_id = H5Screate_simple(3, image_dataset_dims, nullptr);
+  if (image_space_id < 0) throw runtime_error("Cannot create image dataset space.");
+
+  bshuf_register_h5filter();
+  uint filter_prop[] = {0, BSHUF_H5_COMPRESS_LZ4};
+  if (H5Pset_filter(dcpl_id, BSHUF_H5FILTER, H5Z_FLAG_MANDATORY, 2, filter_prop) < 0)
+    throw runtime_error("Cannot set compression filter on dataset.");
+
+  image_data_dataset_ = H5Dcreate(data_group_id, "data", get_datatype(bit_depth_), image_space_id,
+                                  H5P_DEFAULT, dcpl_id, H5P_DEFAULT);
+  if (image_data_dataset_ < 0) throw runtime_error("Cannot create image dataset.");
+
+  H5Sclose(image_space_id);
+  H5Pclose(dcpl_id);
+}
+
+void H5Writer::create_metadata_datasets(const uint32_t n_images, hid_t data_group_id)
+{
   hsize_t meta_dataset_dims[] = {n_images};
   auto meta_space_id = H5Screate_simple(1, meta_dataset_dims, nullptr);
-  if (meta_space_id < 0) {
-    throw runtime_error("Cannot create meta dataset space.");
-  }
+  if (meta_space_id < 0) throw runtime_error("Cannot create meta dataset space.");
 
   auto create_meta_dataset = [&](const string& name, hid_t data_type) {
     auto dcpl_id = H5Pcreate(H5P_DATASET_CREATE);
-    if (dcpl_id < 0) {
-      throw runtime_error("Error in creating dataset create property list.");
-    }
+    if (dcpl_id < 0) throw runtime_error("Error in creating dataset create property list.");
 
     // Specify metadata datasets properties explicitly.
-    if (H5Pset_fill_time(dcpl_id, H5D_FILL_TIME_ALLOC) < 0) {
+    if (H5Pset_fill_time(dcpl_id, H5D_FILL_TIME_ALLOC) < 0)
       throw runtime_error("Cannot set image dataset fill time.");
-    }
 
-    if (H5Pset_alloc_time(dcpl_id, H5D_ALLOC_TIME_EARLY) < 0) {
+    if (H5Pset_alloc_time(dcpl_id, H5D_ALLOC_TIME_EARLY) < 0)
       throw runtime_error("Cannot set metadata dataset alloc time.");
-    }
 
-    if (H5Pset_layout(dcpl_id, H5D_CONTIGUOUS) < 0) {
+    if (H5Pset_layout(dcpl_id, H5D_CONTIGUOUS) < 0)
       throw runtime_error("Cannot set contiguous dataset.");
-    }
 
     auto dataset_id = H5Dcreate(data_group_id, name.c_str(), data_type, meta_space_id, H5P_DEFAULT,
                                 dcpl_id, H5P_DEFAULT);
-    if (dataset_id < 0) {
-      throw runtime_error("Cannot create " + name + " dataset.");
-    }
+    if (dataset_id < 0) throw runtime_error("Cannot create " + name + " dataset.");
 
     H5Pclose(dcpl_id);
 
@@ -162,54 +180,11 @@ void H5Writer::open_file(const string& output_file, const uint32_t n_images)
   image_id_dataset_ = create_meta_dataset("image_id", H5T_NATIVE_UINT64);
   status_dataset_ = create_meta_dataset("status", H5T_NATIVE_UINT64);
   H5Sclose(meta_space_id);
-
-  // Create image dataset.
-  auto dcpl_id = H5Pcreate(H5P_DATASET_CREATE);
-  if (dcpl_id < 0) {
-    throw runtime_error("Error in creating dataset create property list.");
-  }
-
-  hsize_t image_dataset_chunking[] = {1, image_y_size_, image_x_size_};
-  if (H5Pset_chunk(dcpl_id, 3, image_dataset_chunking) < 0) {
-    throw runtime_error("Cannot set image dataset chunking.");
-  }
-
-  if (H5Pset_fill_time(dcpl_id, H5D_FILL_TIME_NEVER) < 0) {
-    throw runtime_error("Cannot set image dataset fill time.");
-  }
-
-  if (H5Pset_alloc_time(dcpl_id, H5D_ALLOC_TIME_EARLY) < 0) {
-    throw runtime_error("Cannot set image dataset allocation time.");
-  }
-
-  hsize_t image_dataset_dims[] = {n_images, image_y_size_, image_x_size_};
-  auto image_space_id = H5Screate_simple(3, image_dataset_dims, nullptr);
-  if (image_space_id < 0) {
-    throw runtime_error("Cannot create image dataset space.");
-  }
-
-  bshuf_register_h5filter();
-  uint filter_prop[] = {0, BSHUF_H5_COMPRESS_LZ4};
-  if (H5Pset_filter(dcpl_id, BSHUF_H5FILTER, H5Z_FLAG_MANDATORY, 2, filter_prop) < 0) {
-    throw runtime_error("Cannot set compression filter on dataset.");
-  }
-
-  image_data_dataset_ = H5Dcreate(data_group_id, "data", get_datatype(bit_depth_), image_space_id,
-                                  H5P_DEFAULT, dcpl_id, H5P_DEFAULT);
-  if (image_data_dataset_ < 0) {
-    throw runtime_error("Cannot create image dataset.");
-  }
-
-  H5Sclose(image_space_id);
-  H5Pclose(dcpl_id);
-  H5Gclose(data_group_id);
 }
 
 void H5Writer::close_file(const uint32_t highest_written_index)
 {
-  if (file_id_ < 0) {
-    return;
-  }
+  if (file_id_ < 0) return;
 
   H5Dclose(image_id_dataset_);
   image_id_dataset_ = -1;
@@ -236,14 +211,12 @@ void H5Writer::write_data(const uint64_t run_id,
                           const size_t data_size,
                           const char* data)
 {
-  if (run_id != current_run_id_) {
-    throw runtime_error("Invalid run_id.");
-  }
+  if (run_id != current_run_id_) throw runtime_error("Invalid run_id.");
 
   hsize_t offset[3] = {index, 0, 0};
-  if (H5Dwrite_chunk(image_data_dataset_, H5P_DEFAULT, 0, offset, data_size, data) < 0) {
+  if (H5Dwrite_chunk(image_data_dataset_, H5P_DEFAULT, 0, offset, data_size, data) < 0)
     throw runtime_error("Cannot write data to image dataset.");
-  }
+
   //
   //  const hsize_t ram_dims[3] = {1, image_y_size_, image_x_size_};
   //  auto ram_ds = H5Screate_simple(3, ram_dims, nullptr);
@@ -286,20 +259,14 @@ void H5Writer::write_meta(const uint64_t run_id,
                           const uint32_t index,
                           const std_daq_protocol::ImageMetadata& meta)
 {
-  if (run_id != current_run_id_) {
-    throw runtime_error("Invalid run_id.");
-  }
+  if (run_id != current_run_id_) throw runtime_error("Invalid run_id.");
 
   const hsize_t ram_dims[3] = {1, 1, 1};
   auto ram_ds = H5Screate_simple(3, ram_dims, nullptr);
-  if (ram_ds < 0) {
-    throw runtime_error("Cannot create metadata ram dataspace.");
-  }
+  if (ram_ds < 0) throw runtime_error("Cannot create metadata ram dataspace.");
 
   auto file_ds = H5Dget_space(image_id_dataset_);
-  if (file_ds < 0) {
-    throw runtime_error("Cannot get metadata dataset file dataspace.");
-  }
+  if (file_ds < 0) throw runtime_error("Cannot get metadata dataset file dataspace.");
 
   const hsize_t file_ds_start[] = {index, 0, 0};
   const hsize_t file_ds_stride[] = {1, 1, 1};
@@ -307,19 +274,15 @@ void H5Writer::write_meta(const uint64_t run_id,
   const hsize_t file_ds_block[] = {1, 1, 1};
   if (H5Sselect_hyperslab(file_ds, H5S_SELECT_SET, file_ds_start, file_ds_stride, file_ds_count,
                           file_ds_block) < 0)
-  {
     throw runtime_error("Cannot select metadata dataset file hyperslab.");
-  }
 
   const uint64_t image_id = meta.image_id();
-  if (H5Dwrite(image_id_dataset_, H5T_NATIVE_UINT64, ram_ds, file_ds, H5P_DEFAULT, &image_id) < 0) {
+  if (H5Dwrite(image_id_dataset_, H5T_NATIVE_UINT64, ram_ds, file_ds, H5P_DEFAULT, &image_id) < 0)
     throw runtime_error("Cannot write data to pulse_id dataset.");
-  }
 
   const uint64_t status = meta.status();
-  if (H5Dwrite(status_dataset_, H5T_NATIVE_UINT64, ram_ds, file_ds, H5P_DEFAULT, &status) < 0) {
+  if (H5Dwrite(status_dataset_, H5T_NATIVE_UINT64, ram_ds, file_ds, H5P_DEFAULT, &status) < 0)
     throw runtime_error("Cannot write data to is_good_image dataset.");
-  }
 
   H5Sclose(file_ds);
   H5Sclose(ram_ds);
