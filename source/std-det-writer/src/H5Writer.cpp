@@ -20,8 +20,9 @@ using namespace buffer_config;
 constexpr size_t GPFS_BLOCK_SIZE = 16777216;
 constexpr size_t MAX_IK_STORE = 8192;
 
-H5Writer::H5Writer(std::string detector_name)
+H5Writer::H5Writer(std::string detector_name, std::string_view suffix)
     : detector_name_(std::move(detector_name))
+    , is_h5bitshuffle_lz4_compression(suffix == "h5bitshuffle-lz4")
 {}
 
 H5Writer::~H5Writer()
@@ -29,7 +30,7 @@ H5Writer::~H5Writer()
   close_file(0);
 }
 
-hid_t H5Writer::get_datatype(const int bit_depth)
+hid_t H5Writer::get_datatype(const std::size_t bit_depth)
 {
   switch (bit_depth) {
   case 8:
@@ -135,10 +136,13 @@ void H5Writer::create_image_dataset(const uint32_t n_images, hid_t data_group_id
   auto image_space_id = H5Screate_simple(3, image_dataset_dims, nullptr);
   if (image_space_id < 0) throw runtime_error("Cannot create image dataset space.");
 
-  bshuf_register_h5filter();
-  uint filter_prop[] = {0, BSHUF_H5_COMPRESS_LZ4};
-  if (H5Pset_filter(dcpl_id, BSHUF_H5FILTER, H5Z_FLAG_MANDATORY, 2, filter_prop) < 0)
-    throw runtime_error("Cannot set compression filter on dataset.");
+  if(is_h5bitshuffle_lz4_compression)
+  {
+    bshuf_register_h5filter();
+    uint filter_prop[] = {0, BSHUF_H5_COMPRESS_LZ4};
+    if (H5Pset_filter(dcpl_id, BSHUF_H5FILTER, H5Z_FLAG_MANDATORY, 2, filter_prop) < 0)
+      throw runtime_error("Cannot set compression filter on dataset.");
+  }
 
   image_data_dataset_ = H5Dcreate(data_group_id, "data", get_datatype(bit_depth_), image_space_id,
                                   H5P_DEFAULT, dcpl_id, H5P_DEFAULT);
@@ -209,7 +213,7 @@ void H5Writer::close_file(const uint32_t highest_written_index)
 void H5Writer::write_data(const uint64_t run_id,
                           const uint32_t index,
                           const size_t data_size,
-                          const char* data)
+                          const char* data) const
 {
   if (run_id != current_run_id_) throw runtime_error("Invalid run_id.");
 
@@ -257,7 +261,7 @@ void H5Writer::write_data(const uint64_t run_id,
 
 void H5Writer::write_meta(const uint64_t run_id,
                           const uint32_t index,
-                          const std_daq_protocol::ImageMetadata& meta)
+                          const std_daq_protocol::ImageMetadata& meta) const
 {
   if (run_id != current_run_id_) throw runtime_error("Invalid run_id.");
 

@@ -58,8 +58,13 @@ int main(int argc, char* argv[])
   const std::string program_name{"std_det_writer"};
   auto program = utils::create_parser(program_name);
   program = utils::parse_arguments(program, argc, argv);
+  program.add_argument("-s", "--source_suffix")
+      .help("suffix for ipc source for ram_buffer - default \"image\"")
+      .default_value("image"s);
+
   const auto config = utils::read_config_from_json_file(program.get("detector_json_filename"));
   [[maybe_unused]] utils::log::logger l{program_name, config.log_level};
+  const auto suffix = program.get("--source_suffix");
   const size_t image_n_bytes =
       config.image_pixel_width * config.image_pixel_height * config.bit_depth / 8;
 
@@ -68,9 +73,9 @@ int main(int argc, char* argv[])
   int i_writer{0};
   //  MPI_Comm_size(MPI_COMM_WORLD, &n_writers);
 
-  H5Writer writer(config.detector_name);
+  H5Writer writer(config.detector_name, suffix);
   WriterStatsCollector stats(config.detector_name, config.stats_collection_period, image_n_bytes);
-  const auto buffer_name = fmt::format("{}-compressed", config.detector_name);
+  const auto buffer_name = fmt::format("{}-{}", config.detector_name, suffix);
   RamBuffer image_buffer(buffer_name, image_n_bytes, buffer_config::RAM_BUFFER_N_SLOTS);
   auto ctx = zmq_ctx_new();
   const auto command_stream_name = fmt::format("{}-writer", config.detector_name);
@@ -90,18 +95,15 @@ int main(int argc, char* argv[])
   status.set_i_writer(i_writer);
   status.set_n_writers(n_writers);
 
-  const auto process_exception = [&](std::string message) {
+  const auto process_exception = [&](const std::string& message) {
     status.set_command_type(std_daq_protocol::CommandType::STOP_WRITING);
     status.set_error_message("ERROR: " + message);
     status.SerializeToString(&status_buffer_send);
     zmq_send(status_sender, status_buffer_send.c_str(), status_buffer_send.size(), 0);
   };
 
-  if (config.writer_user_id > 0) {
-    if (seteuid(config.writer_user_id) == -1) {
-      throw runtime_error("Cannot set uid=" + std::to_string(config.writer_user_id));
-    }
-  }
+  if (config.writer_user_id > 0 && seteuid(config.writer_user_id) == -1)
+    throw runtime_error("Cannot set uid=" + std::to_string(config.writer_user_id));
 
   while (true) {
     stats.print_stats();
