@@ -27,7 +27,7 @@ def get_converter_packet_array(output_buffer: memoryview, slot: int) -> np.ndarr
 async def test_udp_receiver_with_converter(test_path, cleanup_jungfrau_shared_memory):
     receiver_command = build_command('std_udp_recv_jf', test_path / 'jungfrau_detector_single_module.json', JungfrauConfigUdp().id)
     converter_command = build_command('std_data_convert_jf', test_path / 'jungfrau_detector_single_module.json',
-                                      test_path / 'gains_1_pedestals_0.h5', JungfrauConfigUdp().id)
+                                      '-g', test_path / 'gains_1_pedestals_0.h5', JungfrauConfigUdp().id)
 
     ctx = zmq.asyncio.Context()
     packet = UdpPacket()

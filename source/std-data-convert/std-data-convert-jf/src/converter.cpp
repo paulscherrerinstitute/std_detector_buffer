@@ -15,18 +15,42 @@ Converter::Converter(const parameters& g,
                      const parameters& p,
                      const utils::DetectorConfig& config,
                      int module_id)
-    : converted(MODULE_X_SIZE * MODULE_Y_SIZE)
-    , row_jump(config.image_pixel_width)
-    , start_index(calculate_start_index(config, module_id))
+    : Converter(config, module_id)
 {
-  utils::test_if_module_is_inside_image(config, module_id);
-  test_if_module_size_fits_jungfrau(config, module_id);
   test_gains_and_pedestals_consistency(g, p);
+  converted.resize(MODULE_X_SIZE * MODULE_Y_SIZE);
 
   for (auto i = 0u; i < N_GAINS; i++) {
     gains_and_pedestals[i].reserve(g[i].size());
     std::ranges::transform(g[i], p[i], std::back_inserter(gains_and_pedestals[i]),
                            [](auto a, auto b) { return std::make_pair(a, b); });
+  }
+}
+
+Converter::Converter(const utils::DetectorConfig& config, int module_id)
+    : row_jump(config.image_pixel_width)
+    , start_index(calculate_start_index(config, module_id))
+{
+  utils::test_if_module_is_inside_image(config, module_id);
+  test_if_module_size_fits_jungfrau(config, module_id);
+}
+
+void Converter::convert(std::span<const uint16_t> input, std::span<uint16_t> output)
+{
+  if (converted.empty())
+    copy_raw_data(input, output);
+  else
+    convert_data(input, {(float*)output.data(), output.size() / sizeof(float) * sizeof(uint16_t)});
+}
+
+void Converter::copy_raw_data(std::span<const uint16_t> input,
+                              std::span<uint16_t> output_buffer) const
+{
+  for (auto row = 0u; row < MODULE_Y_SIZE; row++) {
+    const auto input_start = row * MODULE_X_SIZE;
+    const auto output_start = (start_index + row * row_jump);
+    std::memcpy(output_buffer.data() + output_start, input.data() + input_start,
+                MODULE_X_SIZE * sizeof(uint16_t));
   }
 }
 

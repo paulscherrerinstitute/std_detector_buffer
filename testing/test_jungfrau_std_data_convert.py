@@ -13,7 +13,7 @@ from std_buffer.jungfrau.data import JungfrauConfigUdp, JungfrauConfigConverter
 
 
 def build_jungfrau_converter_command(test_path, pedestals='gains_1_pedestals_0.h5') -> str:
-    return build_command('std_data_convert_jf', test_path / 'jungfrau_detector.json', test_path / pedestals,
+    return build_command('std_data_convert_jf', test_path / 'jungfrau_detector.json', '-g', test_path / pedestals,
                          JungfrauConfigUdp().id)
 
 
@@ -48,6 +48,7 @@ async def test_converter_send_real_image_with_custom_slot(test_path):
                 for i in range(512):
                     for j in range(1024):
                         assert output_data[i * 2048 + j] == sent_data[i * 1024 + j]
+
 
 @pytest.mark.asyncio
 async def test_converter_modifying_image_with_gains_and_pedestals(test_path):

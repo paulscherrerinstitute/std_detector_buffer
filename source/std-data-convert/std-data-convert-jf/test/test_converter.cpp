@@ -47,15 +47,17 @@ TEST(ConverterJf, ShouldThrowWhenDataSizeIsInconsistentWithConfiguredGains)
   jf::sdc::Converter converter{prepare_params(), prepare_params(), config, 0};
   std::vector<float> output(config.image_pixel_width * config.image_pixel_height);
   uint16_t invalid_data[MODULE_X_SIZE * MODULE_Y_SIZE * 4 + 1] = {};
-  EXPECT_THROW(converter.convert_data(invalid_data, output), std::invalid_argument);
+  std::span output_as_uints{(uint16_t*)output.data(), output.size() / 2};
+  EXPECT_THROW(converter.convert(invalid_data, output_as_uints), std::invalid_argument);
 }
 
 TEST(ConverterJf, ShouldReturnSameOutputAsInputDataWhenPedestalIs0AndGain1)
 {
   jf::sdc::Converter converter{prepare_params(1), prepare_params(0), config, 0};
   std::vector<float> output(config.image_pixel_width * config.image_pixel_height);
+  std::span output_as_uints{(uint16_t*)output.data(), output.size() / 2};
 
-  converter.convert_data(iota_data, output);
+  converter.convert(iota_data, output_as_uints);
   for (auto i = 0u; i < MODULE_Y_SIZE; i++) {
     const auto expected_line =
         iota_data | views::drop(i * MODULE_X_SIZE) | views::take(MODULE_X_SIZE);
@@ -69,8 +71,9 @@ TEST(ConverterJf, ShouldMultiplyTheInputDataViaGain)
 {
   jf::sdc::Converter converter{prepare_params(2), prepare_params(0), config, 0};
   std::vector<float> output(config.image_pixel_width * config.image_pixel_height);
+  std::span output_as_uints{(uint16_t*)output.data(), output.size() / 2};
 
-  converter.convert_data(iota_data, output);
+  converter.convert(iota_data, output_as_uints);
   for (auto i = 0u; i < MODULE_Y_SIZE; i++) {
     const auto expected_line = iota_data | views::drop(i * MODULE_X_SIZE) |
                                views::take(MODULE_X_SIZE) |
@@ -85,8 +88,9 @@ TEST(ConverterJf, ShouldCalculateValuesUsingGainAndPedestal)
 {
   jf::sdc::Converter converter{prepare_params(2), prepare_params(-1), config, 0};
   std::vector<float> output(config.image_pixel_width * config.image_pixel_height);
+  std::span output_as_uints{(uint16_t*)output.data(), output.size() / 2};
 
-  converter.convert_data(iota_data, output);
+  converter.convert(iota_data, output_as_uints);
   for (auto i = 0u; i < MODULE_Y_SIZE; i++) {
     const auto expected_line = iota_data | views::drop(i * MODULE_X_SIZE) |
                                views::take(MODULE_X_SIZE) |
@@ -101,8 +105,9 @@ TEST(ConverterJf, ShouldCalculateValuesUsingGainAndPedestalForModule3)
 {
   jf::sdc::Converter converter{prepare_params(3), prepare_params(-1), config, 3};
   std::vector<float> output(config.image_pixel_width * config.image_pixel_height);
+  std::span output_as_uints{(uint16_t*)output.data(), output.size() / 2};
 
-  converter.convert_data(iota_data, output);
+  converter.convert(iota_data, output_as_uints);
   for (auto i = 0u; i < MODULE_Y_SIZE; i++) {
     const auto expected_line = iota_data | views::drop(i * MODULE_X_SIZE) |
                                views::take(MODULE_X_SIZE) |

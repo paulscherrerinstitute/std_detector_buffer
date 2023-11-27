@@ -23,10 +23,13 @@ public:
                      const utils::DetectorConfig& config,
                      int module_id);
 
-  void convert_data(std::span<const uint16_t> input_data, std::span<float> output_data);
+  explicit Converter(const utils::DetectorConfig& config, int module_id);
+  void convert(std::span<const uint16_t> input, std::span<uint16_t>);
 
 private:
   void convert(std::span<const uint16_t> data);
+  void convert_data(std::span<const uint16_t> input_data, std::span<float> output_data);
+  void copy_raw_data(std::span<const uint16_t> input, std::span<uint16_t> output_buffer) const;
   void copy_converted_data(std::span<float> output_data);
 
   void test_data_size_consistency(std::span<const uint16_t> data) const;
