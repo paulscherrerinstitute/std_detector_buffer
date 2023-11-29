@@ -17,8 +17,8 @@ Converter::Converter(const parameters& g,
                      int module_id)
     : Converter(config, module_id)
 {
+  with_gains = true;
   test_gains_and_pedestals_consistency(g, p);
-  converted.resize(MODULE_X_SIZE * MODULE_Y_SIZE);
 
   for (auto i = 0u; i < N_GAINS; i++) {
     gains_and_pedestals[i].reserve(g[i].size());
@@ -30,6 +30,7 @@ Converter::Converter(const parameters& g,
 Converter::Converter(const utils::DetectorConfig& config, int module_id)
     : row_jump(config.image_pixel_width)
     , start_index(calculate_start_index(config, module_id))
+    , with_gains(false)
 {
   utils::test_if_module_is_inside_image(config, module_id);
   test_if_module_size_fits_jungfrau(config, module_id);
@@ -37,10 +38,10 @@ Converter::Converter(const utils::DetectorConfig& config, int module_id)
 
 void Converter::convert(std::span<const uint16_t> input, std::span<uint16_t> output)
 {
-  if (converted.empty())
-    copy_raw_data(input, output);
-  else
+  if (with_gains)
     convert_data(input, {(float*)output.data(), output.size() / sizeof(float) * sizeof(uint16_t)});
+  else
+    copy_raw_data(input, output);
 }
 
 void Converter::copy_raw_data(std::span<const uint16_t> input,
@@ -57,24 +58,20 @@ void Converter::copy_raw_data(std::span<const uint16_t> input,
 void Converter::convert_data(std::span<const uint16_t> input_data, std::span<float> output_data)
 {
   test_data_size_consistency(input_data);
-  convert(input_data);
-  copy_converted_data(output_data);
+  convert(input_data, output_data);
 }
 
-void Converter::convert(std::span<const uint16_t> data)
+void Converter::convert(std::span<const uint16_t> input_data, std::span<float> output_data)
 {
-  for (auto i = 0u; i < data.size(); i++) {
-    auto gain_group = data[i] >> 14;
-    converted[i] = ((data[i] & 0x3FFF) - gains_and_pedestals[gain_group][i].second) *
-                   gains_and_pedestals[gain_group][i].first;
+  for (auto i = 0u; i < MODULE_Y_SIZE; i++) {
+    for (auto j = 0u; j < MODULE_X_SIZE; j++) {
+      auto index = i * MODULE_X_SIZE + j;
+      auto gain_group = input_data[index] >> 14;
+      output_data[start_index + (i * row_jump) + j] =
+          ((input_data[index] & 0x3FFF) - gains_and_pedestals[gain_group][index].second) *
+          gains_and_pedestals[gain_group][index].first;
+    }
   }
-}
-
-void Converter::copy_converted_data(std::span<float> output_data)
-{
-  for (auto i = 0u; i < MODULE_Y_SIZE; i++)
-    memcpy(output_data.data() + start_index + (i * row_jump),
-           converted.data() + (i * MODULE_X_SIZE), MODULE_X_SIZE * sizeof(float));
 }
 
 void Converter::test_data_size_consistency(std::span<const uint16_t> data) const

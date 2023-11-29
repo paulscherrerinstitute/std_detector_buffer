@@ -32,7 +32,7 @@ async def test_udp_receiver_with_converter(test_path, cleanup_jungfrau_shared_me
     ctx = zmq.asyncio.Context()
     packet = UdpPacket()
 
-    with run_command_in_parallel(receiver_command), run_command_in_parallel(converter_command, 3):
+    with run_command_in_parallel(receiver_command), run_command_in_parallel(converter_command, 5):
         client_socket = socket(AF_INET, SOCK_DGRAM)
         with start_pull_communication(ctx, JungfrauConfigConverter()) as (output_buffer, sub_socket):
             for frame_id in range(10):  # send 10 frames

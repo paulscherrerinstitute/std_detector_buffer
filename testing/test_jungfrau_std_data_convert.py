@@ -34,7 +34,7 @@ async def test_converter_send_real_image_with_custom_slot(test_path):
     ctx = zmq.asyncio.Context()
 
     with start_publisher_communication(ctx, JungfrauConfigUdp()) as (input_buffer, pub_socket):
-        with run_command_in_parallel(command, 3):
+        with run_command_in_parallel(command, 5):
             with start_pull_communication(ctx, JungfrauConfigConverter()) as (output_buffer, pull_socket):
                 # fill data array with incremented data
                 sent_data = get_array(input_buffer, slot, 'i2', JungfrauConfigUdp())
@@ -58,7 +58,7 @@ async def test_converter_modifying_image_with_gains_and_pedestals(test_path):
     ctx = zmq.asyncio.Context()
 
     with start_publisher_communication(ctx, JungfrauConfigUdp()) as (input_buffer, pub_socket):
-        with run_command_in_parallel(command, 3):
+        with run_command_in_parallel(command, 5):
             with start_pull_communication(ctx, JungfrauConfigConverter()) as (output_buffer, pull_socket):
                 # fill data array with incremented data
                 sent_data = get_array(input_buffer, slot, 'i2', JungfrauConfigUdp())
