@@ -13,7 +13,7 @@ class SBD(ConanFile):
         "benchmark/1.6.1",
         "protobuf/3.21.12",
         "argparse/2.9",
-        "bsread_receiver/0.14.0@patro_m/psi",
+        "bsread_receiver/0.16.1@patro_m/psi",
         "redis-plus-plus/1.3.7",
         "c-blosc2/2.10.0",
         "spdlog/1.12.0",

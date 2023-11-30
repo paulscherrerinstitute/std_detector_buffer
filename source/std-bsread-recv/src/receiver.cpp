@@ -2,6 +2,9 @@
 // Copyright (c) 2023 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
+#include <ranges>
+#include <algorithm>
+
 #include <bsread_receiver/receiver.hpp>
 #include <fmt/core.h>
 #include <zmq.h>
@@ -13,17 +16,32 @@
 
 namespace {
 
-constexpr std::size_t MAGIC_CAMERA_NUMBER = 4;
-constexpr auto type = bsrec::socket_type::pull;
 using pulse_id_t = int64_t;
 
-std::tuple<utils::DetectorConfig, std::string> read_arguments(int argc, char* argv[])
+std::tuple<utils::DetectorConfig, std::string, bsrec::socket_type, std::size_t> read_arguments(
+    int argc, char* argv[])
 {
   auto program = utils::create_parser("std_bsread_recv");
   program.add_argument("stream_address").help("address to bind input stream");
+  program.add_argument("-n", "--number_of_connections")
+      .default_value(4)
+      .help("Number of parallel connections to the source (4 for PCO cameras).");
+  program.add_argument("-t", "--type")
+      .default_value(bsrec::socket_type::pull)
+      .help("socket type pull or sub")
+      .action([](const std::string& value) {
+        static const std::unordered_map<std::string, bsrec::socket_type> type_map = {
+            {"pull", bsrec::socket_type::pull}, {"sub", bsrec::socket_type::sub}};
+        if (auto it = type_map.find(value); it == type_map.end())
+          throw std::runtime_error("Invalid choice for --type: " + value);
+        else
+          return it->second;
+      });
+
   program = utils::parse_arguments(program, argc, argv);
   return {utils::read_config_from_json_file(program.get("detector_json_filename")),
-          program.get("stream_address")};
+          program.get("stream_address"), program.get<bsrec::socket_type>("--type"),
+          program.get<std::size_t>("--number_of_connections")};
 }
 
 struct tmp_meta
@@ -38,14 +56,14 @@ struct tmp_meta
 
 int main(int argc, char* argv[])
 {
-  const auto [config, stream_address] = read_arguments(argc, argv);
+  const auto [config, stream_address, type, number_of_connections] = read_arguments(argc, argv);
   [[maybe_unused]] utils::log::logger l{"std_bsread_recv", config.log_level};
   auto ctx = zmq_ctx_new();
 
-  bsrec::receiver receivers_array[MAGIC_CAMERA_NUMBER] = {
-      bsrec::receiver(stream_address, type), bsrec::receiver(stream_address, type),
-      bsrec::receiver(stream_address, type), bsrec::receiver(stream_address, type)};
-
+  std::vector<bsrec::receiver> receivers;
+  std::ranges::for_each(std::views::iota(number_of_connections), [&](auto){
+    receivers.emplace_back(stream_address, type);
+  });
   const std::size_t max_byte_size =
       config.image_pixel_width * config.image_pixel_height * config.bit_depth / 8;
   const auto sync_buffer_name = fmt::format("{}-image", config.detector_name);
@@ -65,7 +83,7 @@ int main(int argc, char* argv[])
   std::map<pulse_id_t, tmp_meta> pulse_order;
 
   while (true) {
-    for (auto& receiver : receivers_array) {
+    for (auto& receiver : receivers) {
       auto msg = receiver.receive();
       if (msg.channels != nullptr) {
         const auto& channels = *msg.channels.get();
