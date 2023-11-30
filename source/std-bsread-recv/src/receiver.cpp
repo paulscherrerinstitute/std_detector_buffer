@@ -41,7 +41,7 @@ std::tuple<utils::DetectorConfig, std::string, bsrec::socket_type, std::size_t> 
   program = utils::parse_arguments(program, argc, argv);
   return {utils::read_config_from_json_file(program.get("detector_json_filename")),
           program.get("stream_address"), program.get<bsrec::socket_type>("--type"),
-          program.get<std::size_t>("--number_of_connections")};
+          program.get<int>("--number_of_connections")};
 }
 
 struct tmp_meta
