@@ -25,6 +25,13 @@ std::tuple<utils::DetectorConfig, std::string, bsrec::socket_type, std::size_t> 
   program.add_argument("stream_address").help("address to bind input stream");
   program.add_argument("-n", "--number_of_connections")
       .default_value(4)
+      .action([](const std::string& arg) {
+        if (auto value = std::stoi(arg); value < 1 || value > 8)
+          throw std::runtime_error(
+              fmt::format("number of connections: {} is out of range [1-8]", value));
+        else
+          return value;
+      })
       .help("Number of parallel connections to the source (4 for PCO cameras).");
   program.add_argument("-t", "--type")
       .default_value(bsrec::socket_type::pull)
