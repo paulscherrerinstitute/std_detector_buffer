@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
   auto ctx = zmq_ctx_new();
 
   std::vector<bsrec::receiver> receivers;
-  std::ranges::for_each(std::views::iota(number_of_connections),
+  std::ranges::for_each(std::views::iota(0u, number_of_connections),
                         [&](auto) { receivers.emplace_back(stream_address, type); });
   const std::size_t max_byte_size =
       config.image_pixel_width * config.image_pixel_height * config.bit_depth / 8;

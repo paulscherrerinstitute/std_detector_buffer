@@ -66,7 +66,7 @@ void Converter::convert(std::span<const uint16_t> input_data, std::span<float> o
   for (auto i = 0u; i < MODULE_Y_SIZE; i++) {
     for (auto j = 0u; j < MODULE_X_SIZE; j++) {
       auto index = i * MODULE_X_SIZE + j;
-      auto gain_group = input_data[index] >> 14;
+      auto gain_group = (input_data[index] >> 14) % N_GAINS;
       output_data[start_index + (i * row_jump) + j] =
           ((input_data[index] & 0x3FFF) - gains_and_pedestals[gain_group][index].second) *
           gains_and_pedestals[gain_group][index].first;
