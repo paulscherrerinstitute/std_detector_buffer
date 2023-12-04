@@ -12,7 +12,7 @@ class SBD(ConanFile):
         "fmt/10.1.1",
         "benchmark/1.6.1",
         "protobuf/3.21.12",
-        "argparse/2.9",
+        "argparse/3.0",
         "bsread_receiver/0.16.1@patro_m/psi",
         "redis-plus-plus/1.3.7",
         "c-blosc2/2.10.0",

@@ -18,12 +18,12 @@ namespace {
 std::tuple<utils::DetectorConfig, uint16_t> read_arguments(int argc, char* argv[])
 {
   auto program = utils::create_parser("std_data_convert_eg");
-  program.add_argument("module_id").scan<'d', uint16_t>();
+  program->add_argument("module_id").scan<'d', uint16_t>();
 
-  program = utils::parse_arguments(program, argc, argv);
+  program = utils::parse_arguments(std::move(program), argc, argv);
 
-  return {utils::read_config_from_json_file(program.get("detector_json_filename")),
-          program.get<uint16_t>("module_id")};
+  return {utils::read_config_from_json_file(program->get("detector_json_filename")),
+          program->get<uint16_t>("module_id")};
 }
 
 } // namespace

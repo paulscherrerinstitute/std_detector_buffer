@@ -18,7 +18,7 @@ constexpr auto zmq_io_threads = 1;
 std::tuple<utils::DetectorConfig, int, int> read_arguments(int argc, char* argv[])
 {
   auto program = utils::create_parser("std_data_compress_h5bitshuffle_lz4");
-  program.add_argument("-t", "--threads")
+  program->add_argument("-t", "--threads")
       .help("number of threads used for compression")
       .action([](const std::string& arg) {
         if (auto value = std::stoi(arg); value < 1 || value > 128 || value % 2 != 0)
@@ -27,7 +27,7 @@ std::tuple<utils::DetectorConfig, int, int> read_arguments(int argc, char* argv[
           return value;
       })
       .required();
-  program.add_argument("-b", "--block_size")
+  program->add_argument("-b", "--block_size")
       .help("block size in bytes")
       .action([](const std::string& arg) {
         if (auto value = std::stoi(arg); value < 0)
@@ -37,10 +37,10 @@ std::tuple<utils::DetectorConfig, int, int> read_arguments(int argc, char* argv[
       })
       .default_value(0);
 
-  program = utils::parse_arguments(program, argc, argv);
+  program = utils::parse_arguments(std::move(program), argc, argv);
 
-  return {utils::read_config_from_json_file(program.get("detector_json_filename")),
-          program.get<int>("--threads"), program.get<int>("--block_size")};
+  return {utils::read_config_from_json_file(program->get("detector_json_filename")),
+          program->get<int>("--threads"), program->get<int>("--block_size")};
 }
 
 } // namespace
@@ -81,8 +81,7 @@ int main(int argc, char* argv[])
       if (meta.status() == std_daq_protocol::good_image) {
         char* compression_buffer = sender.get_data(meta.image_id());
 
-        if(config.detector_type == "pco")
-        {
+        if (config.detector_type == "pco") {
           converted_bytes = meta.size();
           header_image_n_bytes = htobe64(static_cast<int64_t>(converted_bytes));
         }
@@ -90,7 +89,8 @@ int main(int argc, char* argv[])
         std::memcpy(compression_buffer + 8, &header_block_size, 4);
 
         int size = bshuf_compress_lz4(receiver.get_data(meta.image_id()), compression_buffer + 12,
-                                      converted_bytes / element_size, element_size, block_size / element_size);
+                                      converted_bytes / element_size, element_size,
+                                      block_size / element_size);
 
         if (size > 0) {
           meta.set_size(size + header_n_bytes);

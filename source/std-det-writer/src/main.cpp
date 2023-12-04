@@ -57,14 +57,14 @@ int main(int argc, char* argv[])
 {
   const std::string program_name{"std_det_writer"};
   auto program = utils::create_parser(program_name);
-  program = utils::parse_arguments(program, argc, argv);
-  program.add_argument("-s", "--source_suffix")
+  program = utils::parse_arguments(std::move(program), argc, argv);
+  program->add_argument("-s", "--source_suffix")
       .help("suffix for ipc source for ram_buffer - default \"image\"")
       .default_value("image"s);
 
-  const auto config = utils::read_config_from_json_file(program.get("detector_json_filename"));
+  const auto config = utils::read_config_from_json_file(program->get("detector_json_filename"));
   [[maybe_unused]] utils::log::logger l{program_name, config.log_level};
-  const auto suffix = program.get("--source_suffix");
+  const auto suffix = program->get("--source_suffix");
   const size_t image_n_bytes =
       config.image_pixel_width * config.image_pixel_height * config.bit_depth / 8;
 

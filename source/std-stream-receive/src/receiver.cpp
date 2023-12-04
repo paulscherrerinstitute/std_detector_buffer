@@ -27,13 +27,13 @@ void* zmq_socket_connect(void* ctx, const std::string& stream_address)
 std::tuple<utils::DetectorConfig, std::string, int> read_arguments(int argc, char* argv[])
 {
   auto program = utils::create_parser("std_stream_receive_gf");
-  program.add_argument("stream_address").help("address to bind input stream");
-  program.add_argument("image_part")
+  program->add_argument("stream_address").help("address to bind input stream");
+  program->add_argument("image_part")
       .help("0..7 responsible for sending n-th part of image")
       .scan<'d', int>();
-  program = utils::parse_arguments(program, argc, argv);
-  return {utils::read_config_from_json_file(program.get("detector_json_filename")),
-          program.get("stream_address"), program.get<int>("image_part")};
+  program = utils::parse_arguments(std::move(program), argc, argv);
+  return {utils::read_config_from_json_file(program->get("detector_json_filename")),
+          program->get("stream_address"), program->get<int>("image_part")};
 }
 
 bool received_successfully_data(void* socket, char* buffer, std::size_t size)

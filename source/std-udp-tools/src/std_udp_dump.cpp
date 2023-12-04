@@ -96,8 +96,8 @@ void receive_and_dump(uint16_t udp_port, atomic_bool& run)
 int main(int argc, char** argv)
 {
   auto program = utils::create_parser("std_live_stream");
-  program = utils::parse_arguments(program, argc, argv);
-  const auto config = utils::read_config_from_json_file(program.get("detector_json_filename"));
+  program = utils::parse_arguments(std::move(program), argc, argv);
+  const auto config = utils::read_config_from_json_file(program->get("detector_json_filename"));
 
   std::vector<std::thread> threads;
   atomic_bool running(true);
@@ -113,7 +113,7 @@ int main(int argc, char** argv)
   // Delay a bit so all threads report they started.
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-  fmt::print("Press enter to stop the program...\n");
+  fmt::print("Press enter to stop the program->..\n");
 
   cin.get();
   running = false;

@@ -16,19 +16,19 @@
 
 namespace utils {
 
-using parser = argparse::ArgumentParser;
+using parser = std::unique_ptr<argparse::ArgumentParser>;
 
 inline auto create_parser(std::string program_name)
 {
-  auto prog = parser(std::move(program_name), PROJECT_VER);
-  prog.add_argument("detector_json_filename");
+  auto prog = std::make_unique<argparse::ArgumentParser>(std::move(program_name), PROJECT_VER);
+  prog->add_argument("detector_json_filename");
   return prog;
 }
 
 inline parser parse_arguments(parser program_parser, int argc, char* argv[])
 {
   try {
-    program_parser.parse_args(argc, argv);
+    program_parser->parse_args(argc, argv);
   }
   catch (const std::runtime_error& err) {
     std::cerr << err.what() << std::endl;

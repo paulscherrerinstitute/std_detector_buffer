@@ -17,11 +17,11 @@ using namespace std::string_literals;
 auto read_arguments(int argc, char* argv[])
 {
   auto program = utils::create_parser("std_data_convert_jf");
-  program.add_argument("-g", "--gains_and_pedestals")
+  program->add_argument("-g", "--gains_and_pedestals")
       .help("gains and pedestals filename")
       .default_value(""s);
-  program.add_argument("module_id").scan<'d', uint16_t>();
-  return utils::parse_arguments(program, argc, argv);
+  program->add_argument("module_id").scan<'d', uint16_t>();
+  return utils::parse_arguments(std::move(program), argc, argv);
 }
 
 jf::sdc::Converter create_converter(const std::string& filename,
@@ -43,13 +43,13 @@ int main(int argc, char* argv[])
 {
   auto parser = read_arguments(argc, argv);
 
-  const auto config = utils::read_config_from_json_file(parser.get("detector_json_filename"));
+  const auto config = utils::read_config_from_json_file(parser->get("detector_json_filename"));
   [[maybe_unused]] utils::log::logger l{"std_data_convert_jf", config.log_level};
-  const uint16_t module_id = parser.get<uint16_t>("module_id");
+  const auto module_id = parser->get<uint16_t>("module_id");
   utils::stats::ModuleStatsCollector stats_collector(config.detector_name,
                                                      config.stats_collection_period, module_id);
 
-  auto converter = create_converter(parser.get("--gains_and_pedestals"), config, module_id);
+  auto converter = create_converter(parser->get("--gains_and_pedestals"), config, module_id);
 
   auto ctx = zmq_ctx_new();
 

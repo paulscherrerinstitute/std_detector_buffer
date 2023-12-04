@@ -19,8 +19,8 @@ int main(int argc, char* argv[])
 {
   static const std::string prog_name{"std_data_sync_stream"};
   auto program = utils::create_parser(prog_name);
-  program = utils::parse_arguments(program, argc, argv);
-  const auto config = utils::read_config_from_json_file(program.get("detector_json_filename"));
+  program = utils::parse_arguments(std::move(program), argc, argv);
+  const auto config = utils::read_config_from_json_file(program->get("detector_json_filename"));
   [[maybe_unused]] utils::log::logger l{prog_name, config.log_level};
 
   auto ctx = zmq_ctx_new();

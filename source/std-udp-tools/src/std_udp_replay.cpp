@@ -89,12 +89,12 @@ namespace {
 std::tuple<utils::DetectorConfig, std::string, int> read_arguments(int argc, char* argv[])
 {
   auto program = utils::create_parser("std_live_stream");
-  program.add_argument("ms_delay").help("delay in milliseconds between packets");
-  program.add_argument("folder_path").help("path to the folder containing .dat files");
-  program = utils::parse_arguments(program, argc, argv);
+  program->add_argument("ms_delay").help("delay in milliseconds between packets");
+  program->add_argument("folder_path").help("path to the folder containing .dat files");
+  program = utils::parse_arguments(std::move(program), argc, argv);
 
-  return {utils::read_config_from_json_file(program.get("detector_json_filename")),
-          program.get("folder_path"), program.get<int>("ms_delay")};
+  return {utils::read_config_from_json_file(program->get("detector_json_filename")),
+          program->get("folder_path"), program->get<int>("ms_delay")};
 }
 
 } // namespace

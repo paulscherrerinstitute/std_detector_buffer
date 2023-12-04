@@ -91,13 +91,13 @@ int main(int argc, char* argv[])
 {
   const std::string prog_name = "std_udp_recv_gf";
   auto program = utils::create_parser(prog_name);
-  program.add_argument("module_id").scan<'d', uint16_t>();
-  program = utils::parse_arguments(program, argc, argv);
+  program->add_argument("module_id").scan<'d', uint16_t>();
+  program = utils::parse_arguments(std::move(program), argc, argv);
 
   const auto detector_config =
-      utils::read_config_from_json_file(program.get("detector_json_filename"));
+      utils::read_config_from_json_file(program->get("detector_json_filename"));
   utils::log::logger l{prog_name, detector_config.log_level};
-  const auto module_id = program.get<uint16_t>("module_id");
+  const auto module_id = program->get<uint16_t>("module_id");
 
   const uint32_t MODULE_N_X_PIXEL = module_n_x_pixels(detector_config.image_pixel_width);
   const uint32_t MODULE_N_Y_PIXEL = module_n_y_pixels(detector_config.image_pixel_height);

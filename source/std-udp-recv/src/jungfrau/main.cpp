@@ -23,12 +23,12 @@ int main(int argc, char* argv[])
 {
   const char* prog_name = "std_udp_recv_jf";
   auto program = utils::create_parser(prog_name);
-  program.add_argument("module_id").scan<'d', uint16_t>();
-  program = utils::parse_arguments(program, argc, argv);
+  program->add_argument("module_id").scan<'d', uint16_t>();
+  program = utils::parse_arguments(std::move(program), argc, argv);
 
-  const auto config = utils::read_config_from_json_file(program.get("detector_json_filename"));
+  const auto config = utils::read_config_from_json_file(program->get("detector_json_filename"));
   [[maybe_unused]] utils::log::logger l{prog_name, config.log_level};
-  const auto module_id = program.get<uint16_t>("module_id");
+  const auto module_id = program->get<uint16_t>("module_id");
 
   const size_t FRAME_N_BYTES = DATA_BYTES_PER_PACKET * N_PACKETS_PER_FRAME;
 

@@ -35,27 +35,27 @@ struct arguments
 arguments read_arguments(int argc, char* argv[])
 {
   auto program = utils::create_parser("std_buffer_reader");
-  program.add_argument("--root_dir").help("Root directory where files will be stored").required();
-  program.add_argument("--db_address")
+  program->add_argument("--root_dir").help("Root directory where files will be stored").required();
+  program->add_argument("--db_address")
       .help("Address of Redis API compatible database to connect")
       .required();
-  program.add_argument("--delay")
+  program->add_argument("--delay")
       .help("Delay in between sending loaded images.")
       .scan<'i', uint64_t>()
       .required();
-  program.add_argument("--start_id").help("Starting ID for read").scan<'i', uint64_t>().required();
-  program.add_argument("--end_id")
+  program->add_argument("--start_id").help("Starting ID for read").scan<'i', uint64_t>().required();
+  program->add_argument("--end_id")
       .help("Root directory where files will be stored")
       .scan<'i', uint64_t>()
       .default_value(INVALID_IMAGE_ID);
-  program = utils::parse_arguments(program, argc, argv);
+  program = utils::parse_arguments(std::move(program), argc, argv);
 
-  return {utils::read_config_from_json_file(program.get("detector_json_filename")),
-          program.get("--root_dir"),
-          program.get("--db_address"),
-          program.get<uint64_t>("--start_id"),
-          program.get<uint64_t>("--end_id"),
-          program.get<uint64_t>("--delay")};
+  return {utils::read_config_from_json_file(program->get("detector_json_filename")),
+          program->get("--root_dir"),
+          program->get("--db_address"),
+          program->get<uint64_t>("--start_id"),
+          program->get<uint64_t>("--end_id"),
+          program->get<uint64_t>("--delay")};
 }
 
 std::size_t get_uncompressed_size(const std_daq_protocol::ImageMetadata& data)

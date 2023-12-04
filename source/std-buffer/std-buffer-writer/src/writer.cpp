@@ -28,14 +28,14 @@ auto calculate_size(const std_daq_protocol::ImageMetadata* meta)
 std::tuple<utils::DetectorConfig, std::string, std::string> read_arguments(int argc, char* argv[])
 {
   auto program = utils::create_parser("std_buffer_writer");
-  program.add_argument("--root_dir").help("Root directory where files will be stored").required();
-  program.add_argument("--db_address")
+  program->add_argument("--root_dir").help("Root directory where files will be stored").required();
+  program->add_argument("--db_address")
       .help("Address of Redis API compatible database to connect")
       .required();
-  program = utils::parse_arguments(program, argc, argv);
+  program = utils::parse_arguments(std::move(program), argc, argv);
 
-  return {utils::read_config_from_json_file(program.get("detector_json_filename")),
-          program.get("--db_address"), program.get("--root_dir")};
+  return {utils::read_config_from_json_file(program->get("detector_json_filename")),
+          program->get("--db_address"), program->get("--root_dir")};
 }
 
 int main(int argc, char* argv[])

@@ -41,7 +41,7 @@ constexpr auto zmq_io_threads = 1;
 std::tuple<utils::DetectorConfig, int, std::size_t> read_arguments(int argc, char* argv[])
 {
   auto program = utils::create_parser("std_data_compress_blosc2");
-  program.add_argument("-t", "--threads")
+  program->add_argument("-t", "--threads")
       .help("number of threads used for compression")
       .action([](const std::string& arg) {
         if (auto value = std::stoi(arg); value < 1 || value > 128 || value % 2 != 0)
@@ -50,7 +50,7 @@ std::tuple<utils::DetectorConfig, int, std::size_t> read_arguments(int argc, cha
           return value;
       })
       .required();
-  program.add_argument("-l", "--level")
+  program->add_argument("-l", "--level")
       .help("Compression level")
       .action([](const std::string& arg) {
         if (auto value = std::stoi(arg); value < 1 || value > 9)
@@ -61,10 +61,10 @@ std::tuple<utils::DetectorConfig, int, std::size_t> read_arguments(int argc, cha
       })
       .default_value(5);
 
-  program = utils::parse_arguments(program, argc, argv);
+  program = utils::parse_arguments(std::move(program), argc, argv);
 
-  return {utils::read_config_from_json_file(program.get("detector_json_filename")),
-          program.get<int>("--threads"), program.get<int>("--level")};
+  return {utils::read_config_from_json_file(program->get("detector_json_filename")),
+          program->get<int>("--threads"), program->get<int>("--level")};
 }
 
 } // namespace

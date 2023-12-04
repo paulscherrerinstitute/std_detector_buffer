@@ -22,8 +22,8 @@ std::tuple<utils::DetectorConfig, std::string, bsrec::socket_type, std::size_t> 
     int argc, char* argv[])
 {
   auto program = utils::create_parser("std_bsread_recv");
-  program.add_argument("stream_address").help("address to bind input stream");
-  program.add_argument("-n", "--number_of_connections")
+  program->add_argument("stream_address").help("address to bind input stream");
+  program->add_argument("-n", "--number_of_connections")
       .default_value(4)
       .action([](const std::string& arg) {
         if (auto value = std::stoi(arg); value < 1 || value > 8)
@@ -33,7 +33,7 @@ std::tuple<utils::DetectorConfig, std::string, bsrec::socket_type, std::size_t> 
           return value;
       })
       .help("Number of parallel connections to the source (4 for PCO cameras).");
-  program.add_argument("-t", "--type")
+  program->add_argument("-t", "--type")
       .default_value(bsrec::socket_type::pull)
       .help("socket type pull or sub")
       .action([](const std::string& value) {
@@ -45,10 +45,10 @@ std::tuple<utils::DetectorConfig, std::string, bsrec::socket_type, std::size_t> 
           return it->second;
       });
 
-  program = utils::parse_arguments(program, argc, argv);
-  return {utils::read_config_from_json_file(program.get("detector_json_filename")),
-          program.get("stream_address"), program.get<bsrec::socket_type>("--type"),
-          program.get<int>("--number_of_connections")};
+  program = utils::parse_arguments(std::move(program), argc, argv);
+  return {utils::read_config_from_json_file(program->get("detector_json_filename")),
+          program->get("stream_address"), program->get<bsrec::socket_type>("--type"),
+          program->get<int>("--number_of_connections")};
 }
 
 struct tmp_meta
