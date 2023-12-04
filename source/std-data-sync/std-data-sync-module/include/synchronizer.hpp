@@ -14,7 +14,6 @@
 #include "core_buffer/formats.hpp"
 #include "detectors/common.hpp"
 
-
 class Synchronizer
 {
   using image_id = uint64_t;

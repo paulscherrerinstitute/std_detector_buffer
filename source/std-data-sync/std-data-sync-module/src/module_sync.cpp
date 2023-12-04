@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 
   while (true) {
     if (zmq_recv(receiver, meta_buffer_recv, DET_FRAME_STRUCT_BYTES, 0) > 0) {
-        auto n_corrupted_images = syncer.process_image_metadata(*common_frame);
+      auto n_corrupted_images = syncer.process_image_metadata(*common_frame);
 
       for (auto m = syncer.pop_next_full_image(); m.image_id != INVALID_IMAGE_ID;
            m = syncer.pop_next_full_image())

@@ -23,16 +23,26 @@ struct ModuleFrame
 };
 #pragma pack(pop)
 
-enum ImageMetadataDtype {
-  uint8=1, uint16=2, uint32=4, uint64=8,
-  int8=11, int16=12, int32=14, int64=18,
-  float16=22, float32=24, float64=28
+enum ImageMetadataDtype
+{
+  uint8 = 1,
+  uint16 = 2,
+  uint32 = 4,
+  uint64 = 8,
+  int8 = 11,
+  int16 = 12,
+  int32 = 14,
+  int64 = 18,
+  float16 = 22,
+  float32 = 24,
+  float64 = 28
 };
 
-enum ImageMetadataStatus {
-  good_image=0,
-  missing_packets=1,
-  id_missmatch=2
+enum ImageMetadataStatus
+{
+  good_image = 0,
+  missing_packets = 1,
+  id_missmatch = 2
 };
 
 #pragma pack(push)

@@ -14,7 +14,6 @@
 
 using namespace std;
 
-
 TEST(PacketUdpReceiver, receive_many)
 {
   uint16_t udp_port = MOCK_UDP_PORT;
@@ -40,8 +39,8 @@ TEST(PacketUdpReceiver, receive_many)
   auto n_msgs = udp_receiver.receive_many();
   ASSERT_EQ(n_msgs, 2);
 
-  const JFUdpPacket* const packet_buffer = reinterpret_cast<JFUdpPacket*>(
-      udp_receiver.get_packet_buffer());
+  const JFUdpPacket* const packet_buffer =
+      reinterpret_cast<JFUdpPacket*>(udp_receiver.get_packet_buffer());
 
   for (int i = 0; i < n_msgs; i++) {
     ASSERT_EQ(packet_buffer[i].bunchid, i);

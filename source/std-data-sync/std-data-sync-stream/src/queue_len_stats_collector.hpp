@@ -28,10 +28,7 @@ public:
     return outcome;
   }
 
-  void update_queue_length(std::size_t queue_len)
-  {
-    queue = std::max(queue, queue_len);
-  }
+  void update_queue_length(std::size_t queue_len) { queue = std::max(queue, queue_len); }
 
 private:
   std::size_t queue = 0;

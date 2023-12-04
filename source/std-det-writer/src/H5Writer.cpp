@@ -136,8 +136,7 @@ void H5Writer::create_image_dataset(const uint32_t n_images, hid_t data_group_id
   auto image_space_id = H5Screate_simple(3, image_dataset_dims, nullptr);
   if (image_space_id < 0) throw runtime_error("Cannot create image dataset space.");
 
-  if(is_h5bitshuffle_lz4_compression)
-  {
+  if (is_h5bitshuffle_lz4_compression) {
     bshuf_register_h5filter();
     uint filter_prop[] = {0, BSHUF_H5_COMPRESS_LZ4};
     if (H5Pset_filter(dcpl_id, BSHUF_H5FILTER, H5Z_FLAG_MANDATORY, 2, filter_prop) < 0)

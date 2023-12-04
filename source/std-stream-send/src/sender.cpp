@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
 
   while (true) {
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
-        meta.ParseFromArray(buffer, n_bytes);
+      meta.ParseFromArray(buffer, n_bytes);
       auto* image_data = receiver.get_data(meta.image_id());
 
       std::size_t zmq_failed = zmq_success == zmq_send(sender_socket, buffer, n_bytes, ZMQ_SNDMORE);

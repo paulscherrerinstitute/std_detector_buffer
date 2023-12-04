@@ -54,7 +54,9 @@ public:
   void close_run(uint32_t highest_written_index);
 
   void write_data(uint64_t run_id, uint32_t index, size_t data_size, const char* data) const;
-  void write_meta(uint64_t run_id, uint32_t index, const std_daq_protocol::ImageMetadata& meta) const;
+  void write_meta(uint64_t run_id,
+                  uint32_t index,
+                  const std_daq_protocol::ImageMetadata& meta) const;
 };
 
 #endif // STD_DETECTOR_BUFFER_H5_WRITER
