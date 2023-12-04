@@ -16,7 +16,7 @@ namespace {
 class compression
 {
 public:
-  compression(int threads, std::size_t bit_depth, std::size_t clevel)
+  compression(std::size_t threads, std::size_t bit_depth, std::size_t clevel)
   {
     blosc2_cparams compression_params = BLOSC2_CPARAMS_DEFAULTS;
     compression_params.nthreads = static_cast<int16_t>(threads);
@@ -38,13 +38,13 @@ private:
 
 constexpr auto zmq_io_threads = 1;
 
-std::tuple<utils::DetectorConfig, int, std::size_t> read_arguments(int argc, char* argv[])
+std::tuple<utils::DetectorConfig, std::size_t, std::size_t> read_arguments(int argc, char* argv[])
 {
   auto program = utils::create_parser("std_data_compress_blosc2");
   program->add_argument("-t", "--threads")
       .help("number of threads used for compression")
       .action([](const std::string& arg) {
-        if (auto value = std::stoi(arg); value < 1 || value > 128 || value % 2 != 0)
+        if (auto value = std::stoul(arg); value < 1 || value > 128 || value % 2 != 0)
           throw std::runtime_error("Unsupported number of cores! Use 1,2,4,8 ...");
         else
           return value;
@@ -53,7 +53,7 @@ std::tuple<utils::DetectorConfig, int, std::size_t> read_arguments(int argc, cha
   program->add_argument("-l", "--level")
       .help("Compression level")
       .action([](const std::string& arg) {
-        if (auto value = std::stoi(arg); value < 1 || value > 9)
+        if (auto value = std::stoul(arg); value < 1 || value > 9)
           throw std::runtime_error(
               fmt::format("Compression level: {} is out of range [1-9]", value));
         else
@@ -64,7 +64,7 @@ std::tuple<utils::DetectorConfig, int, std::size_t> read_arguments(int argc, cha
   program = utils::parse_arguments(std::move(program), argc, argv);
 
   return {utils::read_config_from_json_file(program->get("detector_json_filename")),
-          program->get<int>("--threads"), program->get<int>("--level")};
+          program->get<std::size_t>("--threads"), program->get<std::size_t>("--level")};
 }
 
 } // namespace
