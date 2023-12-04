@@ -59,7 +59,7 @@ std::tuple<utils::DetectorConfig, std::size_t, std::size_t> read_arguments(int a
         else
           return value;
       })
-      .default_value(5);
+      .default_value(5ul);
 
   program = utils::parse_arguments(std::move(program), argc, argv);
 

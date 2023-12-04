@@ -23,7 +23,7 @@ def test_converter_should_return_without_needed_arguments():
 
     assert rc == 1
     assert len(e) > 0
-    assert 'Usage: std_data_convert_jf' in e
+    assert 'detector_json_filename: 1 argument' in e
 
 
 @pytest.mark.asyncio
