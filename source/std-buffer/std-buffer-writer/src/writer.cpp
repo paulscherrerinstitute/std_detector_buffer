@@ -41,8 +41,11 @@ std::tuple<utils::DetectorConfig, std::string, std::string> read_arguments(int a
 int main(int argc, char* argv[])
 {
   const auto [config, db_address, root_dir] = read_arguments(argc, argv);
+  [[maybe_unused]] utils::log::logger l{"std_buffer_writer", config.log_level};
   sbc::RedisHandler sender(config.detector_name, db_address);
   sbc::BufferHandler writer(root_dir + config.detector_name, config.bit_depth / 8);
+
+  utils::stats::TimedStatsCollector stats(config.detector_name, config.stats_collection_period);
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
@@ -71,7 +74,9 @@ int main(int argc, char* argv[])
       meta->set_size(compressed_size);
       buffered_meta.set_offset(offset);
       sender.send(meta->image_id(), buffered_meta);
+      stats.process();
     }
+    stats.print_stats();
   }
   return 0;
 }
