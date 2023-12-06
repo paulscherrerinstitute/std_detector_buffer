@@ -98,6 +98,7 @@ int main(int argc, char* argv[])
                               metadata_holder{channels[0].shape[0], channels[0].shape[1],
                                               channels[0].name, msg.time});
         }
+        stats.process();
       }
     }
     for (auto [pulse, m] : pulse_order) {
@@ -116,7 +117,6 @@ int main(int argc, char* argv[])
       sender.send(pulse, meta_buffer_send, nullptr);
     }
     pulse_order.clear();
-    stats.process();
     stats.print_stats();
   }
   return 0;
