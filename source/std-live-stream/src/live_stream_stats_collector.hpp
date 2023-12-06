@@ -8,26 +8,26 @@
 #include "utils/stats/timed_stats_collector.hpp"
 #include "arguments.hpp"
 
+namespace ls {
 class LiveStreamStatsCollector : public utils::stats::TimedStatsCollector
 {
   using Parent = utils::stats::TimedStatsCollector;
 
 public:
-  explicit LiveStreamStatsCollector(std::string_view detector_name,
-                                    ls::stream_type type,
-                                    std::chrono::seconds period)
-      : TimedStatsCollector(detector_name, period)
-      , stype(type == ls::stream_type::array10 ? "array10" : "bsread")
+  explicit LiveStreamStatsCollector(const arguments& args)
+      : TimedStatsCollector(args.config.detector_name, args.config.stats_collection_period)
+      , stype(args.type == ls::stream_type::array10 ? "array10" : "bsread")
+      , suffix(args.source_suffix)
   {}
 
   [[nodiscard]] std::string additional_message() override
   {
-    auto outcome = fmt::format("type={},{}", stype, Parent::additional_message());
-    return outcome;
+    return fmt::format("source={},type={},{}", suffix, stype, Parent::additional_message());
   }
 
 private:
   std::string stype;
+  std::string suffix;
 };
-
+} // namespace ls
 #endif // STD_DETECTOR_BUFFER_LIVE_STREAM_STATS_COLLECTOR_HPP

@@ -104,8 +104,7 @@ int main(int argc, char* argv[])
       {source_name, utils::converted_image_n_bytes(args.config), buffer_config::RAM_BUFFER_N_SLOTS},
       {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
   auto sender_socket = bind_sender_socket(ctx, args.stream_address);
-  LiveStreamStatsCollector stats(args.config.detector_name, args.type,
-                                 args.config.stats_collection_period);
+  ls::LiveStreamStatsCollector stats(args);
 
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;

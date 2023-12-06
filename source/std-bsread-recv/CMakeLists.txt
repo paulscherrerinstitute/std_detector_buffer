@@ -8,6 +8,7 @@ find_package(ZeroMQ REQUIRED)
 add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME}
     PRIVATE
+        src/bsread_recv_stats_collector.hpp
         src/receiver.cpp
 )
 

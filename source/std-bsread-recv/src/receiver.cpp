@@ -14,6 +14,8 @@
 #include "utils/utils.hpp"
 #include "std_buffer/image_metadata.pb.h"
 
+#include "bsread_recv_stats_collector.hpp"
+
 namespace {
 
 using pulse_id_t = int64_t;
@@ -45,7 +47,7 @@ std::tuple<utils::DetectorConfig, std::string, bsrec::socket_type, std::size_t> 
           program->get<std::size_t>("--number_of_connections")};
 }
 
-struct tmp_meta
+struct metadata_holder
 {
   uint32_t width;
   uint32_t height;
@@ -74,13 +76,14 @@ int main(int argc, char* argv[])
                                                    ZMQ_PUB};
   auto sender = cb::Communicator{send_buffer_config, send_comm_config};
 
-  utils::stats::TimedStatsCollector stats(config.detector_name, config.stats_collection_period);
+  BsreadRecvStatsCollector stats(config.detector_name, stream_address,
+                                 config.stats_collection_period);
 
   std_daq_protocol::ImageMetadata image_meta;
   image_meta.set_dtype(utils::get_metadata_dtype(config));
   image_meta.set_status(std_daq_protocol::ImageMetadataStatus::good_image);
   // TODO: to be improved in future
-  std::map<pulse_id_t, tmp_meta> pulse_order;
+  std::map<pulse_id_t, metadata_holder> pulse_order;
 
   while (true) {
     for (auto& receiver : receivers) {
@@ -91,8 +94,9 @@ int main(int argc, char* argv[])
           char* ram_buffer = sender.get_data(msg.pulse_id);
           memcpy(ram_buffer, channels[0].buffer.get(), channels[0].buffer_size);
 
-          pulse_order.emplace(msg.pulse_id, tmp_meta{channels[0].shape[0], channels[0].shape[1],
-                                                     channels[0].name, msg.time});
+          pulse_order.emplace(msg.pulse_id,
+                              metadata_holder{channels[0].shape[0], channels[0].shape[1],
+                                              channels[0].name, msg.time});
         }
       }
     }
