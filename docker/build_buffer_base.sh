@@ -1,9 +1,9 @@
 #!/bin/bash
 
-NAME="paulscherrerinstitute/std_detector_buffer_base"
-VERSION=3.2.0
+NAME="paulscherrerinstitute/std_detector_buffer_centos8"
+VERSION=0.9.0
 
-docker build --no-cache -f buffer_base.Dockerfile -t ${NAME} .
+docker build --no-cache -f buffer_base_centos8.Dockerfile -t ${NAME} .
 docker tag ${NAME} ${NAME}:${VERSION}
 
 docker login
