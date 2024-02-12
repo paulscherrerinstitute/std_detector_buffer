@@ -1,7 +1,5 @@
 .prepare_env:
   before_script:
     - |
-      gcc --version
-      source /etc/profile.d/modules.sh
-      module load mpi
+      source /opt/rh/gcc-toolset-13/enable
       [ [ -d .venv ] ] && source venv/bin/activate
