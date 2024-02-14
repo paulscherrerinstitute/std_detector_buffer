@@ -5,6 +5,8 @@
 #ifndef STD_DETECTOR_BUFFER_WRITER_STATS_COLLECTOR_HPP
 #define STD_DETECTOR_BUFFER_WRITER_STATS_COLLECTOR_HPP
 
+#include <utility>
+
 #include "utils/stats/stats_collector.hpp"
 
 class WriterStatsCollector : public utils::stats::StatsCollector<WriterStatsCollector>
@@ -13,10 +15,11 @@ class WriterStatsCollector : public utils::stats::StatsCollector<WriterStatsColl
 
 public:
   explicit WriterStatsCollector(std::string_view detector_name,
+                                std::string source_suffix,
                                 std::chrono::seconds period,
                                 std::size_t image_bytes)
       : utils::stats::StatsCollector<WriterStatsCollector>(detector_name, period)
-      , image_n_bytes(image_bytes)
+      , image_n_bytes(image_bytes), source(std::move(source_suffix))
   {}
 
   [[nodiscard]] std::string additional_message()
@@ -25,8 +28,8 @@ public:
     const auto [avg_buffer_write, avg_throughput] = calculate_averages();
 
     auto outcome = fmt::format(
-        "n_written_images={},avg_buffer_write_us={},max_buffer_write_us={},avg_throughput={}",
-        image_counter, avg_buffer_write, max_buffer_write.count(), avg_throughput);
+        "source={},n_written_images={},avg_buffer_write_us={},max_buffer_write_us={},avg_throughput={}",
+        source, image_counter, avg_buffer_write, max_buffer_write.count(), avg_throughput);
 
     image_counter = 0;
     total_bytes = 0;
@@ -70,6 +73,7 @@ private:
   std::chrono::nanoseconds total_buffer_write{};
   std::chrono::nanoseconds max_buffer_write{};
   time_point writing_start;
+  std::string source;
 };
 
 #endif // STD_DETECTOR_BUFFER_WRITER_STATS_COLLECTOR_HPP

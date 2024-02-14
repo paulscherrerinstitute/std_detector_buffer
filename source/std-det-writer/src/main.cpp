@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
   //  MPI_Comm_size(MPI_COMM_WORLD, &n_writers);
 
   H5Writer writer(config.detector_name, suffix);
-  WriterStatsCollector stats(config.detector_name, config.stats_collection_period, image_n_bytes);
+  WriterStatsCollector stats(config.detector_name, suffix, config.stats_collection_period, image_n_bytes);
   const auto buffer_name = fmt::format("{}-{}", config.detector_name, suffix);
   RamBuffer image_buffer(buffer_name, image_n_bytes, buffer_config::RAM_BUFFER_N_SLOTS);
   auto ctx = zmq_ctx_new();
