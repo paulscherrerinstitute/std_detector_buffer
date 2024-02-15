@@ -6,6 +6,7 @@ include:
   - local: '.gitlab-ci/package.yml'
   - local: '.gitlab-ci/upload.yml'
   - local: '.gitlab-ci/release.yml'
+  - local: '.gitlab-ci/docker_build.yml'
 
 stages:
   - test
@@ -59,3 +60,7 @@ pages:
       - public
   only:
     - master
+
+docker_deploy:
+  stage: deploy
+  extends: [ .docker_build ]

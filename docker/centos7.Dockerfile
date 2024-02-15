@@ -1,6 +1,5 @@
 FROM centos:7
 
-LABEL description="Package with devtools-10 and conda"
 LABEL maintainer="Maciej Patro"
 
 RUN yum update -y \
