@@ -6,8 +6,8 @@ include:
   extends: .build_image_template
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker build -t $CI_REGISTRY/controls-ci/std_detector_buffer/centos7:$IMAGE_VERSION -f docker/$DOCKER_IMAGE.Dockerfile .
-    - docker push $CI_REGISTRY/controls-ci/std_detector_buffer/image:$IMAGE_VERSION
+    - docker build -t $CI_REGISTRY/controls-ci/std_detector_buffer/$DOCKER_IMAGE:$IMAGE_VERSION -f docker/$DOCKER_IMAGE.Dockerfile .
+    - docker push $CI_REGISTRY/controls-ci/std_detector_buffer/$DOCKER_IMAGE:$IMAGE_VERSION
   parallel:
     matrix:
       - DOCKER_IMAGE: [ centos7, centos8, centos9 ]
