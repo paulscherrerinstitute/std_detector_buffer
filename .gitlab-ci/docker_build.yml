@@ -11,7 +11,7 @@ include:
   parallel:
     matrix:
       - DOCKER_IMAGE: [ centos7, centos8, centos9 ]
-      - IMAGE_VERSION: [ "1.0.0", "1.0.0", "1.0.0" ]
+        IMAGE_VERSION: [ "1.0.0", "1.0.0", "1.0.0" ]
   rules:
     - changes:
         - docker/**
