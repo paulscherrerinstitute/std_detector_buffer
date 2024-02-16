@@ -61,6 +61,6 @@ pages:
   only:
     - master
 
-#docker_deploy:
-#  stage: deploy
-#  extends: [ .docker_build ]
+docker_deploy:
+  stage: deploy
+  extends: [ .docker_build ]
