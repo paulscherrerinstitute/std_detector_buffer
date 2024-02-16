@@ -28,7 +28,7 @@ public:
     const auto [avg_buffer_write, avg_throughput] = calculate_averages();
 
     auto outcome = fmt::format(
-        "source={},n_written_images={},avg_buffer_write_us={},max_buffer_write_us={},avg_throughput={}",
+        "source={},n_written_images={},avg_buffer_write_us={},max_buffer_write_us={},avg_throughput={:.2f}",
         source, image_counter, avg_buffer_write, max_buffer_write.count(), avg_throughput);
 
     image_counter = 0;
@@ -54,17 +54,16 @@ public:
   }
 
 private:
-  [[nodiscard]] std::tuple<std::size_t, std::size_t> calculate_averages() const
+  [[nodiscard]] std::tuple<std::size_t, double> calculate_averages() const
   {
     using namespace std::chrono;
     if (image_counter > 0) {
       const auto avg_buffer_write = total_buffer_write / image_counter;
-      const auto avg_throughput =
-          (total_bytes / 1024 / 1024) / duration_cast<seconds>(avg_buffer_write).count();
+      const auto avg_throughput = (double) total_bytes / total_buffer_write.count() * 1000000 / 1024 / 1024;
       return {avg_buffer_write.count(), avg_throughput};
     }
     else
-      return {0, 0};
+      return {0, 0.0};
   }
 
   std::size_t image_n_bytes{};
