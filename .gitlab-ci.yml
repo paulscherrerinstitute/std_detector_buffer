@@ -42,6 +42,10 @@ upload_project:
     - job: package_project
       artifacts: true
 
+docker_deploy:
+  stage: deploy
+  extends: [ .docker_build ]
+
 release_project:
   stage: release
   extends: [ .release ]
@@ -63,7 +67,3 @@ pages:
       - public
   only:
     - master
-
-docker_deploy:
-  stage: deploy
-  extends: [ .docker_build ]

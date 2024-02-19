@@ -1,5 +1,6 @@
 .prepare_env:
   before_script:
     - |
-      source /opt/rh/gcc-toolset-13/enable
-      [ [ -d .venv ] ] && source venv/bin/activate
+      [ [ -d /opt/rh/devtoolset-11 ] ] && source /opt/rh/devtoolset-11/enable
+      [ [ -d /opt/rh/gcc-toolset-13 ] ] && source /opt/rh/gcc-toolset-13/enable
+      [ [ -d .venv ] ] && source .venv/bin/activate
