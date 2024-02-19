@@ -25,7 +25,7 @@ test_project:
   tags: [ sf-docker ]
   parallel:
     matrix:
-      - DOCKER_IMAGE: [ "centos7", "centos8" ]
+      - DOCKER_IMAGE: [ "centos8" ]
 
 package_project:
   stage: package
