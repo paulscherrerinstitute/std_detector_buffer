@@ -1,11 +1,13 @@
 variables:
   CONAN_USER_HOME: $CI_PROJECT_DIR/.conan_cache
 
-cache:
-  key:
-    files:
-      - conan/conanfile.py
-      - requirements.txt
-  paths:
-    - $CONAN_USER_HOME
-    - .venv
+.cache:
+  cache:
+    key:
+      files:
+        - conan/conanfile.py
+        - requirements.txt
+      prefix: $DOCKER_IMAGE
+    paths:
+      - $CONAN_USER_HOME
+      - .venv

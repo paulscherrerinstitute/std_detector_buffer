@@ -21,7 +21,7 @@ variables:
 
 test_project:
   stage: test
-  extends: [ .prepare_env, .build_and_test ]
+  extends: [ .prepare_env, .cache, .build_and_test ]
   tags: [ sf-docker ]
   parallel:
     matrix:
@@ -29,7 +29,7 @@ test_project:
 
 package_project:
   stage: package
-  extends: [ .prepare_env, .package ]
+  extends: [ .prepare_env, .cache, .package ]
   tags: [ sf-docker ]
   parallel:
     matrix:
