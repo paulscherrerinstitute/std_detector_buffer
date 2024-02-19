@@ -17,4 +17,4 @@
     when: on_success
     expire_in: 1 day
     paths:
-      - release/std_detector_buffer*.rpm
+      - release/sdb*.rpm
