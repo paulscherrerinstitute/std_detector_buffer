@@ -25,6 +25,9 @@ test_project:
   stage: test
   extends: [ .prepare_env, .build_and_test ]
   tags: [ sf-docker ]
+  parallel:
+    matrix:
+      - DOCKER_IMAGE: [ "centos8:1.0.0", "centos7:1.0.0" ]
 
 package_project:
   stage: package

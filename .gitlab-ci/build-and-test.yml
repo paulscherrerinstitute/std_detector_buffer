@@ -1,11 +1,9 @@
 .build_and_test:
-  image: $DOCKER_IMAGE
+  image: container.psi.ch/controls-ci/std_detector_buffer/$DOCKER_IMAGE
   script: |
     echo ">>>>> Release build:"
     cmake -B release -DCMAKE_BUILD_TYPE=Release -G Ninja
     cmake --build release
-    echo ">>>>> Deploy shortcut - copy to /ioc/modules/patro_m in sf:"
-    cp -r release /ioc/modules/patro_m
     echo ">>>>> Unit testing:"
     ctest --test-dir release -VV
     echo ">>>>> Integration testing:"
