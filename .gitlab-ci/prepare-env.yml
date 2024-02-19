@@ -2,5 +2,6 @@
   before_script:
     - |
       [[ -d /opt/rh/devtoolset-11 ]] && source /opt/rh/devtoolset-11/enable
+      [[ -d /opt/rh/rh-python38 ]] && source /opt/rh/rh-python38/enable
       [[ -d /opt/rh/gcc-toolset-13 ]] && source /opt/rh/gcc-toolset-13/enable
       [[ -d .venv ]] && source .venv/bin/activate
