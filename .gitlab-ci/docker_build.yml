@@ -2,9 +2,6 @@ include:
   - project: 'controls-ci/templates'
     file: '/docker/build_image_template.yml'
 
-variables:
-  IMAGE_VERSION: "1.0.0"
-
 .docker_build:
   extends: .build_image_template
   script:

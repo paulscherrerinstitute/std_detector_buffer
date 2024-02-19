@@ -1,5 +1,5 @@
 .build_and_test:
-  image: container.psi.ch/controls-ci/std_detector_buffer/$DOCKER_IMAGE
+  image: $CI_REGISTRY/controls-ci/std_detector_buffer/$DOCKER_IMAGE:$IMAGE_VERSION
   script: |
     echo ">>>>> Release build:"
     cmake -B release -DCMAKE_BUILD_TYPE=Release -G Ninja
