@@ -2,8 +2,27 @@ syntax = "proto3";
 
 import "std_buffer/image_metadata.proto";
 
-// This is an ugly name. Come up with something better.
 package std_daq_protocol;
+
+message CreateFileCommand {
+  string path = 1;
+  int32 writer_id = 2;
+}
+
+message RecordImage {
+  ImageMetadata image_metadata = 1;
+}
+
+message CloseFile {
+}
+
+message WriterAction {
+  oneof action {
+    CreateFileCommand create_file = 1;
+    RecordImage record_image = 2;
+    CloseFile close_file = 3;
+  }
+}
 
 enum CommandType {
   WRITE_IMAGE = 0;
