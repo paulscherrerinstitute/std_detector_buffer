@@ -93,8 +93,9 @@ int main(int argc, char* argv[])
   zmq_send(sender_sockets[1], cmd.c_str(), cmd.size(), 0);
 
   auto i = 0;
-  for(auto ii = 0; ii < 100; ii++) {
+  for(auto ii = 0; ii < 100; ) {
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
+      ii++;
       meta.ParseFromArray(buffer, n_bytes);
       memcpy(receiver.get_data(meta.image_id()), buffer, n_bytes);
 
