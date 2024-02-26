@@ -44,7 +44,9 @@ void* bind_sender_socket(void* ctx, const std::string& stream_address)
   const int linger = 0;
   if (zmq_setsockopt(socket, ZMQ_LINGER, &linger, sizeof(linger)) != 0)
     throw std::runtime_error(zmq_strerror(errno));
-  if (zmq_bind(socket, stream_address.c_str()) != 0) throw std::runtime_error(zmq_strerror(errno));
+
+  const auto address = buffer_config::IPC_URL_BASE + stream_address;
+  if (zmq_bind(socket, address.c_str()) != 0) throw std::runtime_error(zmq_strerror(errno));
 
   return socket;
 }
