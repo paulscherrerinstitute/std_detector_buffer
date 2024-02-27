@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
 
       std_daq_protocol::WriterAction action;
       *action.mutable_record_image()->mutable_image_metadata() = meta;
-      msg.SerializeToString(&cmd);
+      action.SerializeToString(&cmd);
       zmq_send(sender_sockets[i], cmd.c_str(), cmd.size(), 0);
       i = (i + 1) % 2;
       stats.process();
