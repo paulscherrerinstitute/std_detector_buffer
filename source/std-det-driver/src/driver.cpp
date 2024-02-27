@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
       ii++;
       meta.ParseFromArray(buffer, n_bytes);
-      memcpy(receiver.get_data(meta.image_id()), buffer, n_bytes);
+//      memcpy(receiver.get_data(meta.image_id()), meta, n_bytes);
 
       std_daq_protocol::WriterAction action;
       action.mutable_record_image()->set_allocated_image_metadata(&meta);

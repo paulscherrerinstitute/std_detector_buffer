@@ -46,7 +46,7 @@ void* create_socket(void* ctx, const std::string& ipc_address, const int zmq_soc
   if (zmq_setsockopt(socket, ZMQ_LINGER, &linger, sizeof(linger)) != 0)
     throw runtime_error(std::string("Cannot set linger: ") + zmq_strerror(errno));
 
-  const auto ipc = std::string("ipc:///tmp/") + ipc_address;
+  const auto ipc = buffer_config::IPC_URL_BASE + ipc_address;
   if (zmq_connect(socket, ipc.c_str()) != 0) throw runtime_error(zmq_strerror(errno));
 
   return socket;
