@@ -123,6 +123,7 @@ void HDF5File::create_image_dataset(hid_t data_group_id)
   if (H5Pset_chunk(dcpl_id, 3, image_dataset_chunking) < 0)
     throw std::runtime_error("Cannot set image dataset chunking.");
 
+  test = new char[image_width * image_height * 2];
   hsize_t dims[3] = {0, image_height, image_width};
   hsize_t max_dims[3] = {H5S_UNLIMITED, image_height, image_width};
   auto image_space_id = H5Screate_simple(3, dims, max_dims);
@@ -174,7 +175,7 @@ void HDF5File::create_metadata_dataset(hid_t data_group_id)
   }
 }
 
-void HDF5File::write_image(char* data, std::size_t data_size) const
+void HDF5File::write_image(char*, std::size_t data_size) const
 {
   hid_t file_ds = H5Dget_space(image_ds);
   if (file_ds < 0) throw std::runtime_error("Cannot get image dataset dataspace.");
@@ -192,7 +193,7 @@ void HDF5File::write_image(char* data, std::size_t data_size) const
 
   hsize_t offset[3] = {(hsize_t)index, 0, 0};
 
-  if (H5Dwrite_chunk(image_ds, H5P_DEFAULT, 0, offset, data_size, data) < 0)
+  if (H5Dwrite_chunk(image_ds, H5P_DEFAULT, 0, offset, data_size, test) < 0)
     throw std::runtime_error("Cannot write data to image dataset.");
 }
 

@@ -40,6 +40,7 @@ private:
   hid_t file_id = -1;
   hid_t image_ds = -1;
   hid_t metadata_ds = -1;
+  char* test;
 };
 
 #endif // STD_DETECTOR_BUFFER_H5_WRITER
