@@ -185,8 +185,8 @@ void HDF5File::write_image(char* data, std::size_t data_size) const
   H5Sclose(file_ds);
 
   if ((hsize_t)index >= current_dims[0]) {
-    current_dims[0]++;
-    if (H5Dset_extent(image_ds, current_dims) < 0)
+    hsize_t new_dims[3] = {(hsize_t) index + 1, image_height, image_width};
+    if (H5Dset_extent(image_ds, new_dims) < 0)
       throw std::runtime_error("Failed to extend dataset.");
   }
 
