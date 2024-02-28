@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
         file->write(record_image.image_metadata(), image_data);
         stats.end_image_write();
       }
-      else
+      else if(msg.has_close_file())
         file.reset();
     }
     stats.print_stats();
