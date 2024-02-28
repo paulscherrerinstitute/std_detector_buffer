@@ -109,5 +109,10 @@ int main(int argc, char* argv[])
     }
     stats.print_stats();
   }
+  std_daq_protocol::WriterAction action;
+  action.mutable_close_file();
+  action.SerializeToString(&cmd);
+  zmq_send(sender_sockets[0], cmd.c_str(), cmd.size(), 0);
+  zmq_send(sender_sockets[1], cmd.c_str(), cmd.size(), 0);
   return 0;
 }
