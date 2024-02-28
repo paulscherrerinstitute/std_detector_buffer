@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
         const auto& record_image = msg.record_image();
         auto image_data = receiver.get_data(record_image.image_metadata().image_id());
         stats.start_image_write();
-        file->write({image_data, image_n_bytes}, record_image.image_metadata());
+        file->write(record_image.image_metadata(), image_data);
         stats.end_image_write();
       }
       else
