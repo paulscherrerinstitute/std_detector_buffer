@@ -85,7 +85,7 @@ void HDF5File::create_file(const std::string& filename)
     if (H5Pset_istore_k(fcpl_id, max_ik_store) < 0)
       throw std::runtime_error("Cannot set btree size.");
 
-    file_id = H5Fcreate(filename.c_str(), H5F_ACC_EXCL, fcpl_id, fapl_id);
+    file_id = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, fcpl_id, fapl_id);
     if (file_id < 0) throw std::runtime_error("Cannot create output file.");
     H5Pclose(fcpl_id);
   }
