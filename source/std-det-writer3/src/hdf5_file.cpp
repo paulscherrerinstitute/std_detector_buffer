@@ -44,12 +44,9 @@ HDF5File::~HDF5File()
 
   if (file_id > 0 && index > 0) {
     hsize_t metadata_size[1] = {(hsize_t)index + 1};
-    if (H5Dset_extent(metadata_ds, metadata_size) < 0)
-      throw std::runtime_error("Failed to extend dataset.");
-
+    H5Dset_extent(metadata_ds, metadata_size);
     hsize_t image_dims[3] = {(hsize_t)index + 1, image_height, image_width};
-    if (H5Dset_extent(image_ds, image_dims) < 0)
-      throw std::runtime_error("Failed to extend dataset.");
+    H5Dset_extent(image_ds, image_dims);
   }
 
   H5Dclose(metadata_ds);
