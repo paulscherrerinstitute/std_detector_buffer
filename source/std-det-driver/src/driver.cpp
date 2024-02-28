@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
   const auto source_name = fmt::format("{}-{}", config.detector_name, source_suffix);
 
   auto receiver = cb::Communicator{
-      {source_name, 512, buffer_config::RAM_BUFFER_N_SLOTS},
+      {source_name + "test", 512, buffer_config::RAM_BUFFER_N_SLOTS},
       {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
 
   utils::stats::TimedStatsCollector stats(config.detector_name, config.stats_collection_period);
