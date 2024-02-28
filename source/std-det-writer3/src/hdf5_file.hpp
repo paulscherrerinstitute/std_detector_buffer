@@ -35,7 +35,7 @@ private:
   const uint32_t image_height;
   const uint32_t image_width;
   const uint32_t image_bit_depth;
-  std::size_t index;
+  int index;
 
   hid_t file_id = -1;
   hid_t image_ds = -1;

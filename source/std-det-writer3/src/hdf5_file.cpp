@@ -30,7 +30,7 @@ HDF5File::HDF5File(const utils::DetectorConfig& config,
     , image_height(config.image_pixel_height)
     , image_width(config.image_pixel_width)
     , image_bit_depth(config.bit_depth)
-    , index(0)
+    , index(-1)
 
 {
   create_file(filename);
@@ -41,6 +41,17 @@ HDF5File::HDF5File(const utils::DetectorConfig& config,
 HDF5File::~HDF5File()
 {
   spdlog::info("Closing file with file_id={}", file_id);
+
+  if (file_id > 0 && index > 0) {
+    hsize_t metadata_size[1] = {(hsize_t)index + 1};
+    if (H5Dset_extent(metadata_ds, metadata_size) < 0)
+      throw std::runtime_error("Failed to extend dataset.");
+
+    hsize_t image_dims[3] = {(hsize_t)index + 1, image_height, image_width};
+    if (H5Dset_extent(image_ds, image_dims) < 0)
+      throw std::runtime_error("Failed to extend dataset.");
+  }
+
   H5Dclose(metadata_ds);
   H5Dclose(image_ds);
   H5Fclose(file_id);
@@ -48,10 +59,11 @@ HDF5File::~HDF5File()
 
 void HDF5File::write(std::span<char> image, const std_daq_protocol::ImageMetadata& meta)
 {
+  index++;
   spdlog::info("Writing image_id={} to file_id={} with index={}", meta.image_id(), file_id, index);
+
   write_meta(meta);
   write_image(image);
-  index++;
 }
 
 hid_t HDF5File::get_datatype(std::size_t bit_depth)
@@ -166,7 +178,21 @@ void HDF5File::create_metadata_dataset(hid_t data_group_id)
 
 void HDF5File::write_image(std::span<char> data) const
 {
-  hsize_t offset[3] = {index, 0, 0};
+  hid_t file_ds = H5Dget_space(image_ds);
+  if (file_ds < 0) throw std::runtime_error("Cannot get image dataset dataspace.");
+
+  hsize_t current_dims[3];
+  if (H5Sget_simple_extent_dims(file_ds, current_dims, nullptr) < 0)
+    throw std::runtime_error("Failed to get dataset dimensions.");
+  H5Sclose(file_ds);
+
+  if ((hsize_t)index >= current_dims[0]) {
+    current_dims[0]++;
+    if (H5Dset_extent(image_ds, current_dims) < 0)
+      throw std::runtime_error("Failed to extend dataset.");
+  }
+
+  hsize_t offset[3] = {(hsize_t)index, 0, 0};
 
   if (H5Dwrite_chunk(image_ds, H5P_DEFAULT, 0, offset, data.size_bytes(), data.data()) < 0)
     throw std::runtime_error("Cannot write data to image dataset.");
@@ -177,7 +203,24 @@ void HDF5File::write_meta(const std_daq_protocol::ImageMetadata& meta) const
   auto file_ds = H5Dget_space(metadata_ds);
   if (file_ds < 0) throw std::runtime_error("Cannot get metadata dataset file dataspace.");
 
-  hsize_t offset[1] = {index};
+  hsize_t current_dims[1];
+  if (H5Sget_simple_extent_dims(file_ds, current_dims, nullptr) < 0)
+    throw std::runtime_error("Failed to get dataset dimensions.");
+
+  const hsize_t required_index = index + 1;
+  if (required_index > current_dims[0]) {
+    const hsize_t records_per_chunk = gpfs_block_size / sizeof(h5_metadata);
+    const hsize_t extend_to = ((required_index / records_per_chunk) + 1) * records_per_chunk;
+    hsize_t new_size[1] = {extend_to};
+
+    if (H5Dset_extent(metadata_ds, new_size) < 0)
+      throw std::runtime_error("Failed to extend dataset.");
+
+    H5Sclose(file_ds);
+    file_ds = H5Dget_space(metadata_ds);
+  }
+
+  hsize_t offset[1] = {(hsize_t)index};
   hsize_t count[1] = {1};
   hsize_t stride[1] = {1};
   hsize_t block[1] = {1};
