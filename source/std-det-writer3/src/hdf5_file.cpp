@@ -77,24 +77,21 @@ void HDF5File::create_file(const std::string& filename)
 {
   auto fapl_id = H5Pcreate(H5P_FILE_ACCESS);
   auto fcpl_id = H5Pcreate(H5P_FILE_CREATE);
-  try {
-    if (fapl_id == H5I_INVALID_HID) throw std::runtime_error("Error in file access property list.");
-    if (H5Pset_alignment(fapl_id, 0, gpfs_block_size) < 0)
-      throw std::runtime_error("Cannot set alignment to property list.");
 
-    if (fcpl_id == -1) throw std::runtime_error("Error in file access property list.");
-    if (H5Pset_istore_k(fcpl_id, max_ik_store) < 0)
-      throw std::runtime_error("Cannot set btree size.");
+  if (fapl_id == H5I_INVALID_HID) throw std::runtime_error("Error in file access property list.");
+  if (H5Pset_alignment(fapl_id, 0, gpfs_block_size) < 0)
+    throw std::runtime_error("Cannot set alignment to property list.");
 
-    file_id = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, fcpl_id, fapl_id);
-    if (file_id < 0) throw std::runtime_error("Cannot create output file.");
-    H5Pclose(fcpl_id);
-  }
-  catch (const std::exception& e) {
-    H5Pclose(fapl_id);
-    H5Pclose(fcpl_id);
-    throw;
-  }
+  if (fcpl_id == -1) throw std::runtime_error("Error in file access property list.");
+  if (H5Pset_istore_k(fcpl_id, max_ik_store) < 0)
+    throw std::runtime_error("Cannot set btree size.");
+
+  file_id = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, fcpl_id, fapl_id);
+  if (file_id < 0) throw std::runtime_error("Cannot create output file.");
+
+  H5Pclose(fcpl_id);
+  H5Pclose(fapl_id);
+  H5Pclose(fcpl_id);
 }
 
 void HDF5File::create_datasets(const std::string& detector_name)
@@ -102,16 +99,12 @@ void HDF5File::create_datasets(const std::string& detector_name)
   auto data_group_id =
       H5Gcreate(file_id, detector_name.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
-  try {
-    if (data_group_id < 0) throw std::runtime_error("Cannot create data group.");
+  if (data_group_id < 0) throw std::runtime_error("Cannot create data group.");
 
-    create_metadata_dataset(data_group_id);
-    create_image_dataset(data_group_id);
-  }
-  catch (const std::exception& e) {
-    H5Gclose(data_group_id);
-    throw;
-  }
+  create_metadata_dataset(data_group_id);
+  create_image_dataset(data_group_id);
+
+  H5Gclose(data_group_id);
 }
 
 void HDF5File::create_image_dataset(hid_t data_group_id)
@@ -151,27 +144,23 @@ void HDF5File::create_metadata_dataset(hid_t data_group_id)
   hsize_t chunk_dims[1] = {records_per_chunk};
 
   hid_t dataspace_id = H5Screate_simple(1, initial_dims, max_dims);
-  try {
-    if (dataspace_id < 0) throw std::runtime_error("Cannot create meta dataset space.");
+  if (dataspace_id < 0) throw std::runtime_error("Cannot create meta dataset space.");
 
-    hid_t compound_id = H5Tcreate(H5T_COMPOUND, sizeof(h5_metadata));
-    H5Tinsert(compound_id, "image_id", HOFFSET(h5_metadata, image_id), H5T_NATIVE_UINT64);
-    H5Tinsert(compound_id, "status", HOFFSET(h5_metadata, status), H5T_NATIVE_UINT64);
+  hid_t compound_id = H5Tcreate(H5T_COMPOUND, sizeof(h5_metadata));
+  H5Tinsert(compound_id, "image_id", HOFFSET(h5_metadata, image_id), H5T_NATIVE_UINT64);
+  H5Tinsert(compound_id, "status", HOFFSET(h5_metadata, status), H5T_NATIVE_UINT64);
 
-    hid_t prop_id = H5Pcreate(H5P_DATASET_CREATE);
-    H5Pset_chunk(prop_id, 1, chunk_dims);
+  hid_t prop_id = H5Pcreate(H5P_DATASET_CREATE);
+  H5Pset_chunk(prop_id, 1, chunk_dims);
 
-    metadata_ds = H5Dcreate(data_group_id, "metadata", compound_id, dataspace_id, H5P_DEFAULT,
-                            prop_id, H5P_DEFAULT);
+  metadata_ds = H5Dcreate(data_group_id, "metadata", compound_id, dataspace_id, H5P_DEFAULT,
+                          prop_id, H5P_DEFAULT);
 
-    H5Tclose(compound_id);
-    H5Pclose(prop_id);
-    if (metadata_ds < 0) throw std::runtime_error("Cannot create metadata dataset.");
-  }
-  catch (const std::exception& e) {
-    H5Sclose(dataspace_id);
-    throw;
-  }
+  if (metadata_ds < 0) throw std::runtime_error("Cannot create metadata dataset.");
+
+  H5Tclose(compound_id);
+  H5Pclose(prop_id);
+  H5Sclose(dataspace_id);
 }
 
 void HDF5File::write_image(const char* image, std::size_t data_size) const
