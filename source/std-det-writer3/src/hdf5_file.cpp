@@ -49,9 +49,9 @@ HDF5File::~HDF5File()
     H5Dset_extent(image_ds, image_dims);
   }
 
-  H5Dclose(metadata_ds);
-  H5Dclose(image_ds);
-  H5Fclose(file_id);
+  if (H5Dclose(metadata_ds) < 0) spdlog::info("Failed closing metadata");
+  if (H5Dclose(image_ds) < 0) spdlog::info("Failed closing image");
+  if (H5Fclose(file_id) < 0) spdlog::info("Failed closing file");
 }
 
 void HDF5File::write(const std_daq_protocol::ImageMetadata& meta, const char* image)
@@ -185,7 +185,7 @@ void HDF5File::write_image(const char* image, std::size_t data_size) const
   H5Sclose(file_ds);
 
   if ((hsize_t)index >= current_dims[0]) {
-    hsize_t new_dims[3] = {(hsize_t) index + 1, image_height, image_width};
+    hsize_t new_dims[3] = {(hsize_t)index + 1, image_height, image_width};
     if (H5Dset_extent(image_ds, new_dims) < 0)
       throw std::runtime_error("Failed to extend dataset.");
   }
