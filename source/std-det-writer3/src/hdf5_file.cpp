@@ -89,7 +89,6 @@ void HDF5File::create_file(const std::string& filename)
   file_id = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, fcpl_id, fapl_id);
   if (file_id < 0) throw std::runtime_error("Cannot create output file.");
 
-  H5Pclose(fcpl_id);
   H5Pclose(fapl_id);
   H5Pclose(fcpl_id);
 }
