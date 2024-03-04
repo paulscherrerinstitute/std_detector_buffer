@@ -66,9 +66,8 @@ int main(int argc, char* argv[])
 
   const auto source_name = fmt::format("{}-{}", config.detector_name, source_suffix);
 
-  auto receiver = cb::Communicator{
-      {source_name + "test", 512, buffer_config::RAM_BUFFER_N_SLOTS},
-      {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
+  auto receiver = cb::Communicator{{source_name + "test", 512, buffer_config::RAM_BUFFER_N_SLOTS},
+                                   {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
 
   utils::stats::TimedStatsCollector stats(config.detector_name, config.stats_collection_period);
 
@@ -94,19 +93,27 @@ int main(int argc, char* argv[])
   msg.SerializeToString(&cmd);
   zmq_send(sender_sockets[1], cmd.c_str(), cmd.size(), 0);
 
+  createFileCmd->set_path("/gpfs/test/test-beamline/file2.h5");
+  msg.SerializeToString(&cmd);
+  zmq_send(sender_sockets[1], cmd.c_str(), cmd.size(), 0);
+
+  createFileCmd->set_path("/gpfs/test/test-beamline/file3.h5");
+  msg.SerializeToString(&cmd);
+  zmq_send(sender_sockets[3], cmd.c_str(), cmd.size(), 0);
+
   auto i = 0;
-  for(auto ii = 0; ii < 100000; ) {
+  for (auto ii = 0; ii < 40000;) {
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
       ii++;
       meta.ParseFromArray(buffer, n_bytes);
-// we will need a vector here of objects instead of RamBuffer
-//      memcpy(receiver.get_data(meta.image_id()), buffer, n_bytes);
+      // we will need a vector here of objects instead of RamBuffer
+      //      memcpy(receiver.get_data(meta.image_id()), buffer, n_bytes);
 
       std_daq_protocol::WriterAction action;
       *action.mutable_record_image()->mutable_image_metadata() = meta;
       action.SerializeToString(&cmd);
       zmq_send(sender_sockets[i], cmd.c_str(), cmd.size(), 0);
-      i = (i + 1) % 2;
+      i = (i + 1) % 4;
       stats.process();
     }
     stats.print_stats();
@@ -117,5 +124,7 @@ int main(int argc, char* argv[])
   action.SerializeToString(&cmd);
   zmq_send(sender_sockets[0], cmd.c_str(), cmd.size(), 0);
   zmq_send(sender_sockets[1], cmd.c_str(), cmd.size(), 0);
+  zmq_send(sender_sockets[2], cmd.c_str(), cmd.size(), 0);
+  zmq_send(sender_sockets[3], cmd.c_str(), cmd.size(), 0);
   return 0;
 }
