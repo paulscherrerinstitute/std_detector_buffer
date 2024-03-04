@@ -2,7 +2,8 @@ import argparse
 from time import sleep, time
 
 from ..stream_binary import StdStreamSendBinary
-from ..std_daq import image_metadata_pb2 as daq_proto
+from .. import image_metadata_pb2 as daq_proto
+
 
 def main():
     parser = argparse.ArgumentParser(description='Fake trigger - fake portions ')
@@ -10,7 +11,7 @@ def main():
     parser.add_argument('-r', '--rep_rate', type=int, help='Repetition rate of the stream.', default=10)
 
     args = parser.parse_args()
-    time_to_sleep = 1/args.rep_rate
+    time_to_sleep = 1 / args.rep_rate
 
     metadata = daq_proto.ImageMetadata()
 
@@ -18,10 +19,10 @@ def main():
     with StdStreamSendBinary(args.output_stream) as output_stream:
         while True:
             metadata.image_id = (metadata.image_id + 1) % 1000000
-            metadata.size = 2016*2016*2
             metadata.dtype = daq_proto.ImageMetadataDtype.uint16
             metadata.width = 2016
             metadata.height = 2016
+            metadata.size = metadata.height * metadata.width * 2
             metadata.compression = daq_proto.ImageMetadataCompression.none
 
             output_stream.send_meta(metadata.SerializeToString())
