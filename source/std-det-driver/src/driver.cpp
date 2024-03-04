@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
 
   createFileCmd->set_path("/gpfs/test/test-beamline/file2.h5");
   msg.SerializeToString(&cmd);
-  zmq_send(sender_sockets[1], cmd.c_str(), cmd.size(), 0);
+  zmq_send(sender_sockets[2], cmd.c_str(), cmd.size(), 0);
 
   createFileCmd->set_path("/gpfs/test/test-beamline/file3.h5");
   msg.SerializeToString(&cmd);
