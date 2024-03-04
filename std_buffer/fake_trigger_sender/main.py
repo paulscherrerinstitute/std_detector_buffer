@@ -18,6 +18,12 @@ def main():
     with StdStreamSendBinary(args.output_stream) as output_stream:
         while True:
             metadata.image_id = (metadata.image_id + 1) % 1000000
+            metadata.size = 2016*2016*2
+            metadata.dtype = daq_proto.ImageMetadataDtype.uint16
+            metadata.width = 2016
+            metadata.height = 2016
+            metadata.compression = daq_proto.ImageMetadataCompression.none
+
             output_stream.send_meta(metadata.SerializeToString())
 
             iteration_end = time()

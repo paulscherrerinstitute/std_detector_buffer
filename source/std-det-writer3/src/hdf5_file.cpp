@@ -57,8 +57,8 @@ HDF5File::~HDF5File()
 void HDF5File::write(const std_daq_protocol::ImageMetadata& meta, const char* image)
 {
   index++;
-  spdlog::info("Writing image_id={} to file_id={} with index={} and size={}", meta.image_id(),
-               file_id, index, meta.size());
+  spdlog::debug("Writing image_id={} to file_id={} with index={} and size={}", meta.image_id(),
+                file_id, index, meta.size());
 
   write_meta(meta);
   write_image(image, meta.size());
