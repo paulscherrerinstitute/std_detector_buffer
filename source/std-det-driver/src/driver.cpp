@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
     }
     stats.print_stats();
   }
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(std::chrono::seconds(10));
   std_daq_protocol::WriterAction action;
   action.mutable_close_file();
   action.SerializeToString(&cmd);
