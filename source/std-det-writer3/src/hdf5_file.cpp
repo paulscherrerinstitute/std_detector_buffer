@@ -111,7 +111,7 @@ void HDF5File::create_image_dataset(hid_t data_group_id)
   auto dcpl_id = H5Pcreate(H5P_DATASET_CREATE);
   if (dcpl_id < 0) throw std::runtime_error("Error in creating dataset create property list.");
 
-  hsize_t image_dataset_chunking[] = {1, image_height, image_width};
+  hsize_t image_dataset_chunking[] = {2, image_height, image_width};
   if (H5Pset_chunk(dcpl_id, 3, image_dataset_chunking) < 0)
     throw std::runtime_error("Cannot set image dataset chunking.");
 
@@ -173,7 +173,7 @@ void HDF5File::write_image(const char* image, std::size_t data_size) const
   H5Sclose(file_ds);
 
   if ((hsize_t)index >= current_dims[0]) {
-    hsize_t new_dims[3] = {(hsize_t)index + 1, image_height, image_width};
+    hsize_t new_dims[3] = {(hsize_t)index + 2, image_height, image_width};
     if (H5Dset_extent(image_ds, new_dims) < 0)
       throw std::runtime_error("Failed to extend dataset.");
   }
