@@ -25,7 +25,7 @@ std::tuple<utils::DetectorConfig, std::string, std::size_t> read_arguments(int a
       .help("suffix for ipc source for ram_buffer")
       .default_value("image"s);
   program->add_argument("-n", "--number_of_writers")
-      .default_value(4ul)
+      .default_value(12ul)
       .scan<'u', std::size_t>()
       .help("Number of parallel writers");
 
@@ -82,26 +82,18 @@ int main(int argc, char* argv[])
 
   std_daq_protocol::WriterAction msg;
   auto createFileCmd = msg.mutable_create_file();
-  createFileCmd->set_path("/gpfs/test/test-beamline/file0.h5");
   createFileCmd->set_writer_id(0);
 
   std::string cmd;
-  msg.SerializeToString(&cmd);
-  zmq_send(sender_sockets[0], cmd.c_str(), cmd.size(), 0);
 
-  createFileCmd->set_path("/gpfs/test/test-beamline/file1.h5");
-  msg.SerializeToString(&cmd);
-  zmq_send(sender_sockets[1], cmd.c_str(), cmd.size(), 0);
+  for (auto i = 0u; i < number_of_writers; ++i) {
+    std::string path = fmt::format("/gpfs/test/test-beamline/file{}.h5", i);
+    createFileCmd->set_path(path);
+    msg.SerializeToString(&cmd);
+    zmq_send(sender_sockets[i], cmd.c_str(), cmd.size(), 0);
+  }
 
-  createFileCmd->set_path("/gpfs/test/test-beamline/file2.h5");
-  msg.SerializeToString(&cmd);
-  zmq_send(sender_sockets[2], cmd.c_str(), cmd.size(), 0);
-
-  createFileCmd->set_path("/gpfs/test/test-beamline/file3.h5");
-  msg.SerializeToString(&cmd);
-  zmq_send(sender_sockets[3], cmd.c_str(), cmd.size(), 0);
-
-  auto i = 0;
+  auto i = 0u;
   for (auto ii = 0; ii < 40000;) {
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
       ii++;
@@ -113,7 +105,7 @@ int main(int argc, char* argv[])
       *action.mutable_record_image()->mutable_image_metadata() = meta;
       action.SerializeToString(&cmd);
       zmq_send(sender_sockets[i], cmd.c_str(), cmd.size(), 0);
-      i = (i + 1) % 4;
+      i = (i + 1) % number_of_writers;
       stats.process();
     }
     stats.print_stats();
@@ -122,9 +114,7 @@ int main(int argc, char* argv[])
   std_daq_protocol::WriterAction action;
   action.mutable_close_file();
   action.SerializeToString(&cmd);
-  zmq_send(sender_sockets[0], cmd.c_str(), cmd.size(), 0);
-  zmq_send(sender_sockets[1], cmd.c_str(), cmd.size(), 0);
-  zmq_send(sender_sockets[2], cmd.c_str(), cmd.size(), 0);
-  zmq_send(sender_sockets[3], cmd.c_str(), cmd.size(), 0);
+  for (auto ii = 0u; ii < number_of_writers; ++ii)
+    zmq_send(sender_sockets[ii], cmd.c_str(), cmd.size(), 0);
   return 0;
 }
