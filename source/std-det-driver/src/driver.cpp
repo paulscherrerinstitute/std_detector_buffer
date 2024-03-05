@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
   }
 
   auto i = 0u;
-  for (auto ii = 0; ii < 40000;) {
+  for (auto ii = 0; ii < 160000;) {
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
       ii++;
       meta.ParseFromArray(buffer, n_bytes);
