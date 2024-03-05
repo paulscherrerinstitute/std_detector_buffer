@@ -28,7 +28,7 @@ private:
   void create_datasets(const std::string& detector_name);
   void create_metadata_dataset(hid_t data_group_id);
   void create_image_dataset(hid_t data_group_id);
-  void write_image(const char* data, std::size_t data_size) const;
+  void write_image(const char* data, std::size_t data_size);
   void write_meta(const std_daq_protocol::ImageMetadata& meta) const;
 
   const bool is_h5bitshuffle_lz4_compression;
@@ -36,6 +36,7 @@ private:
   const uint32_t image_width;
   const uint32_t image_bit_depth;
   int index;
+  char buffer[2016*2016*4];
 
   hid_t file_id = -1;
   hid_t image_ds = -1;
