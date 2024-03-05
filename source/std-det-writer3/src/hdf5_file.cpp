@@ -185,7 +185,7 @@ void HDF5File::write_image(const char* image, std::size_t data_size)
 
   hsize_t offset[3] = {(hsize_t)index / 2, 0, 0};
 
-  if (H5Dwrite_chunk(image_ds, H5P_DEFAULT, 0, offset, data_size, image) < 0)
+  if (H5Dwrite_chunk(image_ds, H5P_DEFAULT, 0, offset, 2016*2016*4, buffer) < 0)
     throw std::runtime_error("Cannot write data to image dataset.");
 }
 
