@@ -177,13 +177,13 @@ void HDF5File::write_image(const char* image, std::size_t data_size)
     throw std::runtime_error("Failed to get dataset dimensions.");
   H5Sclose(file_ds);
 
-  if ((hsize_t)index / 2 >= current_dims[0]) {
-    hsize_t new_dims[3] = {(hsize_t)(index / 2) + 1, image_height, image_width};
+  if ((hsize_t)index >= current_dims[0]) {
+    hsize_t new_dims[3] = {(hsize_t)index + 2, image_height, image_width};
     if (H5Dset_extent(image_ds, new_dims) < 0)
       throw std::runtime_error("Failed to extend dataset.");
   }
 
-  hsize_t offset[3] = {(hsize_t)index / 2, 0, 0};
+  hsize_t offset[3] = {(hsize_t)index / 2 * 2, 0, 0};
 
   if (H5Dwrite_chunk(image_ds, H5P_DEFAULT, 0, offset, 2016*2016*4, buffer) < 0)
     throw std::runtime_error("Cannot write data to image dataset.");
