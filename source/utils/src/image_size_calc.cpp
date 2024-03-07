@@ -29,8 +29,7 @@ std::size_t max_converted_image_byte_size(const utils::DetectorConfig& config)
 
 std::size_t max_single_sender_size(const utils::DetectorConfig& config)
 {
-  // TODO 8 should not be fixed for future - currently it assumes we always divide image into 8
-  return max_converted_image_byte_size(config) / 8;
+  return max_converted_image_byte_size(config) / config.max_number_of_forwarders_spawned;
 }
 
 std::size_t number_of_senders(const utils::DetectorConfig& config)
