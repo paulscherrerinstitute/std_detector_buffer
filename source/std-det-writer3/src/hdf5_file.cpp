@@ -120,12 +120,12 @@ void HDF5File::create_image_dataset(hid_t data_group_id)
   auto image_space_id = H5Screate_simple(3, dims, max_dims);
   if (image_space_id < 0) throw std::runtime_error("Cannot create image dataset space.");
 
-  if (is_h5bitshuffle_lz4_compression) {
-    bshuf_register_h5filter();
-    uint filter_prop[] = {0, BSHUF_H5_COMPRESS_LZ4};
-    if (H5Pset_filter(dcpl_id, BSHUF_H5FILTER, H5Z_FLAG_MANDATORY, 2, filter_prop) < 0)
-      throw std::runtime_error("Cannot set compression filter on dataset.");
-  }
+  //  if (is_h5bitshuffle_lz4_compression) {
+  bshuf_register_h5filter();
+  uint filter_prop[] = {0, BSHUF_H5_COMPRESS_LZ4};
+  if (H5Pset_filter(dcpl_id, BSHUF_H5FILTER, H5Z_FLAG_MANDATORY, 2, filter_prop) < 0)
+    throw std::runtime_error("Cannot set compression filter on dataset.");
+  //  }
 
   image_ds = H5Dcreate(data_group_id, "data", get_datatype(image_bit_depth), image_space_id,
                        H5P_DEFAULT, dcpl_id, H5P_DEFAULT);
