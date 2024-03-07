@@ -162,13 +162,8 @@ void HDF5File::create_metadata_dataset(hid_t data_group_id)
   H5Sclose(dataspace_id);
 }
 
-void HDF5File::write_image(const char* image, std::size_t data_size)
+void HDF5File::write_image(const char* image, std::size_t)
 {
-  auto boffset = (index % 2u) * 2016u * 2016u * 2u;
-  std::memcpy(buffer + boffset, image, data_size);
-
-  if(index % 2 == 0) return;
-
   hid_t file_ds = H5Dget_space(image_ds);
   if (file_ds < 0) throw std::runtime_error("Cannot get image dataset dataspace.");
 
@@ -178,15 +173,25 @@ void HDF5File::write_image(const char* image, std::size_t data_size)
   H5Sclose(file_ds);
 
   if ((hsize_t)index >= current_dims[0]) {
-    hsize_t new_dims[3] = {(hsize_t)index + 2, image_height, image_width};
+    hsize_t new_dims[3] = {(hsize_t)index + 1, image_height, image_width};
     if (H5Dset_extent(image_ds, new_dims) < 0)
       throw std::runtime_error("Failed to extend dataset.");
   }
 
-  hsize_t offset[3] = {(hsize_t)index / 2 * 2, 0, 0};
+  hsize_t offset[3] = {(hsize_t)index, 0, 0};
+  hsize_t count[3] = {1, image_height, image_width};
 
-  if (H5Dwrite_chunk(image_ds, H5P_DEFAULT, 0, offset, 2016*2016*4, buffer) < 0)
+  file_ds = H5Dget_space(image_ds);
+  H5Sselect_hyperslab(file_ds, H5S_SELECT_SET, offset, nullptr, count, nullptr);
+
+  hsize_t dimsm[3] = {1, image_height, image_width};
+  hid_t mem_space = H5Screate_simple(3, dimsm, nullptr);
+
+  if (H5Dwrite(image_ds, H5T_NATIVE_UINT16, mem_space, file_ds, H5P_DEFAULT, image) < 0)
     throw std::runtime_error("Cannot write data to image dataset.");
+
+  H5Sclose(mem_space);
+  H5Sclose(file_ds);
 }
 
 void HDF5File::write_meta(const std_daq_protocol::ImageMetadata& meta) const
