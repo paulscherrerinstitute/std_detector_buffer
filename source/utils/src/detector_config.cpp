@@ -45,6 +45,7 @@ DetectorConfig read_config(const json doc)
           doc.value("log_level", "info"),
           std::chrono::seconds(doc.value("stats_collection_period", 10)),
           doc.value("max_number_of_forwarders_spawned", 8),
+          doc.value("use_all_forwarders", false),
           std::move(modules)};
 }
 } // namespace

@@ -36,6 +36,7 @@ struct DetectorConfig
   const std::string log_level;
   const std::chrono::seconds stats_collection_period;
   const int max_number_of_forwarders_spawned;
+  const bool use_all_forwarders;
   const std::unordered_map<module_id, std::pair<Point, Point>> modules;
 
   friend std::ostream& operator<<(std::ostream& os, DetectorConfig const& det_config)
@@ -44,11 +45,12 @@ struct DetectorConfig
                "detector={},detector_type={},n_modules={},bit_depth={},"
                "image_pixel_height={},image_pixel_width={},start_udp_port={},"
                "writer_user_id={},log_level={},stats_collection_period={},max_number_of_forwarders_"
-               "spawned={}",
+               "spawned={},use_all_forwarders={}",
                det_config.detector_name, det_config.detector_type, det_config.n_modules,
                det_config.bit_depth, det_config.image_pixel_height, det_config.image_pixel_width,
                det_config.start_udp_port, det_config.writer_user_id, det_config.log_level,
-               det_config.stats_collection_period.count(), det_config.max_number_of_forwarders_spawned);
+               det_config.stats_collection_period.count(),
+               det_config.max_number_of_forwarders_spawned, det_config.use_all_forwarders);
   }
 };
 

@@ -29,13 +29,19 @@ std::size_t max_converted_image_byte_size(const utils::DetectorConfig& config)
 
 std::size_t max_single_sender_size(const utils::DetectorConfig& config)
 {
-  return max_converted_image_byte_size(config) / config.max_number_of_forwarders_spawned;
+  if (config.use_all_forwarders)
+    return converted_image_n_bytes(config) / config.max_number_of_forwarders_spawned;
+  else
+    return max_converted_image_byte_size(config) / config.max_number_of_forwarders_spawned;
 }
 
 std::size_t number_of_senders(const utils::DetectorConfig& config)
 {
-  return (converted_image_n_bytes(config) + max_single_sender_size(config) - 1) /
-         max_single_sender_size(config);
+  if (config.use_all_forwarders)
+    return config.max_number_of_forwarders_spawned;
+  else
+    return (converted_image_n_bytes(config) + max_single_sender_size(config) - 1) /
+           max_single_sender_size(config);
 }
 
 } // namespace utils
