@@ -175,7 +175,7 @@ void HDF5File::create_metadata_dataset(hid_t data_group_id)
   H5Sclose(dataspace_id);
 }
 
-void HDF5File::write_image(const char* image, std::size_t data_size)
+void HDF5File::write_image(const char* image, std::size_t)
 {
   hid_t file_ds = H5Dget_space(image_ds);
   if (file_ds < 0) throw std::runtime_error("Cannot get image dataset dataspace.");
