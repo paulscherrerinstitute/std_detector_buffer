@@ -14,7 +14,7 @@
 
 namespace {
 constexpr auto zmq_io_threads = 1;
-constexpr auto zmq_sndhwm = 100;
+constexpr auto zmq_sndhwm = 1000;
 constexpr auto zmq_success = 0;
 } // namespace
 
