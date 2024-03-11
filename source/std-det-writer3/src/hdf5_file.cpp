@@ -198,6 +198,7 @@ void HDF5File::write_image(const char* image, std::size_t)
   auto ram_ds = H5Screate_simple(1, count, nullptr);
   if (ram_ds < 0) throw std::runtime_error("Cannot create metadata ram dataspace.");
 
+  file_ds = H5Dget_space(image_ds);
   if (H5Sselect_hyperslab(file_ds, H5S_SELECT_SET, offset, nullptr, count, nullptr) < 0)
     throw std::runtime_error("Cannot select metadata dataset file hyperslab.");
 
