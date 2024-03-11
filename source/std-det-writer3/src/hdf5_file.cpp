@@ -195,7 +195,7 @@ void HDF5File::write_image(const char* image, std::size_t)
   hsize_t offset[3] = {(hsize_t)index, 0, 0};
   hsize_t count[3] = {1, image_height, image_width};
 
-  auto ram_ds = H5Screate_simple(1, count, nullptr);
+  auto ram_ds = H5Screate_simple(3, count, nullptr);
   if (ram_ds < 0) throw std::runtime_error("Cannot create metadata ram dataspace.");
 
   file_ds = H5Dget_space(image_ds);
