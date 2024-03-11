@@ -9,6 +9,7 @@
 #include <bitshuffle/bshuf_h5filter.h>
 
 #include "core_buffer/buffer_config.hpp"
+#include "utils/image_size_calc.hpp"
 
 namespace {
 
@@ -30,6 +31,7 @@ HDF5File::HDF5File(const utils::DetectorConfig& config,
     , image_height(config.image_pixel_height)
     , image_width(config.image_pixel_width)
     , image_bit_depth(config.bit_depth)
+    , image_size(utils::converted_image_n_bytes(config))
     , index(-1)
 
 {
@@ -111,7 +113,8 @@ void HDF5File::create_image_dataset(hid_t data_group_id)
   auto dcpl_id = H5Pcreate(H5P_DATASET_CREATE);
   if (dcpl_id < 0) throw std::runtime_error("Error in creating dataset create property list.");
 
-  hsize_t image_dataset_chunking[] = {2, image_height, image_width};
+  hsize_t images_per_chunk = gpfs_block_size / image_size;
+  hsize_t image_dataset_chunking[] = {images_per_chunk, image_height, image_width};
   if (H5Pset_chunk(dcpl_id, 3, image_dataset_chunking) < 0)
     throw std::runtime_error("Cannot set image dataset chunking.");
 
@@ -127,8 +130,13 @@ void HDF5File::create_image_dataset(hid_t data_group_id)
       throw std::runtime_error("Cannot set compression filter on dataset.");
   }
 
+  auto dapl_id = H5Pcreate(H5P_DATASET_ACCESS);
+  if (H5Pset_chunk_cache(dapl_id, images_per_chunk, gpfs_block_size, 1.0) < 0) {
+    throw std::runtime_error("Failed to set chunk cache for dataset access.");
+  }
+
   image_ds = H5Dcreate(data_group_id, "data", get_datatype(image_bit_depth), image_space_id,
-                       H5P_DEFAULT, dcpl_id, H5P_DEFAULT);
+                       H5P_DEFAULT, dcpl_id, dapl_id);
   if (image_ds < 0) throw std::runtime_error("Cannot create image dataset.");
 
   H5Sclose(image_space_id);
@@ -169,11 +177,6 @@ void HDF5File::create_metadata_dataset(hid_t data_group_id)
 
 void HDF5File::write_image(const char* image, std::size_t data_size)
 {
-  auto boffset = (index % 2u) * 2016u * 2016u * 2u;
-  std::memcpy(buffer + boffset, image, data_size);
-
-  if (index % 2 == 0) return;
-
   hid_t file_ds = H5Dget_space(image_ds);
   if (file_ds < 0) throw std::runtime_error("Cannot get image dataset dataspace.");
 
@@ -183,14 +186,22 @@ void HDF5File::write_image(const char* image, std::size_t data_size)
   H5Sclose(file_ds);
 
   if ((hsize_t)index >= current_dims[0]) {
-    hsize_t new_dims[3] = {(hsize_t)index + 2, image_height, image_width};
+    hsize_t images_per_chunk = gpfs_block_size / image_size;
+    hsize_t new_dims[3] = {(hsize_t)index + images_per_chunk, image_height, image_width};
     if (H5Dset_extent(image_ds, new_dims) < 0)
       throw std::runtime_error("Failed to extend dataset.");
   }
 
-  hsize_t offset[3] = {(hsize_t)index / 2 * 2, 0, 0};
+  hsize_t offset[3] = {(hsize_t)index, 0, 0};
+  hsize_t count[3] = {1, image_height, image_width};
 
-  if (H5Dwrite_chunk(image_ds, H5P_DEFAULT, 0, offset, 2016 * 2016 * 4, buffer) < 0)
+  auto ram_ds = H5Screate_simple(1, count, nullptr);
+  if (ram_ds < 0) throw std::runtime_error("Cannot create metadata ram dataspace.");
+
+  if (H5Sselect_hyperslab(file_ds, H5S_SELECT_SET, offset, nullptr, count, nullptr) < 0)
+    throw std::runtime_error("Cannot select metadata dataset file hyperslab.");
+
+  if (H5Dwrite(image_ds, get_datatype(image_bit_depth), ram_ds, file_ds, H5P_DEFAULT, image) < 0)
     throw std::runtime_error("Cannot write data to image dataset.");
 }
 

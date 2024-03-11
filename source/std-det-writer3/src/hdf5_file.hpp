@@ -18,8 +18,11 @@
 class HDF5File
 {
 public:
-  explicit HDF5File(const utils::DetectorConfig& config, const std::string& filename, std::string_view suffix);
+  explicit HDF5File(const utils::DetectorConfig& config,
+                    const std::string& filename,
+                    std::string_view suffix);
   ~HDF5File();
+
   void write(const std_daq_protocol::ImageMetadata& meta, const char* image);
 
 private:
@@ -35,8 +38,8 @@ private:
   const uint32_t image_height;
   const uint32_t image_width;
   const uint32_t image_bit_depth;
+  const uint32_t image_size;
   int index;
-  char buffer[2016*2016*4];
 
   hid_t file_id = -1;
   hid_t image_ds = -1;
