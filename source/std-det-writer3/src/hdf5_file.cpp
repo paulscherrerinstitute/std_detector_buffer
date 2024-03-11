@@ -152,16 +152,16 @@ void HDF5File::create_metadata_dataset(hid_t data_group_id)
   hid_t prop_id = H5Pcreate(H5P_DATASET_CREATE);
   H5Pset_chunk(prop_id, 1, chunk_dims);
 
-//  size_t cache_size = sizeof(h5_metadata) * records_per_chunk;
-//  hid_t access_plist_id = H5Pcreate(H5P_DATASET_ACCESS);
-//  H5Pset_chunk_cache(access_plist_id, 0, cache_size, 1.0);
+  size_t cache_size = sizeof(h5_metadata) * records_per_chunk;
+  hid_t access_plist_id = H5Pcreate(H5P_DATASET_ACCESS);
+  H5Pset_chunk_cache(access_plist_id, 0, cache_size, 1.0);
 
   metadata_ds = H5Dcreate(data_group_id, "metadata", compound_id, dataspace_id, H5P_DEFAULT,
-                          prop_id, H5P_DEFAULT);
+                          prop_id, access_plist_id);
 
   if (metadata_ds < 0) throw std::runtime_error("Cannot create metadata dataset.");
 
-//  H5Pclose(access_plist_id);
+  H5Pclose(access_plist_id);
   H5Tclose(compound_id);
   H5Pclose(prop_id);
   H5Sclose(dataspace_id);
