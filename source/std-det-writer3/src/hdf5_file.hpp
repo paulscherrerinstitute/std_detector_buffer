@@ -35,10 +35,11 @@ private:
   void write_meta(const std_daq_protocol::ImageMetadata& meta) const;
 
   const bool is_h5bitshuffle_lz4_compression;
-  const uint32_t image_height;
-  const uint32_t image_width;
-  const uint32_t image_bit_depth;
-  const uint32_t image_size;
+  const size_t image_height;
+  const size_t image_width;
+  const size_t image_bit_depth;
+  const size_t image_size;
+  const size_t gpfs_block_size;
   int index;
 
   hid_t file_id = -1;

@@ -12,10 +12,7 @@
 #include "utils/image_size_calc.hpp"
 
 namespace {
-
-constexpr size_t gpfs_block_size = 16777216;
 constexpr size_t max_ik_store = 8192;
-
 } // namespace
 
 typedef struct
@@ -32,6 +29,7 @@ HDF5File::HDF5File(const utils::DetectorConfig& config,
     , image_width(config.image_pixel_width)
     , image_bit_depth(config.bit_depth)
     , image_size(utils::converted_image_n_bytes(config))
+    , gpfs_block_size(config.gpfs_block_size)
     , index(-1)
 
 {

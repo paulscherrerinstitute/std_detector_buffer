@@ -46,6 +46,7 @@ DetectorConfig read_config(const json doc)
           std::chrono::seconds(doc.value("stats_collection_period", 10)),
           doc.value("max_number_of_forwarders_spawned", 8),
           doc.value("use_all_forwarders", false),
+          doc.value("gpfs_block_size", 16777216),
           std::move(modules)};
 }
 } // namespace
