@@ -47,6 +47,7 @@ DetectorConfig read_config(const json doc)
           doc.value("max_number_of_forwarders_spawned", 8),
           doc.value("use_all_forwarders", false),
           doc.value("gpfs_block_size", 16777216),
+          doc.value("sender_sends_full_images", false),
           std::move(modules)};
 }
 } // namespace
