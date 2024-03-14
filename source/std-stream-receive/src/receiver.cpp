@@ -51,10 +51,9 @@ int main(int argc, char* argv[])
   const auto image_name = fmt::format("{}-image", config.detector_name);
   const auto sync_name = fmt::format("{}-sync", config.detector_name);
   const auto converted_bytes = utils::converted_image_n_bytes(config);
-  const auto start_index = image_part * utils::max_single_sender_size(config);
+  const auto start_index = utils::calculate_image_offset(config, image_part);
   if (converted_bytes <= start_index) return 0;
-  const auto data_bytes_sent =
-      std::min(converted_bytes - start_index, utils::max_single_sender_size(config));
+  const auto data_bytes_sent = utils::calculate_image_bytes_sent(config, image_part);
 
   gf::rec::ReceiverStatsCollector stats(config.detector_name, config.stats_collection_period,
                                         image_part);

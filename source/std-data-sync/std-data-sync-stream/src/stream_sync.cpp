@@ -28,9 +28,8 @@ int main(int argc, char* argv[])
 
   auto receiver = buffer_utils::bind_socket(ctx, config.detector_name + "-sync", ZMQ_PULL);
   auto sender = buffer_utils::bind_socket(ctx, config.detector_name + "-image", ZMQ_PUB);
-  const int parts = static_cast<int>(utils::number_of_senders(config));
 
-  Synchronizer syncer(parts, 1000);
+  Synchronizer syncer(static_cast<int>(utils::number_of_senders(config)), 1000);
 
   sdss::QueueStatsCollector stats(config.detector_name, config.stats_collection_period);
 

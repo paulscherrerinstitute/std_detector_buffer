@@ -27,17 +27,39 @@ std::size_t max_converted_image_byte_size(const utils::DetectorConfig& config)
   throw std::runtime_error("Unsupported detector_type!\n");
 }
 
+std::size_t calculate_image_offset(const utils::DetectorConfig& config, std::size_t image_part)
+{
+  if (config.sender_sends_full_images)
+    return 0;
+  else if (config.use_all_forwarders)
+    return image_part * converted_image_n_bytes(config) / config.max_number_of_forwarders_spawned;
+  else
+    return image_part * max_converted_image_byte_size(config) /
+           config.max_number_of_forwarders_spawned;
+}
+
 std::size_t max_single_sender_size(const utils::DetectorConfig& config)
 {
-  if (config.use_all_forwarders)
+  if (config.sender_sends_full_images)
+    return converted_image_n_bytes(config);
+  else if (config.use_all_forwarders)
     return converted_image_n_bytes(config) / config.max_number_of_forwarders_spawned;
   else
     return max_converted_image_byte_size(config) / config.max_number_of_forwarders_spawned;
 }
 
+std::size_t calculate_image_bytes_sent(const utils::DetectorConfig& config, std::size_t image_part)
+{
+  const auto converted_bytes = utils::converted_image_n_bytes(config);
+  const auto start_index = utils::calculate_image_offset(config, image_part);
+  return std::min(converted_bytes - start_index, utils::max_single_sender_size(config));
+}
+
 std::size_t number_of_senders(const utils::DetectorConfig& config)
 {
-  if (config.use_all_forwarders)
+  if (config.sender_sends_full_images)
+    return 1;
+  else if (config.use_all_forwarders)
     return config.max_number_of_forwarders_spawned;
   else
     return (converted_image_n_bytes(config) + max_single_sender_size(config) - 1) /

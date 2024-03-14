@@ -53,10 +53,12 @@ int main(int argc, char* argv[])
   [[maybe_unused]] utils::log::logger l{"std_stream_send", config.log_level};
   const auto sync_name = fmt::format("{}-image", config.detector_name);
   const auto converted_bytes = utils::converted_image_n_bytes(config);
-  const auto start_index = image_part * utils::max_single_sender_size(config);
+  const auto start_index = utils::calculate_image_offset(config, image_part);
   if (converted_bytes <= start_index) return 0;
-  const auto data_bytes_sent =
-      std::min(converted_bytes - start_index, utils::max_single_sender_size(config));
+  const auto data_bytes_sent = utils::calculate_image_bytes_sent(config, image_part);
+
+  spdlog::debug("std_stream_send image part = {}, bytes sent = {}, offset = {}", image_part,
+                data_bytes_sent, start_index);
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
@@ -74,12 +76,18 @@ int main(int argc, char* argv[])
   while (true) {
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
       meta.ParseFromArray(buffer, n_bytes);
-      auto* image_data = receiver.get_data(meta.image_id());
+      if (!config.sender_sends_full_images ||
+          meta.image_id() % (uint64_t)config.max_number_of_forwarders_spawned ==
+              (uint64_t)image_part)
+      {
+        auto* image_data = receiver.get_data(meta.image_id());
 
-      std::size_t zmq_failed = zmq_success == zmq_send(sender_socket, buffer, n_bytes, ZMQ_SNDMORE);
-      zmq_failed +=
-          zmq_success == zmq_send(sender_socket, image_data + start_index, data_bytes_sent, 0);
-      stats.process(zmq_failed);
+        std::size_t zmq_failed =
+            zmq_success == zmq_send(sender_socket, buffer, n_bytes, ZMQ_SNDMORE);
+        zmq_failed +=
+            zmq_success == zmq_send(sender_socket, image_data + start_index, data_bytes_sent, 0);
+        stats.process(zmq_failed);
+      }
     }
     stats.print_stats();
   }
