@@ -129,9 +129,8 @@ void HDF5File::create_image_dataset(hid_t data_group_id)
   }
 
   auto dapl_id = H5Pcreate(H5P_DATASET_ACCESS);
-  if (H5Pset_chunk_cache(dapl_id, images_per_chunk, gpfs_block_size, 1.0) < 0) {
+  if (H5Pset_chunk_cache(dapl_id, images_per_chunk, gpfs_block_size, 1.0) < 0)
     throw std::runtime_error("Failed to set chunk cache for dataset access.");
-  }
 
   image_ds = H5Dcreate(data_group_id, "data", get_datatype(image_bit_depth), image_space_id,
                        H5P_DEFAULT, dcpl_id, dapl_id);
