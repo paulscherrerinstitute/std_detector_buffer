@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
   [[maybe_unused]] utils::log::logger l{prog_name, config.log_level};
 
   auto ctx = zmq_ctx_new();
-  zmq_ctx_set(ctx, ZMQ_IO_THREADS, 1);
+  zmq_ctx_set(ctx, ZMQ_IO_THREADS, 4);
 
   auto receiver = buffer_utils::bind_socket(ctx, config.detector_name + "-sync", ZMQ_PULL);
   auto sender = buffer_utils::bind_socket(ctx, config.detector_name + "-image", ZMQ_PUB);
