@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 
   auto receiver = buffer_utils::bind_socket(ctx, config.detector_name + "-sync", ZMQ_PULL);
   auto sender = buffer_utils::bind_socket(ctx, config.detector_name + "-image", ZMQ_PUB);
-  Synchronizer syncer(config.n_modules, SYNC_N_IMAGES_BUFFER, utils::get_modules_mask(config));
+  Synchronizer syncer(config.n_modules, config.module_sync_queue_size, utils::get_modules_mask(config));
 
   utils::stats::SyncStatsCollector stats(config.detector_name, config.stats_collection_period);
 
