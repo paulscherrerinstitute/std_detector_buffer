@@ -111,24 +111,22 @@ inline uint32_t module_n_y_pixels(int image_pixel_height)
 
 inline std::size_t module_n_data_bytes(int image_pixel_height, int image_pixel_width)
 {
-  // Each pixel has 12 bytes -> pixel to bytes multiplier is 1.5
-  return static_cast<std::size_t>(module_n_x_pixels(image_pixel_width) *
-                                  module_n_y_pixels(image_pixel_height) * 1.5);
+  return module_n_x_pixels(image_pixel_width) * module_n_y_pixels(image_pixel_height) * 3 / 2;
 }
 
 inline uint32_t n_rows_per_packet(int image_pixel_height, int image_pixel_width)
 {
-  auto MODULE_N_X_PIXEL = module_n_x_pixels(image_pixel_width);
-  auto MODULE_N_Y_PIXEL = module_n_y_pixels(image_pixel_height);
+  auto module_width = module_n_x_pixels(image_pixel_width);
+  auto module_height = module_n_y_pixels(image_pixel_height);
 
   // Calculate the number of rows in each packet.
   // Do NOT optimize these expressions. The exact form of this calculation is important due to
   // rounding.
-  const uint32_t n_12pixel_blocks = MODULE_N_X_PIXEL / 12;
+  const uint32_t n_12pixel_blocks = module_width / 12;
   const uint32_t n_cache_line_blocks =
       (PACKET_N_DATA_BYTES_MAX / (36 * n_12pixel_blocks)) * n_12pixel_blocks / 2;
   // Each cache line block (64 bytes) has 48 pixels (12 bit pixels)
-  return std::min(n_cache_line_blocks * 48 / MODULE_N_X_PIXEL, MODULE_N_Y_PIXEL);
+  return std::min(n_cache_line_blocks * 48 / module_width, module_height);
 }
 
 inline std::size_t n_data_bytes_per_packet(int image_pixel_height, int image_pixel_width)
@@ -147,7 +145,7 @@ inline std::size_t n_data_bytes_per_packet(int image_pixel_height, int image_pix
 inline std::size_t n_packets_per_frame(int image_pixel_height, int image_pixel_width)
 {
   return std::ceil(module_n_y_pixels(image_pixel_height) /
-                   n_rows_per_packet(image_pixel_height, image_pixel_width));
+                   (double)n_rows_per_packet(image_pixel_height, image_pixel_width));
 }
 
 inline std::size_t last_packet_n_bytes(int image_pixel_height, int image_pixel_width)

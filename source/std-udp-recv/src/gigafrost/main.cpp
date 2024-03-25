@@ -56,13 +56,12 @@ inline void send_image_id(GFFrame& meta,
                           cb::Communicator& sender,
                           FrameStatsCollector& stats)
 {
+  spdlog::debug("sending image_id={}, n_missing_packets={}", meta.common.image_id,
+                meta.common.n_missing_packets);
   sender.send(meta.common.image_id, std::span<char>((char*)(&meta), sizeof(meta)), frame_buffer);
   stats.process(meta.common.n_missing_packets);
   // Invalidate the current buffer - we already send data out for this one.
   meta.common.image_id = INVALID_IMAGE_ID;
-
-  spdlog::debug("sending image_id={}, n_missing_packets={}", meta.common.image_id,
-                meta.common.n_missing_packets);
 }
 
 inline void process_packet(GFFrame& meta,
@@ -118,7 +117,7 @@ int main(int argc, char* argv[])
   if (last_packet_n_rows == 0) last_packet_n_rows = rows_per_packet;
 
   // Number of data bytes in the last packet.
-  auto bytes_of_last_packet = static_cast<size_t>(width_in_pixels * last_packet_n_rows * 1.5);
+  auto bytes_of_last_packet = static_cast<size_t>(width_in_pixels * last_packet_n_rows * 3/2);
   if ((last_packet_n_rows % 2 == 1) && (width_in_pixels % 48 != 0)) bytes_of_last_packet += 36;
 
   // Get offset of last packet in frame to know when to commit frame.
