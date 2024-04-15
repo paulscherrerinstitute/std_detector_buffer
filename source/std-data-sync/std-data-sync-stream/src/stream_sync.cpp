@@ -22,6 +22,8 @@ int main(int argc, char* argv[])
   const auto config = utils::read_config_from_json_file(program->get("detector_json_filename"));
   [[maybe_unused]] utils::log::logger l{prog_name, config.log_level};
 
+  if(config.sender_sends_full_images) return 0;
+
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, 4);
 

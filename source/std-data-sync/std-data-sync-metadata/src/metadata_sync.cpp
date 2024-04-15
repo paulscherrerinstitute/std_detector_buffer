@@ -96,6 +96,8 @@ int main(int argc, char* argv[])
   const auto [config, metadata_stream_address] = read_arguments(argc, argv);
   [[maybe_unused]] utils::log::logger l{prog_name, config.log_level};
 
+  if(!config.sender_sends_full_images) return 0;
+
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, 4);
 
