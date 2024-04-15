@@ -20,6 +20,7 @@ Synchronizer::Synchronizer(int n_modules, int n_images_buffer, modules_mask mask
 
 std::size_t Synchronizer::process_image_metadata(CommonFrame meta)
 {
+  std::lock_guard<std::mutex> lock(mutex_cache);
   if (is_new_image(meta.image_id))
     return push_new_image_to_queue(meta);
   else
@@ -54,6 +55,7 @@ size_t Synchronizer::update_module_mask_for_image(image_id id, size_t module_id)
 
 CommonFrame Synchronizer::pop_next_full_image()
 {
+  std::lock_guard<std::mutex> lock(mutex_cache);
   if (cache.empty()) return CommonFrame{INVALID_IMAGE_ID, 0, 0};
   if (auto data = cache.begin()->second; data.first == 0) {
     cache.erase(cache.begin());

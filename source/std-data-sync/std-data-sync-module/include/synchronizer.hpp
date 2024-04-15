@@ -10,6 +10,7 @@
 #include <vector>
 #include <map>
 #include <bitset>
+#include <mutex>
 
 #include "core_buffer/formats.hpp"
 #include "detectors/common.hpp"
@@ -23,6 +24,7 @@ class Synchronizer
   const size_t n_images_buffer;
   const modules_mask new_image_mask;
   std::map<image_id, std::pair<modules_mask, CommonFrame>> cache;
+  mutable std::mutex mutex_cache;
 
 public:
   Synchronizer(int n_modules, int n_images_buffer, modules_mask mask = 0);
