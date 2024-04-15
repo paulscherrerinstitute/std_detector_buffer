@@ -11,7 +11,6 @@
 #include "std_buffer/image_metadata.pb.h"
 
 #include "synchronizer.hpp"
-#include "queue_len_stats_collector.hpp"
 
 using namespace std;
 
@@ -31,7 +30,7 @@ int main(int argc, char* argv[])
 
   Synchronizer syncer(static_cast<int>(utils::number_of_senders(config)), 1000);
 
-  sdss::QueueStatsCollector stats(config.detector_name, config.stats_collection_period);
+  utils::stats::QueueStatsCollector stats(config.detector_name, config.stats_collection_period);
 
   char buffer[512];
   std_daq_protocol::ImageMetadata image_meta;

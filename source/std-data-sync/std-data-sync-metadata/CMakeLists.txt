@@ -10,7 +10,6 @@ add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME}
     PRIVATE
         src/synchronizer.hpp
-        src/queue_len_stats_collector.hpp
         src/metadata_sync.cpp
         src/synchronizer.cpp
 )

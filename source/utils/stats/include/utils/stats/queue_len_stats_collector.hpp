@@ -10,7 +10,9 @@
 
 #include <fmt/core.h>
 
-namespace sdss {
+#include "sync_stats_collector.hpp"
+
+namespace utils::stats {
 
 class QueueStatsCollector : public utils::stats::SyncStatsCollector
 {

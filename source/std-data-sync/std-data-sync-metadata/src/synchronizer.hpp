@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <set>
 #include <map>
+#include <mutex>
 #include <optional>
 
 #include "core_buffer/formats.hpp"
@@ -21,6 +22,8 @@ class Synchronizer
 
   std::set<image_id> received_images;
   std::map<image_id, std_daq_protocol::ImageMetadata> metadata_cache;
+  mutable std::mutex mutex_metadata;
+  mutable std::mutex mutex_images;
 
 public:
   explicit Synchronizer(std::size_t n_images_buffer);
@@ -28,7 +31,7 @@ public:
   void add_received_image(image_id id);
   std::optional<std_daq_protocol::ImageMetadata> get_next_received_image();
 
-  [[nodiscard]] std::size_t get_queue_length() const { return metadata_cache.size(); }
+  [[nodiscard]] std::size_t get_queue_length() const;
 };
 
 #endif // STD_DETECTOR_BUFFER_SYNCHRONIZER_HPP

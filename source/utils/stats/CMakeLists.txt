@@ -17,6 +17,7 @@ target_sources(${PROJECT_NAME}
             include/utils/stats/stats_collector.hpp
             include/utils/stats/sync_stats_collector.hpp
             include/utils/stats/timed_stats_collector.hpp
+            include/utils/stats/queue_len_stats_collector.hpp
 )
 
 target_include_directories(${PROJECT_NAME} INTERFACE include)

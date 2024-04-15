@@ -12,6 +12,7 @@
 #include "utils/stats/module_stats_collector.hpp"
 #include "utils/stats/compression_stats_collector.hpp"
 #include "utils/stats/timed_stats_collector.hpp"
+#include "utils/stats/queue_len_stats_collector.hpp"
 
 #include "utils/version.hpp"
 
