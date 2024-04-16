@@ -5,6 +5,7 @@
 #include <string>
 #include <thread>
 #include <memory>
+#include <chrono>
 
 #include <zmq.h>
 
@@ -42,6 +43,7 @@ void send_synchronized_images(const utils::DetectorConfig& config,
                               void* ctx,
                               std::shared_ptr<Synchronizer> syncer)
 {
+  using namespace std::chrono_literals;
   std_daq_protocol::ImageMetadata image_meta;
   image_meta.set_dtype(utils::get_metadata_dtype(config));
   image_meta.set_height(config.image_pixel_height);
@@ -63,6 +65,8 @@ void send_synchronized_images(const utils::DetectorConfig& config,
       image_meta.SerializeToString(&meta_buffer_send);
       zmq_send(sender, meta_buffer_send.c_str(), meta_buffer_send.size(), 0);
     }
+    else
+      std::this_thread::sleep_for(1ms);
   }
 }
 

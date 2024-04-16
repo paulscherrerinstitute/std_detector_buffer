@@ -5,6 +5,7 @@
 #include <string>
 #include <thread>
 #include <memory>
+#include <chrono>
 
 #include <zmq.h>
 
@@ -78,6 +79,7 @@ void send_synchronized_images(const utils::DetectorConfig& config,
                               void* ctx,
                               std::shared_ptr<Synchronizer> syncer)
 {
+  using namespace std::chrono_literals;
   auto sender = buffer_utils::bind_socket(ctx, config.detector_name + "-image", ZMQ_PUB);
 
   while (true) {
@@ -86,6 +88,8 @@ void send_synchronized_images(const utils::DetectorConfig& config,
       meta->SerializeToString(&meta_buffer_send);
       zmq_send(sender, meta_buffer_send.c_str(), meta_buffer_send.size(), 0);
     }
+    else
+      std::this_thread::sleep_for(1ms);
   }
 }
 } // namespace
@@ -96,7 +100,7 @@ int main(int argc, char* argv[])
   const auto [config, metadata_stream_address] = read_arguments(argc, argv);
   [[maybe_unused]] utils::log::logger l{prog_name, config.log_level};
 
-  if(!config.sender_sends_full_images) return 0;
+  if (!config.sender_sends_full_images) return 0;
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, 4);
