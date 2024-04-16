@@ -13,7 +13,7 @@ using namespace std::string_literals;
 
 namespace {
 constexpr auto zmq_io_threads = 1;
-constexpr auto zmq_sndhwm = 100;
+constexpr auto zmq_sndhwm = 50000;
 
 std::tuple<utils::DetectorConfig, std::string, std::string> read_arguments(int argc, char* argv[])
 {
