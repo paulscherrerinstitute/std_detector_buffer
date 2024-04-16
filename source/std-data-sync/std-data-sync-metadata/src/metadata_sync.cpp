@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, 4);
 
-  auto syncer = std::make_shared<Synchronizer>(2000);
+  auto syncer = std::make_shared<Synchronizer>(10000);
 
   std::jthread processing_metadata_thread(process_incoming_metadata_stream, config,
                                           metadata_stream_address, ctx, syncer);
