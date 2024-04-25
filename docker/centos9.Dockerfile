@@ -10,14 +10,12 @@ RUN dnf update -y \
         openssh-clients \
         patch \
         gcc-toolset-13 \
-        hdf5-mpich-devel \
         rpm-build \
         wget \
-        python3.11-pip \
+        python3-pip \
     && dnf clean all \
     && rm -rf /var/cache/dnf
 
-RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install cmake conan==1.59 ninja pyinstaller numpy
 
