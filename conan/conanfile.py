@@ -14,11 +14,12 @@ class SBD(ConanFile):
         "protobuf/3.21.12",
         "argparse/3.0",
         "bsread_receiver/0.16.1@patro_m/psi",
-        "redis-plus-plus/1.3.11",
+        "redis-plus-plus/1.3.12",
         "c-blosc2/2.13.1",
         "spdlog/1.13.0",
         "hdf5/1.14.3",
-        "hash-library/8.0"
+        "hash-library/8.0",
+        "boost/1.84.0"
     ]
 
     default_options = {"date:header_only": True,
