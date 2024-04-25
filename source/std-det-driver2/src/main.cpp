@@ -53,10 +53,14 @@ int main(int argc, char* argv[])
 {
   const auto [config, source_suffix, number_of_writers] = read_arguments(argc, argv);
   [[maybe_unused]] utils::log::logger l{"std_det_driver", config.log_level};
+
   auto const address = boost::asio::ip::make_address("0.0.0.0");
   auto const port = static_cast<unsigned short>(8080);
+  const auto source_name = fmt::format("{}-{}", config.detector_name, source_suffix);
+
   auto sm = std::make_shared<std_driver::state_manager>();
-  auto driver = std::make_shared<std_driver::writer_driver>(sm);
+  auto driver =
+      std::make_shared<std_driver::writer_driver>(sm, source_name, config, number_of_writers);
 
   boost::asio::io_context ioc{1};
 
