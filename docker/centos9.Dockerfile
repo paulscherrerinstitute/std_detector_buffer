@@ -11,8 +11,8 @@ RUN dnf update -y \
         patch \
         gcc-toolset-13 \
         rpm-build \
-        wget \
         python3-pip \
+        wget \
     && dnf clean all \
     && rm -rf /var/cache/dnf
 
