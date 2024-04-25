@@ -10,8 +10,8 @@ RUN dnf update -y \
         openssh-clients \
         patch \
         gcc-toolset-13 \
-        rpm-build \
         python3-pip \
+        rpm-build \
         wget \
     && dnf clean all \
     && rm -rf /var/cache/dnf
