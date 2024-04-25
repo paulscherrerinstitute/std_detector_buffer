@@ -18,17 +18,16 @@ using namespace std::string_literals;
 namespace {
 
 void do_accept(boost::asio::ip::tcp::acceptor& acceptor,
-               boost::asio::ip::tcp::socket& socket,
                std::shared_ptr<std_driver::state_manager> manager,
                std::shared_ptr<std_driver::writer_driver> driver)
 {
-  acceptor.async_accept(socket, [&](boost::system::error_code ec) {
-    if (!ec)
-      std::make_shared<std_driver::socket_session>(std::move(socket), std::move(manager),
-                                                   std::move(driver))
-          ->start();
+  auto socket = std::make_shared<boost::asio::ip::tcp::socket>(acceptor.get_executor());
 
-    do_accept(acceptor, socket, manager, driver);
+  acceptor.async_accept(*socket, [&, socket, manager, driver](boost::system::error_code ec) {
+    if (!ec)
+      std::make_shared<std_driver::socket_session>(std::move(*socket), manager, driver)->start();
+
+    do_accept(acceptor, manager, driver);
   });
 }
 
@@ -57,13 +56,12 @@ int main(int argc, char* argv[])
   auto const address = boost::asio::ip::make_address("0.0.0.0");
   auto const port = static_cast<unsigned short>(8080);
   auto sm = std::make_shared<std_driver::state_manager>();
-  auto driver = std::make_shared<std_driver::writer_driver>(*sm);
+  auto driver = std::make_shared<std_driver::writer_driver>(sm);
 
   boost::asio::io_context ioc{1};
 
   tcp::acceptor acceptor{ioc, {address, port}};
-  tcp::socket socket{ioc};
-  do_accept(acceptor, socket, sm, driver);
+  do_accept(acceptor, sm, driver);
 
   ioc.run();
 

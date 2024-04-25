@@ -11,10 +11,10 @@ namespace std_driver {
 
 class writer_driver : public std::enable_shared_from_this<writer_driver>
 {
-  std_driver::state_manager& manager;
+  std::shared_ptr<std_driver::state_manager> manager;
 
 public:
-  explicit writer_driver(std_driver::state_manager& sm);
+  explicit writer_driver(std::shared_ptr<std_driver::state_manager> sm);
   void start();
 };
 

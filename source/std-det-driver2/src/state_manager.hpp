@@ -11,12 +11,14 @@
 #include <vector>
 #include <algorithm>
 #include <chrono>
+#include <iostream>
 
 #include <spdlog/spdlog.h>
 
 #include "driver_state.hpp"
 
 namespace std_driver {
+
 class state_manager
 {
   std::atomic<driver_state> state{driver_state::idle};
@@ -47,7 +49,7 @@ public:
 
   [[nodiscard]] driver_state wait_for_change_or_timeout(std::chrono::milliseconds timeout) const
   {
-    std::unique_lock<std::mutex> lock(mutex);
+    std::unique_lock lock(mutex);
     driver_state current_state = state.load();
     cv.wait_for(lock, timeout, [this, current_state]() { return state != current_state; });
     return state.load();

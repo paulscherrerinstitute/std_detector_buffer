@@ -109,7 +109,6 @@ void socket_session::listen_for_stop()
 
     auto message = boost::beast::buffers_to_string(self->buffer.data());
     self->buffer.consume(bytes_transferred);
-    spdlog::info(R"(Received request: "{}")", message);
 
     json j = json::parse(message);
     std::string command = j.value("command", "");
