@@ -7,5 +7,4 @@
         --name "Release $CI_COMMIT_TAG" \
         --tag-name $CI_COMMIT_TAG \
         --description CHANGELOG.md \
-        --assets-link "{\"name\":\"sdb-${CI_COMMIT_TAG}-centos7.rpm\",\"url\":\"${PACKAGE_REGISTRY_URL}/sdb-${CI_COMMIT_TAG}-centos7.rpm\"}" \
         --assets-link "{\"name\":\"sdb-${CI_COMMIT_TAG}-centos8.rpm\",\"url\":\"${PACKAGE_REGISTRY_URL}/sdb-${CI_COMMIT_TAG}-centos8.rpm\"}"

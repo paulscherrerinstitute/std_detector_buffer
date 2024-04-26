@@ -2,5 +2,4 @@
   image: curlimages/curl:7.87.0
   only: [ tags ]
   script: |
-    curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file release/sdb-${CI_COMMIT_TAG}-centos7.rpm ${PACKAGE_REGISTRY_URL}/sdb-${CI_COMMIT_TAG}-centos7.rpm
     curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file release/sdb-${CI_COMMIT_TAG}-centos8.rpm ${PACKAGE_REGISTRY_URL}/sdb-${CI_COMMIT_TAG}-centos8.rpm
