@@ -1,6 +1,5 @@
 .build_and_test:
   image: $CI_REGISTRY/controls-ci/std_detector_buffer/$DOCKER_IMAGE:$IMAGE_VERSION
-  entrypoint: ["/bin/bash", "-c"]
   script: |
     echo ">>>>> Release build:"
     cmake -B release -DCMAKE_BUILD_TYPE=Release -G Ninja
