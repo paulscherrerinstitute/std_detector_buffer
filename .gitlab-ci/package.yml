@@ -1,5 +1,6 @@
 .package:
   image: $CI_REGISTRY/controls-ci/std_detector_buffer/$DOCKER_IMAGE:$IMAGE_VERSION
+  entrypoint: [ "/bin/bash", "-c" ]
   only: [ tags ]
   variables:
     PACKAGE_VERSION: $CI_COMMIT_TAG
