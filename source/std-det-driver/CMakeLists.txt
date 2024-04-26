@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(std_det_driver2)
+project(std_det_driver)
 
 find_package(fmt REQUIRED)
 find_package(ZeroMQ REQUIRED)
