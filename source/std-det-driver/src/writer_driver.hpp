@@ -47,7 +47,7 @@ private:
   void send_create_file_requests(std::string_view base_path, writer_id id);
   void record_images(std::size_t n_images);
   void send_save_file_requests();
-  bool are_all_files_created();
+  bool did_all_writers_acknowledge();
 };
 
 } // namespace std_driver

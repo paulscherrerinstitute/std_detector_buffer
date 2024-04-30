@@ -43,11 +43,13 @@ void writer_driver::start(const run_settings& settings)
   auto self = shared_from_this();
   std::thread([self, settings]() {
     self->send_create_file_requests(settings.path, settings.writer);
-    if (self->are_all_files_created()) {
+    if (self->did_all_writers_acknowledge()) {
       self->manager->change_state(driver_state::waiting_for_first_image);
       self->record_images(settings.n_images);
       self->send_save_file_requests();
     }
+    else
+      self->manager->change_state(driver_state::error);
   }).detach();
 }
 
@@ -105,7 +107,7 @@ void writer_driver::send_create_file_requests(std::string_view base_path, writer
   }
 }
 
-bool writer_driver::are_all_files_created()
+bool writer_driver::did_all_writers_acknowledge()
 {
   char buffer[512];
   auto files_created = 0u;
@@ -143,8 +145,14 @@ void writer_driver::send_save_file_requests()
   std_daq_protocol::WriterAction action;
   action.mutable_close_file();
   action.SerializeToString(&cmd);
+
   for (auto& socket : sender_sockets)
     zmq_send(socket, cmd.c_str(), cmd.size(), 0);
+
+  if (did_all_writers_acknowledge())
+    manager->change_state(driver_state::file_saved);
+  else
+    manager->change_state(driver_state::error);
 }
 
 } // namespace std_driver
