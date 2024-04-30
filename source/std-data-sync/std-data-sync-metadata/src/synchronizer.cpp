@@ -22,7 +22,7 @@ bool Synchronizer::add_metadata(const std_daq_protocol::ImageMetadata& metadata)
   return false;
 }
 
-void Synchronizer::add_received_image(image_id id)
+void Synchronizer::add_received_image(utils::image_id id)
 {
   std::lock_guard<std::mutex> lock(mutex_images);
   received_images.insert(id);

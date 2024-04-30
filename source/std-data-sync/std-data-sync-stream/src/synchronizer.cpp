@@ -17,7 +17,7 @@ Synchronizer::Synchronizer(int parts, int n_images_buffer)
     , meta_cache()
 {}
 
-ImageAndSync Synchronizer::process_image_metadata(image_id id)
+ImageAndSync Synchronizer::process_image_metadata(utils::image_id id)
 {
   auto n_corrupted = 0u;
   if (is_new_image(id)) n_corrupted = push_new_image_to_queue(id);
@@ -29,7 +29,7 @@ ImageAndSync Synchronizer::process_image_metadata(image_id id)
     return {INVALID_IMAGE_ID, n_corrupted};
 }
 
-ImageAndSync Synchronizer::get_full_image(image_id id)
+ImageAndSync Synchronizer::get_full_image(utils::image_id id)
 {
   const auto n_corrupted_images = discard_stale_images(id);
 
@@ -41,7 +41,7 @@ ImageAndSync Synchronizer::get_full_image(image_id id)
   return {id, n_corrupted_images};
 }
 
-uint32_t Synchronizer::discard_stale_images(image_id id)
+uint32_t Synchronizer::discard_stale_images(utils::image_id id)
 {
   uint32_t n_corrupted_images = 0;
 
@@ -54,7 +54,7 @@ uint32_t Synchronizer::discard_stale_images(image_id id)
   return n_corrupted_images;
 }
 
-std::size_t Synchronizer::push_new_image_to_queue(image_id id)
+std::size_t Synchronizer::push_new_image_to_queue(utils::image_id id)
 {
   image_id_queue.push_back(id);
   // Initialize the module mask to 1 for n_modules the least significant bits.
@@ -78,7 +78,7 @@ bool Synchronizer::is_queue_too_long() const
   return image_id_queue.size() > n_images_buffer;
 }
 
-bool Synchronizer::is_new_image(image_id id) const
+bool Synchronizer::is_new_image(utils::image_id id) const
 {
   return meta_cache.find(id) == meta_cache.end();
 }

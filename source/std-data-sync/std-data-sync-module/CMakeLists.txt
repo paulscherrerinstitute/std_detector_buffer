@@ -21,6 +21,7 @@ target_link_libraries(${PROJECT_NAME}_lib
         fmt::fmt
         core_buffer::core_buffer
         detectors::detectors
+        utils::utils
     PRIVATE
         ZeroMQ::ZeroMQ
         std_detector_buffer::settings

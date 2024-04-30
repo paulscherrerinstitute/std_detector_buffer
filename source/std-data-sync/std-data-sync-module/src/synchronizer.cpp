@@ -37,7 +37,7 @@ std::size_t Synchronizer::push_new_image_to_queue(CommonFrame meta)
   return is_queue_too_long();
 }
 
-size_t Synchronizer::update_module_mask_for_image(image_id id, size_t module_id)
+size_t Synchronizer::update_module_mask_for_image(utils::image_id id, size_t module_id)
 {
   auto& mask = get_modules_mask_for_image(id);
 
@@ -64,7 +64,7 @@ CommonFrame Synchronizer::pop_next_full_image()
   return CommonFrame{INVALID_IMAGE_ID, 0, 0};
 }
 
-Synchronizer::modules_mask& Synchronizer::get_modules_mask_for_image(image_id id)
+Synchronizer::modules_mask& Synchronizer::get_modules_mask_for_image(utils::image_id id)
 {
   return cache.find(id)->second.first;
 }
@@ -74,7 +74,7 @@ bool Synchronizer::is_queue_too_long() const
   return cache.size() > n_images_buffer;
 }
 
-bool Synchronizer::is_new_image(image_id id) const
+bool Synchronizer::is_new_image(utils::image_id id) const
 {
   return cache.find(id) == cache.end();
 }

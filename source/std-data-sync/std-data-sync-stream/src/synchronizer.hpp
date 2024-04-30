@@ -13,6 +13,7 @@
 
 #include "core_buffer/formats.hpp"
 #include "detectors/common.hpp"
+#include "utils/image_id.hpp"
 
 struct ImageAndSync
 {
@@ -22,26 +23,24 @@ struct ImageAndSync
 
 class Synchronizer
 {
-  using image_id = uint64_t;
-
   const std::size_t n_parts;
   const size_t n_images_buffer;
 
-  std::deque<image_id> image_id_queue;
-  std::unordered_map<image_id, std::size_t> meta_cache;
+  std::deque<utils::image_id> image_id_queue;
+  std::unordered_map<utils::image_id, std::size_t> meta_cache;
 
 public:
   Synchronizer(int n_parts, int n_images_buffer);
-  ImageAndSync process_image_metadata(image_id id);
+  ImageAndSync process_image_metadata(utils::image_id id);
   [[nodiscard]] std::size_t get_queue_length() const { return image_id_queue.size(); }
 
 private:
-  uint32_t discard_stale_images(image_id id);
-  ImageAndSync get_full_image(image_id id);
-  std::size_t push_new_image_to_queue(image_id id);
+  uint32_t discard_stale_images(utils::image_id id);
+  ImageAndSync get_full_image(utils::image_id id);
+  std::size_t push_new_image_to_queue(utils::image_id id);
   void drop_oldest_incomplete_image();
 
-  bool is_new_image(image_id id) const;
+  bool is_new_image(utils::image_id id) const;
   bool is_queue_too_long() const;
 };
 

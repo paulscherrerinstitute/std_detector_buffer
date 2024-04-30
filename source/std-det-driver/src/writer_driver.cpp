@@ -33,29 +33,29 @@ writer_driver::writer_driver(std::shared_ptr<std_driver::state_manager> sm,
   std::ranges::for_each(std::views::iota(0u, number_of_writers), [&](auto i) {
     sender_sockets.push_back(
         bind_sender_socket(fmt::format("{}-driver-{}", config.detector_name, i)));
+    receiver_sockets.push_back(
+        connect_to_socket(fmt::format("{}-writer-{}", config.detector_name, i)));
   });
 }
 
-void writer_driver::start()
+void writer_driver::start(const run_settings& settings)
 {
   auto self = shared_from_this();
-  std::thread([self]() {
-    self->send_create_file_requests();
+  std::thread([self, settings]() {
+    self->send_create_file_requests(settings.path, settings.writer);
     if (self->are_all_files_created()) {
       self->manager->change_state(driver_state::waiting_for_first_image);
-      self->record_images();
+      self->record_images(settings.n_images);
       self->send_save_file_requests();
-      if (self->are_all_files_saved()) self->manager->change_state(driver_state::file_saved);
     }
   }).detach();
 }
 
 void* writer_driver::bind_sender_socket(const std::string& stream_address)
 {
-  constexpr auto zmq_sndhwm = 100;
-
   void* socket = zmq_socket(zmq_ctx, ZMQ_PUSH);
 
+  constexpr auto zmq_sndhwm = 100;
   if (zmq_setsockopt(socket, ZMQ_SNDHWM, &zmq_sndhwm, sizeof(zmq_sndhwm)) != 0)
     throw std::runtime_error(zmq_strerror(errno));
 
@@ -69,20 +69,36 @@ void* writer_driver::bind_sender_socket(const std::string& stream_address)
   return socket;
 }
 
-void writer_driver::send_create_file_requests()
+void* writer_driver::connect_to_socket(const std::string& stream_address)
+{
+  void* socket = zmq_socket(zmq_ctx, ZMQ_PULL);
+
+  int rcvhwm = 1000;
+  if (zmq_setsockopt(socket, ZMQ_RCVHWM, &rcvhwm, sizeof(rcvhwm)) != 0)
+    throw std::runtime_error(zmq_strerror(errno));
+
+  const int timeout = 1000;
+  if (zmq_setsockopt(socket, ZMQ_RCVTIMEO, &timeout, sizeof(timeout)) != 0)
+    throw std::runtime_error(zmq_strerror(errno));
+
+  const auto address = buffer_config::IPC_URL_BASE + stream_address;
+  if (zmq_connect(socket, address.c_str()) != 0) throw std::runtime_error(zmq_strerror(errno));
+
+  return socket;
+}
+
+void writer_driver::send_create_file_requests(std::string_view base_path, writer_id id)
 {
   manager->change_state(driver_state::creating_file);
 
   std_daq_protocol::WriterAction msg;
   auto createFileCmd = msg.mutable_create_file();
-  // TODO: writer id provided by user
-  createFileCmd->set_writer_id(0);
+  createFileCmd->set_writer_id(id);
 
   std::string cmd;
 
   for (auto i = 0u; i < sender_sockets.size(); ++i) {
-    // TODO: directory handling
-    std::string path = fmt::format("/gpfs/test/test-beamline/file{}.h5", i);
+    std::string path = fmt::format("{}/file{}.h5", base_path, i);
     createFileCmd->set_path(path);
     msg.SerializeToString(&cmd);
     zmq_send(sender_sockets[i], cmd.c_str(), cmd.size(), 0);
@@ -91,48 +107,44 @@ void writer_driver::send_create_file_requests()
 
 bool writer_driver::are_all_files_created()
 {
-  // TODO: proper implementation when listening part will be implemented
-  std::this_thread::sleep_for(300ms);
-  return true;
+  char buffer[512];
+  auto files_created = 0u;
+  for (auto& socket : receiver_sockets)
+    if (auto n_bytes = zmq_recv(socket, buffer, sizeof(buffer), 0); n_bytes > 0) files_created++;
+
+  return files_created == receiver_sockets.size();
 }
 
-void writer_driver::record_images()
+void writer_driver::record_images(std::size_t n_images)
 {
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;
   std::string cmd;
 
-  auto i = 0u;
-  for (auto ii = 0; ii < 160000;) {
+  for (auto i = 0u; i < n_images && manager->get_state() == driver_state::recording; i++) {
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
-      if (ii == 0) manager->change_state(driver_state::recording);
-      ii++;
+      if (i == 0) manager->change_state(driver_state::recording);
       meta.ParseFromArray(buffer, n_bytes);
       std_daq_protocol::WriterAction action;
       *action.mutable_record_image()->mutable_image_metadata() = meta;
       action.SerializeToString(&cmd);
-      zmq_send(sender_sockets[i], cmd.c_str(), cmd.size(), 0);
-      i = (i + 1) % sender_sockets.size();
+      zmq_send(sender_sockets[i % sender_sockets.size()], cmd.c_str(), cmd.size(), 0);
     }
   }
 }
 
 void writer_driver::send_save_file_requests()
 {
+  manager->change_state(driver_state::saving_file);
+
   std::string cmd;
+  // TODO: this should be checked state when all images are recorded
   std::this_thread::sleep_for(std::chrono::seconds(10));
   std_daq_protocol::WriterAction action;
   action.mutable_close_file();
   action.SerializeToString(&cmd);
-  for (auto ii = 0u; ii < sender_sockets.size(); ++ii)
-    zmq_send(sender_sockets[ii], cmd.c_str(), cmd.size(), 0);
-}
-
-bool writer_driver::are_all_files_saved()
-{
-  // TODO: proper implementation when listening part will be implemented
-  std::this_thread::sleep_for(300ms);
-  return true;
+  for (auto& socket : sender_sockets)
+    zmq_send(socket, cmd.c_str(), cmd.size(), 0);
 }
 
 } // namespace std_driver

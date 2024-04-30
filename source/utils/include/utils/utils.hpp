@@ -20,5 +20,6 @@
 #include "detector_config.hpp"
 #include "get_metadata_dtype.hpp"
 #include "image_size_calc.hpp"
+#include "image_id.hpp"
 
 #endif // STD_DETECTOR_BUFFER_UTILS_HPP

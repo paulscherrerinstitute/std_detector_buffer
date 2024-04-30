@@ -15,6 +15,7 @@ target_sources(${PROJECT_NAME}
         include/utils/detector_config.hpp
         include/utils/get_metadata_dtype.hpp
         include/utils/utils.hpp
+        include/utils/image_id.hpp
     PRIVATE
         src/image_size_calc.cpp
         src/detector_config.cpp

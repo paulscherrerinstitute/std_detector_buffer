@@ -14,16 +14,16 @@
 
 #include "core_buffer/formats.hpp"
 #include "detectors/common.hpp"
+#include "utils/image_id.hpp"
 
 class Synchronizer
 {
-  using image_id = uint64_t;
   using modules_mask = std::bitset<128>;
 
   const int n_modules;
   const size_t n_images_buffer;
   const modules_mask new_image_mask;
-  std::map<image_id, std::pair<modules_mask, CommonFrame>> cache;
+  std::map<utils::image_id, std::pair<modules_mask, CommonFrame>> cache;
   mutable std::mutex mutex_cache;
 
 public:
@@ -35,12 +35,12 @@ public:
 private:
   static modules_mask set_all(int n_modules);
   std::size_t push_new_image_to_queue(CommonFrame meta);
-  size_t update_module_mask_for_image(image_id id, size_t module_id);
-  modules_mask& get_modules_mask_for_image(image_id id);
-  uint32_t discard_stale_images(image_id id);
+  size_t update_module_mask_for_image(utils::image_id id, size_t module_id);
+  modules_mask& get_modules_mask_for_image(utils::image_id id);
+  uint32_t discard_stale_images(utils::image_id id);
   void drop_oldest_incomplete_image();
 
-  [[nodiscard]] bool is_new_image(image_id id) const;
+  [[nodiscard]] bool is_new_image(utils::image_id id) const;
   [[nodiscard]] bool is_queue_too_long() const;
 };
 

@@ -72,7 +72,8 @@ void socket_session::start_recording(const std::string& message)
     if (command == "start") {
       monitor_writer_state();
       listen_for_stop();
-      writer->start();
+      run_settings s;
+      writer->start(s);
     }
     else
       send_response("error", close_socket_handler,
