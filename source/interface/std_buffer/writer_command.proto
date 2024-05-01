@@ -16,11 +16,15 @@ message RecordImage {
 message CloseFile {
 }
 
+message ConfirmLastImageWritten {
+}
+
 message WriterAction {
   oneof action {
     CreateFileCommand create_file = 1;
     RecordImage record_image = 2;
     CloseFile close_file = 3;
+    ConfirmLastImageWritten confirm_last_image = 4;
   }
 }
 

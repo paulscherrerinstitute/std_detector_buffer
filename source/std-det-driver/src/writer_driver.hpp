@@ -9,6 +9,7 @@
 
 #include "utils/detector_config.hpp"
 #include "core_buffer/communicator.hpp"
+#include "std_buffer/writer_command.pb.h"
 
 #include "state_manager.hpp"
 
@@ -46,7 +47,9 @@ private:
   void* connect_to_socket(const std::string& stream_address);
   void send_create_file_requests(std::string_view base_path, writer_id id);
   void record_images(std::size_t n_images);
+  void send_command_to_all_writers(const std_daq_protocol::WriterAction& action);
   void send_save_file_requests();
+  bool did_all_writers_record_data();
   bool did_all_writers_acknowledge();
 };
 

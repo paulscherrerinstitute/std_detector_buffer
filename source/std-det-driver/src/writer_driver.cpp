@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <ranges>
 #include <thread>
-#include <chrono>
 #include <utility>
 
 #include <zmq.h>
@@ -46,7 +45,7 @@ void writer_driver::start(const run_settings& settings)
     if (self->did_all_writers_acknowledge()) {
       self->manager->change_state(driver_state::waiting_for_first_image);
       self->record_images(settings.n_images);
-      self->send_save_file_requests();
+      if (self->did_all_writers_record_data()) self->send_save_file_requests();
     }
     else
       self->manager->change_state(driver_state::error);
@@ -79,7 +78,7 @@ void* writer_driver::connect_to_socket(const std::string& stream_address)
   if (zmq_setsockopt(socket, ZMQ_RCVHWM, &rcvhwm, sizeof(rcvhwm)) != 0)
     throw std::runtime_error(zmq_strerror(errno));
 
-  const int timeout = 1000;
+  const int timeout = 5000;
   if (zmq_setsockopt(socket, ZMQ_RCVTIMEO, &timeout, sizeof(timeout)) != 0)
     throw std::runtime_error(zmq_strerror(errno));
 
@@ -139,20 +138,33 @@ void writer_driver::send_save_file_requests()
 {
   manager->change_state(driver_state::saving_file);
 
-  std::string cmd;
-  // TODO: this should be checked state when all images are recorded
-  std::this_thread::sleep_for(std::chrono::seconds(10));
   std_daq_protocol::WriterAction action;
   action.mutable_close_file();
-  action.SerializeToString(&cmd);
-
-  for (auto& socket : sender_sockets)
-    zmq_send(socket, cmd.c_str(), cmd.size(), 0);
+  send_command_to_all_writers(action);
 
   if (did_all_writers_acknowledge())
     manager->change_state(driver_state::file_saved);
   else
     manager->change_state(driver_state::error);
+}
+
+bool writer_driver::did_all_writers_record_data()
+{
+  std_daq_protocol::WriterAction action;
+  action.mutable_confirm_last_image();
+  send_command_to_all_writers(action);
+
+  // the timeout is 5 seconds - after that we assume the write failed
+  return did_all_writers_acknowledge();
+}
+
+void writer_driver::send_command_to_all_writers(const std_daq_protocol::WriterAction& action)
+{
+  std::string cmd;
+  action.SerializeToString(&cmd);
+
+  for (auto& socket : sender_sockets)
+    zmq_send(socket, cmd.c_str(), cmd.size(), 0);
 }
 
 } // namespace std_driver
