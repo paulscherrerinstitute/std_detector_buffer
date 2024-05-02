@@ -12,6 +12,9 @@ target_sources(${PROJECT_NAME}
     PRIVATE
         src/driver_state.hpp
         src/main.cpp
+        src/process_api_message.hpp
+        src/process_api_message.cpp
+        src/run_settings.hpp
         src/state_manager.hpp
         src/writer_driver.hpp
         src/writer_driver.cpp

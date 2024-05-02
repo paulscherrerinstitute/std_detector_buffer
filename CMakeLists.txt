@@ -10,7 +10,7 @@ project(std_detector_buffer
 )
 
 include(sdb_settings)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
 include(sdb_conan)
 conan_config_install(ITEM ${CMAKE_HOME_DIRECTORY}/conan/settings.yml)

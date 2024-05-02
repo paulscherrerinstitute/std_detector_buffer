@@ -9,6 +9,8 @@
 #include <fmt/core.h>
 #include <spdlog/spdlog.h>
 
+#include "process_api_message.hpp"
+
 using json = nlohmann::json;
 
 namespace std_driver {
@@ -65,23 +67,16 @@ void socket_session::process_request()
 
 void socket_session::start_recording(const std::string& message)
 {
-  manager->change_state(driver_state::started);
-  try {
-    json j = json::parse(message);
-    std::string command = j.value("command", "");
-    if (command == "start") {
-      monitor_writer_state();
-      listen_for_stop();
-      run_settings s;
-      writer->start(s);
-    }
-    else
-      send_response("error", close_socket_handler,
-                    fmt::format("Invalid command! expected: start, received: {}", command));
+  if (auto settings = parse_command(message).transform(process_start_request); settings.has_value())
+  {
+    monitor_writer_state();
+    listen_for_stop();
+    writer->start(settings->value());
   }
-  catch (const json::exception& e) {
-    send_response("error", close_socket_handler, e.what());
-  }
+  else
+    send_response(
+        "error", close_socket_handler,
+        fmt::format("Invalid command! expected: start with path parameter, received: {}", message));
 }
 
 void socket_session::monitor_writer_state()

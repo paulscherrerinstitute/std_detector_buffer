@@ -12,17 +12,9 @@
 #include "std_buffer/writer_command.pb.h"
 
 #include "state_manager.hpp"
+#include "run_settings.hpp"
 
 namespace std_driver {
-
-using writer_id = int32_t;
-
-struct run_settings
-{
-  std::string path;
-  std::size_t n_images;
-  writer_id writer;
-};
 
 class writer_driver : public std::enable_shared_from_this<writer_driver>
 {
