@@ -70,6 +70,7 @@ int main(int argc, char* argv[])
   auto driver =
       std::make_shared<std_driver::writer_driver>(sm, source_name, config, number_of_writers);
 
+  driver->init();
   do_accept(acceptor, sm, driver);
   ioc.run();
 

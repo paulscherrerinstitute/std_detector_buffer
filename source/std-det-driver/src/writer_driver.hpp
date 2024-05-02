@@ -10,6 +10,7 @@
 #include "utils/detector_config.hpp"
 #include "core_buffer/communicator.hpp"
 #include "std_buffer/writer_command.pb.h"
+#include "utils/stats/timed_stats_collector.hpp"
 
 #include "state_manager.hpp"
 #include "run_settings.hpp"
@@ -24,6 +25,7 @@ class writer_driver : public std::enable_shared_from_this<writer_driver>
   std::vector<void*> sender_sockets;
   std::vector<void*> receiver_sockets;
   std::atomic<driver_state> state{driver_state::idle};
+  utils::stats::TimedStatsCollector stats;
   mutable std::mutex mutex;
   mutable std::condition_variable cv;
 
@@ -32,6 +34,7 @@ public:
                          const std::string& source_name,
                          utils::DetectorConfig config,
                          std::size_t number_of_writers);
+  void init();
   void start(const run_settings& settings);
 
 private:

@@ -25,6 +25,7 @@ writer_driver::writer_driver(std::shared_ptr<std_driver::state_manager> sm,
     , zmq_ctx(zmq_ctx_new())
     , receiver(cb::Communicator{{source_name, 512, buffer_config::RAM_BUFFER_N_SLOTS},
                                 {source_name, zmq_ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}})
+    , stats(config.detector_name, config.stats_collection_period)
 {
   static constexpr auto zmq_io_threads = 4;
   zmq_ctx_set(zmq_ctx, ZMQ_IO_THREADS, zmq_io_threads);
@@ -35,6 +36,15 @@ writer_driver::writer_driver(std::shared_ptr<std_driver::state_manager> sm,
     receiver_sockets.push_back(
         connect_to_socket(fmt::format("{}-writer-{}", config.detector_name, i)));
   });
+}
+
+void writer_driver::init()
+{
+  auto self = shared_from_this();
+  std::thread([self]() {
+    self->stats.print_stats();
+    std::this_thread::sleep_for(std::chrono::seconds(10));
+  }).detach();
 }
 
 void writer_driver::start(const run_settings& settings)
@@ -124,6 +134,7 @@ void writer_driver::record_images(std::size_t n_images)
 
   for (auto i = 0u; i < n_images && manager->get_state() == driver_state::recording; i++) {
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
+      stats.process();
       if (i == 0) manager->change_state(driver_state::recording);
       meta.ParseFromArray(buffer, n_bytes);
       std_daq_protocol::WriterAction action;
