@@ -10,7 +10,7 @@ target_sources(${PROJECT_NAME}
     PUBLIC
         std_buffer/buffered_metadata.proto
         std_buffer/image_metadata.proto
-        std_buffer/writer_command.proto
+        std_buffer/writer_action.proto
 )
 
 protobuf_generate(

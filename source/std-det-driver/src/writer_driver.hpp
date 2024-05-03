@@ -9,7 +9,7 @@
 
 #include "utils/detector_config.hpp"
 #include "core_buffer/communicator.hpp"
-#include "std_buffer/writer_command.pb.h"
+#include "std_buffer/writer_action.pb.h"
 #include "utils/stats/timed_stats_collector.hpp"
 
 #include "state_manager.hpp"

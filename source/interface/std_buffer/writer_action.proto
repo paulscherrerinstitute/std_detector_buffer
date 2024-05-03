@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+import "std_buffer/image_metadata.proto";
+
+package std_daq_protocol;
+
+message CreateFileCommand {
+  string path = 1;
+  int32 writer_id = 2;
+}
+
+message RecordImage {
+  ImageMetadata image_metadata = 1;
+}
+
+message CloseFile {
+}
+
+message ConfirmLastImageWritten {
+}
+
+message WriterAction {
+  oneof action {
+    CreateFileCommand create_file = 1;
+    RecordImage record_image = 2;
+    CloseFile close_file = 3;
+    ConfirmLastImageWritten confirm_last_image = 4;
+  }
+}

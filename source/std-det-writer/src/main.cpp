@@ -10,7 +10,7 @@
 #include "utils/utils.hpp"
 #include "core_buffer/communicator.hpp"
 #include "core_buffer/ram_buffer.hpp"
-#include "std_buffer/writer_command.pb.h"
+#include "std_buffer/writer_action.pb.h"
 #include "writer_stats_collector.hpp"
 #include "hdf5_file.hpp"
 

@@ -11,8 +11,6 @@
 
 #include <zmq.h>
 
-#include "std_buffer/writer_command.pb.h"
-
 using namespace std::chrono_literals;
 
 namespace std_driver {
