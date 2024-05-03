@@ -48,7 +48,7 @@ private:
       return {};
   }
 
-  std::string_view detector_name;
+  std::string detector_name;
   std::chrono::seconds period;
   time_point last_update_time{std::chrono::steady_clock::now()};
 };

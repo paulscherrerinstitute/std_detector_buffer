@@ -21,9 +21,9 @@ class writer_driver : public std::enable_shared_from_this<writer_driver>
 {
   std::shared_ptr<std_driver::state_manager> manager;
   void* zmq_ctx;
-  cb::Communicator receiver;
-  std::vector<void*> sender_sockets;
-  std::vector<void*> receiver_sockets;
+  void* sync_receive_socket;
+  std::vector<void*> writer_send_sockets;
+  std::vector<void*> writer_receive_sockets;
   std::atomic<driver_state> state{driver_state::idle};
   utils::stats::TimedStatsCollector stats;
   mutable std::mutex mutex;
@@ -40,6 +40,7 @@ public:
 private:
   void* bind_sender_socket(const std::string& stream_address);
   void* connect_to_socket(const std::string& stream_address);
+  void* prepare_sync_receiver_socket(const std::string& source_name);
   void send_create_file_requests(std::string_view base_path, writer_id id);
   void record_images(std::size_t n_images);
   void send_command_to_all_writers(const std_daq_protocol::WriterAction& action);
