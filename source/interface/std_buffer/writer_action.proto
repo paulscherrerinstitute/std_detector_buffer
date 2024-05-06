@@ -27,3 +27,13 @@ message WriterAction {
     ConfirmLastImageWritten confirm_last_image = 4;
   }
 }
+
+enum ResponseCode {
+  UNKNOWN = 0;
+  SUCCESS = 1;
+  FAILURE = 2;
+}
+
+message WriterResponse {
+  ResponseCode code = 1;
+}

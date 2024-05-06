@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(std_det_writer3)
+project(std_det_writer)
 
 find_package(fmt REQUIRED)
 find_package(spdlog REQUIRED)

@@ -16,42 +16,6 @@
 
 using namespace std;
 
-void* create_socket(void* ctx, const std::string& ipc_address, const int zmq_socket_type)
-{
-
-  void* socket = zmq_socket(ctx, zmq_socket_type);
-  if (socket == nullptr)
-    throw runtime_error(std::string("Cannot create socket: ") + zmq_strerror(errno));
-
-  if (zmq_socket_type == ZMQ_SUB && zmq_setsockopt(socket, ZMQ_SUBSCRIBE, "", 0) != 0)
-    throw runtime_error(std::string("Cannot subscribe socket: ") + zmq_strerror(errno));
-
-  // SUB and PULL sockets are used for receiving, the rest for sending.
-  if (zmq_socket_type == ZMQ_SUB || zmq_socket_type == ZMQ_PULL) {
-    int rcvhwm = 0;
-    if (zmq_setsockopt(socket, ZMQ_RCVHWM, &rcvhwm, sizeof(rcvhwm)) != 0)
-      throw runtime_error(std::string("Cannot set RCVHWM: ") + zmq_strerror(errno));
-
-    const int timeout = 1000;
-    if (zmq_setsockopt(socket, ZMQ_RCVTIMEO, &timeout, sizeof(timeout)) != 0)
-      throw runtime_error(std::string("Cannot set timeout: ") + zmq_strerror(errno));
-  }
-  else {
-    const int sndhwm = 10000;
-    if (zmq_setsockopt(socket, ZMQ_SNDHWM, &sndhwm, sizeof(sndhwm)) != 0)
-      throw runtime_error(std::string("Cannot set SNDHWM:") + zmq_strerror(errno));
-  }
-
-  const int linger = 0;
-  if (zmq_setsockopt(socket, ZMQ_LINGER, &linger, sizeof(linger)) != 0)
-    throw runtime_error(std::string("Cannot set linger: ") + zmq_strerror(errno));
-
-  const auto ipc = buffer_config::IPC_URL_BASE + ipc_address;
-  if (zmq_connect(socket, ipc.c_str()) != 0) throw runtime_error(zmq_strerror(errno));
-
-  return socket;
-}
-
 int main(int argc, char* argv[])
 {
   const std::string program_name{"std_det_writer"};
@@ -76,31 +40,44 @@ int main(int argc, char* argv[])
   const auto buffer_name = fmt::format("{}-{}", config.detector_name, suffix);
   const auto source_name =
       fmt::format("{}-driver-{}", config.detector_name, program->get<uint16_t>("writer_id"));
+  const auto sink_name =
+      fmt::format("{}-writer-{}", config.detector_name, program->get<uint16_t>("writer_id"));
 
   auto ctx = zmq_ctx_new();
   auto receiver = cb::Communicator{{buffer_name, image_n_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
                                    {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_PULL}};
 
+  auto sender = buffer_utils::bind_socket(ctx, sink_name, ZMQ_PUSH);
+
   char buffer[512];
-  std_daq_protocol::WriterAction msg;
+  std_daq_protocol::WriterAction action;
+  std_daq_protocol::WriterResponse response;
+  response.set_code(std_daq_protocol::ResponseCode::SUCCESS);
+  std::string send_msg;
+  response.SerializeToString(&send_msg);
 
   while (true) {
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
-      msg.ParseFromArray(buffer, n_bytes);
+      action.ParseFromArray(buffer, n_bytes);
 
-      if (msg.has_create_file()) {
-        const auto& create_file = msg.create_file();
+      if (action.has_create_file()) {
+        const auto& create_file = action.create_file();
         file = std::make_unique<HDF5File>(config, create_file.path(), suffix);
+        zmq_send(sender, send_msg.c_str(), send_msg.size(), 0);
       }
-      else if (msg.has_record_image()) {
-        const auto& record_image = msg.record_image();
+      else if (action.has_record_image()) {
+        const auto& record_image = action.record_image();
         auto image_data = receiver.get_data(record_image.image_metadata().image_id());
         stats.start_image_write();
         file->write(record_image.image_metadata(), image_data);
         stats.end_image_write();
       }
-      else if(msg.has_close_file())
+      else if (action.has_close_file()) {
         file.reset();
+        zmq_send(sender, send_msg.c_str(), send_msg.size(), 0);
+      }
+      else if (action.has_confirm_last_image())
+        zmq_send(sender, send_msg.c_str(), send_msg.size(), 0);
     }
     stats.print_stats();
   }
