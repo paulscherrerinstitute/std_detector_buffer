@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
 
   std::unique_ptr<HDF5File> file;
   WriterStatsCollector stats(config.detector_name, suffix, config.stats_collection_period,
-                             image_n_bytes);
+                             image_n_bytes, program->get<uint16_t>("writer_id"));
 
   const auto buffer_name = fmt::format("{}-{}", config.detector_name, suffix);
   const auto source_name =

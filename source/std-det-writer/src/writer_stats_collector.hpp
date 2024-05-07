@@ -17,9 +17,12 @@ public:
   explicit WriterStatsCollector(std::string_view detector_name,
                                 std::string source_suffix,
                                 std::chrono::seconds period,
-                                std::size_t image_bytes)
+                                std::size_t image_bytes,
+                                std::size_t id)
       : utils::stats::StatsCollector<WriterStatsCollector>(detector_name, period)
-      , image_n_bytes(image_bytes), source(std::move(source_suffix))
+      , image_n_bytes(image_bytes)
+      , source(std::move(source_suffix))
+      , writer_id(id)
   {}
 
   [[nodiscard]] std::string additional_message()
@@ -27,9 +30,11 @@ public:
     using namespace std::chrono_literals;
     const auto [avg_buffer_write, avg_throughput] = calculate_averages();
 
-    auto outcome = fmt::format(
-        "source={},n_written_images={},avg_buffer_write_us={},max_buffer_write_us={},avg_throughput={:.2f}",
-        source, image_counter, avg_buffer_write, max_buffer_write.count(), avg_throughput);
+    auto outcome =
+        fmt::format("source={},id={},n_written_images={},avg_buffer_write_us={},max_buffer_"
+                    "write_us={},avg_throughput={:.2f}",
+                    source, writer_id, image_counter, avg_buffer_write, max_buffer_write.count(),
+                    avg_throughput);
 
     image_counter = 0;
     total_bytes = 0;
@@ -59,7 +64,8 @@ private:
     using namespace std::chrono;
     if (image_counter > 0) {
       const auto avg_buffer_write = total_buffer_write / image_counter;
-      const auto avg_throughput = (double) total_bytes / total_buffer_write.count() * 1000000 / 1024 / 1024;
+      const auto avg_throughput =
+          (double)total_bytes / total_buffer_write.count() * 1000000 / 1024 / 1024;
       return {avg_buffer_write.count(), avg_throughput};
     }
     else
@@ -73,6 +79,7 @@ private:
   std::chrono::nanoseconds max_buffer_write{};
   time_point writing_start;
   std::string source;
+  std::size_t writer_id;
 };
 
 #endif // STD_DETECTOR_BUFFER_WRITER_STATS_COLLECTOR_HPP
