@@ -20,13 +20,14 @@ using namespace std;
 
 namespace {
 
+template<typename FrameType>
 void process_received_modules(const utils::DetectorConfig& config,
                               void* ctx,
-                              std::shared_ptr<Synchronizer<CommonFrame>> syncer)
+                              std::shared_ptr<Synchronizer<FrameType>> syncer)
 {
   utils::stats::SyncStatsCollector stats(config.detector_name, config.stats_collection_period);
   char meta_buffer_recv[DET_FRAME_STRUCT_BYTES];
-  auto* common_frame = (CommonFrame*)(&meta_buffer_recv);
+  auto* common_frame = (FrameType*)(&meta_buffer_recv);
 
   auto receiver = buffer_utils::bind_socket(ctx, config.detector_name + "-sync", ZMQ_PULL);
 
@@ -86,6 +87,6 @@ int main(int argc, char* argv[])
   auto syncer = std::make_shared<Synchronizer<CommonFrame>>(config.n_modules, config.module_sync_queue_size,
                                                utils::get_modules_mask(config));
 
-  std::jthread processing_metadata_thread(process_received_modules, config, ctx, syncer);
+  std::jthread processing_metadata_thread(process_received_modules<CommonFrame>, config, ctx, syncer);
   std::jthread sending_synchronized_images_thread(send_synchronized_images, config, ctx, syncer);
 }
