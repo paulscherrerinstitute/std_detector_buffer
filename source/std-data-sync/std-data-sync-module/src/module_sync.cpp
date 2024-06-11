@@ -5,7 +5,7 @@
 #include <string>
 #include <thread>
 #include <memory>
-#include <chrono>
+#include <optional>
 
 #include <zmq.h>
 
@@ -54,9 +54,9 @@ void send_synchronized_images(const utils::DetectorConfig& config,
   auto sender = buffer_utils::bind_socket(ctx, config.detector_name + "-image", ZMQ_PUB);
 
   while (true) {
-    if (auto m = syncer->pop_next_full_image(); m.image_id != INVALID_IMAGE_ID) {
-      image_meta.set_image_id(m.image_id);
-      if (m.n_missing_packets == 0)
+    if (auto meta = syncer->pop_next_full_image(); meta) {
+      image_meta.set_image_id(meta->image_id);
+      if (meta->n_missing_packets == 0)
         image_meta.set_status(std_daq_protocol::ImageMetadataStatus::good_image);
       else
         image_meta.set_status(std_daq_protocol::ImageMetadataStatus::missing_packets);

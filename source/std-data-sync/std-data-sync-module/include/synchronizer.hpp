@@ -46,17 +46,16 @@ public:
       return update_module_mask_for_image(meta.image_id, meta.module_id);
   }
 
-  FrameType pop_next_full_image()
+  std::optional<FrameType> pop_next_full_image()
   {
     std::lock_guard<std::mutex> lock(mutex_cache);
-    if (cache.empty()) return FrameType{INVALID_IMAGE_ID, 0, 0};
+    if (cache.empty()) return std::nullopt;
     if (auto data = cache.begin()->second; data.first == 0) {
       cache.erase(cache.begin());
       return data.second;
     }
-    return CommonFrame{INVALID_IMAGE_ID, 0, 0};
+    return std::nullopt;
   }
-
 
 private:
   static modules_mask set_all(int n_modules)
@@ -103,11 +102,7 @@ private:
     return cache.find(id) == cache.end();
   }
 
-  [[nodiscard]] bool is_queue_too_long() const
-  {
-    return cache.size() > n_images_buffer;
-  }
-
+  [[nodiscard]] bool is_queue_too_long() const { return cache.size() > n_images_buffer; }
 };
 
 #endif // STD_DETECTOR_BUFFER_SYNCHRONIZER_HPP
