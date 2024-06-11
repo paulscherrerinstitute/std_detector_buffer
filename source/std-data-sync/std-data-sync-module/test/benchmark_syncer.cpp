@@ -3,6 +3,7 @@
 /////////////////////////////////////////////////////////////////////
 
 #include "synchronizer.hpp"
+#include "detectors/common.hpp"
 
 #include <benchmark/benchmark.h>
 
@@ -12,7 +13,7 @@ const int n_modules = 8;
 const int sync_n_images_buffer = 10000;
 const int tested_frequency = 2000;
 
-int correct_stream_sync(Synchronizer& syncer)
+int correct_stream_sync(Synchronizer<CommonFrame>& syncer)
 {
   CommonFrame meta{};
 
@@ -30,14 +31,14 @@ int correct_stream_sync(Synchronizer& syncer)
 
 void GF_sync_normal(benchmark::State& state)
 {
-  Synchronizer syncer(n_modules, sync_n_images_buffer);
+  Synchronizer<CommonFrame> syncer(n_modules, sync_n_images_buffer);
 
   for (auto _ : state) {
     benchmark::DoNotOptimize(correct_stream_sync(syncer));
   }
 }
 
-int missing_stream_sync(Synchronizer& syncer)
+int missing_stream_sync(Synchronizer<CommonFrame>& syncer)
 {
   CommonFrame meta{};
 
@@ -60,7 +61,7 @@ int missing_stream_sync(Synchronizer& syncer)
 
 void GF_sync_missing(benchmark::State& state)
 {
-  Synchronizer syncer(n_modules, sync_n_images_buffer);
+  Synchronizer<CommonFrame> syncer(n_modules, sync_n_images_buffer);
 
   for (auto _ : state) {
     benchmark::DoNotOptimize(missing_stream_sync(syncer));

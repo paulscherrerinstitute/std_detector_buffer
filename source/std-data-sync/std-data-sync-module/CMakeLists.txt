@@ -11,8 +11,6 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME}_lib ALIAS ${PROJECT_NAME}_lib)
 target_sources(${PROJECT_NAME}_lib
     PUBLIC
         include/synchronizer.hpp
-    PRIVATE
-        src/synchronizer.cpp
 )
 
 target_include_directories(${PROJECT_NAME}_lib PUBLIC include)

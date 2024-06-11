@@ -9,7 +9,7 @@ struct SynchronizerWithoutModuleMapTest : public ::testing::Test
 {
   static const auto modules = 2u;
   static const auto queue_size = 3u;
-  Synchronizer sync{modules, queue_size};
+  Synchronizer<CommonFrame> sync{modules, queue_size};
 };
 
 TEST_F(SynchronizerWithoutModuleMapTest, ShouldSyncImageWhenAllModulesAreReceived)
@@ -60,7 +60,7 @@ struct SynchronizerWithModuleMapTest : public ::testing::Test
 {
   static const auto modules = 8u;
   static const auto queue_size = 3u;
-  Synchronizer sync{modules, queue_size, std::bitset<128>("101101")};
+  Synchronizer<CommonFrame> sync{modules, queue_size, std::bitset<128>("101101")};
 };
 
 TEST_F(SynchronizerWithModuleMapTest, ShouldSyncImageWhenAllModulesAreReceived)

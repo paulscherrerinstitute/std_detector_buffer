@@ -22,7 +22,7 @@ namespace {
 
 void process_received_modules(const utils::DetectorConfig& config,
                               void* ctx,
-                              std::shared_ptr<Synchronizer> syncer)
+                              std::shared_ptr<Synchronizer<CommonFrame>> syncer)
 {
   utils::stats::SyncStatsCollector stats(config.detector_name, config.stats_collection_period);
   char meta_buffer_recv[DET_FRAME_STRUCT_BYTES];
@@ -41,7 +41,7 @@ void process_received_modules(const utils::DetectorConfig& config,
 
 void send_synchronized_images(const utils::DetectorConfig& config,
                               void* ctx,
-                              std::shared_ptr<Synchronizer> syncer)
+                              std::shared_ptr<Synchronizer<CommonFrame>> syncer)
 {
   using namespace std::chrono_literals;
   std_daq_protocol::ImageMetadata image_meta;
@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, 4);
 
-  auto syncer = std::make_shared<Synchronizer>(config.n_modules, config.module_sync_queue_size,
+  auto syncer = std::make_shared<Synchronizer<CommonFrame>>(config.n_modules, config.module_sync_queue_size,
                                                utils::get_modules_mask(config));
 
   std::jthread processing_metadata_thread(process_received_modules, config, ctx, syncer);
