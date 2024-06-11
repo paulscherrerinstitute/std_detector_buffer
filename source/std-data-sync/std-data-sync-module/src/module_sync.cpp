@@ -40,9 +40,10 @@ void process_received_modules(const utils::DetectorConfig& config,
   }
 }
 
+template<typename FrameType>
 void send_synchronized_images(const utils::DetectorConfig& config,
                               void* ctx,
-                              std::shared_ptr<Synchronizer<CommonFrame>> syncer)
+                              std::shared_ptr<Synchronizer<FrameType>> syncer)
 {
   using namespace std::chrono_literals;
   std_daq_protocol::ImageMetadata image_meta;
@@ -88,5 +89,5 @@ int main(int argc, char* argv[])
                                                utils::get_modules_mask(config));
 
   std::jthread processing_metadata_thread(process_received_modules<CommonFrame>, config, ctx, syncer);
-  std::jthread sending_synchronized_images_thread(send_synchronized_images, config, ctx, syncer);
+  std::jthread sending_synchronized_images_thread(send_synchronized_images<CommonFrame>, config, ctx, syncer);
 }
