@@ -2,8 +2,11 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#include <gtest/gtest.h>
 #include "synchronizer.hpp"
+
+#include <gtest/gtest.h>
+#include "detectors/common.hpp"
+
 
 struct SynchronizerWithoutModuleMapTest : public ::testing::Test
 {

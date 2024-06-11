@@ -15,7 +15,6 @@
 #include <ranges>
 
 #include "core_buffer/formats.hpp"
-#include "detectors/common.hpp"
 #include "utils/image_id.hpp"
 
 template <typename FrameType> class Synchronizer
