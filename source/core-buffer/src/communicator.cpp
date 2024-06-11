@@ -31,7 +31,7 @@ void Communicator::send(uint64_t id, std::span<const char> meta, char* data, int
   zmq_send(socket, meta.data(), meta.size(), flags);
 }
 
-char* Communicator::get_data(uint64_t id)
+char* Communicator::get_data(uint64_t id) 
 {
   return buffer.get_data(id);
 }

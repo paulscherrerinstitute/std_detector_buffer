@@ -13,6 +13,7 @@
 #include "detectors/jungfrau.hpp"
 
 using namespace std;
+using namespace jf;
 
 TEST(PacketUdpReceiver, receive_many)
 {

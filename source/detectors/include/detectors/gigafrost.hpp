@@ -10,6 +10,8 @@
 #include <cmath>
 #include "common.hpp"
 
+namespace gf {
+
 constexpr inline auto PACKET_N_DATA_BYTES_MAX = 7400u;
 // 32 bytes header + 7400 max payload
 constexpr inline auto BYTES_PER_PACKET = PACKET_N_DATA_BYTES_MAX + 32u;
@@ -74,8 +76,6 @@ struct GFFrame
 
 static_assert(sizeof(GFUdpPacket) == BYTES_PER_PACKET);
 static_assert(sizeof(GFFrame) == DET_FRAME_STRUCT_BYTES);
-
-namespace gf {
 
 enum class quadrant_id : std::size_t
 {

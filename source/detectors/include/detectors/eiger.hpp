@@ -10,24 +10,24 @@
 
 #include "common.hpp"
 
-#define IS_BOTTOM(n) ((n % 2 != 0) ? -1 : 1)
+namespace eg {
 
 const std::string DETECTOR_TYPE = "eiger";
 
-#define N_MODULES 1
-#define BYTES_PER_PACKET 4144
-#define DATA_BYTES_PER_PACKET 4096
+constexpr inline auto N_MODULES = 1u;
+constexpr inline auto BYTES_PER_PACKET = 4144u;
+constexpr inline auto DATA_BYTES_PER_PACKET = 4096u;
 
-#define MODULE_X_SIZE 512
-#define MODULE_Y_SIZE 256
-#define MODULE_N_PIXELS 131072
-#define PIXEL_N_BYTES 2
-#define GAP_X_MODULE_PIXELS 2
-#define GAP_Y_MODULE_PIXELS 2
-#define GAP_X_EIGERMOD_PIXELS 8
-#define GAP_Y_EIGERMOD_PIXELS 36
-#define EXTEND_X_PIXELS 3
-#define EXTEND_Y_PIXELS 1
+constexpr inline auto MODULE_X_SIZE = 512u;
+constexpr inline auto MODULE_Y_SIZE = 256u;
+constexpr inline auto MODULE_N_PIXELS = 131072u;
+constexpr inline auto PIXEL_N_BYTES = 2u;
+constexpr inline auto GAP_X_MODULE_PIXELS = 2u;
+constexpr inline auto GAP_Y_MODULE_PIXELS = 2u;
+constexpr inline auto GAP_X_EIGERMOD_PIXELS = 8u;
+constexpr inline auto GAP_Y_EIGERMOD_PIXELS = 36u;
+constexpr inline auto EXTEND_X_PIXELS = 3u;
+constexpr inline auto EXTEND_Y_PIXELS = 1u;
 
 #pragma pack(push)
 #pragma pack(1)
@@ -76,5 +76,7 @@ struct EGUdpPacket
 // Test correctness of structure size
 static_assert(sizeof(EGUdpPacket) == BYTES_PER_PACKET);
 static_assert(sizeof(EGFrame) == DET_FRAME_STRUCT_BYTES);
+
+} // namespace eg
 
 #endif // STD_DETECTOR_BUFFER_EIGER_HPP

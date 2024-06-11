@@ -21,6 +21,7 @@
 using namespace std;
 using namespace chrono;
 using namespace buffer_config;
+using namespace eg;
 
 // Initialize new frame metadata from first seen packet.
 inline void init_frame_metadata(const uint16_t module_id,

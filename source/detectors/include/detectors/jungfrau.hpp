@@ -9,6 +9,8 @@
 #include <string_view>
 #include "common.hpp"
 
+namespace jf {
+
 constexpr inline auto BYTES_PER_PACKET = 8240u;
 constexpr inline auto DATA_BYTES_PER_PACKET = 8192u;
 
@@ -64,5 +66,7 @@ struct JFUdpPacket
 // Test correctness of structure size
 static_assert(sizeof(JFUdpPacket) == BYTES_PER_PACKET);
 static_assert(sizeof(JFFrame) == DET_FRAME_STRUCT_BYTES);
+
+} // namespace jf
 
 #endif // STD_DETECTOR_BUFFER_JUNGFRAU_HPP

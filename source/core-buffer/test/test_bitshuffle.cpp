@@ -12,6 +12,7 @@
 
 using namespace std;
 using namespace buffer_config;
+using namespace jf;
 
 TEST(Bitshuffle, SimpleCompression)
 {

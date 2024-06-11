@@ -13,6 +13,7 @@
 #include "converter.hpp"
 
 using namespace buffer_config;
+using namespace eg;
 
 namespace {
 std::tuple<utils::DetectorConfig, uint16_t> read_arguments(int argc, char* argv[])

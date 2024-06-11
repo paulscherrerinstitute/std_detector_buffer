@@ -18,6 +18,7 @@
 using namespace std;
 using namespace chrono;
 using namespace buffer_config;
+using namespace jf;
 
 int main(int argc, char* argv[])
 {

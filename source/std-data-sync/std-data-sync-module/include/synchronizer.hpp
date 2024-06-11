@@ -11,14 +11,19 @@
 #include <map>
 #include <bitset>
 #include <mutex>
+#include <variant>
 
 #include "core_buffer/formats.hpp"
 #include "detectors/common.hpp"
+#include "detectors/gigafrost.hpp"
+#include "detectors/eiger.hpp"
+#include "detectors/jungfrau.hpp"
 #include "utils/image_id.hpp"
 
 class Synchronizer
 {
   using modules_mask = std::bitset<128>;
+  using frame_variant = std::variant<jf::JFFrame, gf::GFFrame, eg::EGFrame>;
 
   const int n_modules;
   const size_t n_images_buffer;

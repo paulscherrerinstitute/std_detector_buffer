@@ -11,6 +11,7 @@
 #include "detectors/jungfrau.hpp"
 
 using namespace buffer_config;
+using namespace jf;
 
 TEST(RamBuffer, SimpleStoreSingleFrame)
 {

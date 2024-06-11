@@ -13,6 +13,7 @@
 #include "read_gains_and_pedestals.hpp"
 
 using namespace std::string_literals;
+using namespace jf;
 
 auto read_arguments(int argc, char* argv[])
 {

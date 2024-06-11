@@ -10,6 +10,7 @@
 #include "detectors/jungfrau.hpp"
 
 using namespace ranges;
+using namespace jf;
 
 namespace {
 constexpr std::size_t data_elements = MODULE_X_SIZE * MODULE_Y_SIZE;
