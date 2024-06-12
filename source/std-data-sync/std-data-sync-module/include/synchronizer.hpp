@@ -39,10 +39,10 @@ public:
   std::size_t process_image_metadata(FrameType meta)
   {
     std::lock_guard<std::mutex> lock(mutex_cache);
-    if (is_new_image(meta.image_id))
+    if (is_new_image(meta.common.image_id))
       return push_new_image_to_queue(meta);
     else
-      return update_module_mask_for_image(meta.image_id, meta.module_id);
+      return update_module_mask_for_image(meta.common.image_id, meta.common.module_id);
   }
 
   std::optional<FrameType> pop_next_full_image()
@@ -70,8 +70,8 @@ private:
     if (is_queue_too_long()) cache.erase(cache.begin());
     // Initialize the module mask to 1 for n_modules the least significant bits.
     auto mask = new_image_mask;
-    mask.reset(meta.module_id % n_modules);
-    cache.emplace(meta.image_id, std::make_pair(mask, meta));
+    mask.reset(meta.common.module_id % n_modules);
+    cache.emplace(meta.common.image_id, std::make_pair(mask, meta));
     return is_queue_too_long();
   }
 

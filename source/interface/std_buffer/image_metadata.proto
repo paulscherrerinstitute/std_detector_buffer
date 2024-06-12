@@ -9,6 +9,7 @@ message GFImageMetadata {
   uint32 sync_time=3;
   uint64 frame_timestamp=4;
   uint64 exposure_time=5;
+  bool store_image=6;
 }
 
 message JFImageMetadata {
