@@ -15,19 +15,18 @@ class LiveStreamStatsCollector : public utils::stats::TimedStatsCollector
 
 public:
   explicit LiveStreamStatsCollector(const arguments& args)
-      : TimedStatsCollector(args.config.detector_name, args.config.stats_collection_period)
+      : TimedStatsCollector(
+            args.config.detector_name, args.config.stats_collection_period, args.source_suffix)
       , stype(args.type == ls::stream_type::array10 ? "array10" : "bsread")
-      , suffix(args.source_suffix)
   {}
 
   [[nodiscard]] std::string additional_message() override
   {
-    return fmt::format("source={},type={},{}", suffix, stype, Parent::additional_message());
+    return fmt::format("type={},{}", stype, Parent::additional_message());
   }
 
 private:
   std::string stype;
-  std::string suffix;
 };
 } // namespace ls
 #endif // STD_DETECTOR_BUFFER_LIVE_STREAM_STATS_COLLECTOR_HPP

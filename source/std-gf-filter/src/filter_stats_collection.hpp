@@ -12,8 +12,10 @@ class FilterStatsCollector : public utils::stats::TimedStatsCollector
   using Parent = utils::stats::TimedStatsCollector;
 
 public:
-  explicit FilterStatsCollector(std::string_view detector_name, std::chrono::seconds period)
-      : utils::stats::TimedStatsCollector(detector_name, period)
+  explicit FilterStatsCollector(std::string_view detector_name,
+                                std::chrono::seconds period,
+                                std::string_view source)
+      : utils::stats::TimedStatsCollector(detector_name, period, source)
   {}
 
   [[nodiscard]] std::string additional_message() override

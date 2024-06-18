@@ -14,8 +14,6 @@
 #include "utils/utils.hpp"
 #include "std_buffer/image_metadata.pb.h"
 
-#include "bsread_recv_stats_collector.hpp"
-
 namespace {
 
 using pulse_id_t = int64_t;
@@ -76,8 +74,8 @@ int main(int argc, char* argv[])
                                                    ZMQ_PUB};
   auto sender = cb::Communicator{send_buffer_config, send_comm_config};
 
-  BsreadRecvStatsCollector stats(config.detector_name, stream_address,
-                                 config.stats_collection_period);
+  utils::stats::TimedStatsCollector stats(config.detector_name, config.stats_collection_period,
+                                          stream_address);
 
   std_daq_protocol::ImageMetadata image_meta;
   image_meta.set_dtype(utils::get_metadata_dtype(config));

@@ -37,12 +37,12 @@ bool is_recording(driver_state state)
 } // namespace
 
 writer_driver::writer_driver(std::shared_ptr<std_driver::state_manager> sm,
-                             const std::string& source_name,
+                             const std::string& source_suffix,
                              utils::DetectorConfig config,
                              std::size_t number_of_writers)
     : manager(std::move(sm))
     , zmq_ctx(zmq_ctx_new())
-    , stats(config.detector_name, config.stats_collection_period)
+    , stats(config.detector_name, config.stats_collection_period, source_suffix)
 {
   static constexpr auto zmq_io_threads = 4;
   zmq_ctx_set(zmq_ctx, ZMQ_IO_THREADS, zmq_io_threads);
@@ -53,6 +53,7 @@ writer_driver::writer_driver(std::shared_ptr<std_driver::state_manager> sm,
     writer_receive_sockets.push_back(
         connect_to_socket(fmt::format("{}-writer-{}", config.detector_name, i)));
   });
+  const auto source_name = fmt::format("{}-{}", config.detector_name, source_suffix);
   sync_receive_socket = prepare_sync_receiver_socket(source_name);
 }
 

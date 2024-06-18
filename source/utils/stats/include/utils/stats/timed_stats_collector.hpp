@@ -14,15 +14,19 @@ class TimedStatsCollector : public utils::stats::StatsCollector<TimedStatsCollec
   using time_point = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
 
 public:
-  explicit TimedStatsCollector(std::string_view detector_name, std::chrono::seconds period)
+  explicit TimedStatsCollector(std::string_view detector_name,
+                               std::chrono::seconds period,
+                               std::string_view suffix = "")
       : utils::stats::StatsCollector<TimedStatsCollector>(detector_name, period)
+      , source_suffix(suffix)
   {}
 
   [[nodiscard]] virtual std::string additional_message()
   {
     const auto repetition_rate = calculate_repetition_rate();
-    auto outcome = fmt::format("processed_times={},repetition_rate_hz={:.2f}", processed_times,
-                               repetition_rate);
+    auto outcome = !source_suffix.empty() ? fmt::format("source={},", source_suffix) : "";
+    outcome += fmt::format("processed_times={},repetition_rate_hz={:.2f}", processed_times,
+                           repetition_rate);
     reset_stats();
     return outcome;
   }
@@ -41,6 +45,7 @@ private:
   }
 
   unsigned processed_times = 0;
+  std::string source_suffix;
   time_point previous{std::chrono::steady_clock::now()};
 };
 

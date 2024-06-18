@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;
 
-  FilterStatsCollector stats(config.detector_name, config.stats_collection_period);
+  FilterStatsCollector stats(config.detector_name, config.stats_collection_period, source_suffix);
 
   while (true) {
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {

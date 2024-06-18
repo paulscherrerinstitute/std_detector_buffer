@@ -66,9 +66,8 @@ int main(int argc, char* argv[])
   tcp::acceptor acceptor{ioc, {address, static_cast<boost::asio::ip::port_type>(port)}};
 
   auto sm = std::make_shared<std_driver::state_manager>();
-  const auto source_name = fmt::format("{}-{}", config.detector_name, source_suffix);
   auto driver =
-      std::make_shared<std_driver::writer_driver>(sm, source_name, config, number_of_writers);
+      std::make_shared<std_driver::writer_driver>(sm, source_suffix, config, number_of_writers);
 
   driver->init();
   do_accept(acceptor, sm, driver);
