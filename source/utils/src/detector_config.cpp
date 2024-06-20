@@ -49,6 +49,7 @@ DetectorConfig read_config(const json doc)
           doc.value("gpfs_block_size", 16777216),
           doc.value("sender_sends_full_images", false),
           doc.value("module_sync_queue_size", 50),
+          doc.value("number_of_writers", 0),
           std::move(modules)};
 }
 } // namespace

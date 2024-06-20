@@ -32,17 +32,12 @@ void do_accept(boost::asio::ip::tcp::acceptor& acceptor,
   });
 }
 
-std::tuple<utils::DetectorConfig, std::string, std::size_t, std::size_t> read_arguments(
-    int argc, char* argv[])
+std::tuple<utils::DetectorConfig, std::string, std::size_t> read_arguments(int argc, char* argv[])
 {
   auto program = utils::create_parser("std_det_driver");
   program->add_argument("-s", "--source_suffix")
       .help("suffix for ipc source for ram_buffer")
       .default_value("image"s);
-  program->add_argument("-n", "--number_of_writers")
-      .required()
-      .scan<'u', std::size_t>()
-      .help("Number of parallel writers");
   program->add_argument("-p", "--port")
       .default_value(8080ul)
       .scan<'u', std::size_t>()
@@ -50,15 +45,14 @@ std::tuple<utils::DetectorConfig, std::string, std::size_t, std::size_t> read_ar
 
   program = utils::parse_arguments(std::move(program), argc, argv);
   return {utils::read_config_from_json_file(program->get("detector_json_filename")),
-          program->get("--source_suffix"), program->get<std::size_t>("--number_of_writers"),
-          program->get<std::size_t>("--port")};
+          program->get("--source_suffix"), program->get<std::size_t>("--port")};
 }
 
 } // namespace
 
 int main(int argc, char* argv[])
 {
-  const auto [config, source_suffix, number_of_writers, port] = read_arguments(argc, argv);
+  const auto [config, source_suffix, port] = read_arguments(argc, argv);
   [[maybe_unused]] utils::log::logger l{"std_det_driver", config.log_level};
 
   boost::asio::io_context ioc{1};
@@ -67,7 +61,7 @@ int main(int argc, char* argv[])
 
   auto sm = std::make_shared<std_driver::state_manager>();
   auto driver =
-      std::make_shared<std_driver::writer_driver>(sm, source_suffix, config, number_of_writers);
+      std::make_shared<std_driver::writer_driver>(sm, source_suffix, config);
 
   driver->init();
   do_accept(acceptor, sm, driver);

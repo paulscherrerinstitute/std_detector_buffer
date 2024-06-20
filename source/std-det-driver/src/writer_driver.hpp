@@ -32,8 +32,7 @@ class writer_driver : public std::enable_shared_from_this<writer_driver>
 public:
   explicit writer_driver(std::shared_ptr<std_driver::state_manager> sm,
                          const std::string& source_suffix,
-                         utils::DetectorConfig config,
-                         std::size_t number_of_writers);
+                         utils::DetectorConfig config);
   void init();
   void start(const run_settings& settings);
 
