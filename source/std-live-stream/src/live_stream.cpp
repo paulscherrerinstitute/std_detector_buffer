@@ -87,13 +87,40 @@ void send_bsread_stream(std::size_t bit_depth,
   zmq_send(sender_socket, nullptr, 0, 0);
 }
 
+std::function<bool(uint64_t)> select_sending_condition(const ls::sending_config& conf)
+{
+  switch (conf.type) {
+  case ls::sending_config::periodic:
+  {
+    const auto data_period = 1000ms / (int)conf.value.second;
+    auto next_time = steady_clock::now() + data_period;
+    return [conf, data_period, next_time, count = 0u](auto) mutable -> bool {
+      if (count > 0 && count++ < conf.value.first)
+        return true;
+      else if (auto now = steady_clock::now(); now > next_time) {
+        count = 1;
+        next_time += data_period;
+        return true;
+      }
+      else
+        count = 0;
+      return false;
+    };
+  }
+  case ls::sending_config::batch:
+    return [conf](auto id) mutable -> bool { return (id % conf.value.second) < conf.value.first; };
+  default:
+    return [](auto) { return true; };
+  }
+}
+
 } // namespace
 
 int main(int argc, char* argv[])
 {
   const auto args = ls::read_arguments(argc, argv);
   [[maybe_unused]] utils::log::logger l{"std_live_stream", args.config.log_level};
-  const auto data_period = args.data_rate == 0 ? 0ms : 1000ms / (int)args.data_rate;
+  auto should_send_image = select_sending_condition(args.send_config);
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
@@ -108,16 +135,13 @@ int main(int argc, char* argv[])
 
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;
-  auto prev_sent_time = std::chrono::steady_clock::now();
 
   while (true) {
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
       meta.ParseFromArray(buffer, n_bytes);
       auto image_data = receiver.get_data(meta.image_id());
 
-      if (const auto now = std::chrono::steady_clock::now(); prev_sent_time + data_period < now) {
-        prev_sent_time = now;
-
+      if (should_send_image(meta.image_id())) {
         if (args.type == ls::stream_type::array10)
           send_array_1_0_stream(sender_socket, meta, image_data);
         else if (args.type == ls::stream_type::bsread)

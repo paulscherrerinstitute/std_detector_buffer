@@ -16,12 +16,23 @@ enum class stream_type
   array10
 };
 
+struct sending_config
+{
+  enum Type
+  {
+    forward,
+    periodic,
+    batch
+  } type = forward;
+  std::pair<size_t, size_t> value{0, 0};
+};
+
 struct arguments
 {
   utils::DetectorConfig config;
   std::string stream_address;
   std::string source_suffix;
-  std::size_t data_rate;
+  sending_config send_config;
   stream_type type;
 };
 

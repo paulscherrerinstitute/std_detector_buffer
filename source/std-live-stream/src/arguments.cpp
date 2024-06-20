@@ -29,22 +29,43 @@ arguments read_arguments(int argc, char* argv[])
           return it->second;
       });
 
+  sending_config send_config;
+
   auto& group = program->add_mutually_exclusive_group();
-  group.add_argument("-f", "--forward").help("forward all images").flag();
-  group.add_argument("-d", "--data_rate")
-      .help("rate in [Hz]")
-      .action([](const std::string& arg) {
-        if (auto value = std::stoul(arg); value < 1 || value > 1000)
-          throw std::runtime_error("Unsupported data_rate! [1-100 Hz] is valid");
-        else
-          return value;
+  group.add_argument("-f", "--forward")
+      .help("forward all images")
+      .flag()
+      .action([&send_config](const auto&) { send_config.type = sending_config::forward; });
+  group.add_argument("-p", "--periodic")
+      .help("periodically send Y images every N Hz (format: Y:N)")
+      .action([&send_config](const std::string& arg) {
+        if (auto delim_pos = arg.find(':'); delim_pos == std::string::npos)
+          throw std::runtime_error("Format should be Y:N for --periodic");
+        else {
+
+          send_config.type = sending_config::periodic;
+          send_config.value.first = std::stoul(arg.substr(0, delim_pos));
+          send_config.value.second = std::stoul(arg.substr(delim_pos + 1));
+          if (send_config.value.second < 1 || send_config.value.second > 1000)
+            throw std::runtime_error("Invalid Hz rate, valid range [1-100] Hz");
+        }
+      });
+  group.add_argument("-b", "--batch")
+      .help("send Y images every N images (format: Y:N)")
+      .action([&send_config](const std::string& arg) {
+        if (auto delim_pos = arg.find(':'); delim_pos == std::string::npos)
+          throw std::runtime_error("Format should be Y:N for --batch");
+        else {
+          send_config.type = sending_config::batch;
+          send_config.value.first = std::stoul(arg.substr(0, delim_pos));
+          send_config.value.second = std::stoul(arg.substr(delim_pos + 1));
+        }
       });
 
   program = utils::parse_arguments(std::move(program), argc, argv);
 
   return {utils::read_config_from_json_file(program->get("detector_json_filename")),
-          program->get("stream_address"), program->get("--source_suffix"),
-          program->get<bool>("--forward") ? 0 : program->get<std::size_t>("--data_rate"),
+          program->get("stream_address"), program->get("--source_suffix"), send_config,
           program->get<stream_type>("--type")};
 }
 
