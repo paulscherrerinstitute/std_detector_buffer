@@ -55,6 +55,8 @@ int main(int argc, char* argv[])
   const auto [config, source_suffix, port] = read_arguments(argc, argv);
   [[maybe_unused]] utils::log::logger l{"std_det_driver", config.log_level};
 
+  spdlog::info("[event] Services (re)started with parameters: {}", config);
+
   boost::asio::io_context ioc{1};
   auto const address = boost::asio::ip::make_address("0.0.0.0");
   tcp::acceptor acceptor{ioc, {address, static_cast<boost::asio::ip::port_type>(port)}};

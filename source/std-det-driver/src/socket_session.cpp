@@ -25,7 +25,7 @@ socket_session::socket_session(tcp::socket socket,
 
 void socket_session::start()
 {
-  spdlog::debug("Starting client session.");
+  spdlog::info("[event] Session started");
   initialize();
   accept_and_process();
 }
@@ -37,6 +37,7 @@ void socket_session::initialize()
     self->websocket.async_close(boost::beast::websocket::close_code::normal,
                                 [](boost::beast::error_code) {});
     self->manager->change_state(driver_state::idle);
+    spdlog::info("[event] Session finished.");
   };
 }
 
@@ -56,7 +57,7 @@ void socket_session::process_request()
 
     auto message = boost::beast::buffers_to_string(self->buffer.data());
     self->buffer.consume(bytes_transferred);
-    spdlog::info(R"(Received request: "{}")", message);
+    spdlog::info(R"([event] Received request: "{}")", message);
 
     if (self->manager->get_state() == driver_state::idle)
       self->start_recording(message);
@@ -110,7 +111,10 @@ void socket_session::listen_for_stop()
     std::string command = j.value("command", "");
 
     if (command == "stop")
+    {
+      spdlog::info("[event] Received stop command");
       self->manager->change_state(driver_state::stop);
+    }
     else
       self->send_response("success", self->close_socket_handler);
   });
@@ -118,6 +122,7 @@ void socket_session::listen_for_stop()
 
 void socket_session::reject_and_close()
 {
+  spdlog::info("[event] Request rejected - driver is busy.");
   send_response("rejected", close_socket_handler, "driver is busy!");
 }
 

@@ -11,6 +11,7 @@
 #include <chrono>
 
 #include <fmt/core.h>
+#include <fmt/ostream.h>
 
 namespace utils {
 
@@ -43,7 +44,7 @@ struct DetectorConfig
   const int number_of_writers;
   const std::unordered_map<module_id, std::pair<Point, Point>> modules;
 
-  friend std::ostream& operator<<(std::ostream& os, DetectorConfig const& det_config)
+  friend std::ostream& operator<<(std::ostream& os, const DetectorConfig& det_config)
   {
     return os << fmt::format(
                "detector={},detector_type={},n_modules={},bit_depth={},"
@@ -70,5 +71,8 @@ modules_mask get_modules_mask(const DetectorConfig& config);
 void test_if_module_is_inside_image(const utils::DetectorConfig& config, int module_id);
 
 } // namespace utils
+
+template <> struct fmt::formatter<utils::DetectorConfig> : ostream_formatter
+{};
 
 #endif // STD_DETECTOR_BUFFER_DETECTOR_CONFIG_HPP
