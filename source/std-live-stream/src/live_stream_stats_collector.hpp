@@ -18,15 +18,17 @@ public:
       : TimedStatsCollector(
             args.config.detector_name, args.config.stats_collection_period, args.source_suffix)
       , stype(args.type == ls::stream_type::array10 ? "array10" : "bsread")
+      , port(args.stream_address.substr(args.stream_address.rfind(':') + 1))
   {}
 
   [[nodiscard]] std::string additional_message() override
   {
-    return fmt::format("type={},{}", stype, Parent::additional_message());
+    return fmt::format("port={},type={},{}", port, stype, Parent::additional_message());
   }
 
 private:
   std::string stype;
+  std::string port;
 };
 } // namespace ls
 #endif // STD_DETECTOR_BUFFER_LIVE_STREAM_STATS_COLLECTOR_HPP
