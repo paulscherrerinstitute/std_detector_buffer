@@ -25,7 +25,7 @@ socket_session::socket_session(tcp::socket socket,
 
 void socket_session::start()
 {
-  spdlog::info("[event] Session started");
+  spdlog::info("[event] socket_session started - waiting for user request");
   initialize();
   accept_and_process();
 }
@@ -37,7 +37,7 @@ void socket_session::initialize()
     self->websocket.async_close(boost::beast::websocket::close_code::normal,
                                 [](boost::beast::error_code) {});
     self->manager->change_state(driver_state::idle);
-    spdlog::info("[event] Session finished.");
+    spdlog::info("[event] socket_session finished - connection closed");
   };
 }
 
@@ -108,13 +108,11 @@ void socket_session::listen_for_stop()
     self->buffer.consume(bytes_transferred);
 
     json j = json::parse(message);
-    std::string command = j.value("command", "");
+    spdlog::info(R"([event] Received request: "{}")", message);
 
+    std::string command = j.value("command", "");
     if (command == "stop")
-    {
-      spdlog::info("[event] Received stop command");
       self->manager->change_state(driver_state::stop);
-    }
     else
       self->send_response("success", self->close_socket_handler);
   });
