@@ -47,11 +47,11 @@ struct DetectorConfig
   friend std::ostream& operator<<(std::ostream& os, const DetectorConfig& det_config)
   {
     return os << fmt::format(
-               "detector={},\ndetector_type={},\nn_modules={},\nbit_depth={},\n"
-               "image_pixel_height={},\nimage_pixel_width={},\nstart_udp_port={},\n"
-               "writer_user_id={},\nlog_level={},\nstats_collection_period={},\nmax_number_of_forwarders_"
-               "spawned={},\nuse_all_forwarders={},\ngpfs_block_size={},\nsender_sends_full_images={},\n"
-               "module_sync_queue_size={},\nnumber_of_writers={}\n",
+               "detector={},detector_type={},n_modules={},bit_depth={},"
+               "image_pixel_height={},image_pixel_width={},start_udp_port={},"
+               "writer_user_id={},log_level={},stats_collection_period={},max_number_of_forwarders_"
+               "spawned={},use_all_forwarders={},gpfs_block_size={},sender_sends_full_images={},"
+               "module_sync_queue_size={},number_of_writers={}",
                det_config.detector_name, det_config.detector_type, det_config.n_modules,
                det_config.bit_depth, det_config.image_pixel_height, det_config.image_pixel_width,
                det_config.start_udp_port, det_config.writer_user_id, det_config.log_level,
