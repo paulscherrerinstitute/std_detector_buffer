@@ -26,6 +26,33 @@ Each `udp_recv` service is responsible for collecting packets from a designated 
 
 The synchronization of data from all 16 modules is managed to ensure ordered metadata stream output. Specifically, images labeled `0` and `7` are streamed simultaneously by the detector.
 
+##### Services
+* `std_udp_recv_gf`
+
+  Command line options:
+    ```text
+    Usage: std_udp_recv_gf [--help] [--version] detector_json_filename module_id
+    
+    Positional arguments:
+      detector_json_filename  - path to configuration file
+      module_id               - module id (0-15) representing one of the sources from GigaFRoST detector
+    ```
+  Relevant config file parameters specific to receiver:
+  * `start_udp_port` - Number of first port where `udp` data is sent from detector. We assume that the next connections will be incremental and in logical order of modules.
+ 
+  Common parameters affecting service can be found [here](../Interfaces/configfile.md#common-configuration-options).
+* `std_data_convert_gf` - converts `12-bit` encoded data to `16-bit` encoding and puts data into correct location in the final image according to set `module_id`
+  Command line options:
+    ```text
+    Usage: std_data_convert_gf [--help] [--version] detector_json_filename module_id
+    
+    Positional arguments:
+      detector_json_filename  - path to configuration file
+      module_id               - module id (0-15) representing one of the sources from GigaFRoST detector
+    ```
+  Common parameters affecting service can be found [here](../Interfaces/configfile.md#common-configuration-options).
+* `std_data_sync_module` - common synchronization service described [here](#std_data_sync_module). **GigaFRoST** requires `8` module configuration.
+
 ### Jungfrau Detector Configuration
 
 tbd
@@ -33,6 +60,24 @@ tbd
 ### Eiger Detector Configuration
 
 tbd
+
+### Common Detector Services
+
+#### std_data_sync_module
+
+Service is responsible for collecting information about finished processing of parts of the image from converting services. Internally it holds a queue of fixed size of metadata connected to given `image_id`. The images that were successfully received from all configured modules are sent with standard `protobuf` metadata [protocol](../Interfaces/protobuf.md) further in strictly increasing order. If there is an image that is incomplete (part of image was not received) it will be removed only when the queue is full - unblocking the rest of images to be sent out.
+
+```text
+Usage: std_data_sync_module [--help] [--version] detector_json_filename
+
+Positional arguments:
+      detector_json_filename  - path to configuration file
+```
+Relevant config file parameters specific to receiver:
+* `n_modules` - Number of modules that require synchronization to complete single image
+* `module_sync_queue_size` - size of the queue storing incomplete or out of order (not yet eligible for sending) images.
+
+Common parameters affecting service can be found [here](../Interfaces/configfile.md#common-configuration-options).
 
 ## PCO Camera Data Acquisition
 
