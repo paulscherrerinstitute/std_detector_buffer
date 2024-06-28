@@ -4,7 +4,7 @@ id: configfile
 title: Configuration file
 ---
 
-# `JSON` Jonfiguration File
+# `JSON` Configuration File
 
 ## Common configuration options
 
