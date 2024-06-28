@@ -75,9 +75,8 @@ pages:
   artifacts:
     paths:
       - public
-  only:
-    - master
   rules:
-    - changes:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      changes:
         - "website/**/*"
     - when: never
