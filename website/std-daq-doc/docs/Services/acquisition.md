@@ -18,7 +18,7 @@ Each `udp_recv` service is directly linked to a `converter` service—there is a
 
 The converters then utilize `ZMQ push/pull` sockets to communicate the completion of their tasks to a `module_sync` service. This synchronization service ensures that each image frame is fully assembled and error-free. It also broadcasts metadata, using a `ZMQ pub` socket and `protobuf` protocol, which provides metadata stream to downstream systems. The image ids provided by synchronizer are strictly increasingly ordered.
 
-#### GigaFRoST Detector Configuration
+### GigaFRoST Detector Configuration
 
 The `GigaFRoST` detector is characterized by a fixed configuration due to its consistent number of modules/sources. There are always 16 `udp_recv` services and an equal number of `converter` services, each labeled from `0` to `15`. These identifiers correlate with specific parts of the final image, aligned modulo 8.
 
