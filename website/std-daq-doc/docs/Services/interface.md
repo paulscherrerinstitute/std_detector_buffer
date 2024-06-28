@@ -6,6 +6,8 @@ title: Data Presentation/Interface
 
 # Data Presentation/Writing Interface
 
+Elements described here provide functionality to communicate with users/other services.
+
 ## Basic Metadata + Ram Buffer Interface
 
 ![Presentation 1](/img/presentation_1.svg)
