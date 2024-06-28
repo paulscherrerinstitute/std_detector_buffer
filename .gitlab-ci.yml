@@ -26,6 +26,12 @@ test_project:
   parallel:
     matrix:
       - DOCKER_IMAGE: [ "centos8" ]
+  rules:
+    - changes:
+        - "website/**/*"
+        - "!**/*"  # Ensures no other files are changed
+      when: never
+    - when: always
 
 package_project:
   stage: package
@@ -71,3 +77,7 @@ pages:
       - public
   only:
     - master
+  rules:
+    - changes:
+        - "website/**/*"
+    - when: never
