@@ -20,7 +20,7 @@ The compression updates `metadata` of the stream [protobuf protocol](../Interfac
 
 ### blosc2
 
-The compression reads data from `<detector-name>-image` ipc/ram buffer and provides output on `<detector-name>-blosc2>` named channels. User can define number of threads used by the service for parallel execution and compression level `[0-9]` (higher value - better compression, slower processing).
+The compression reads data from `<detector-name>-image` ipc/ram buffer and provides output on `<detector-name>-blosc2` named channels. User can define number of threads used by the service for parallel execution and compression level `[0-9]` (higher value - better compression, slower processing).
 
 ```text
 Usage: std_data_compress_blosc2 [--help] [--version] --threads VAR [--level VAR] detector_json_filename
@@ -35,7 +35,7 @@ Optional arguments:
 
 ### h5bitshuffle_lz4
 
-The compression reads data from `<detector-name>-image` ipc/ram buffer and provides output on `<detector-name>-h5bitshuffle-lz4>` named channels. User can define number of threads used by the service for parallel execution and block size in bytes used for `bitshuffle` when `0` is specified algorithm chooses it automatically.
+The compression reads data from `<detector-name>-image` ipc/ram buffer and provides output on `<detector-name>-h5bitshuffle-lz4` named channels. User can define number of threads used by the service for parallel execution and block size in bytes used for `bitshuffle` when `0` is specified algorithm chooses it automatically.
 
 ```text
 Usage: std_data_compress_h5bitshuffle_lz4 [--help] [--version] --threads VAR [--block_size VAR] detector_json_filename
@@ -52,4 +52,15 @@ Optional arguments:
 
 ![Processing 2](/img/processing_2.svg)
 
-tbd
+Filtering service for `GigaFRoST`. The service reads data from source with defined suffix e.g. `<detector-name>-image` and provides `metadata` stream named `<detector-name>-filter` with reduced data. All images with `store_image` flag set to `0` are filtered in [protobuf protocol](../Interfaces/protobuf.md#gfimagemetadata). There is a flag to forward all images for testing purposes.
+
+```text
+Usage: std_gf_filter [--help] [--version] [--source_suffix VAR] [--no_filter] detector_json_filename
+
+Positional arguments:
+detector_json_filename  - path to configuration file
+
+Optional arguments:
+-s, --source_suffix     suffix for ipc source for ram_buffer [nargs=0..1] [default: "image"]
+-n, --no_filter         forward all images 
+```
