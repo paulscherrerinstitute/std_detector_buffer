@@ -6,7 +6,7 @@ title: Protobuf Metadata Protocol
 
 ## ImageMetadata
 
-`ImageMetadata` is the main message containing metadata sent between services via `zmq` protocol. It combines different types of image metadata into a single structure.
+`ImageMetadata` is the main message containing metadata sent between services via `zmq` protocol. It combines different types of image metadata into a single structure. The protocol uses `ipc` communication with `PUB/SUB` type of communication based on `zmq` protocol implementation.
 
 ### Fields
 - `image_id` (`uint64`): Unique identifier for the image.
@@ -20,7 +20,10 @@ title: Protobuf Metadata Protocol
 - `status` (`ImageMetadataStatus`): Status of the image - one of: `good_image` , `missing_packets` , `id_missmatch`
 - `compression` (`ImageMetadataCompression`): Compression type used - `none` , `h5bitshuffle_lz4` , `blosc2`
 
-### Optional detector specific metadata: image_metadata
+### Optional detector specific metadata:
+
+image_metadata (`oneof`):
+
 - `gf` [`GFImageMetadata`](#gfimagemetadata): Metadata for GF images.
 - `jf` [`JFImageMetadata`](#jfimagemetadata): Metadata for JF images.
 - `eg` [`EGImageMetadata`](#egimagemetadata): Metadata for EG images.
