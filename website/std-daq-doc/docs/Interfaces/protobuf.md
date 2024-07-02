@@ -6,7 +6,7 @@ title: Protobuf Metadata Protocol
 
 ## ImageMetadata
 
-`ImageMetadata` is the main message containing metadata sent between services via `zmq` protocol. It combines different types of image metadata into a single structure. The protocol uses `ipc` communication with `PUB/SUB` type of communication based on `zmq` protocol implementation.
+`ImageMetadata` is the main message containing metadata sent between services via `zmq` protocol. It combines different types of image metadata into a single structure. The protocol uses `ipc` communication with `PUB/SUB` type of communication based on `zmq` protocol implementation. All addresses start with `ipc:///tmp/`.
 
 ### Fields
 - `image_id` (`uint64`): Unique identifier for the image.

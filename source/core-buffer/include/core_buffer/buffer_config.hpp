@@ -23,7 +23,7 @@ const int BUFFER_ZMQ_RCVHWM = 50000;
 // IPC address of the live stream.
 const std::string IPC_URL_BASE = "ipc:///tmp/";
 // Number of image slots in ram buffer - 10 seconds should be enough
-const int RAM_BUFFER_N_SLOTS = 10 * 10;
+const int RAM_BUFFER_N_SLOTS = 10 * 100;
 
 } // namespace buffer_config
 
