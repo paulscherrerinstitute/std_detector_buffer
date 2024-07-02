@@ -27,10 +27,6 @@ test_project:
     matrix:
       - DOCKER_IMAGE: [ "centos8" ]
   rules:
-    - changes:
-        - "website/**/*"
-        - "!**/*"  # Ensures no other files are changed
-      when: never
     - when: always
 
 package_project:
