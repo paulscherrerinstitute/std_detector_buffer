@@ -84,6 +84,7 @@ There can be multiple `writer` services spawned on the deployment and connected 
 #### Config file settings
 
 - `number_of_writers` - if a `writer_id` is greater of equal of this value - the writer will shutdown at startup.
+- `gpfs_block_size` - `GPFS` block size in bytes defaulting to `16777216`. If this parameter is misconfigured it may affect performance of writing services as they allocate chunks of memory according to blocks in `GPFS`.
 
 Common parameters affecting service can be found [here](../Interfaces/configfile.md#common-configuration-options).
 
