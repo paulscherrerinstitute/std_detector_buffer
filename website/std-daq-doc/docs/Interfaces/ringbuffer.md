@@ -1,7 +1,7 @@
 ---
 sidebar_position: 4
 id: ringbuffer
-title: RAM ring buffer
+title: RAM Ring Buffer
 ---
 
 ## RAM Ring Buffer

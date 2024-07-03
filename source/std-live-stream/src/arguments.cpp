@@ -15,7 +15,7 @@ arguments read_arguments(int argc, char* argv[])
   auto program = utils::create_parser("std_live_stream");
   program->add_argument("stream_address").help("address to bind the output stream");
   program->add_argument("-s", "--source_suffix")
-      .help("suffix for ipc source for ram_buffer - default \"image\"")
+      .help("suffix for ipc and shared memory sources for ram_buffer - default \"image\"")
       .default_value("image"s);
   program->add_argument("-t", "--type")
       .default_value(stream_type::array10)

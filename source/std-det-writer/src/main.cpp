@@ -23,19 +23,23 @@ int main(int argc, char* argv[])
 
   program->add_argument("writer_id").scan<'d', uint16_t>();
   program->add_argument("-s", "--source_suffix")
-      .help("suffix for ipc source for ram_buffer - default \"image\"")
+      .help("suffix for shared memory source for ram_buffer - default \"image\"")
       .default_value("image"s);
 
   program = utils::parse_arguments(std::move(program), argc, argv);
 
   const auto config = utils::read_config_from_json_file(program->get("detector_json_filename"));
+  const auto writer_id = program->get<uint16_t>("writer_id");
   [[maybe_unused]] utils::log::logger l{program_name, config.log_level};
+
+  if (config.number_of_writers <= writer_id) return 0; // shutdown - writer not needed
+
   const auto suffix = program->get("--source_suffix");
   const size_t image_n_bytes = utils::converted_image_n_bytes(config);
 
   std::unique_ptr<HDF5File> file;
   WriterStatsCollector stats(config.detector_name, suffix, config.stats_collection_period,
-                             image_n_bytes, program->get<uint16_t>("writer_id"));
+                             image_n_bytes, writer_id);
 
   const auto buffer_name = fmt::format("{}-{}", config.detector_name, suffix);
   const auto source_name =

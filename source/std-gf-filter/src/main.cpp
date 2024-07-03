@@ -24,7 +24,7 @@ std::tuple<utils::DetectorConfig, std::string, bool> read_arguments(int argc, ch
 {
   auto program = utils::create_parser("std_gf_filter");
   program->add_argument("-s", "--source_suffix")
-      .help("suffix for ipc source for ram_buffer")
+      .help("suffix for ipc and shared memory sources for ram_buffer")
       .default_value("image"s);
   program->add_argument("-n", "--no_filter").help("forward all images").flag();
 

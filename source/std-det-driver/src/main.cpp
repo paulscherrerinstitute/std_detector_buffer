@@ -36,7 +36,7 @@ std::tuple<utils::DetectorConfig, std::string, std::size_t> read_arguments(int a
 {
   auto program = utils::create_parser("std_det_driver");
   program->add_argument("-s", "--source_suffix")
-      .help("suffix for ipc source for ram_buffer")
+      .help("suffix for ipc source for metadata")
       .default_value("image"s);
   program->add_argument("-p", "--port")
       .default_value(8080ul)
