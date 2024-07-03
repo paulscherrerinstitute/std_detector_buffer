@@ -1,7 +1,7 @@
 ---
 sidebar_position: 5
 id: websocket
-title: Driver Websocket
+title: Driver WebSocket
 ---
 
 ## Driver WebSocket Interface for controlling Writers
@@ -32,9 +32,12 @@ Commands are JSON formatted and should be sent through the established WebSocket
     - `writer_id` (integer, optional): ID of the user under whose account files are written. Default is `0` (root). Other IDs have not been tested.
     - `start_id` (integer, optional): Image ID from which to start writing. Default is `0`.
 
+   Example:
+
     ```json
     {"command": "start", "path": "/gpfs/test/test-beamline", "n_image": 100000}
     ```
+   
 2. Stop Command
 
     Stops the ongoing process.
@@ -42,6 +45,7 @@ Commands are JSON formatted and should be sent through the established WebSocket
     ```json
     {"command": "stop"}
     ```
+
 ### Communication Feedback
 
 The driver will send updates every 1 second or upon any event change via the same WebSocket connection. Communication will continue until all files are saved or an error occurs, with the last message indicating either an error or successful file save.
