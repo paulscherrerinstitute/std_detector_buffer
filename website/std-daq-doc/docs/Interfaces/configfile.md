@@ -31,3 +31,74 @@ Options relevant for most/all services:
 | `sender_sends_full_images`         | Optional  | Relevant when forwarding between servers is used. Defaults to `false`. Forces senders to send full images. This affects the deployment of the system - metadata stream needs to be forwarded as well as metadata synchronizer is required to correctly synchronize the images on receiving server. Usually used only for small images with highest frequencies                                                                            |
 | `module_sync_queue_size`           | Optional  | Relevant when module synchronizer. Defaults to `50`. Defines size of internal queue before the incomplete image is considered stale and gets dropped. The larger the queue the bigger latency is added to the system in case of sporadically missing data                                                                                                                                                                                 |
 | `gpfs_block_size`                  | Optional  | Relevant for writing `hdf5` files. Defaults to `16777216`. `GPFS` block size in bytes defaulting to `16777216`. If this parameter is misconfigured it may affect performance of writing services as they allocate chunks of memory according to blocks in `GPFS`                                                                                                                                                                          |
+
+## Examples
+
+### GigaFRoST
+
+Below are tested examples of configuration used for `GigaFRoST` detector on `daq-28/29` machines.
+
+#### 2016x2016px @1.25kHz
+
+```json
+{
+  "detector_name": "gf-teststand",
+  "detector_type": "gigafrost",
+  "n_modules": 8,
+  "bit_depth": 16,
+  "image_pixel_height": 2016,
+  "image_pixel_width": 2016,
+  "start_udp_port": 2000,
+  "writer_user_id": 18600,
+  "submodule_info": {},
+  "max_number_of_forwarders_spawned": 10,
+  "use_all_forwarders": true,
+  "module_sync_queue_size": 4096,
+  "number_of_writers": 14,
+  "module_positions": {}
+}
+```
+
+#### 528x280px @21.5kHz
+
+```json
+{
+  "detector_name": "gf-teststand",
+  "detector_type": "gigafrost",
+  "n_modules": 8,
+  "bit_depth": 16,
+  "image_pixel_height": 280,
+  "image_pixel_width": 528,
+  "start_udp_port": 2000,
+  "writer_user_id": 18600,
+  "submodule_info": {},
+  "max_number_of_forwarders_spawned": 10,
+  "sender_sends_full_images": true,
+  "use_all_forwarders": true,
+  "module_sync_queue_size": 4096,
+  "number_of_writers": 14,
+  "module_positions": {}
+}
+```
+
+#### 480x128px @40kHz
+
+```json
+{
+  "detector_name": "gf-teststand",
+  "detector_type": "gigafrost",
+  "n_modules": 8,
+  "bit_depth": 16,
+  "image_pixel_height": 128,
+  "image_pixel_width": 480,
+  "start_udp_port": 2000,
+  "writer_user_id": 18600,
+  "submodule_info": {},
+  "max_number_of_forwarders_spawned": 10,
+  "sender_sends_full_images": true,
+  "use_all_forwarders": true,
+  "module_sync_queue_size": 4096,
+  "number_of_writers": 14,
+  "module_positions": {}
+}
+```
