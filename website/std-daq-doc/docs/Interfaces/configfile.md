@@ -10,15 +10,15 @@ title: Configuration file
 
 Options relevant for most/all services:
 
-| Name                      | Type           | Description                                                                                                                                                            |
-|---------------------------|----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `detector_name`           | Mandatory      | Name of deployment - used as identifier in logging, part of the name of `zmq` sockets and shared memory                                                                |
-| `detector_type`           | Mandatory      | Type of detector, one of: `gigafrost`, `eiger`, `pco`, `jungfrau-raw`, `jungfrau-converted`                                                                            |
-| `image_pixel_height`      | Mandatory      | Height of final image in pixels                                                                                                                                        |
-| `image_pixel_width`       | Mandatory      | Width of final image in pixels                                                                                                                                         |
-| `bit_depth`               | Mandatory      | Bit depth of the image                                                                                                                                                 |
-| `log_level`               | Optional/Debug | Defaults to `info`. Sets the logging level for services - possible values: `debug`, `info`, `warning`, `error`, `off`                                                  |
-| `stats_collection_period` | Optional       | Period in seconds for printing stats into journald that are shipped to elastic. Defaults to `10`. Warning too high frequency will affect the performance of the system |
+| Name                      | Type           | Description                                                                                                                                                                    |
+|---------------------------|----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `detector_name`           | Mandatory      | Name of deployment - used as identifier in logging, part of the name of `zmq` sockets and shared memory                                                                        |
+| `detector_type`           | Mandatory      | Type of detector, one of: `gigafrost`, `eiger`, `pco`, `jungfrau-raw`, `jungfrau-converted`                                                                                    |
+| `image_pixel_height`      | Mandatory      | Height of final image in pixels                                                                                                                                                |
+| `image_pixel_width`       | Mandatory      | Width of final image in pixels                                                                                                                                                 |
+| `bit_depth`               | Mandatory      | Bit depth of the image                                                                                                                                                         |
+| `log_level`               | Optional/Debug | Defaults to `info`. Sets the logging level for services - possible values: `debug`, `info`, `warning`, `error`, `off`                                                          |
+| `stats_collection_period` | Optional       | Period in seconds for printing stats into `journald` that are shipped to `elastic`. Defaults to `10`. **Warning** too high frequency will affect the performance of the system |
 
 ## Configuration options affecting single service/service group
 
