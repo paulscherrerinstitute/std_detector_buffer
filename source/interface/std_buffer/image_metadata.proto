@@ -34,10 +34,9 @@ enum ImageMetadataDtype {
 };
 
 enum ImageMetadataStatus {
-  undefined=0;
-  good_image=1;
-  missing_packets=2;
-  id_missmatch=3;
+  good_image=0;
+  missing_packets=1;
+  id_missmatch=2;
 };
 
 enum ImageMetadataCompression {

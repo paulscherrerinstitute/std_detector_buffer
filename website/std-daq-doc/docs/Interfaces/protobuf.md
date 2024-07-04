@@ -17,7 +17,7 @@ title: Protobuf Metadata Protocol
 ### Enums
 - `dtype` (`ImageMetadataDtype`): Data type of the image - one of:
   `unknown` , `uint8` , `uint16` , `uint32` , `uint64` , `int8` , `int16` , `int32` , `int64` , `float16` , `float32` , `float64`
-- `status` (`ImageMetadataStatus`): Status of the image - one of: `undefined`, `good_image` , `missing_packets` , `id_missmatch`
+- `status` (`ImageMetadataStatus`): Status of the image - one of: `good_image` , `missing_packets` , `id_missmatch`
 - `compression` (`ImageMetadataCompression`): Compression type used - `none` , `h5bitshuffle_lz4` , `blosc2`
 
 ### Optional detector specific metadata:
