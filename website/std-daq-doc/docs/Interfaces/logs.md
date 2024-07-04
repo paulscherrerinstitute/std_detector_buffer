@@ -24,7 +24,6 @@ Example logs:
 [07-03 15:50:56.931][std_live_stream][v0.13.33][info] detector=gf-teststand,port=20000,type=array10,source=image,processed_times=0,repetition_rate_hz=0.00 13385001531377136
 [07-03 15:50:58.922][std_stream_receive][v0.13.33][info] detector=gf-teststand,image_part=6,processed_times=0,repetition_rate_hz=0.00,zmq_receive_fails=0,images_missed=0 13385003523232350
 [07-03 15:50:58.923][std_stream_receive][v0.13.33][info] detector=gf-teststand,image_part=7,processed_times=0,repetition_rate_hz=0.00,zmq_receive_fails=0,images_missed=0 13385003524204785
-
 ```
 #### Configuration
 
