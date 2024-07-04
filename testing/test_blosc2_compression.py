@@ -24,6 +24,7 @@ async def test_compression(test_path):
     metadata.width = 2016
     metadata.height = 2016
     metadata.dtype = daq_proto.ImageMetadataDtype.uint16
+    metadata.status = daq_proto.ImageMetadataStatus.good_image
 
     config = GigafrostConfigConverter()
     config.socket_name = 'GF2-image'
