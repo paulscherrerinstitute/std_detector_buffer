@@ -51,7 +51,7 @@ The synchronization of data from all 16 modules is managed to ensure ordered met
       module_id               - module id (0-15) representing one of the sources from GigaFRoST detector
     ```
   Common parameters affecting service can be found [here](../Interfaces/configfile.md#common-configuration-options).
-* `std_data_sync_module` - common synchronization service described [here](#std_data_sync_module). **GigaFRoST** requires `8` module configuration.
+* `std_data_sync_module` - common synchronization service described [here](#std_data_sync_module). **GigaFRoST** requires `8` module configuration. This is due to the fact that single full image from the detector is created from `8` modules even if there are 16 connections. The other 8 connections provide in parallel another image, for details refer to [GigaFRoST documentation](http://hpdi.gitpages.psi.ch/gf_docs/gf_architecture.html).
 
 ### Jungfrau Detector Configuration
 
