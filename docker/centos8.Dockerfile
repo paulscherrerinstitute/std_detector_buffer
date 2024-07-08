@@ -13,6 +13,8 @@ RUN dnf update -y \
         rpm-build \
         wget \
         python3.11-pip \
+        zeromq-devel \
+        hdf5-devel \
     && dnf clean all \
     && rm -rf /var/cache/dnf
 
