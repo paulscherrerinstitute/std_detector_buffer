@@ -3,4 +3,5 @@ uvicorn==0.15.0
 jsonschema==4.2.1
 requests==2.26.0
 pyzmq==22.3.0
-
+h5py==3.6.0
+numpy==1.21.4

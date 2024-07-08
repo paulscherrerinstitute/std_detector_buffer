@@ -9,6 +9,7 @@
       cmake -B release -DCMAKE_BUILD_TYPE=Release -G Ninja
       cmake --build release --target all
       python3 -m pip install -r requirements.txt
+      python3 -m pip install -r std_buffer/rest/requirements.txt
       cmake --build release --target pyinstall
       echo ">>>>> Create Package"
       cmake --build release --target package

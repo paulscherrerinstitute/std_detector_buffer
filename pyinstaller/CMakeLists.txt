@@ -10,10 +10,10 @@ add_pyinstall_target(fake_trigger_sender
 
 add_pyinstall_target(rest_primary
     SOURCE rest_primary.py
-    HIDDEN_IMPORTS std_buffer
+    HIDDEN_IMPORTS std_buffer pyzmq fastapi uvicorn jsonschema requests h5py
 )
 
 add_pyinstall_target(rest_secondary
     SOURCE rest_secondary.py
-    HIDDEN_IMPORTS std_buffer
+    HIDDEN_IMPORTS std_buffer pyzmq fastapi uvicorn jsonschema requests h5py
 )
