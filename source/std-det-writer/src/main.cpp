@@ -2,6 +2,8 @@
 // Copyright (c) 2024 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
+#include <unistd.h>
+
 #include <string>
 
 #include <fmt/core.h>
@@ -15,6 +17,21 @@
 #include "hdf5_file.hpp"
 
 using namespace std;
+
+namespace {
+constexpr uid_t root_user_id = 0;
+
+bool switch_user(uid_t new_user_id)
+{
+  return seteuid(new_user_id) != -1;
+}
+
+bool switch_writer_user(uid_t writer_user)
+{
+  return writer_user == root_user_id || switch_user(writer_user);
+}
+
+} // namespace
 
 int main(int argc, char* argv[])
 {
@@ -66,8 +83,11 @@ int main(int argc, char* argv[])
 
       if (action.has_create_file()) {
         const auto& create_file = action.create_file();
-        file = std::make_unique<HDF5File>(config, create_file.path(), suffix);
-        zmq_send(sender, send_msg.c_str(), send_msg.size(), 0);
+        if(switch_writer_user(create_file.writer_id()))
+        {
+          file = std::make_unique<HDF5File>(config, create_file.path(), suffix);
+          zmq_send(sender, send_msg.c_str(), send_msg.size(), 0);
+        }
       }
       else if (action.has_record_image()) {
         const auto& record_image = action.record_image();
@@ -78,6 +98,7 @@ int main(int argc, char* argv[])
       }
       else if (action.has_close_file()) {
         file.reset();
+        switch_user(root_user_id);
         zmq_send(sender, send_msg.c_str(), send_msg.size(), 0);
       }
       else if (action.has_confirm_last_image())
