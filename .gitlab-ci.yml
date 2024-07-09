@@ -17,7 +17,7 @@ stages:
 
 variables:
   PACKAGE_REGISTRY_URL: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/std_detector_buffer/${CI_COMMIT_TAG}
-  IMAGE_VERSION: "1.1.0"
+  IMAGE_VERSION: "1.0.0"
 
 test_project:
   stage: test

@@ -9,8 +9,8 @@ RUN dnf update -y \
         zstd \
         openssh-clients \
         patch \
-        rpm-build \
         gcc-toolset-13 \
+        rpm-build \
         wget \
         python3.11-pip \
         zeromq-devel \
