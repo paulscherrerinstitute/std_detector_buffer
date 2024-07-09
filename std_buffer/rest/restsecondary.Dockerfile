@@ -13,8 +13,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application's code into the container
 COPY . .
 
-# Expose the port the app runs on
-EXPOSE 5001
-
 # Run the application
 CMD ["sh", "-c", "python rest_secondary.py $CONFIG_FILE --rest_port $REST_PORT --secret_key $SECRET_KEY"]

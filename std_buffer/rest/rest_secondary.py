@@ -28,41 +28,11 @@ ctx = zmq.Context()
 stats_logger = StatsLogger(ctx)
 
 
-def validate_hash(data, received_hash, secret_key):
-    data_string = json.dumps(data, sort_keys=True)
-    calculated_hash = hashlib.sha256((data_string + secret_key).encode()).hexdigest()
-    return calculated_hash == received_hash
-
-
-# FastAPI endpoints
-@app.get("/api/config/get")
-async def get_configuration(config_file: str):
-    logger.info(f"Fetching configuration from {config_file}")
-    try:
-        with open(config_file, "r") as file:
-            config = json.load(file)
-        logger.info(f"Successfully fetched configuration: {config}")
-        return config
-    except FileNotFoundError:
-        logger.error(f"Configuration file not found: {config_file}")
-        raise HTTPException(status_code=404, detail="Configuration file not found")
-    except json.JSONDecodeError:
-        logger.error(f"Error decoding JSON file: {config_file}")
-        raise HTTPException(status_code=500, detail="Error decoding JSON file")
-
 
 @app.post("/api/config/set")
-async def update_configuration(request: Request, config_file: str, secret_key: str):
-    data = await request.json()
-    new_config = data["config"]
-    received_hash = data["hash"]
-
-    if not validate_hash(new_config, received_hash, secret_key):
-        logger.error("Invalid hash for configuration update")
-        raise HTTPException(
-            status_code=403, detail="Invalid hash for configuration update"
-        )
-
+async def update_configuration(request: Request, config_file: str):
+    new_config = await request.json()
+    
     logger.info(f"Received new configuration: {new_config}")
     try:
         # Overwrite the local file
@@ -77,15 +47,10 @@ async def update_configuration(request: Request, config_file: str, secret_key: s
         raise HTTPException(status_code=500, detail=str(e))
 
 
-def start_secondary_api(config_file, rest_port, secret_key):
+def start_secondary_api(config_file, rest_port):
     try:
         logger.info(
             f"Starting secondary API with config file: {config_file} on port {rest_port}"
-        )
-        app.dependency_overrides[get_configuration] = lambda: config_file
-        app.dependency_overrides[update_configuration] = lambda: (
-            config_file,
-            secret_key,
         )
         run(app, host="0.0.0.0", port=rest_port, log_level="warning")
     except Exception as e:
@@ -104,8 +69,7 @@ def main():
 
     start_secondary_api(
         config_file=args.config_file,
-        rest_port=args.rest_port,
-        secret_key=args.secret_key,
+        rest_port=args.rest_port
     )
 
 
