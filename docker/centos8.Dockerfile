@@ -1,16 +1,15 @@
-FROM redhat/ubi8
+FROM quay.io/centos/centos:stream8
 
 LABEL maintainer="Maciej Patro"
 
 RUN dnf update -y \
-    dnf install -y --setopt=tsflags=nodocs https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm \
+    && dnf install -y epel-release \
     && dnf -y install bzip2 \
         git \
         zstd \
         openssh-clients \
         patch \
-        gcc-toolset-13-gcc  \
-        gcc-toolset-13-gcc-c++\
+        gcc-toolset-13 \
         rpm-build \
         wget \
         python3.11-pip \
