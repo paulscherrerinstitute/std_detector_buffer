@@ -2,9 +2,8 @@ FROM redhat/ubi8
 
 LABEL maintainer="Maciej Patro"
 
-RUN rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-
 RUN dnf update -y \
+    dnf install -y --setopt=tsflags=nodocs https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm \
     && dnf -y install bzip2 \
         git \
         zstd \
