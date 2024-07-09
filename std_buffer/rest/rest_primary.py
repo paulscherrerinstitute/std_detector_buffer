@@ -9,8 +9,8 @@ import zmq
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from jsonschema import ValidationError, validate
-from std_buffer.rest.stats_logger import StatsLogger
-from std_buffer.rest.utils import create_interleaved_vds, print_dataset_details, read_metadata
+from stats_logger import StatsLogger
+from utils import create_interleaved_vds, print_dataset_details, read_metadata
 from uvicorn import run
 
 

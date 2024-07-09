@@ -1,0 +1,35 @@
+
+
+services:
+  rest_primary:
+    build:
+      context: .
+      dockerfile: restprimary.Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - rest_secondary
+    environment:
+      CONFIG_FILE: /etc/std_daq/configs/gf1.json
+      REST_PORT: 5000
+      SECONDARY_SERVER: http://xbl-daq-28:5001
+      SECRET_KEY: your_secret_key
+    volumes:
+      - /etc/std_daq/configs/gf1.json:/etc/std_daq/configs/gf1.json:rw
+    logging:
+      driver: "journald"
+
+  rest_secondary:
+    build:
+      context: .
+      dockerfile: restsecondary.Dockerfile
+    ports:
+      - "5001:5001"
+    environment:
+      CONFIG_FILE: /etc/std_daq/configs/gf1.json
+      REST_PORT: 5001
+      SECRET_KEY: your_secret_key
+    volumes:
+      - /etc/std_daq/configs/gf1.json:/etc/std_daq/configs/gf1.json:rw
+    logging:
+      driver: "journald"
