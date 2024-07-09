@@ -18,6 +18,7 @@ services:
       - /etc/std_daq/configs/gf1.json:/etc/std_daq/configs/gf1.json:rw
     logging:
       driver: "journald"
+    network: host
 
   rest_secondary:
     build:
@@ -33,3 +34,4 @@ services:
       - /etc/std_daq/configs/gf1.json:/etc/std_daq/configs/gf1.json:rw
     logging:
       driver: "journald"
+    network: host

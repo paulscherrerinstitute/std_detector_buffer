@@ -6,7 +6,7 @@ from time import time
 
 import requests
 import zmq
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from jsonschema import ValidationError, validate
 from stats_logger import StatsLogger
@@ -31,7 +31,6 @@ logger.addFilter(EventFilter())
 
 # JSON Schema for validation
 JSON_SCHEMA = {
-    "type": "object",
     "properties": {
         "detector_name": {"type": "string"},
         "detector_type": {"type": "string"},
@@ -47,21 +46,6 @@ JSON_SCHEMA = {
         "module_sync_queue_size": {"type": "integer"},
         "module_positions": {"type": "object"},
     },
-    "required": [
-        "detector_name",
-        "detector_type",
-        "n_modules",
-        "bit_depth",
-        "image_pixel_height",
-        "image_pixel_width",
-        "start_udp_port",
-        "writer_user_id",
-        "submodule_info",
-        "max_number_of_forwarders_spawned",
-        "use_all_forwarders",
-        "module_sync_queue_size",
-        "module_positions",
-    ],
 }
 
 # FastAPI app initialization
@@ -83,6 +67,16 @@ def generate_hash(data, secret_key):
     data_string = json.dumps(data, sort_keys=True)
     return hashlib.sha256((data_string + secret_key).encode()).hexdigest()
 
+
+# Dependency functions
+def get_config_file():
+    return config_file
+
+def get_secondary_server():
+    return secondary_server
+
+def get_secret_key():
+    return secret_key
 
 # FastAPI endpoints
 @app.get("/api/config/get")
@@ -111,10 +105,8 @@ async def get_configuration(config_file: str, user: str):
 @app.post("/api/config/set")
 async def update_configuration(
     request: Request,
-    config_file: str,
-    user: str,
-    secondary_server: str,
-    secret_key: str,
+    user: str, 
+    config_file: str = Depends(get_config_file),
 ):
     start_time = time()
     new_config = await request.json()
@@ -128,6 +120,7 @@ async def update_configuration(
 
     try:
         # Overwrite the local file
+        logger.info("schema is validated.")
         with open(config_file, "w") as file:
             json.dump(new_config, file, indent=4)
         duration = time() - start_time
@@ -137,13 +130,13 @@ async def update_configuration(
         stats_logger.log_config_change("set", user, True)
 
         # Generate hash for the configuration
-        config_hash = generate_hash(new_config, secret_key)
-
+        #config_hash = generate_hash(new_config, secret_key)
         # Send updated configuration to the secondary server
-        response = requests.post(
-            f"{secondary_server}/api/config/set",
-            json={"config": new_config, "hash": config_hash},
-        )
+        params = {
+            "user": user,
+            "config_file": "/etc/std_daq/configs/gf1.json"
+        }
+        response = requests.post(f"{secondary_server}:5001/api/config/set", params=params, json=new_config, headers={"Content-Type": "application/json"})
         if response.status_code != 200:
             raise HTTPException(
                 status_code=500,
@@ -189,15 +182,13 @@ async def create_interleaved_vds_endpoint(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-def start_api(config_file, rest_port, secondary_server, secret_key):
+def start_api(config_file_path, rest_port, secondary_server_address, secret_key_value):
+    global config_file, secondary_server, secret_key
+    config_file = config_file_path
+    secondary_server = secondary_server_address
+    secret_key = secret_key_value
     try:
         logger.info(f"Starting API with config file: {config_file} on port {rest_port}")
-        app.dependency_overrides[get_configuration] = lambda: config_file
-        app.dependency_overrides[update_configuration] = lambda: (
-            config_file,
-            secondary_server,
-            secret_key,
-        )
         run(app, host="0.0.0.0", port=rest_port, log_level="warning")
     except Exception as e:
         logger.exception("Error while trying to run the REST api")
@@ -219,10 +210,10 @@ def main():
     args = parser.parse_args()
 
     start_api(
-        config_file=args.config_file,
+        config_file_path=args.config_file,
         rest_port=args.rest_port,
-        secondary_server=args.secondary_server,
-        secret_key=args.secret_key,
+        secondary_server_address=args.secondary_server,
+        secret_key_value=args.secret_key,
     )
 
 
