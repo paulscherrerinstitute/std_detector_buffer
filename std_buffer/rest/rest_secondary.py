@@ -7,11 +7,16 @@ import zmq
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from stats_logger import StatsLogger
+from utils import EventFilter
 from uvicorn import run
 
-# Set up logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(event)s %(levelname)s: %(message)s",
+    handlers=[logging.StreamHandler()],
+)
 logger = logging.getLogger(__name__)
+logger.addFilter(EventFilter())
 
 # FastAPI app initialization
 app = FastAPI()
@@ -23,16 +28,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize ZMQ context (optional)
 ctx = zmq.Context()
 stats_logger = StatsLogger(ctx)
-
 
 
 @app.post("/api/config/set")
 async def update_configuration(request: Request, config_file: str):
     new_config = await request.json()
-    
+
     logger.info(f"Received new configuration: {new_config}")
     try:
         # Overwrite the local file
@@ -67,10 +70,7 @@ def main():
 
     args = parser.parse_args()
 
-    start_secondary_api(
-        config_file=args.config_file,
-        rest_port=args.rest_port
-    )
+    start_secondary_api(config_file=args.config_file, rest_port=args.rest_port)
 
 
 if __name__ == "__main__":

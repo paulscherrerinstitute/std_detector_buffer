@@ -1,7 +1,14 @@
+import logging
 from pathlib import Path
 
 import h5py
 import numpy as np
+
+
+class EventFilter(logging.Filter):
+    def filter(self, record):
+        record.event = "[event]"
+        return True
 
 
 def read_metadata(file_path):

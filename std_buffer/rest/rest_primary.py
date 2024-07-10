@@ -6,20 +6,17 @@ from time import time
 
 import requests
 import zmq
-from fastapi import FastAPI, HTTPException, Request, Depends
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from jsonschema import ValidationError, validate
 from stats_logger import StatsLogger
-from utils import create_interleaved_vds, print_dataset_details, read_metadata
+from utils import (
+    EventFilter,
+    create_interleaved_vds,
+    print_dataset_details,
+    read_metadata,
+)
 from uvicorn import run
-
-
-# Set up logging
-class EventFilter(logging.Filter):
-    def filter(self, record):
-        record.event = "[event]"
-        return True
-
 
 logging.basicConfig(
     level=logging.INFO,
@@ -72,11 +69,14 @@ def generate_hash(data, secret_key):
 def get_config_file():
     return config_file
 
+
 def get_secondary_server():
     return secondary_server
 
+
 def get_secret_key():
     return secret_key
+
 
 # FastAPI endpoints
 @app.get("/api/config/get")
@@ -105,7 +105,7 @@ async def get_configuration(config_file: str, user: str):
 @app.post("/api/config/set")
 async def update_configuration(
     request: Request,
-    user: str, 
+    user: str,
     config_file: str = Depends(get_config_file),
 ):
     start_time = time()
@@ -130,13 +130,15 @@ async def update_configuration(
         stats_logger.log_config_change("set", user, True)
 
         # Generate hash for the configuration
-        #config_hash = generate_hash(new_config, secret_key)
+        # config_hash = generate_hash(new_config, secret_key)
         # Send updated configuration to the secondary server
-        params = {
-            "user": user,
-            "config_file": "/etc/std_daq/configs/gf1.json"
-        }
-        response = requests.post(f"{secondary_server}:5001/api/config/set", params=params, json=new_config, headers={"Content-Type": "application/json"})
+        params = {"user": user, "config_file": "/etc/std_daq/configs/gf1.json"}
+        response = requests.post(
+            f"{secondary_server}:5001/api/config/set",
+            params=params,
+            json=new_config,
+            headers={"Content-Type": "application/json"},
+        )
         if response.status_code != 200:
             raise HTTPException(
                 status_code=500,
