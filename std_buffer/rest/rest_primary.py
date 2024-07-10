@@ -134,7 +134,7 @@ async def update_configuration(
         # Send updated configuration to the secondary server
         params = {"user": user, "config_file": "/etc/std_daq/configs/gf1.json"}
         response = requests.post(
-            f"{secondary_server}:5001/api/config/set",
+            f"{secondary_server}/api/config/set",
             params=params,
             json=new_config,
             headers={"Content-Type": "application/json"},
