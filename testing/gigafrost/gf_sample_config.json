@@ -6,7 +6,6 @@
 	"image_pixel_height": 128,
 	"image_pixel_width": 480,
 	"start_udp_port": 2000,
-	"writer_user_id": 18600,
 	"submodule_info": {},
 	"max_number_of_forwarders_spawned": 10,
 	"sender_sends_full_images": true,

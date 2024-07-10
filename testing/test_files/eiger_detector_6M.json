@@ -6,7 +6,6 @@
   "image_pixel_height": 3106,
   "image_pixel_width": 2164,
   "start_udp_port": 50020,
-  "writer_user_id": 19782,
   "module_positions": {
     "0": [0,0,513,255],
     "1": [516,0,1029,255],

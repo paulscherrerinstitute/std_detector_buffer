@@ -19,7 +19,7 @@ DetectorConfig read_config(const json doc)
   static const std::string required_parameters[] = {
       "detector_name",  "detector_type",      "n_modules",
       "bit_depth",      "image_pixel_height", "image_pixel_width",
-      "start_udp_port", "module_positions",   "writer_user_id"};
+      "start_udp_port", "module_positions"};
 
   std::ranges::for_each(required_parameters, [&doc](const auto& s) {
     if (!doc.contains(s))
@@ -41,7 +41,6 @@ DetectorConfig read_config(const json doc)
           doc["image_pixel_height"].get<int>(),
           doc["image_pixel_width"].get<int>(),
           doc["start_udp_port"].get<uint16_t>(),
-          doc["writer_user_id"].get<int>(),
           doc.value("log_level", "info"),
           std::chrono::seconds(doc.value("stats_collection_period", 10)),
           doc.value("max_number_of_forwarders_spawned", 8),

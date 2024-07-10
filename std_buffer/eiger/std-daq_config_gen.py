@@ -47,7 +47,6 @@ def generate_output_file(output_file, config, indexes, image_pixel_height, image
         "image_pixel_height": int(image_pixel_width),
         "image_pixel_width": int(image_pixel_height),
         "start_udp_port": config['udp_dstport'],
-        "writer_user_id": 21206, # 21206 defaulted for now
         "submodule_info": [],
         "module_positions": {}
     }
@@ -305,4 +304,3 @@ if __name__ == '__main__':
     # Run the unit tests
     # unittest.main()
     main()
-
