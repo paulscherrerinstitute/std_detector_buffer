@@ -26,7 +26,7 @@ void* zmq_socket_connect(void* ctx, const std::string& stream_address)
 
 std::tuple<utils::DetectorConfig, std::string, int> read_arguments(int argc, char* argv[])
 {
-  auto program = utils::create_parser("std_stream_receive_gf");
+  auto program = utils::create_parser("std_stream_receive");
   program->add_argument("stream_address").help("address to bind input stream");
   program->add_argument("image_part")
       .help("0..7 responsible for sending n-th part of image")
