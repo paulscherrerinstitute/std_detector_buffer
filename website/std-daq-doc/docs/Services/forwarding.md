@@ -76,4 +76,31 @@ Positional arguments:
 
 ![Forwarding 2](/img/forwarding_2.svg)
 
-tbd
+This setup of deployment is meant for high frequency forwarding. [std_stream_send](#std_stream_send) and [std_stream_receive](#std_stream_receive) service pairs are still utilized. The difference is that they are now sending full images instead of only parts of a single one. Due to this fact additional synchronization is needed on the receiving server side. To facilitate this there are 2 services running that are not used in the first model.
+
+### std_metadata_stream
+
+On sending server there is additionally spawned `std_metadata_stream` that sends via tcp only the metadata stream according to [protobuf interface](../Interfaces/protobuf.md).
+
+```text
+Usage: std_metadata_stream [--help] [--version] [--source_suffix VAR] detector_json_filename stream_address
+
+Positional arguments:
+  detector_json_filename  path to configuration file
+  stream_address          address to bind the output stream 
+
+Optional arguments: 
+  -s, --source_suffix     suffix for ipc source for data stream - default "image" [nargs=0..1] [default: "image"]
+```
+
+### std_data_sync_metadata
+
+This is different kind of synchronizer used in comparison to first forwarding method. Here metadata stream is utilized to leverage information about which images were sent to receiving server in order to keep output stream correctly synchronized and in-order of incoming `image_ids` without extensive latency added.
+
+```text
+Usage: std_data_sync_metadata [--help] [--version] detector_json_filename metadata_stream_address
+
+Positional arguments:
+  detector_json_filename  path to configuration file
+  metadata_stream_address  address to connect to metadata stream 
+```
