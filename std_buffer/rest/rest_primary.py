@@ -171,17 +171,39 @@ async def print_dataset_details_endpoint(file_path: str):
         logger.error(f"Error printing dataset details from {file_path}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.post("/api/h5/create_interleaved_vds")
-async def create_interleaved_vds_endpoint(
-    base_path: str, num_files: int, output_file: str
-):
+async def create_interleaved_vds_endpoint(request: Request):
     try:
+        payload = await request.json()
+        base_path = payload.get('base_path')
+        num_files = payload.get('num_files')
+        output_file = payload.get('output_file')
+        
+        logger.debug(f"Received request to create interleaved VDS with base_path: {base_path}, num_files: {num_files}, output_file: {output_file}")
+        
+        if not base_path or not num_files or not output_file:
+            raise ValueError("Missing required parameters")
+        
+        logger.debug("Starting the VDS creation process...")
         create_interleaved_vds(base_path, num_files, output_file)
+        logger.debug("VDS creation process completed successfully.")
         return {"message": "Interleaved virtual dataset created successfully"}
     except Exception as e:
         logger.error(f"Error creating interleaved virtual dataset: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+def create_interleaved_vds(base_path: str, num_files: int, output_file: str):
+    # Example implementation of the VDS creation function
+    logger.debug(f"Creating interleaved VDS with base_path: {base_path}, num_files: {num_files}, output_file: {output_file}")
+    # Simulate some processing
+    try:
+        # Insert the logic for creating interleaved VDS here
+        logger.debug("Processing files and creating VDS...")
+        pass  # Replace with actual implementation
+    except Exception as e:
+        logger.error(f"Exception in create_interleaved_vds: {e}")
+        raise
+
 
 
 def start_api(config_file_path, rest_port, secondary_server_address, secret_key_value):
