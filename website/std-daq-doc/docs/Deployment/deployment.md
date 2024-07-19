@@ -125,3 +125,10 @@ Current test deployment for `GigaFRoST` utilizing 2 servers can be found [here](
                - { cpus: [22], params: ['tcp://129.129.95.38:20001', '-p 4:10'] }
       ```
       First parameter is the output stream for the `array-1.0` interface sent over `zmq` second is the mode of operation `-b` - batch sending 2 images every 555 images, `-p` - periodic sending 4 images with 10Hz frequency.
+   6. `std_gf_filter` - filters metadata based on flags encoded in GigaFRoST frames
+      ```yaml
+            - prog_name: std_gf_filter
+              instances:
+                - { cpus: [2], params: ['--no_filter'] }
+      ```
+      Single cpu is enough - currently filtering is disabled with `no_filter` flag.
