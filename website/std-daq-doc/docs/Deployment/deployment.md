@@ -59,7 +59,7 @@ Current test deployment for `GigaFRoST` utilizing 2 servers can be found [here](
               instances:
                 - { cpus: [43-47], params: [] }
       ```
-      Converter takes up more cores as it receives and processes in parallel messages from all 16 converters.
+      Synchronizer takes up more cores as it receives and processes in parallel messages from all 16 converters.
    4. `std_metadata_stream` - single instance of output metadata stream in case of sending with high frequencies (40kHZ) small images between the servers
       ```yaml
             - prog_name: std_metadata_stream
@@ -67,3 +67,61 @@ Current test deployment for `GigaFRoST` utilizing 2 servers can be found [here](
                 - { cpus: [42], params: ["'tcp://192.168.10.224:10100'"] }
       ```
       Only one core needed - not heavily utilized, the parameter is the address of the zmq `PUB/SUB` socket to which one may connect to receive the metadata stream.
+   5. `std_stream_send` - 10 sender services forwarding data in one of the configured modes between machines
+      ```yaml
+            - prog_name: std_stream_send
+              instances:
+                - { cpus: [32], params: ["'tcp://192.168.10.224:10000'", 0] }
+                - ...
+                - { cpus: [41], params: ["'tcp://192.168.10.224:10009'", 9] }
+
+      ```
+
+#### Second server (daq-29) aka writing data to GPFS server
+**WARNING** Software version and configuration file **need** to be configured to the same version as for the first server.
+1. Microservices deployed on this machine:
+   1. `std_stream_receive` - 10 receiver each corresponding to sender on `daq-28` server with corresponding `tcp` address configured for sender.
+      ```yaml
+         - prog_name: std_stream_receive
+           instances:
+             - { cpus: [3] , params: ["tcp://192.168.10.224:10000", 0] }
+             - ...
+             - { cpus: [12], params: ["tcp://192.168.10.224:10009", 9] }
+
+      ```
+      Each service uses exclusively only 1 dedicated cpu, different parts can be connected to different cars/NUMAs.
+   2. `std_data_sync_stream` and `std_data_sync_metadata` - two synchronizers spawned for different mode of communication (large images vs small images). Depending on the configuration file one of them shuts down on startup.
+      ```yaml
+            - prog_name: std_data_sync_stream
+              instances:
+                - { cpus: [15-18], params: [] }
+            - prog_name: std_data_sync_metadata
+              instances:
+                - { cpus: [15-18], params: ['tcp://192.168.10.224:10100'] }
+      ```
+      Synchronizer takes up more cores as it receives and processes in parallel from all receivers.
+   3. `std_det_driver` - detector driver responsible for controlling file writers
+      ```yaml
+            - prog_name: std_det_driver
+              instances:
+                - { cpus: [19-21], params: ['-s filter'] }
+      ```
+      Requires more cores to handle in parallel user requests and communication with writers. `filter` is a suffix of data channel that it takes to provide data to writers.
+   4. `std_det_writer` - 14 writers spawned to serve file writing used in parallel by detector driver.
+      ```yaml
+            - prog_name: std_det_writer
+              instances:
+                - { cpus: [36], params: [0] }
+                - ...
+                - { cpus: [25], params: [13] }
+
+      ```
+      Each uses only 1 core - the number of utilized at a time writers depends on the configuration in configuration file.
+   5. `std_live_stream` - 2 live streams spawned with different parameters for presentation purposes
+      ```yaml
+           - prog_name: std_live_stream
+             instances:
+               - { cpus: [22], params: ['tcp://129.129.95.38:20000', '-b 2:555'] }
+               - { cpus: [22], params: ['tcp://129.129.95.38:20001', '-p 4:10'] }
+      ```
+      First parameter is the output stream for the `array-1.0` interface sent over `zmq` second is the mode of operation `-b` - batch sending 2 images every 555 images, `-p` - periodic sending 4 images with 10Hz frequency.
