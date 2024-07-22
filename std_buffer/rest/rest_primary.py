@@ -59,11 +59,9 @@ app.add_middleware(
 ctx = zmq.Context()
 stats_logger = StatsLogger(ctx)
 
-
-def generate_hash(data, secret_key):
-    data_string = json.dumps(data, sort_keys=True)
-    return hashlib.sha256((data_string + secret_key).encode()).hexdigest()
-
+# Global variables to be set at startup
+config_file = None
+secondary_server = None
 
 # Dependency functions
 def get_config_file():
@@ -73,15 +71,11 @@ def get_config_file():
 def get_secondary_server():
     return secondary_server
 
-
-def get_secret_key():
-    return secret_key
-
-
 # FastAPI endpoints
 @app.get("/api/config/get")
-async def get_configuration(config_file: str, user: str):
+async def get_configuration(user: str):
     start_time = time()
+    global config_file
     logger.info(f"User {user} fetching configuration from {config_file}")
     try:
         with open(config_file, "r") as file:
@@ -106,10 +100,10 @@ async def get_configuration(config_file: str, user: str):
 async def update_configuration(
     request: Request,
     user: str,
-    config_file: str = Depends(get_config_file),
 ):
     start_time = time()
     new_config = await request.json()
+    global config_file
     logger.info(f"User {user} received new configuration: {new_config}")
     try:
         validate(instance=new_config, schema=JSON_SCHEMA)
@@ -130,12 +124,9 @@ async def update_configuration(
         stats_logger.log_config_change("set", user, True)
 
         # Generate hash for the configuration
-        # config_hash = generate_hash(new_config, secret_key)
-        # Send updated configuration to the secondary server
-        params = {"user": user, "config_file": "/etc/std_daq/configs/gf1.json"}
         response = requests.post(
             f"{secondary_server}/api/config/set",
-            params=params,
+            params={"user":user},
             json=new_config,
             headers={"Content-Type": "application/json"},
         )
@@ -206,13 +197,12 @@ def create_interleaved_vds(base_path: str, num_files: int, output_file: str):
 
 
 
-def start_api(config_file_path, rest_port, secondary_server_address, secret_key_value):
-    global config_file, secondary_server, secret_key
+def start_api(config_file_path, rest_port, secondary_server_address):
+    global config_file, secondary_server
     config_file = config_file_path
     secondary_server = secondary_server_address
-    secret_key = secret_key_value
     try:
-        logger.info(f"Starting API with config file: {config_file} on port {rest_port}")
+        logger.info(f"Starting API with config file: {config_file} on port {rest_port} and with secondary server: {secondary_server} ")
         run(app, host="0.0.0.0", port=rest_port, log_level="warning")
     except Exception as e:
         logger.exception("Error while trying to run the REST api")
@@ -229,7 +219,6 @@ def main():
         type=str,
         help="Address of the secondary server for synchronization",
     )
-    parser.add_argument("--secret_key", type=str, help="Secret key for hash generation")
 
     args = parser.parse_args()
 
@@ -237,7 +226,6 @@ def main():
         config_file_path=args.config_file,
         rest_port=args.rest_port,
         secondary_server_address=args.secondary_server,
-        secret_key_value=args.secret_key,
     )
 
 

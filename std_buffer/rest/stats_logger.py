@@ -41,7 +41,7 @@ class StatsLogger:
             "success": success,
         }
         self.config_stats.append(log_entry)
-        _logger.info(f"Logged config change: {log_entry}")
+        _logger.info(f"Logged config activity: {log_entry}")
 
     def close(self):
         self._stop_event.set()

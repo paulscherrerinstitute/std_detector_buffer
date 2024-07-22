@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 5000
 
 # Run the application
-CMD ["sh", "-c", "python rest_primary.py $CONFIG_FILE --rest_port $REST_PORT --secondary_server $SECONDARY_SERVER --secret_key $SECRET_KEY"]
+CMD ["sh", "-c", "python rest_primary.py $CONFIG_FILE --rest_port $REST_PORT --secondary_server $SECONDARY_SERVER"]
