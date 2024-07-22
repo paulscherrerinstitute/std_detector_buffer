@@ -5,8 +5,6 @@ services:
     build:
       context: .
       dockerfile: restprimary.Dockerfile
-    ports:
-      - "5000:5000"
     environment:
       CONFIG_FILE: /etc/std_daq/configs/gf1.json
       REST_PORT: 5000
