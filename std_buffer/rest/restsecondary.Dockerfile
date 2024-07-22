@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Run the application
-CMD ["sh", "-c", "python rest_secondary.py $CONFIG_FILE --rest_port $REST_PORT --secret_key $SECRET_KEY"]
+CMD ["sh", "-c", "python rest_secondary.py $CONFIG_FILE --rest_port $REST_PORT"]

@@ -5,12 +5,9 @@ services:
     build:
       context: .
       dockerfile: restsecondary.Dockerfile
-    ports:
-      - "5001:5001"
     environment:
       CONFIG_FILE: /etc/std_daq/configs/gf1.json
       REST_PORT: 5001
-      SECRET_KEY: your_secret_key
     volumes:
       - /etc/std_daq/configs/gf1.json:/etc/std_daq/configs/gf1.json:rw
     logging:
