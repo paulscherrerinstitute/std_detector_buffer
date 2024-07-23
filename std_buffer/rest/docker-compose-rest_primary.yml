@@ -9,9 +9,10 @@ services:
       CONFIG_FILE: /etc/std_daq/configs/gf1.json
       REST_PORT: 5000
       SECONDARY_SERVER: http://xbl-daq-28:5001
-      SECRET_KEY: your_secret_key
     volumes:
       - /etc/std_daq/configs/gf1.json:/etc/std_daq/configs/gf1.json:rw
+      - /gpfs/:/gpfs/
     logging:
       driver: "journald"
     network_mode: host
+    privileged: true

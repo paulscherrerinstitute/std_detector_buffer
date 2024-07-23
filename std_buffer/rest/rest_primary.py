@@ -2,17 +2,20 @@ import argparse
 import hashlib
 import json
 import logging
+import os
 from time import time
 
 import requests
 import zmq
 from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from jsonschema import ValidationError, validate
 from stats_logger import StatsLogger
 from utils import (
     EventFilter,
     create_interleaved_vds,
+    get_dataset_details,
     print_dataset_details,
     read_metadata,
 )
@@ -143,23 +146,24 @@ async def update_configuration(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+
 @app.get("/api/h5/read_metadata")
 async def read_metadata_endpoint(file_path: str):
     try:
-        read_metadata(file_path)
-        return {"message": f"Metadata from {file_path} read successfully"}
+        metadata = read_metadata(file_path)
+        return JSONResponse(content=metadata)
     except Exception as e:
         logger.error(f"Error reading metadata from {file_path}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/h5/print_dataset_details")
-async def print_dataset_details_endpoint(file_path: str):
+@app.get("/api/h5/get_metadata_status")
+async def read_metadata_status(file_path: str):
     try:
-        print_dataset_details(file_path)
-        return {"message": f"Dataset details from {file_path} printed successfully"}
+        details = await get_dataset_details(file_path)
+        return JSONResponse(content=details)
     except Exception as e:
-        logger.error(f"Error printing dataset details from {file_path}: {e}")
+        logger.error(f"Error getting dataset details from {file_path}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/h5/create_interleaved_vds")
@@ -167,34 +171,22 @@ async def create_interleaved_vds_endpoint(request: Request):
     try:
         payload = await request.json()
         base_path = payload.get('base_path')
-        num_files = payload.get('num_files')
         output_file = payload.get('output_file')
         
-        logger.debug(f"Received request to create interleaved VDS with base_path: {base_path}, num_files: {num_files}, output_file: {output_file}")
+        num_files = len([f for f in os.listdir(base_path) if f.endswith('.h5') and f.startswith('file') and os.path.isfile(os.path.join(base_path, f))])
+        logger.info(f"Received request to create interleaved VDS with base_path: {base_path}, num_files: {num_files}, output_file: {output_file}")
         
         if not base_path or not num_files or not output_file:
             raise ValueError("Missing required parameters")
-        
-        logger.debug("Starting the VDS creation process...")
+
+        logger.info(f"Number of files in base_path: {num_files}") 
+        logger.info("Starting the VDS creation process...")
         create_interleaved_vds(base_path, num_files, output_file)
-        logger.debug("VDS creation process completed successfully.")
+        logger.info("VDS creation process completed successfully.")
         return {"message": "Interleaved virtual dataset created successfully"}
     except Exception as e:
         logger.error(f"Error creating interleaved virtual dataset: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
-def create_interleaved_vds(base_path: str, num_files: int, output_file: str):
-    # Example implementation of the VDS creation function
-    logger.debug(f"Creating interleaved VDS with base_path: {base_path}, num_files: {num_files}, output_file: {output_file}")
-    # Simulate some processing
-    try:
-        # Insert the logic for creating interleaved VDS here
-        logger.debug("Processing files and creating VDS...")
-        pass  # Replace with actual implementation
-    except Exception as e:
-        logger.error(f"Exception in create_interleaved_vds: {e}")
-        raise
-
 
 
 def start_api(config_file_path, rest_port, secondary_server_address):
