@@ -109,7 +109,7 @@ async def print_dataset_details(file_path):
 
 def create_interleaved_vds(base_path, num_files, output_file):
     """Create interleaved virtual datasets for both data and metadata from multiple HDF5 files."""
-    files = [os.path.join(base_path, f) for f in os.listdir(base_path) if f.endswith('.h5') and os.path.isfile(os.path.join(base_path, f))]
+    files = sorted([os.path.join(base_path, f) for f in os.listdir(base_path) if f.endswith('.h5') and os.path.isfile(os.path.join(base_path, f))])
 
 
     # Determine the shape and dtype by inspecting the first file
