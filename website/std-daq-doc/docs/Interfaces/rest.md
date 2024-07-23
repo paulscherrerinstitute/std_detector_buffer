@@ -26,7 +26,9 @@ Note that the configuration file needs to be identical on both, in order that th
 
 ### RestAPI endpoints
 
-#### /api/config/get
+#### Config endpoints
+
+##### /api/config/get
 
 The `get` endpoint returns the content of the configuration file, defined at the deployment of the std-daq. It requires a argument parameter username, which is going to be stored in the logs for completeness.
 
@@ -51,7 +53,7 @@ A configuration can be, for example:
 }
 ```
 
-##### Usage examples:
+###### Usage examples:
 
 ```bash
 curl -X GET "http://xbl-daq-29:5000/api/config/get?user=username"
@@ -68,7 +70,7 @@ config = response.json()
 print(json.dumps(config, indent=4))
 ```
 
-#### /api/config/set
+##### /api/config/set
 
 The `set` endpoint writes a **fully composed** configuration into the configuration file will be used in the std-daq, once validated and saved, an automatic restart on the std-daq services will be done and the new configuration is going to be adopted. 
 
@@ -76,7 +78,7 @@ The `set` endpoint writes a **fully composed** configuration into the configurat
 
 
 
-##### Json Config Schema
+###### Json Config Schema
 
 Every submitted configuration, before being saved, will be validated against a defined schema, see below:
 
@@ -98,7 +100,7 @@ Every submitted configuration, before being saved, will be validated against a d
 }
 ```
 
-##### Usage examples:
+###### Usage examples:
 
 ```bash
 curl -X POST "http://xbl-daq-29:5000/api/config/set?user=username" \
@@ -132,3 +134,39 @@ response.raise_for_status()
 print(response.json())
 ```
 
+
+#### H5 Endpoints
+
+The ```H5 endpoints``` are intented to support the user in the management and analysis of std-daq generated files.
+
+##### /api/h5/read_metadata
+
+The ```read_metadata``` function takes the filename and returns the image id and status of such image in the given file.
+
+##### Usage example
+
+```bash
+curl -G "http://xbl-daq-29:5000/api/h5/read_metadata" --data-urlencode "filename=/gpfs/test/test-beamline/interleaved_api_virtual.h5
+```
+
+
+#### /api/h5/get_metadata_status
+
+This ```get_metadata_status``` function gives a peak inside the contents of the file: list of datasets, shapes, types, and names and metadata.
+
+##### Usage example
+```bash
+curl -G "http://xbl-daq-29:5000/api/h5/get_metadata_status" --data-urlencode "filename=/gpfs/test/test-beamline/interleaved_api_virtual.h5
+```
+
+#### /api/h5/create_interleaved_vds
+
+This function will combine the std-daq written files from a given folder in a interleaved h5 virtual dataset.
+
+**Note that the name format of the files need to follow ```file{NN}.h5```, where NN represents the writer process id used when it was written.**
+
+##### Usage example
+
+```bash
+curl -X POST "http://xbl-daq-29:5000/api/h5/create_interleaved_vds" -H "Content-Type: application/json" -d '{"base_path": "/gpfs/test/test-beamline", "output_file": "interleaved_api_virtual.h5"}'
+```

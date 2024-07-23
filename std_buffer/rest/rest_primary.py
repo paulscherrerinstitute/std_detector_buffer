@@ -8,8 +8,8 @@ from time import time
 import requests
 import zmq
 from fastapi import Depends, FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from jsonschema import ValidationError, validate
 from stats_logger import StatsLogger
 from utils import (
@@ -66,6 +66,7 @@ stats_logger = StatsLogger(ctx)
 config_file = None
 secondary_server = None
 
+
 # Dependency functions
 def get_config_file():
     return config_file
@@ -73,6 +74,7 @@ def get_config_file():
 
 def get_secondary_server():
     return secondary_server
+
 
 # FastAPI endpoints
 @app.get("/api/config/get")
@@ -129,7 +131,7 @@ async def update_configuration(
         # Generate hash for the configuration
         response = requests.post(
             f"{secondary_server}/api/config/set",
-            params={"user":user},
+            params={"user": user},
             json=new_config,
             headers={"Content-Type": "application/json"},
         )
@@ -146,40 +148,50 @@ async def update_configuration(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-
 @app.get("/api/h5/read_metadata")
-async def read_metadata_endpoint(file_path: str):
+async def read_metadata_endpoint(filename: str):
     try:
-        metadata = read_metadata(file_path)
+        metadata = read_metadata(filename)
         return JSONResponse(content=metadata)
     except Exception as e:
-        logger.error(f"Error reading metadata from {file_path}: {e}")
+        logger.error(f"Error reading metadata from {filename}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/h5/get_metadata_status")
-async def read_metadata_status(file_path: str):
+async def read_metadata_status(filename: str):
     try:
-        details = await get_dataset_details(file_path)
+        details = await get_dataset_details(filename)
         return JSONResponse(content=details)
     except Exception as e:
-        logger.error(f"Error getting dataset details from {file_path}: {e}")
+        logger.error(f"Error getting dataset details from {filename}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.post("/api/h5/create_interleaved_vds")
 async def create_interleaved_vds_endpoint(request: Request):
     try:
         payload = await request.json()
-        base_path = payload.get('base_path')
-        output_file = payload.get('output_file')
-        
-        num_files = len([f for f in os.listdir(base_path) if f.endswith('.h5') and f.startswith('file') and os.path.isfile(os.path.join(base_path, f))])
-        logger.info(f"Received request to create interleaved VDS with base_path: {base_path}, num_files: {num_files}, output_file: {output_file}")
-        
+        base_path = payload.get("base_path")
+        output_file = payload.get("output_file")
+
+        num_files = len(
+            [
+                f
+                for f in os.listdir(base_path)
+                if f.endswith(".h5")
+                and f.startswith("file")
+                and os.path.isfile(os.path.join(base_path, f))
+            ]
+        )
+        logger.info(
+            f"Received request to create interleaved VDS with base_path: {base_path}, num_files: {num_files}, output_file: {output_file}"
+        )
+
         if not base_path or not num_files or not output_file:
             raise ValueError("Missing required parameters")
 
-        logger.info(f"Number of files in base_path: {num_files}") 
+        logger.info(f"Number of files in base_path: {num_files}")
         logger.info("Starting the VDS creation process...")
         create_interleaved_vds(base_path, num_files, output_file)
         logger.info("VDS creation process completed successfully.")
@@ -194,7 +206,9 @@ def start_api(config_file_path, rest_port, secondary_server_address):
     config_file = config_file_path
     secondary_server = secondary_server_address
     try:
-        logger.info(f"Starting API with config file: {config_file} on port {rest_port} and with secondary server: {secondary_server} ")
+        logger.info(
+            f"Starting API with config file: {config_file} on port {rest_port} and with secondary server: {secondary_server} "
+        )
         run(app, host="0.0.0.0", port=rest_port, log_level="warning")
     except Exception as e:
         logger.exception("Error while trying to run the REST api")
