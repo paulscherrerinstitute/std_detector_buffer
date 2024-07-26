@@ -10,7 +10,7 @@ include:
     - docker push $CI_REGISTRY/controls-ci/std_detector_buffer/$DOCKER_IMAGE:$BUILT_DOCKER_IMAGE_VERSION
   parallel:
     matrix:
-      - DOCKER_IMAGE: [ centos8 ]
+      - DOCKER_IMAGE: [ ubi9 ]
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
       changes:
