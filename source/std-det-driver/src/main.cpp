@@ -32,7 +32,8 @@ void do_accept(boost::asio::ip::tcp::acceptor& acceptor,
   });
 }
 
-std::tuple<utils::DetectorConfig, std::string, std::size_t> read_arguments(int argc, char* argv[])
+std::tuple<utils::DetectorConfig, std::string, std::size_t, bool> read_arguments(int argc,
+                                                                                 char* argv[])
 {
   auto program = utils::create_parser("std_det_driver");
   program->add_argument("-s", "--source_suffix")
@@ -42,17 +43,21 @@ std::tuple<utils::DetectorConfig, std::string, std::size_t> read_arguments(int a
       .default_value(8080ul)
       .scan<'u', std::size_t>()
       .help("websocket listening port");
+  program->add_argument("-m", "--with_metadata_writer")
+      .flag()
+      .help("Whether writer for metadata is accesible/used");
 
   program = utils::parse_arguments(std::move(program), argc, argv);
   return {utils::read_config_from_json_file(program->get("detector_json_filename")),
-          program->get("--source_suffix"), program->get<std::size_t>("--port")};
+          program->get("--source_suffix"), program->get<std::size_t>("--port"),
+          program->get<bool>("--with_metadata_writer")};
 }
 
 } // namespace
 
 int main(int argc, char* argv[])
 {
-  const auto [config, source_suffix, port] = read_arguments(argc, argv);
+  const auto [config, source_suffix, port, with_metadata_writer] = read_arguments(argc, argv);
   [[maybe_unused]] utils::log::logger l{"std_det_driver", config.log_level};
 
   spdlog::info("[event] Services (re)started with parameters: {}", config);
@@ -63,7 +68,7 @@ int main(int argc, char* argv[])
 
   auto sm = std::make_shared<std_driver::state_manager>();
   auto driver =
-      std::make_shared<std_driver::writer_driver>(sm, source_suffix, config);
+      std::make_shared<std_driver::writer_driver>(sm, source_suffix, config, with_metadata_writer);
 
   driver->init();
   do_accept(acceptor, sm, driver);
