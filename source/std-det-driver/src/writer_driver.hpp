@@ -32,15 +32,15 @@ class writer_driver : public std::enable_shared_from_this<writer_driver>
 public:
   explicit writer_driver(std::shared_ptr<std_driver::state_manager> sm,
                          const std::string& source_suffix,
-                         utils::DetectorConfig config);
+                         const utils::DetectorConfig& config);
   void init();
   void start(const run_settings& settings);
 
 private:
-  void* bind_sender_socket(const std::string& stream_address);
-  void* connect_to_socket(const std::string& stream_address);
-  void* prepare_sync_receiver_socket(const std::string& source_name);
-  void send_create_file_requests(std::string_view base_path, writer_id id);
+  void* bind_sender_socket(const std::string& stream_address) const;
+  void* connect_to_socket(const std::string& stream_address) const;
+  void* prepare_sync_receiver_socket(const std::string& source_name) const;
+  void send_create_file_requests(std::string_view base_path, writer_id id) const;
   void record_images(std::size_t n_images);
   void send_command_to_all_writers(const std_daq_protocol::WriterAction& action);
   void send_save_file_requests();
