@@ -11,7 +11,6 @@
 #include <vector>
 #include <algorithm>
 #include <chrono>
-#include <iostream>
 
 #include <spdlog/spdlog.h>
 
@@ -26,7 +25,7 @@ class state_manager
   mutable std::condition_variable cv;
 
 public:
-  void change_state(driver_state newState)
+  void change_state(const driver_state newState)
   {
     {
       std::lock_guard lock(mutex);
@@ -47,7 +46,8 @@ public:
     });
   }
 
-  [[nodiscard]] driver_state wait_for_change_or_timeout(std::chrono::milliseconds timeout) const
+  [[nodiscard]] driver_state wait_for_change_or_timeout(
+      const std::chrono::milliseconds timeout) const
   {
     std::unique_lock lock(mutex);
     driver_state current_state = state.load();
