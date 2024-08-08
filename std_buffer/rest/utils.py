@@ -1,10 +1,11 @@
-import zmq
 import logging
-from pathlib import Path
-from stats_logger import StatsLogger
 import os
+from pathlib import Path
+
 import h5py
 import numpy as np
+import zmq
+from stats_logger import StatsLogger
 
 
 class EventFilter(logging.Filter):
@@ -12,9 +13,9 @@ class EventFilter(logging.Filter):
         record.event = "[event]"
         return True
 
+
 ctx = zmq.Context()
 stats_logger = StatsLogger(ctx)
-
 
 
 logging.basicConfig(
@@ -41,14 +42,14 @@ def read_metadata(file_path: str) -> dict:
         # Convert metadata to a dictionary and limit to first 15 entries
         metadata_list = []
         for i, entry in enumerate(metadata_array):
-            metadata_list.append({
-                "image_id": entry["image_id"].item(),
-                "status": entry["status"].item()
-            })
-        
+            metadata_list.append(
+                {"image_id": entry["image_id"].item(), "status": entry["status"].item()}
+            )
+
         metadata_dict["metadata"] = metadata_list
 
     return metadata_dict
+
 
 def numpy_to_native(obj):
     """Convert numpy objects to native Python types."""
@@ -64,10 +65,10 @@ def numpy_to_native(obj):
 
 
 async def get_dataset_details(file_path: str) -> dict:
-    """ Gather and return details of datasets including metadata and size from an HDF5 file. """
+    """Gather and return details of datasets including metadata and size from an HDF5 file."""
     details = {}
 
-    with h5py.File(file_path, 'r') as file:
+    with h5py.File(file_path, "r") as file:
         details["file"] = file_path
         details["datasets"] = []
 
@@ -78,13 +79,21 @@ async def get_dataset_details(file_path: str) -> dict:
                     "shape": numpy_to_native(node.shape),
                     "dtype": str(node.dtype),
                     "size": numpy_to_native(node.size),
-                    "metadata": {key: numpy_to_native(node.attrs[key]) for key in node.attrs.keys()} if node.attrs else {}
+                    "metadata": (
+                        {
+                            key: numpy_to_native(node.attrs[key])
+                            for key in node.attrs.keys()
+                        }
+                        if node.attrs
+                        else {}
+                    ),
                 }
                 details["datasets"].append(dataset_info)
 
         file.visititems(gather_info)
 
     return details
+
 
 async def print_dataset_details(file_path):
     """Print details of datasets including metadata and size from an HDF5 file."""
@@ -107,40 +116,92 @@ async def print_dataset_details(file_path):
 
         file.visititems(print_info)  # Visit each item in the HDF5 file
 
-def create_interleaved_vds(base_path, num_files, output_file):
-    """Create interleaved virtual datasets for both data and metadata from multiple HDF5 files."""
-    files = sorted([os.path.join(base_path, f) for f in os.listdir(base_path) if f.endswith('.h5') and os.path.isfile(os.path.join(base_path, f))])
 
+ef create_interleaved_vds(base_path, output_file):
+    """Create interleaved virtual datasets for both data and metadata from multiple HDF5 files."""
+    files = sorted(
+        [
+            os.path.join(base_path, f)
+            for f in os.listdir(base_path)
+            if f.endswith(".h5") and os.path.isfile(os.path.join(base_path, f))
+        ]
+    )
+    file_meta = None
+    for f in files:
+        if os.path.basename(f) == "fileMeta.h5":
+            file_meta = f
+            files.remove(f)
+            break
+
+    if file_meta is None:
+        raise ValueError("fileMeta.h5 not found in the directory.")
+
+    with h5py.File(file_meta, "r") as meta_file:
+        file_meta_shape = meta_file["gf-teststand/metadata"].shape
+        file_meta_dtype = meta_file["gf-teststand/metadata"].dtype
 
     # Determine the shape and dtype by inspecting the first file
-    with h5py.File(files[0], 'r') as sample_file:
-        data_shape = sample_file['gf-teststand/data'].shape
-        data_dtype = sample_file['gf-teststand/data'].dtype
-        metadata_shape = sample_file['gf-teststand/metadata'].shape
-        metadata_dtype = sample_file['gf-teststand/metadata'].dtype
-        logger.info(f"Data found: {data_shape} and {data_dtype}. Metadata found: {metadata_shape} and {metadata_dtype}.")
+    with h5py.File(files[0], "r") as sample_file:
+        data_shape = sample_file["gf-teststand/data"].shape
+        data_dtype = sample_file["gf-teststand/data"].dtype
+        metadata_shape = sample_file["gf-teststand/metadata"].shape
+        metadata_dtype = sample_file["gf-teststand/metadata"].dtype
+        logger.info(
+            f"Data found: {data_shape} and {data_dtype}. Metadata found: {metadata_shape} and {metadata_dtype}."
+        )
 
     # Setup the virtual layouts for data and metadata
-    total_images = data_shape[0] * num_files
-    vlayout_data = h5py.VirtualLayout(shape=(total_images, data_shape[1], data_shape[2]), dtype=data_dtype)
-    vlayout_metadata = h5py.VirtualLayout(shape=(total_images,), dtype=metadata_dtype)
+    total_images = data_shape[0] * len(files)
+    vlayout_data = h5py.VirtualLayout(
+        shape=(total_images, data_shape[1], data_shape[2]), dtype=data_dtype
+    )
+    vlayout_metadata = h5py.VirtualLayout(
+        shape=(total_images + file_meta_shape[0],), dtype=file_meta_dtype
+    )
 
     # Interleave data from each file
     for i, filename in enumerate(files):
         logger.info(f"Linking file {filename} (number {i}) into the virtual dataset...")
-        vsource_data = h5py.VirtualSource(filename, 'gf-teststand/data', shape=data_shape)
-        vsource_metadata = h5py.VirtualSource(filename, 'gf-teststand/metadata', shape=metadata_shape)
+        vsource_data = h5py.VirtualSource(
+            filename, "gf-teststand/data", shape=data_shape
+        )
+        vsource_metadata = h5py.VirtualSource(
+            filename, "gf-teststand/metadata", shape=metadata_shape
+        )
 
         for j in range(data_shape[0]):
-            layout_index = j * num_files + i
+            layout_index = j * len(files) + i
             vlayout_data[layout_index] = vsource_data[j]
             vlayout_metadata[layout_index] = vsource_metadata[j]
 
-    # Create the output file and add the virtual datasets
-    with h5py.File(os.path.join(base_path, output_file), 'w', libver='latest') as vds_file:
-        metadata_dtype = np.dtype([('image_id', 'uint64'), ('status', 'uint64')])
-        fill_value_metadata = np.array([(0, 0)], dtype=metadata_dtype)[0]
+    # Add metadata from file_meta using VirtualSource
+    vsource_file_meta = h5py.VirtualSource(file_meta, 'gf-teststand/metadata', shape=file_meta_shape)
+    for k in range(file_meta_shape[0]):
+        vlayout_metadata[total_images + k] = vsource_file_meta[k]
 
-        vds_file.create_virtual_dataset('interleaved_data', vlayout_data, fillvalue=0)
-        vds_file.create_virtual_dataset('interleaved_metadata', vlayout_metadata, fillvalue=fill_value_metadata)
+    # Define the compound datatype for the metadata
+    metadata_dtype = np.dtype(
+        [
+            ("image_id", "uint64"),
+            ("scan_id", "uint64"),
+            ("scan_time", "uint32"),
+            ("sync_time", "uint32"),
+            ("frame_timestamp", "uint64"),
+            ("exposure_time", "uint64"),
+        ]
+    )
+
+    # Create the output file and add the virtual datasets
+    with h5py.File(
+        os.path.join(base_path, output_file), "w", libver="latest"
+    ) as vds_file:
+        fill_value_data = np.zeros(1, dtype=data_dtype)[0]
+        fill_value_metadata = np.zeros(1, dtype=metadata_dtype)[0]
+
+        vds_file.create_virtual_dataset(
+            "interleaved_data", vlayout_data, fillvalue=fill_value_data
+        )
+        vds_file.create_virtual_dataset(
+            "interleaved_metadata", vlayout_metadata, fillvalue=fill_value_metadata
+        )
         logger.info("Interleaved virtual datasets created.")
