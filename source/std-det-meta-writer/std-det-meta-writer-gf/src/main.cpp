@@ -36,7 +36,7 @@ bool switch_writer_user(uid_t writer_user)
 
 int main(int argc, char* argv[])
 {
-  const std::string program_name{"std_det_writer"};
+  const std::string program_name{"std_det_meta_writer_gf"};
   auto program = utils::create_parser(program_name);
 
   program = utils::parse_arguments(std::move(program), argc, argv);
