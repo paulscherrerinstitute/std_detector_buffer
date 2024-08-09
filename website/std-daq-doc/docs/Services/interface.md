@@ -52,7 +52,7 @@ Optional arguments:
 
 This is a set of services responsible for saving images requested by the user to files in `hdf5` format. The sources of the metadata and image data can be specified separately as long as they adhere to common [internal protocol](#basic-metadata--ram-buffer-interface).
 
-The part of the system consists of 2 types of services. Single `driver` responsible for communication with the user and controlling of `N` writers responsible for parallel writing of the data to end point (usually `gpfs`).
+The part of the system consists of 2 types of services. Single `driver` responsible for communication with the user and controlling of `N` writers responsible for parallel writing of the data to end point (usually `gpfs`). Additionally, one can configure special metadata driver specific for each detector type. This service will create separate file consisting of metadata for all images.
 
 ### `std_det_driver` Service
 
@@ -67,14 +67,15 @@ Common parameters affecting service can be found [here](../Interfaces/configfile
 #### Usage
 
 ```text
-Usage: std_det_driver [--help] [--version] [--source_suffix VAR] [--port VAR] detector_json_filename
+Usage: std_det_driver [--help] [--version] [--source_suffix VAR] [--port VAR] [--with_metadata_writer] detector_json_filename
 
 Positional arguments:
   detector_json_filename  path to configuration file
 
 Optional arguments:
-  -s, --source_suffix     suffix for ipc source for metadata [nargs=0..1] [default: "image"]
-  -p, --port              websocket listening port [nargs=0..1] [default: 8080]
+  -s, --source_suffix         suffix for ipc source for metadata [nargs=0..1] [default: "image"]
+  -p, --port                  websocket listening port [nargs=0..1] [default: 8080]
+  -m, --with_metadata_writer  Whether writer for metadata is accessible/used 
 ```
 
 ### `std_det_writer` Services
@@ -99,6 +100,25 @@ Positional arguments:
 
 Optional arguments:
   -s, --source_suffix     suffix for shared memory source for ram_buffer - default "image" [nargs=0..1] [default: "image"]
+```
+
+### `std_det_meta_writer_gf` Service
+
+Single service that can be spawned to save image metadata specific for `GigaFRoST` detector.
+
+#### Config file settings
+
+- `gpfs_block_size` - `GPFS` block size in bytes defaulting to `16777216`. If this parameter is misconfigured it may affect performance of writing services as they allocate chunks of memory according to blocks in `GPFS`.
+
+Common parameters affecting service can be found [here](../Interfaces/configfile.md#common-configuration-options).
+
+#### Usage
+
+```text
+Usage: std_det_meta_writer_gf [--help] [--version] detector_json_filename
+
+Positional arguments:
+  detector_json_filename  path to configuration file
 ```
 
 ## ImageBuffer API
