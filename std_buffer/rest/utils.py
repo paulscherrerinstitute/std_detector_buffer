@@ -27,12 +27,12 @@ logger = logging.getLogger(__name__)
 logger.addFilter(EventFilter())
 
 
-def read_metadata(file_path: str) -> dict:
+def read_metadata(filename: str) -> dict:
     """Reads and returns the first 15 metadata entries from an HDF5 file as a dictionary."""
     metadata_dict = {}
 
     # Open the HDF5 file
-    with h5py.File(file_path, "r") as file:
+    with h5py.File(filename, "r") as file:
         # Access the metadata dataset
         metadata = file["interleaved_metadata"]
 
@@ -64,12 +64,12 @@ def numpy_to_native(obj):
     return obj
 
 
-async def get_dataset_details(file_path: str) -> dict:
+async def get_dataset_details(filename: str) -> dict:
     """Gather and return details of datasets including metadata and size from an HDF5 file."""
     details = {}
 
-    with h5py.File(file_path, "r") as file:
-        details["file"] = file_path
+    with h5py.File(filename, "r") as file:
+        details["file"] = filename
         details["datasets"] = []
 
         def gather_info(name, node):
