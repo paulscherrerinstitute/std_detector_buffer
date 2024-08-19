@@ -3,16 +3,7 @@
     name: $CI_REGISTRY/controls-ci/std_detector_buffer/$DOCKER_IMAGE:$USED_DOCKER_IMAGE_VERSION
     entrypoint: ['']
   script:
-    - echo ">>>>> Release build:"
-    - cmake -B release -DCMAKE_BUILD_TYPE=Release -G Ninja
-    - cmake --build release
-    - echo ">>>>> Unit testing:"
-    - ctest --test-dir release -VV
-    - echo ">>>>> Integration testing:"
-    - [[ ! -d .venv ]] && python3 -m venv .venv
-    - source .venv/bin/activate
-    - python3 -m pip install -r requirements.txt
-    - pytest testing --junitxml=release/integration_tests.xml
+    - sh .gitlab-ci/build_and_test.sh
   artifacts:
     when: always
     expire_in: 1 week
