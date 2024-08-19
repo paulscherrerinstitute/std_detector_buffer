@@ -26,7 +26,7 @@ test_project:
   tags: [ sf-docker ]
   parallel:
     matrix:
-      - DOCKER_IMAGE: [ "centos8" ]
+      - DOCKER_IMAGE: [ "centos8", "ubi9" ]
   rules:
     - when: always
 
@@ -36,7 +36,7 @@ package_project:
   tags: [ sf-docker ]
   parallel:
     matrix:
-      - DOCKER_IMAGE: [ "centos8" ]
+      - DOCKER_IMAGE: [ "centos8", "ubi9" ]
 
 upload_project:
   stage: upload
@@ -46,7 +46,7 @@ upload_project:
     - job: package_project
       parallel:
         matrix:
-        - DOCKER_IMAGE: [ "centos8" ]
+        - DOCKER_IMAGE: [ "centos8", "ubi9" ]
       artifacts: true
 
 release_project:
