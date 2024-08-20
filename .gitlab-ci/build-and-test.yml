@@ -1,9 +1,8 @@
 .build_and_test:
   image:
     name: $CI_REGISTRY/controls-ci/std_detector_buffer/$DOCKER_IMAGE:$USED_DOCKER_IMAGE_VERSION
-    entrypoint: ['bin/bash', '-c']
   script:
-    - sh -c sudo .gitlab-ci/build_and_test.sh
+    - .gitlab-ci/build_and_test.sh
   artifacts:
     when: always
     expire_in: 1 week
