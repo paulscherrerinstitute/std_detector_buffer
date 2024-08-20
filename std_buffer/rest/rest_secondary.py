@@ -12,7 +12,7 @@ from uvicorn import run
 
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s %(event)s %(levelname)s: %(message)s",
+    format="%(asctime)s %(levelname)s: %(message)s",
     handlers=[logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
@@ -35,21 +35,24 @@ stats_logger = StatsLogger(ctx)
 config_file = None
 
 
-@app.post("/api/config/set")
+def get_config_file():
+    return config_file
 
+@app.post("/api/config/set")
 async def update_configuration(request: Request, user: str = Query(...)):
+    global config_file
     new_config = await request.json()
     logger.info(f"User {user} received new configuration: {new_config}")
-async def update_configuration(request: Request):
     try:
         # Overwrite the local file
+        logger.info(f"Updating {config_file}...")
         with open(config_file, "w") as file:
             json.dump(new_config, file, indent=4)
         logger.info(f"Successfully updated configuration file: {config_file}")
         stats_logger.log_config_change("set", "primary_server", True)
         return {"message": "Configuration updated successfully"}
     except Exception as e:
-        logger.error(f"Error writing to configuration file: {e}")
+        logger.info(f"Error writing to configuration file: {e}")
         stats_logger.log_config_change("set", "primary_server", False)
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -58,7 +61,7 @@ def start_secondary_api(config_file_path, rest_port):
     config_file = config_file_path
     try:
         logger.info(f"Starting secondary API with config file: {config_file} on port {rest_port}")
-        run(app, host="0.0.0.0", port=rest_port, log_level="warning")
+        run(app, host="0.0.0.0", port=rest_port, log_level="info")
     except Exception as e:
         logger.exception("Error while trying to run the REST api")
 
