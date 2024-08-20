@@ -2,6 +2,9 @@
 
 set -ex
 
+[[ -d /opt/rh/gcc-toolset-13 ]] && source /opt/rh/gcc-toolset-13/enable
+[[ -d .venv ]] && source .venv/bin/activate
+
 echo ">>>>> Release build:"
 
 cmake -B release -DCMAKE_BUILD_TYPE=Release -G Ninja
