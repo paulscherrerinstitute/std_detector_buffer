@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 {
   const auto [config, module_id] = read_arguments(argc, argv);
   [[maybe_unused]] utils::log::logger l{"std_data_convert_gf", config.log_level};
-  const auto quadrant = static_cast<quadrant_id>(module_id / 2);
+  const auto quadrant = static_cast<quadrant_id>((module_id % 8) / 2);
   const auto converter_name = fmt::format("{}-{}-converted", config.detector_name, module_id);
   const auto [module_bytes, converted_bytes] = calculate_data_sizes(config);
 
