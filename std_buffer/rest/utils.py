@@ -41,9 +41,9 @@ def read_metadata(filename: str) -> dict:
 
         # Convert metadata to a dictionary and limit to first 15 entries
         metadata_list = []
-        for i, entry in enumerate(metadata_array):
+        for i, entry in enumerate(metadata_ array):
             metadata_list.append(
-                {"image_id": entry["image_id"].item(), "status": entry["status"].item()}
+                {"image_id": entry["image_id"].item(), "status": entry["status"].item(), }
             )
 
         metadata_dict["metadata"] = metadata_list
@@ -117,7 +117,7 @@ async def print_dataset_details(file_path):
         file.visititems(print_info)  # Visit each item in the HDF5 file
 
 
-ef create_interleaved_vds(base_path, output_file):
+def create_interleaved_vds(base_path, output_file):
     """Create interleaved virtual datasets for both data and metadata from multiple HDF5 files."""
     files = sorted(
         [

@@ -5,6 +5,8 @@ import logging
 import os
 from time import time
 
+
+
 import requests
 import zmq
 from fastapi import Depends, FastAPI, HTTPException, Request
@@ -19,6 +21,7 @@ from utils import (
     print_dataset_details,
     read_metadata,
 )
+from image import ImageReceiver
 from uvicorn import run
 
 logging.basicConfig(
@@ -80,7 +83,7 @@ def get_secondary_server():
 @app.get("/api/config/get")
 async def get_configuration(user: str):
     start_time = time()
-    global config_file
+    config_file = get_config_file()
     logger.info(f"User {user} fetching configuration from {config_file}")
     try:
         with open(config_file, "r") as file:
@@ -108,7 +111,31 @@ async def update_configuration(
 ):
     start_time = time()
     new_config = await request.json()
-    global config_file
+    config_file = get_config_file()
+    existing_config = None
+
+    logger.info(f"Fetching existing configuration from {config_file}")
+    try:
+        with open(config_file, "r") as file:
+            existing_config = json.load(file)
+    except FileNotFoundError:
+        logger.error(f"Configuration file not found: {config_file}")
+        raise HTTPException(status_code=404, detail="Configuration file not found")
+    except json.JSONDecodeError:
+        logger.error(f"Error decoding JSON file: {config_file}")
+        raise HTTPException(status_code=500, detail="Error decoding JSON file")
+
+    # Block if detector name or type are being altered
+    if (
+        new_config.get("detector_name") != existing_config.get("detector_name")
+        or new_config.get("detector_type") != existing_config.get("detector_type")
+    ) {
+        logger.error("Detector name or detector type cannot be changed.")
+        raise HTTPException(
+            status_code=400, detail="Detector name or detector type cannot be changed."
+        )
+    
+
     logger.info(f"User {user} received new configuration: {new_config}")
     try:
         validate(instance=new_config, schema=JSON_SCHEMA)
@@ -119,7 +146,7 @@ async def update_configuration(
 
     try:
         # Overwrite the local file
-        logger.info("schema is validated.")
+        logger.info("Schema is validated.")
         with open(config_file, "w") as file:
             json.dump(new_config, file, indent=4)
         duration = time() - start_time
@@ -128,24 +155,38 @@ async def update_configuration(
         )
         stats_logger.log_config_change("set", user, True)
 
-        # Generate hash for the configuration
-        response = requests.post(
-            f"{secondary_server}/api/config/set",
-            params={"user": user},
-            json=new_config,
-            headers={"Content-Type": "application/json"},
-        )
-        if response.status_code != 200:
-            raise HTTPException(
-                status_code=500,
-                detail="Failed to synchronize with the secondary server",
+        # Sends it to the secondary server
+        secondary_server = get_secondary_server()
+        if secondary_server is not None:
+            response = requests.post(
+                f"{secondary_server}/api/config/set",
+                params={"user": user},
+                json=new_config,
+                headers={"Content-Type": "application/json"},
             )
-
-        return {"message": "Configuration updated and synchronized successfully"}
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=500,
+                    detail="Failed to synchronize with the secondary server",
+                )
+            return {"message": "Configuration updated and synchronized successfully"}
     except Exception as e:
         logger.error(f"Error writing to configuration file: {e}")
         stats_logger.log_config_change("set", user, False)
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/live/get_image")
+async def get_image():
+    # std-daq live stream coming 
+    image_receiver = ImageReceiver("tcp://129.129.95.38:20001")
+    try:
+        jpg_image = image_receiver.get_image()
+        if jpg_image is not None:
+            return Response(content=jpg_image, media_type="image/jpeg")
+        else:
+            return Response(content="No image data received", status_code=204)
+    except Exception as e:
+        return Response(content=f"Error: {str(e)}", status_code=500)
 
 
 @app.get("/api/h5/read_metadata")
@@ -205,14 +246,25 @@ def start_api(config_file_path, rest_port, secondary_server_address):
     global config_file, secondary_server
     config_file = config_file_path
     secondary_server = secondary_server_address
+    
     try:
+        if secondary_server not None:
+            logger.info(
+                f"Starting API with config file: {config_file} on port {rest_port} and with secondary server: {secondary_server} "
+            )
+        else:
         logger.info(
-            f"Starting API with config file: {config_file} on port {rest_port} and with secondary server: {secondary_server} "
-        )
+                f"Starting API with config file: {config_file} on port {rest_port} and without secondary server."
+            )
+        
         run(app, host="0.0.0.0", port=rest_port, log_level="warning")
     except Exception as e:
         logger.exception("Error while trying to run the REST api")
 
+def initialize_globals(config_file_path, secondary_server_address):
+    global config_file, secondary_server
+    config_file = config_file_path
+    secondary_server = secondary_server_address
 
 def main():
     parser = argparse.ArgumentParser(
@@ -223,10 +275,13 @@ def main():
     parser.add_argument(
         "--secondary_server",
         type=str,
+        default=None,
         help="Address of the secondary server for synchronization",
     )
 
     args = parser.parse_args()
+
+    initialize_globals(config_file, secondary_server)
 
     start_api(
         config_file_path=args.config_file,
