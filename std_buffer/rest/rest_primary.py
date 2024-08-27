@@ -129,7 +129,7 @@ async def update_configuration(
     if (
         new_config.get("detector_name") != existing_config.get("detector_name")
         or new_config.get("detector_type") != existing_config.get("detector_type")
-    ) {
+    ): 
         logger.error("Detector name or detector type cannot be changed.")
         raise HTTPException(
             status_code=400, detail="Detector name or detector type cannot be changed."

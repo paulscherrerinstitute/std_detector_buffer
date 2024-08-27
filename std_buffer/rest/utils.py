@@ -169,7 +169,7 @@ def create_interleaved_vds(base_path, output_file):
             filename, "gf-teststand/metadata", shape=metadata_shape
         )
 
-        for j in range(data_shape[0]):
+        for j in range(data_shape[0]-1):
             layout_index = j * len(files) + i
             vlayout_data[layout_index] = vsource_data[j]
             vlayout_metadata[layout_index] = vsource_metadata[j]
