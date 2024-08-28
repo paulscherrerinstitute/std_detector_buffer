@@ -65,9 +65,10 @@ std::size_t Converter::calculate_start_index(int module_id,
          (module_id % 2 ? image_width : 0);
 }
 
-std::size_t Converter::calculate_row_jump(quadrant_id quadrant, std::size_t image_width)
+int Converter::calculate_row_jump(const quadrant_id quadrant, const std::size_t image_width)
 {
-  return image_width * 2 * (quadrant == quadrant_id::NW || quadrant == quadrant_id::NE ? -1 : 1);
+  return 2 * static_cast<int>(image_width) *
+         (quadrant == quadrant_id::NW || quadrant == quadrant_id::NE ? -1 : 1);
 }
 
 } // namespace gf::sdc

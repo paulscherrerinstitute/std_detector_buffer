@@ -27,12 +27,12 @@ private:
                                            quadrant_id quadrant,
                                            std::size_t image_height,
                                            std::size_t image_width);
-  static std::size_t calculate_row_jump(quadrant_id quadrant, std::size_t image_width);
+  static int calculate_row_jump(quadrant_id quadrant, std::size_t image_width);
 
   const std::size_t height;
   const std::size_t width;
   const std::size_t start_index;
-  const std::size_t row_jump;
+  const int row_jump;
 };
 
 } // namespace gf::sdc
