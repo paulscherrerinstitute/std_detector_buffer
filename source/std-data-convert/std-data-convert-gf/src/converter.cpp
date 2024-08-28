@@ -40,8 +40,8 @@ void Converter::convert(std::span<char> input, std::span<char> output_buffer) co
                              output_buffer.size() / sizeof(uint16_t));
 
   for (auto i = 0u, row = 0u; row < height / 4; row++) {
-    const auto start_row = start_index + (row_jump * row);
-    const auto end_row = start_row + width / 2;
+    const long int start_row = (row_jump * static_cast<int>(row))+ start_index;
+    const long int end_row = start_row + width / 2;
 
     for (auto j = start_row; j < end_row; i++, j += 2) {
       output[j] = (conversion[i].p11) | (conversion[i].p21 << 8);
