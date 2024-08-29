@@ -1,36 +1,32 @@
 import argparse
-import hashlib
 import json
 import logging
 import os
-from time import time
-
-
-
 import requests
 import zmq
-from fastapi import Depends, FastAPI, HTTPException, Request
+from time import time, sleep
+from jsonschema import validate, ValidationError
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from jsonschema import ValidationError, validate
-from stats_logger import StatsLogger
+from starlette.responses import JSONResponse
+from starlette.middleware.trustedhost import TrustedHostMiddleware
+from starlette.middleware.cors import CORSMiddleware
+from h5py import File as H5File
 from utils import (
-    EventFilter,
     create_interleaved_vds,
     get_dataset_details,
     print_dataset_details,
     read_metadata,
 )
-from image import ImageReceiver
 from uvicorn import run
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(event)s %(levelname)s: %(message)s",
-    handlers=[logging.StreamHandler()],
-)
-logger = logging.getLogger(__name__)
-logger.addFilter(EventFilter())
+# Initialize the logger
+logger = logging.getLogger("RestPrimaryLogger")
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+formatter = logging.Formatter('%(asctime)s [%(levelname)s]: %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 # JSON Schema for validation
 JSON_SCHEMA = {
@@ -53,6 +49,7 @@ JSON_SCHEMA = {
 
 # FastAPI app initialization
 app = FastAPI()
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -61,16 +58,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize ZMQ context (optional)
-ctx = zmq.Context()
-stats_logger = StatsLogger(ctx)
-
 # Global variables to be set at startup
 config_file = None
 secondary_server = None
 
 
-# Dependency functions
 def get_config_file():
     return config_file
 
@@ -79,7 +71,6 @@ def get_secondary_server():
     return secondary_server
 
 
-# FastAPI endpoints
 @app.get("/api/config/get")
 async def get_configuration(user: str):
     start_time = time()
@@ -92,23 +83,17 @@ async def get_configuration(user: str):
         logger.info(
             f"User {user} successfully fetched configuration in {duration:.2f} seconds"
         )
-        stats_logger.log_config_change("get", user, True)
         return config
     except FileNotFoundError:
         logger.error(f"Configuration file not found: {config_file}")
-        stats_logger.log_config_change("get", user, False)
         raise HTTPException(status_code=404, detail="Configuration file not found")
     except json.JSONDecodeError:
         logger.error(f"Error decoding JSON file: {config_file}")
-        stats_logger.log_config_change("get", user, False)
         raise HTTPException(status_code=500, detail="Error decoding JSON file")
 
 
 @app.post("/api/config/set")
-async def update_configuration(
-    request: Request,
-    user: str,
-):
+async def update_configuration(request: Request, user: str):
     start_time = time()
     new_config = await request.json()
     config_file = get_config_file()
@@ -129,19 +114,17 @@ async def update_configuration(
     if (
         new_config.get("detector_name") != existing_config.get("detector_name")
         or new_config.get("detector_type") != existing_config.get("detector_type")
-    ): 
+    ):
         logger.error("Detector name or detector type cannot be changed.")
         raise HTTPException(
             status_code=400, detail="Detector name or detector type cannot be changed."
         )
-    
 
     logger.info(f"User {user} received new configuration: {new_config}")
     try:
         validate(instance=new_config, schema=JSON_SCHEMA)
     except ValidationError as e:
         logger.error(f"Validation error: {e}")
-        stats_logger.log_config_change("set", user, False)
         raise HTTPException(status_code=400, detail=str(e))
 
     try:
@@ -153,7 +136,6 @@ async def update_configuration(
         logger.info(
             f"User {user} successfully updated configuration in {duration:.2f} seconds"
         )
-        stats_logger.log_config_change("set", user, True)
 
         # Sends it to the secondary server
         secondary_server = get_secondary_server()
@@ -169,25 +151,10 @@ async def update_configuration(
                     status_code=500,
                     detail="Failed to synchronize with the secondary server",
                 )
-            return {"message": "Configuration updated and synchronized successfully"}
+        return {"message": "Configuration updated and synchronized successfully"}
     except Exception as e:
-        logger.error(f"Error writing to configuration file: {e}")
-        stats_logger.log_config_change("set", user, False)
+        logger.warning(f"Error writing to configuration file: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/api/live/get_image")
-async def get_image():
-    # std-daq live stream coming 
-    image_receiver = ImageReceiver("tcp://129.129.95.38:20001")
-    try:
-        jpg_image = image_receiver.get_image()
-        if jpg_image is not None:
-            return Response(content=jpg_image, media_type="image/jpeg")
-        else:
-            return Response(content="No image data received", status_code=204)
-    except Exception as e:
-        return Response(content=f"Error: {str(e)}", status_code=500)
-
 
 @app.get("/api/h5/read_metadata")
 async def read_metadata_endpoint(filename: str):
@@ -246,25 +213,22 @@ def start_api(config_file_path, rest_port, secondary_server_address):
     global config_file, secondary_server
     config_file = config_file_path
     secondary_server = secondary_server_address
-    
+
     try:
-        if secondary_server not None:
+        if secondary_server is not None:
             logger.info(
                 f"Starting API with config file: {config_file} on port {rest_port} and with secondary server: {secondary_server} "
             )
         else:
-        logger.info(
+            logger.info(
                 f"Starting API with config file: {config_file} on port {rest_port} and without secondary server."
             )
-        
+
         run(app, host="0.0.0.0", port=rest_port, log_level="warning")
     except Exception as e:
-        logger.exception("Error while trying to run the REST api")
+        logger.error("Error while trying to run the REST api", e)
 
-def initialize_globals(config_file_path, secondary_server_address):
-    global config_file, secondary_server
-    config_file = config_file_path
-    secondary_server = secondary_server_address
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -280,8 +244,6 @@ def main():
     )
 
     args = parser.parse_args()
-
-    initialize_globals(config_file, secondary_server)
 
     start_api(
         config_file_path=args.config_file,

@@ -5,26 +5,6 @@ from pathlib import Path
 import h5py
 import numpy as np
 import zmq
-from stats_logger import StatsLogger
-
-
-class EventFilter(logging.Filter):
-    def filter(self, record):
-        record.event = "[event]"
-        return True
-
-
-ctx = zmq.Context()
-stats_logger = StatsLogger(ctx)
-
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(event)s %(levelname)s: %(message)s",
-    handlers=[logging.StreamHandler()],
-)
-logger = logging.getLogger(__name__)
-logger.addFilter(EventFilter())
 
 
 def read_metadata(filename: str) -> dict:
@@ -41,7 +21,7 @@ def read_metadata(filename: str) -> dict:
 
         # Convert metadata to a dictionary and limit to first 15 entries
         metadata_list = []
-        for i, entry in enumerate(metadata_ array):
+        for i, entry in enumerate(metadata_array):
             metadata_list.append(
                 {"image_id": entry["image_id"].item(), "status": entry["status"].item(), }
             )
