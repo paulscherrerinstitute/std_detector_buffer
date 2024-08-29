@@ -201,7 +201,7 @@ async def create_interleaved_vds_endpoint(request: Request):
 
         logger.info(f"Number of files in base_path: {num_files}")
         logger.info("Starting the VDS creation process...")
-        create_interleaved_vds(base_path, num_files, output_file)
+        create_interleaved_vds(base_path, output_file)
         logger.info("VDS creation process completed successfully.")
         return {"message": "Interleaved virtual dataset created successfully"}
     except Exception as e:

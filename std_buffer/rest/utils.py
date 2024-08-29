@@ -6,6 +6,7 @@ import h5py
 import numpy as np
 import zmq
 
+logger = logging.getLogger("RestPrimaryLogger")
 
 def read_metadata(filename: str) -> dict:
     """Reads and returns the first 15 metadata entries from an HDF5 file as a dictionary."""
