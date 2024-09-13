@@ -11,5 +11,5 @@ services:
     volumes:
       - /etc/std_daq/configs/gf1.json:/etc/std_daq/configs/gf1.json:rw
     logging:
-      driver: "journald"
+      driver: journald
     network_mode: host
