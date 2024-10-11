@@ -29,13 +29,13 @@ arguments read_arguments(int argc, char* argv[])
           return it->second;
       });
 
-  sending_config send_config;
+  utils::live_stream_config send_config;
 
   auto& group = program->add_mutually_exclusive_group();
   group.add_argument("-f", "--forward")
       .help("forward all images")
       .flag()
-      .action([&send_config](const auto&) { send_config.type = sending_config::forward; });
+      .action([&send_config](const auto&) { send_config.type = utils::live_stream_config::forward; });
   group.add_argument("-p", "--periodic")
       .help("periodically send Y images every N Hz (format: Y:N)")
       .action([&send_config](const std::string& arg) {
@@ -43,7 +43,7 @@ arguments read_arguments(int argc, char* argv[])
           throw std::runtime_error("Format should be Y:N for --periodic");
         else {
 
-          send_config.type = sending_config::periodic;
+          send_config.type = utils::live_stream_config::periodic;
           send_config.value.first = std::stoul(arg.substr(0, delim_pos));
           send_config.value.second = std::stoul(arg.substr(delim_pos + 1));
           if (send_config.value.second < 1 || send_config.value.second > 1000)
@@ -56,7 +56,7 @@ arguments read_arguments(int argc, char* argv[])
         if (auto delim_pos = arg.find(':'); delim_pos == std::string::npos)
           throw std::runtime_error("Format should be Y:N for --batch");
         else {
-          send_config.type = sending_config::batch;
+          send_config.type = utils::live_stream_config::batch;
           send_config.value.first = std::stoul(arg.substr(0, delim_pos));
           send_config.value.second = std::stoul(arg.substr(delim_pos + 1));
         }

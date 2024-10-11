@@ -87,10 +87,10 @@ void send_bsread_stream(std::size_t bit_depth,
   zmq_send(sender_socket, nullptr, 0, 0);
 }
 
-std::function<bool(uint64_t)> select_sending_condition(const ls::sending_config& conf)
+std::function<bool(uint64_t)> select_sending_condition(const utils::live_stream_config& conf)
 {
   switch (conf.type) {
-  case ls::sending_config::periodic:
+  case utils::live_stream_config::periodic:
   {
     const auto data_period = 1000ms / (int)conf.value.second;
     auto next_time = steady_clock::now() + data_period;
@@ -107,7 +107,7 @@ std::function<bool(uint64_t)> select_sending_condition(const ls::sending_config&
       return false;
     };
   }
-  case ls::sending_config::batch:
+  case utils::live_stream_config::batch:
     return [conf](auto id) mutable -> bool { return (id % conf.value.second) < conf.value.first; };
   default:
     return [](auto) { return true; };

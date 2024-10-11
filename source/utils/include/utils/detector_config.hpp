@@ -24,6 +24,17 @@ struct Point
   int y = 0;
 };
 
+struct live_stream_config
+{
+  enum Type
+  {
+    forward,
+    periodic,
+    batch
+  } type = forward;
+  std::pair<size_t, size_t> value{0, 0};
+};
+
 struct DetectorConfig
 {
   const std::string detector_name;
