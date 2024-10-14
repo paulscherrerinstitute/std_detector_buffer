@@ -39,11 +39,30 @@ JSON_SCHEMA = {
         "image_pixel_width": {"type": "integer"},
         "start_udp_port": {"type": "integer"},
         "writer_user_id": {"type": "integer"},
-        "submodule_info": {"type": "object"},
         "max_number_of_forwarders_spawned": {"type": "integer"},
         "use_all_forwarders": {"type": "boolean"},
         "module_sync_queue_size": {"type": "integer"},
         "module_positions": {"type": "object"},
+        "live_stream_configs": {
+            "type": "object",
+            "patternProperties": {
+                "^tcp://[0-9.]+:[0-9]+$": {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "enum": ["batch", "periodic", "forward"]
+                        },
+                        "config": {
+                            "type": "array"
+                        }
+                    },
+                    "required": ["type"],
+                    "additionalProperties": False
+                }
+            },
+            "additionalProperties": False
+        }
     },
 }
 
@@ -112,8 +131,8 @@ async def update_configuration(request: Request, user: str):
 
     # Block if detector name or type are being altered
     if (
-        new_config.get("detector_name") != existing_config.get("detector_name")
-        or new_config.get("detector_type") != existing_config.get("detector_type")
+            new_config.get("detector_name") != existing_config.get("detector_name")
+            or new_config.get("detector_type") != existing_config.get("detector_type")
     ):
         logger.error("Detector name or detector type cannot be changed.")
         raise HTTPException(
@@ -156,6 +175,7 @@ async def update_configuration(request: Request, user: str):
         logger.warning(f"Error writing to configuration file: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.get("/api/h5/read_metadata")
 async def read_metadata_endpoint(filename: str):
     try:
@@ -188,8 +208,8 @@ async def create_interleaved_vds_endpoint(request: Request):
                 f
                 for f in os.listdir(base_path)
                 if f.endswith(".h5")
-                and f.startswith("file")
-                and os.path.isfile(os.path.join(base_path, f))
+                   and f.startswith("file")
+                   and os.path.isfile(os.path.join(base_path, f))
             ]
         )
         logger.info(
@@ -227,7 +247,6 @@ def start_api(config_file_path, rest_port, secondary_server_address):
         run(app, host="0.0.0.0", port=rest_port, log_level="warning")
     except Exception as e:
         logger.error("Error while trying to run the REST api", e)
-
 
 
 def main():

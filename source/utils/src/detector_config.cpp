@@ -14,12 +14,21 @@ using json = nlohmann::json;
 namespace utils {
 
 namespace {
+
+live_stream_config::Type to_type(std::string_view type_str)
+{
+  if (type_str == "forward") return live_stream_config::forward;
+  if (type_str == "periodic") return live_stream_config::periodic;
+  if (type_str == "batch") return live_stream_config::batch;
+
+  throw std::invalid_argument("Invalid type string");
+}
+
 DetectorConfig read_config(const json doc)
 {
   static const std::string required_parameters[] = {
-      "detector_name",  "detector_type",      "n_modules",
-      "bit_depth",      "image_pixel_height", "image_pixel_width",
-      "start_udp_port", "module_positions"};
+      "detector_name",      "detector_type",     "n_modules",      "bit_depth",
+      "image_pixel_height", "image_pixel_width", "start_udp_port", "module_positions"};
 
   std::ranges::for_each(required_parameters, [&doc](const auto& s) {
     if (!doc.contains(s))
@@ -33,6 +42,17 @@ DetectorConfig read_config(const json doc)
     modules[std::stoi(key)] = {{value[0].get<int>(), value[1].get<int>()},
                                {value[2].get<int>(), value[3].get<int>()}};
   }
+
+  std::unordered_map<std::string, live_stream_config> ls_configs;
+  if (doc.contains("live_stream_configs"))
+    for (const auto& [key, value] : doc["live_stream_configs"].items()) {
+      if (!value.contains("type") || !value.contains("config"))
+        throw std::invalid_argument("Invalid JSON format for live_stream_config");
+
+      ls_configs[key] = {
+          to_type(value.at("type").get<std::string>()),
+          std::make_pair(value.at("config")[0].get<size_t>(), value.at("config")[1].get<size_t>())};
+    }
 
   return {doc["detector_name"].get<std::string>(),
           doc["detector_type"].get<std::string>(),
@@ -49,6 +69,7 @@ DetectorConfig read_config(const json doc)
           doc.value("sender_sends_full_images", false),
           doc.value("module_sync_queue_size", 50),
           doc.value("number_of_writers", 0),
+          std::move(ls_configs),
           std::move(modules)};
 }
 } // namespace

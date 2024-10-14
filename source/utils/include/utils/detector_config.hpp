@@ -52,6 +52,7 @@ struct DetectorConfig
   const bool sender_sends_full_images;
   const int module_sync_queue_size;
   const int number_of_writers;
+  const std::unordered_map<std::string, live_stream_config> ls_configs;
   const std::unordered_map<module_id, std::pair<Point, Point>> modules;
 
   friend std::ostream& operator<<(std::ostream& os, const DetectorConfig& det_config)

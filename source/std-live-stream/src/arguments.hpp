@@ -21,7 +21,6 @@ struct arguments
   utils::DetectorConfig config;
   std::string stream_address;
   std::string source_suffix;
-  utils::live_stream_config send_config;
   stream_type type;
 };
 

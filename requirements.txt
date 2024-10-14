@@ -2,11 +2,11 @@ pytest
 pytest-md
 pytest-emoji
 pytest-asyncio
-protobuf
+protobuf == 3.20.3
 pyzmq
 numpy
 urllib3 == 1.26.15
 twine
 wheel
-blosc2 == 2.2.6
+blosc2
 bitshuffle

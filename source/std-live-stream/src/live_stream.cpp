@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
 {
   const auto args = ls::read_arguments(argc, argv);
   [[maybe_unused]] utils::log::logger l{"std_live_stream", args.config.log_level};
-  auto should_send_image = select_sending_condition(args.send_config);
+  auto should_send_image = select_sending_condition(args.config.ls_configs.at(args.stream_address));
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
