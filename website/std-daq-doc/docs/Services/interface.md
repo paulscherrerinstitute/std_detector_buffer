@@ -29,10 +29,31 @@ The live stream can be connected to any source adhering to [internal metadata/ri
 
 Common parameters affecting service can be found [here](../Interfaces/configfile.md#common-configuration-options).
 
+- `live_stream_configs` - is a dictionary defining the configurations for all `live streams` allowing users to modify the settings without the need to redeploy the service.
+
+  Example config setting up `batch` sending of `2` images every `555`, `forwarding` full stream and `periodic` sending of `1` image with `5 Hz` frequency.
+
+  ```json
+  "live_stream_configs": {
+    "tcp://129.129.95.111:20000": {
+      "type": "batch",
+      "config": [2, 555]
+    },
+    "tcp://129.129.95.111:20001": {
+      "type": "forward",
+      "config": []
+    },
+    "tcp://129.129.95.111:20002": {
+      "type": "periodic",
+      "config": [1, 5]
+    }
+  }
+  ```
+
 #### Usage
 
 ```text
-Usage: std_live_stream [--help] [--version] [--source_suffix VAR] [--type VAR] [--forward] [--periodic VAR] [--batch VAR] detector_json_filename stream_address
+Usage: std_live_stream [--help] [--version] [--source_suffix VAR] [--type VAR] detector_json_filename stream_address
 
 Positional arguments:
   detector_json_filename  path to configuration file
@@ -41,9 +62,6 @@ Positional arguments:
 Optional arguments:
   -s, --source_suffix     suffix for ipc source and ram_buffer - default "image" [nargs=0..1] [default: "image"]
   -t, --type              choose the type: 'bsread' or 'array-1.0' [nargs=0..1] [default: <not representable>]
-  -f, --forward           forward all images 
-  -p, --periodic          periodically send Y images every N Hz (format: Y:N) 
-  -b, --batch             send Y images every N images (format: Y:N) 
 ```
 
 ## HDF5 Files Writing
