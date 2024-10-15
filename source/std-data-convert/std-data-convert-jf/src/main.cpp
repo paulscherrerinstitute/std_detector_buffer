@@ -56,8 +56,9 @@ int main(int argc, char* argv[])
 
   const size_t frame_n_bytes = MODULE_N_PIXELS * config.bit_depth / 8;
   const auto source_name = fmt::format("{}-{}", config.detector_name, module_id);
-  auto receiver = cb::Communicator{{source_name, frame_n_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
-                                   {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
+  auto receiver =
+      cb::Communicator{{source_name, frame_n_bytes, buffer_config::RECEIVER_RAM_BUFFER_N_SLOTS},
+                       {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
 
   const size_t converted_bytes = utils::converted_image_n_bytes(config);
   const auto sync_buffer_name = fmt::format("{}-image", config.detector_name);

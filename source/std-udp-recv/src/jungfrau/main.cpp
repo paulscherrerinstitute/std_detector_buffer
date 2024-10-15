@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
   auto ctx = zmq_ctx_new();
   const auto source_name = fmt::format("{}-{}", config.detector_name, module_id);
 
-  const cb::RamBufferConfig buffer_config = {source_name, FRAME_N_BYTES, RAM_BUFFER_N_SLOTS};
+  const cb::RamBufferConfig buffer_config = {source_name, FRAME_N_BYTES, RECEIVER_RAM_BUFFER_N_SLOTS};
   const cb::CommunicatorConfig comm_config = {source_name, ctx, cb::CONN_TYPE_BIND, ZMQ_PUB};
 
   cb::Communicator sender{buffer_config, comm_config};

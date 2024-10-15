@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
   auto ctx = zmq_ctx_new();
   const auto source_name = fmt::format("{}-{}", config.detector_name, module_id);
 
-  const cb::RamBufferConfig recv_buffer_config = {source_name, module_bytes, RAM_BUFFER_N_SLOTS};
+  const cb::RamBufferConfig recv_buffer_config = {source_name, module_bytes, RECEIVER_RAM_BUFFER_N_SLOTS};
   const cb::CommunicatorConfig recv_comm_config = {source_name, ctx, cb::CONN_TYPE_CONNECT,
                                                    ZMQ_SUB};
   auto receiver = cb::Communicator{recv_buffer_config, recv_comm_config};
