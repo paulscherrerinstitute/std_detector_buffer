@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
       fmt::format("{}-writer-{}", config.detector_name, program->get<uint16_t>("writer_id"));
 
   auto ctx = zmq_ctx_new();
-  auto receiver = cb::Communicator{{buffer_name, image_n_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
+  auto receiver = cb::Communicator{{buffer_name, image_n_bytes, config.full_image_ram_buffer_slots},
                                    {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_PULL}};
 
   auto sender = buffer_utils::bind_socket(ctx, sink_name, ZMQ_PUSH);

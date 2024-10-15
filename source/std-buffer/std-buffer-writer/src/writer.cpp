@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
   const std::size_t max_data_bytes =
       config.image_pixel_width * config.image_pixel_height * config.bit_depth / 8u;
 
-  auto receiver = cb::Communicator{{sync_name, max_data_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
+  auto receiver = cb::Communicator{{sync_name, max_data_bytes, config.full_image_ram_buffer_slots},
                                    {sync_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
 
   char buffer[512];

@@ -44,7 +44,8 @@ int main(int argc, char* argv[])
   auto ctx = zmq_ctx_new();
   const auto source_name = fmt::format("{}-{}", config.detector_name, module_id);
 
-  const cb::RamBufferConfig recv_buffer_config = {source_name, frame_n_bytes, RECEIVER_RAM_BUFFER_N_SLOTS};
+  const cb::RamBufferConfig recv_buffer_config = {source_name, frame_n_bytes,
+                                                  RECEIVER_RAM_BUFFER_N_SLOTS};
   const cb::CommunicatorConfig recv_comm_config = {source_name, ctx, cb::CONN_TYPE_CONNECT,
                                                    ZMQ_SUB};
   auto receiver = cb::Communicator{recv_buffer_config, recv_comm_config};
@@ -53,7 +54,7 @@ int main(int argc, char* argv[])
   const auto sync_stream_name = fmt::format("{}-sync", config.detector_name);
 
   const cb::RamBufferConfig send_buffer_config = {sync_buffer_name, converted_bytes,
-                                                  RAM_BUFFER_N_SLOTS};
+                                                  config.full_image_ram_buffer_slots};
   const cb::CommunicatorConfig send_comm_config = {sync_stream_name, ctx, cb::CONN_TYPE_CONNECT,
                                                    ZMQ_PUSH};
   auto sender = cb::Communicator{send_buffer_config, send_comm_config};

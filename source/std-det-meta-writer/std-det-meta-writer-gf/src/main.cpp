@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
   auto ctx = zmq_ctx_new();
 
   auto receiver = cb::Communicator{
-      {source_name, utils::converted_image_n_bytes(config), buffer_config::RAM_BUFFER_N_SLOTS},
+      {source_name, utils::converted_image_n_bytes(config), config.full_image_ram_buffer_slots},
       {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_PULL}};
 
   auto sender = buffer_utils::bind_socket(ctx, sink_name, ZMQ_PUSH);

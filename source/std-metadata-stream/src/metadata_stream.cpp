@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
   const auto source_name = fmt::format("{}-{}", config.detector_name, suffix);
 
   auto receiver = cb::Communicator{
-      {source_name, utils::converted_image_n_bytes(config), buffer_config::RAM_BUFFER_N_SLOTS},
+      {source_name, utils::converted_image_n_bytes(config), config.full_image_ram_buffer_slots},
       {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
 
   auto sender_socket = bind_sender_socket(ctx, stream_address);

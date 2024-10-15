@@ -5,7 +5,6 @@
 #ifndef STD_DETECTOR_BUFFER_DETECTOR_CONFIG_HPP
 #define STD_DETECTOR_BUFFER_DETECTOR_CONFIG_HPP
 
-#include <iostream>
 #include <unordered_map>
 #include <bitset>
 #include <chrono>
@@ -52,6 +51,7 @@ struct DetectorConfig
   const bool sender_sends_full_images;
   const int module_sync_queue_size;
   const int number_of_writers;
+  const std::size_t full_image_ram_buffer_slots;
   const std::unordered_map<std::string, live_stream_config> ls_configs;
   const std::unordered_map<module_id, std::pair<Point, Point>> modules;
 
@@ -62,14 +62,15 @@ struct DetectorConfig
                "image_pixel_height={},image_pixel_width={},start_udp_port={},"
                "log_level={},stats_collection_period={},max_number_of_forwarders_"
                "spawned={},use_all_forwarders={},gpfs_block_size={},sender_sends_full_images={},"
-               "module_sync_queue_size={},number_of_writers={}",
+               "module_sync_queue_size={},number_of_writers={},full_image_ram_buffer_slots={}",
                det_config.detector_name, det_config.detector_type, det_config.n_modules,
                det_config.bit_depth, det_config.image_pixel_height, det_config.image_pixel_width,
                det_config.start_udp_port, det_config.log_level,
                det_config.stats_collection_period.count(),
                det_config.max_number_of_forwarders_spawned, det_config.use_all_forwarders,
                det_config.gpfs_block_size, det_config.sender_sends_full_images,
-               det_config.module_sync_queue_size, det_config.number_of_writers);
+               det_config.module_sync_queue_size, det_config.number_of_writers,
+               det_config.full_image_ram_buffer_slots);
   }
 };
 

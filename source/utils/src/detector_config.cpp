@@ -6,7 +6,6 @@
 
 #include <fstream>
 #include <unordered_map>
-#include <concepts/concepts.hpp>
 
 #include <nlohmann/json.hpp>
 
@@ -15,6 +14,9 @@ using json = nlohmann::json;
 namespace utils {
 
 namespace {
+
+// Number of image slots in ram buffer - default setting
+inline constexpr std::size_t RAM_BUFFER_N_SLOTS = 10 * 100u;
 
 live_stream_config::Type to_type(std::string_view type_str)
 {
@@ -72,6 +74,7 @@ DetectorConfig read_config(const json doc)
           doc.value("sender_sends_full_images", false),
           doc.value("module_sync_queue_size", 50),
           doc.value("number_of_writers", 0),
+          doc.value("full_image_ram_buffer_slots", RAM_BUFFER_N_SLOTS),
           std::move(ls_configs),
           std::move(modules)};
 }

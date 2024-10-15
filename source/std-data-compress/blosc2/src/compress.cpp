@@ -82,9 +82,9 @@ int main(int argc, char* argv[])
   const auto sink_name = fmt::format("{}-blosc2", config.detector_name);
 
   auto receiver =
-      cb::Communicator{{source_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
+      cb::Communicator{{source_name, converted_bytes, config.full_image_ram_buffer_slots},
                        {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
-  auto sender = cb::Communicator{{sink_name, converted_bytes, buffer_config::RAM_BUFFER_N_SLOTS},
+  auto sender = cb::Communicator{{sink_name, converted_bytes, config.full_image_ram_buffer_slots},
                                  {sink_name, ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
 
   utils::stats::CompressionStatsCollector stats(config.detector_name,
