@@ -13,8 +13,7 @@ import std_buffer.image_metadata_pb2 as daq_proto
 
 @pytest.mark.asyncio
 async def test_send_live_stream(test_path):
-    live_stream_cmd = build_command('std_live_stream', test_path / 'gigafrost_detector.json', 'tcp://127.0.0.1:50001',
-                                    '-f')
+    live_stream_cmd = build_command('std_live_stream', test_path / 'gigafrost_detector.json', 'tcp://127.0.0.1:50001')
 
     ctx = zmq.asyncio.Context()
 

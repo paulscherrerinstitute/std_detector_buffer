@@ -6,6 +6,7 @@
 
 #include <fstream>
 #include <unordered_map>
+#include <concepts/concepts.hpp>
 
 #include <nlohmann/json.hpp>
 
@@ -46,12 +47,14 @@ DetectorConfig read_config(const json doc)
   std::unordered_map<std::string, live_stream_config> ls_configs;
   if (doc.contains("live_stream_configs"))
     for (const auto& [key, value] : doc["live_stream_configs"].items()) {
-      if (!value.contains("type") || !value.contains("config"))
+      if (!value.contains("type"))
         throw std::invalid_argument("Invalid JSON format for live_stream_config");
 
-      ls_configs[key] = {
-          to_type(value.at("type").get<std::string>()),
-          std::make_pair(value.at("config")[0].get<size_t>(), value.at("config")[1].get<size_t>())};
+      if (const auto type_str = value.at("type").get<std::string>(); type_str == "forward")
+        ls_configs[key] = {to_type(type_str), {0, 0}};
+      else
+        ls_configs[key] = {to_type(type_str), std::make_pair(value.at("config")[0].get<size_t>(),
+                                                             value.at("config")[1].get<size_t>())};
     }
 
   return {doc["detector_name"].get<std::string>(),

@@ -8,5 +8,11 @@
   "start_udp_port": 50020,
   "module_positions": {},
   "log_level": "debug",
-  "stats_collection_period": 1
+  "stats_collection_period": 1,
+  "live_stream_configs": {
+    "tcp://127.0.0.1:50001": {
+      "type": "forward",
+      "config": []
+    }
+  }
 }
