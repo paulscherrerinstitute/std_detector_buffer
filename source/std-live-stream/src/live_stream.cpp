@@ -9,7 +9,6 @@
 #include <fmt/core.h>
 
 #include "core_buffer/communicator.hpp"
-#include "core_buffer/ram_buffer.hpp"
 #include "std_buffer/image_metadata.pb.h"
 #include "utils/utils.hpp"
 
