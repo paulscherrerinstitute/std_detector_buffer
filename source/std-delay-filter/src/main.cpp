@@ -7,10 +7,11 @@
 #include <zmq.h>
 
 #include "core_buffer/communicator.hpp"
-#include "core_buffer/ram_buffer.hpp"
 #include "core_buffer/buffer_utils.hpp"
 #include "std_buffer/image_metadata.pb.h"
 #include "utils/utils.hpp"
+
+#include "meta_buffer.hpp"
 
 using namespace std::string_literals;
 
@@ -48,17 +49,21 @@ int main(int argc, char* argv[])
       {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
   auto sender_socket = buffer_utils::bind_socket(ctx, stream_address, ZMQ_PUB);
 
+  meta_buffer metadata_buffer(utils::slots_number(config));
+
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;
 
   while (true) {
-    if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0)
-      if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
-        meta.ParseFromArray(buffer, n_bytes);
-        if (meta.image_id()) {
-          zmq_send(sender_socket, buffer, n_bytes, 0);
-        }
+    if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
+      meta.ParseFromArray(buffer, n_bytes);
+      metadata_buffer.push(meta);
+      if (auto to_send = metadata_buffer.pop(); to_send.has_value()) {
+        std::string meta_buffer_send;
+        to_send.value().SerializeToString(&meta_buffer_send);
+        zmq_send(sender_socket, meta_buffer_send.c_str(), meta_buffer_send.size(), 0);
       }
+    }
   }
   return 0;
 }
