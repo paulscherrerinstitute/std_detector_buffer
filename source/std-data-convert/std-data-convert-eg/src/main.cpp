@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
   const auto sync_stream_name = fmt::format("{}-sync", config.detector_name);
 
   const cb::RamBufferConfig send_buffer_config = {sync_buffer_name, converted_bytes,
-                                                  config.full_image_ram_buffer_slots};
+                                                  utils::slots_number(config)};
   const cb::CommunicatorConfig send_comm_config = {sync_stream_name, ctx, cb::CONN_TYPE_CONNECT,
                                                    ZMQ_PUSH};
   auto sender = cb::Communicator{send_buffer_config, send_comm_config};

@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
   const auto sync_name = fmt::format("{}-image", args.config.detector_name);
   const std::size_t max_data_bytes = utils::converted_image_n_bytes(args.config);
   auto sender =
-      cb::Communicator{{sync_name, max_data_bytes, args.config.full_image_ram_buffer_slots},
+      cb::Communicator{{sync_name, max_data_bytes, utils::slots_number(args.config)},
                        {sync_name, ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
 
   sbc::RedisHandler redis_handler(args.config.detector_name, args.db_address);

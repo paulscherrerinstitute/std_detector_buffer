@@ -128,7 +128,7 @@ int main(int argc, char* argv[])
   const auto source_name = fmt::format("{}-{}", args.config.detector_name, args.source_suffix);
 
   auto receiver = cb::Communicator{{source_name, utils::converted_image_n_bytes(args.config),
-                                    args.config.full_image_ram_buffer_slots},
+                                    utils::slots_number(args.config)},
                                    {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
   auto sender_socket = bind_sender_socket(ctx, args.stream_address);
   ls::LiveStreamStatsCollector stats(args);

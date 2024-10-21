@@ -59,9 +59,9 @@ int main(int argc, char* argv[])
   const auto sink_name = fmt::format("{}-h5bitshuffle-lz4", config.detector_name);
 
   auto receiver =
-      cb::Communicator{{source_name, converted_bytes, config.full_image_ram_buffer_slots},
+      cb::Communicator{{source_name, converted_bytes, utils::slots_number(config)},
                        {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
-  auto sender = cb::Communicator{{sink_name, converted_bytes, config.full_image_ram_buffer_slots},
+  auto sender = cb::Communicator{{sink_name, converted_bytes, utils::slots_number(config)},
                                  {sink_name, ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
 
   utils::stats::CompressionStatsCollector stats(config.detector_name,

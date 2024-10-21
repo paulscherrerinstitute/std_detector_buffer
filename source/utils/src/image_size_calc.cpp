@@ -27,6 +27,13 @@ std::size_t max_converted_image_byte_size(const utils::DetectorConfig& config)
   throw std::runtime_error("Unsupported detector_type!\n");
 }
 
+std::size_t slots_number(const utils::DetectorConfig& config)
+{
+  constexpr std::size_t RAM_BUFFER_N_SLOTS = 10 * 100u;
+  if (config.ram_buffer_gb == 0) return RAM_BUFFER_N_SLOTS;
+  return config.ram_buffer_gb * 1024 * 1024 * 1024 / converted_image_n_bytes(config);
+}
+
 std::size_t calculate_image_offset(const utils::DetectorConfig& config, std::size_t image_part)
 {
   if (config.sender_sends_full_images)

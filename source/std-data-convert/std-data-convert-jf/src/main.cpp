@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
   const auto sync_buffer_name = fmt::format("{}-image", config.detector_name);
   const auto sync_stream_name = fmt::format("{}-sync", config.detector_name);
   auto sender =
-      cb::Communicator{{sync_buffer_name, converted_bytes, config.full_image_ram_buffer_slots},
+      cb::Communicator{{sync_buffer_name, converted_bytes, utils::slots_number(config)},
                        {sync_stream_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_PUSH}};
 
   JFFrame meta{};

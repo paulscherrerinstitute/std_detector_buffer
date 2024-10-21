@@ -15,9 +15,6 @@ namespace utils {
 
 namespace {
 
-// Number of image slots in ram buffer - default setting
-inline constexpr std::size_t RAM_BUFFER_N_SLOTS = 10 * 100u;
-
 live_stream_config::Type to_type(std::string_view type_str)
 {
   if (type_str == "forward") return live_stream_config::forward;
@@ -74,7 +71,7 @@ DetectorConfig read_config(const json doc)
           doc.value("sender_sends_full_images", false),
           doc.value("module_sync_queue_size", 50),
           doc.value("number_of_writers", 0),
-          doc.value("full_image_ram_buffer_slots", RAM_BUFFER_N_SLOTS),
+          doc.value("ram_buffer_gb", 0u),
           std::move(ls_configs),
           std::move(modules)};
 }
