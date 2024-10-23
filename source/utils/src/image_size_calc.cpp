@@ -6,7 +6,7 @@
 
 namespace utils {
 
-std::size_t converted_image_n_bytes(const utils::DetectorConfig& config)
+std::size_t converted_image_n_bytes(const DetectorConfig& config)
 {
   if (config.detector_type == "gigafrost")
     return config.image_pixel_height * config.image_pixel_width * 2;
@@ -18,7 +18,7 @@ std::size_t converted_image_n_bytes(const utils::DetectorConfig& config)
   throw std::runtime_error("Unsupported detector_type!\n");
 }
 
-std::size_t max_converted_image_byte_size(const utils::DetectorConfig& config)
+std::size_t max_converted_image_byte_size(const DetectorConfig& config)
 {
   if (config.detector_type == "gigafrost") return 2016 * 2016 * sizeof(uint16_t);
   if (config.detector_type == "eiger") return 3106 * 3264 * sizeof(uint32_t);
@@ -27,14 +27,15 @@ std::size_t max_converted_image_byte_size(const utils::DetectorConfig& config)
   throw std::runtime_error("Unsupported detector_type!\n");
 }
 
-std::size_t slots_number(const utils::DetectorConfig& config)
+std::size_t slots_number(const DetectorConfig& config)
 {
-  constexpr std::size_t RAM_BUFFER_N_SLOTS = 10 * 100u;
-  if (config.ram_buffer_gb == 0) return RAM_BUFFER_N_SLOTS;
-  return config.ram_buffer_gb * 1024 * 1024 * 1024 / converted_image_n_bytes(config);
+  constexpr std::size_t MIN_RAM_BUFFER_N_SLOTS = 10 * 100u;
+  const std::size_t slots =
+      config.ram_buffer_gb * 1024 * 1024 * 1024 / converted_image_n_bytes(config);
+  return std::max(slots, MIN_RAM_BUFFER_N_SLOTS);
 }
 
-std::size_t calculate_image_offset(const utils::DetectorConfig& config, std::size_t image_part)
+std::size_t calculate_image_offset(const DetectorConfig& config, const std::size_t image_part)
 {
   if (config.sender_sends_full_images)
     return 0;
@@ -45,7 +46,7 @@ std::size_t calculate_image_offset(const utils::DetectorConfig& config, std::siz
            config.max_number_of_forwarders_spawned;
 }
 
-std::size_t max_single_sender_size(const utils::DetectorConfig& config)
+std::size_t max_single_sender_size(const DetectorConfig& config)
 {
   if (config.sender_sends_full_images)
     return converted_image_n_bytes(config);
@@ -55,14 +56,14 @@ std::size_t max_single_sender_size(const utils::DetectorConfig& config)
     return max_converted_image_byte_size(config) / config.max_number_of_forwarders_spawned;
 }
 
-std::size_t calculate_image_bytes_sent(const utils::DetectorConfig& config, std::size_t image_part)
+std::size_t calculate_image_bytes_sent(const DetectorConfig& config, std::size_t image_part)
 {
-  const auto converted_bytes = utils::converted_image_n_bytes(config);
-  const auto start_index = utils::calculate_image_offset(config, image_part);
-  return std::min(converted_bytes - start_index, utils::max_single_sender_size(config));
+  const auto converted_bytes = converted_image_n_bytes(config);
+  const auto start_index = calculate_image_offset(config, image_part);
+  return std::min(converted_bytes - start_index, max_single_sender_size(config));
 }
 
-std::size_t number_of_senders(const utils::DetectorConfig& config)
+std::size_t number_of_senders(const DetectorConfig& config)
 {
   if (config.sender_sends_full_images)
     return 1;

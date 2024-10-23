@@ -4,8 +4,12 @@
 
 #include "meta_buffer.hpp"
 
+namespace {
+constexpr size_t min_history_needed_for_operation = 998;
+}
+
 meta_buffer::meta_buffer(const std::size_t slots)
-    : buffer(slots, {{}, {}})
+    : buffer(slots - min_history_needed_for_operation, {{}, {}})
 {}
 
 void meta_buffer::push(std_daq_protocol::ImageMetadata meta)
