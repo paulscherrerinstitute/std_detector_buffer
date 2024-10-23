@@ -44,6 +44,9 @@ int main(int argc, char* argv[])
   const auto source_name = fmt::format("{}-{}", config.detector_name, source_suffix);
   const auto stream_address = fmt::format("{}-delay-filter", config.detector_name);
 
+  utils::stats::TimedStatsCollector stats(config.detector_name, config.stats_collection_period,
+                                          stream_address);
+
   auto receiver = cb::Communicator{
       {source_name, utils::converted_image_n_bytes(config), utils::slots_number(config)},
       {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
@@ -63,7 +66,9 @@ int main(int argc, char* argv[])
         to_send.value().SerializeToString(&meta_buffer_send);
         zmq_send(sender_socket, meta_buffer_send.c_str(), meta_buffer_send.size(), 0);
       }
+      stats.process();
     }
+    stats.print_stats();
   }
   return 0;
 }
