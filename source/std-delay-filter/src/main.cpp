@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
   const auto stream_address = fmt::format("{}-delay-filter", config.detector_name);
 
   utils::stats::TimedStatsCollector stats(config.detector_name, config.stats_collection_period,
-                                          stream_address);
+                                          source_suffix   );
 
   auto receiver = cb::Communicator{
       {source_name, utils::converted_image_n_bytes(config), utils::slots_number(config)},
