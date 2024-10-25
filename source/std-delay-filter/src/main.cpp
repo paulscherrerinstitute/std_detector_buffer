@@ -60,9 +60,11 @@ int main(int argc, char* argv[])
   while (true) {
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
       meta.ParseFromArray(buffer, n_bytes);
+      spdlog::info("RECEIVED ID={}", meta.image_id());
       metadata_buffer.push(meta);
       if (auto to_send = metadata_buffer.pop(); to_send.has_value()) {
         std::string meta_buffer_send;
+        spdlog::info("SENDING ID={}", to_send.value().image_id());
         to_send.value().SerializeToString(&meta_buffer_send);
         zmq_send(sender_socket, meta_buffer_send.c_str(), meta_buffer_send.size(), 0);
       }
