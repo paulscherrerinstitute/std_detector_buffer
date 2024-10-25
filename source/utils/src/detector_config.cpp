@@ -72,6 +72,7 @@ DetectorConfig read_config(const json doc)
           doc.value("module_sync_queue_size", 50),
           doc.value("number_of_writers", 0),
           doc.value("ram_buffer_gb", 0u),
+          std::chrono::seconds(doc.value("delay_filter_timeout", 10)),
           std::move(ls_configs),
           std::move(modules)};
 }

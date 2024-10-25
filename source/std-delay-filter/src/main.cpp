@@ -45,14 +45,14 @@ int main(int argc, char* argv[])
   const auto stream_address = fmt::format("{}-delay-filter", config.detector_name);
 
   utils::stats::TimedStatsCollector stats(config.detector_name, config.stats_collection_period,
-                                          source_suffix   );
+                                          source_suffix);
 
   auto receiver = cb::Communicator{
       {source_name, utils::converted_image_n_bytes(config), utils::slots_number(config)},
       {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
   auto sender_socket = buffer_utils::bind_socket(ctx, stream_address, ZMQ_PUB);
 
-  meta_buffer metadata_buffer(utils::slots_number(config));
+  meta_buffer metadata_buffer(utils::slots_number(config), config.delay_filter_timeout);
 
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;
@@ -60,11 +60,9 @@ int main(int argc, char* argv[])
   while (true) {
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
       meta.ParseFromArray(buffer, n_bytes);
-      spdlog::info("RECEIVED ID={}", meta.image_id());
       metadata_buffer.push(meta);
       if (auto to_send = metadata_buffer.pop(); to_send.has_value()) {
         std::string meta_buffer_send;
-        spdlog::info("SENDING ID={}", to_send.value().image_id());
         to_send.value().SerializeToString(&meta_buffer_send);
         zmq_send(sender_socket, meta_buffer_send.c_str(), meta_buffer_send.size(), 0);
       }

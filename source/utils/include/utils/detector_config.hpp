@@ -52,6 +52,7 @@ struct DetectorConfig
   const int module_sync_queue_size;
   const int number_of_writers;
   const std::size_t ram_buffer_gb;
+  const std::chrono::seconds delay_filter_timeout;
   const std::unordered_map<std::string, live_stream_config> ls_configs;
   const std::unordered_map<module_id, std::pair<Point, Point>> modules;
 
@@ -62,7 +63,8 @@ struct DetectorConfig
                "image_pixel_height={},image_pixel_width={},start_udp_port={},"
                "log_level={},stats_collection_period={},max_number_of_forwarders_"
                "spawned={},use_all_forwarders={},gpfs_block_size={},sender_sends_full_images={},"
-               "module_sync_queue_size={},number_of_writers={},ram_buffer_gb={}",
+               "module_sync_queue_size={},number_of_writers={},ram_buffer_gb={},delay_filter_"
+               "timeout={}",
                det_config.detector_name, det_config.detector_type, det_config.n_modules,
                det_config.bit_depth, det_config.image_pixel_height, det_config.image_pixel_width,
                det_config.start_udp_port, det_config.log_level,
@@ -70,7 +72,7 @@ struct DetectorConfig
                det_config.max_number_of_forwarders_spawned, det_config.use_all_forwarders,
                det_config.gpfs_block_size, det_config.sender_sends_full_images,
                det_config.module_sync_queue_size, det_config.number_of_writers,
-               det_config.ram_buffer_gb);
+               det_config.ram_buffer_gb, det_config.delay_filter_timeout.count());
   }
 };
 
