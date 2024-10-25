@@ -124,11 +124,14 @@ int main(int argc, char* argv[])
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
 
-  const auto source_name = fmt::format("{}-{}", args.config.detector_name, args.source_suffix);
+  const auto source_name_meta =
+      fmt::format("{}-{}", args.config.detector_name, args.source_suffix_meta);
+  const auto source_name_image =
+      fmt::format("{}-{}", args.config.detector_name, args.source_suffix_image);
 
-  auto receiver = cb::Communicator{{source_name, utils::converted_image_n_bytes(args.config),
+  auto receiver = cb::Communicator{{source_name_image, utils::converted_image_n_bytes(args.config),
                                     utils::slots_number(args.config)},
-                                   {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
+                                   {source_name_meta, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
   auto sender_socket = bind_sender_socket(ctx, args.stream_address);
   ls::LiveStreamStatsCollector stats(args);
 

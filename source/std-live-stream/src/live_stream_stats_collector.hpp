@@ -16,7 +16,7 @@ class LiveStreamStatsCollector : public utils::stats::TimedStatsCollector
 public:
   explicit LiveStreamStatsCollector(const arguments& args)
       : TimedStatsCollector(
-            args.config.detector_name, args.config.stats_collection_period, args.source_suffix)
+            args.config.detector_name, args.config.stats_collection_period, args.source_suffix_meta)
       , stype(args.type == ls::stream_type::array10 ? "array10" : "bsread")
       , port(args.stream_address.substr(args.stream_address.rfind(':') + 1))
   {}

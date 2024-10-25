@@ -14,8 +14,11 @@ arguments read_arguments(int argc, char* argv[])
 {
   auto program = utils::create_parser("std_live_stream");
   program->add_argument("stream_address").help("address to bind the output stream");
-  program->add_argument("-s", "--source_suffix")
-      .help("suffix for ipc and shared memory sources for ram_buffer - default \"image\"")
+  program->add_argument("-s", "--source_suffix_meta")
+      .help("suffix for ipc - default \"image\"")
+      .default_value("image"s);
+  program->add_argument("-s", "--source_suffix_image")
+      .help("suffix for shared memory sources for ram_buffer - default \"image\"")
       .default_value("image"s);
   program->add_argument("-t", "--type")
       .default_value(stream_type::array10)
@@ -32,8 +35,8 @@ arguments read_arguments(int argc, char* argv[])
   program = utils::parse_arguments(std::move(program), argc, argv);
 
   return {utils::read_config_from_json_file(program->get("detector_json_filename")),
-          program->get("stream_address"), program->get("--source_suffix"),
-          program->get<stream_type>("--type")};
+          program->get("stream_address"), program->get("--source_suffix_meta"),
+          program->get("--source_suffix_image"), program->get<stream_type>("--type")};
 }
 
 } // namespace ls

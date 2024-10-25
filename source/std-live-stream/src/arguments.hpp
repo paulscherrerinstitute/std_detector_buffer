@@ -20,7 +20,8 @@ struct arguments
 {
   utils::DetectorConfig config;
   std::string stream_address;
-  std::string source_suffix;
+  std::string source_suffix_meta;
+  std::string source_suffix_image;
   stream_type type;
 };
 
