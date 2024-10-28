@@ -32,8 +32,8 @@ RamBuffer::RamBuffer(std::string channel_name, const size_t data_n_bytes, const 
   if ((ftruncate(shm_fd_, static_cast<off_t>(buffer_bytes_))) == -1)
     throw std::runtime_error(strerror(errno));
 
-  // TODO: Test with MAP_HUGETLB
-  buffer_ = static_cast<char*>(mmap(nullptr, buffer_bytes_, PROT_WRITE, MAP_SHARED, shm_fd_, 0));
+  buffer_ = static_cast<char*>(
+      mmap(nullptr, buffer_bytes_, PROT_WRITE, MAP_SHARED | MAP_HUGETLB | MAP_LOCKED, shm_fd_, 0));
   if (buffer_ == MAP_FAILED) throw std::runtime_error(strerror(errno));
 }
 
