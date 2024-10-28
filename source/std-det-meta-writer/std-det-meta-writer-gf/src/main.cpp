@@ -48,11 +48,13 @@ int main(int argc, char* argv[])
 
   const auto source_name = fmt::format("{}-driver-meta", config.detector_name);
   const auto sink_name = fmt::format("{}-writer-meta", config.detector_name);
+  // it is unused currently
+  const auto source_name_image = fmt::format("{}-image", config.detector_name);
 
   auto ctx = zmq_ctx_new();
 
   auto receiver = cb::Communicator{
-      {source_name, utils::converted_image_n_bytes(config), utils::slots_number(config)},
+      {source_name_image, utils::converted_image_n_bytes(config), utils::slots_number(config)},
       {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_PULL}};
 
   auto sender = buffer_utils::bind_socket(ctx, sink_name, ZMQ_PUSH);
