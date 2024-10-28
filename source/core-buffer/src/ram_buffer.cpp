@@ -33,7 +33,7 @@ RamBuffer::RamBuffer(std::string channel_name, const size_t data_n_bytes, const 
     throw std::runtime_error(strerror(errno));
 
   buffer_ = static_cast<char*>(
-      mmap(nullptr, buffer_bytes_, PROT_WRITE, MAP_SHARED | MAP_LOCKED, shm_fd_, 0));
+      mmap(nullptr, buffer_bytes_, PROT_WRITE, MAP_SHARED, shm_fd_, 0));
   if (buffer_ == MAP_FAILED) throw std::runtime_error(strerror(errno));
 }
 
