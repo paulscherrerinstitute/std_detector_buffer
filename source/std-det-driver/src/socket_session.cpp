@@ -36,7 +36,6 @@ void socket_session::initialize()
     if (ec) return;
     self->websocket.async_close(boost::beast::websocket::close_code::normal,
                                 [](boost::beast::error_code) {});
-    self->manager->change_state(driver_state::idle);
     spdlog::info("[event] socket_session finished - connection closed");
   };
 }
@@ -89,7 +88,8 @@ void socket_session::monitor_writer_state()
       case driver_state::file_saved:
       case driver_state::error:
         self->send_response(to_string(state), self->close_socket_handler);
-        return; // Exit the thread on terminal state
+        self->manager->change_state(driver_state::idle);
+        return;
       default:
         self->send_response(to_string(state));
         break;
