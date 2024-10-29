@@ -68,11 +68,11 @@ void socket_session::process_request()
 
 void socket_session::start_recording(const std::string& message)
 {
-  if (auto settings = parse_command(message).transform(process_start_request); settings.has_value())
+  if (auto settings = parse_command(message).and_then(process_start_request); settings.has_value())
   {
     monitor_writer_state();
     listen_for_stop();
-    writer->start(settings->value());
+    writer->start(settings.value());
   }
   else
     send_response(
@@ -129,7 +129,7 @@ void socket_session::send_response(std::string_view status,
                                    std::optional<std::string_view> reason)
 {
   json response = {{"status", status}};
-  if (reason.has_value()) response["reason"] = *reason;
+  if (reason.has_value()) response["reason"] = reason.value();
   websocket.async_write(boost::asio::buffer(response.dump()), handler);
 }
 
