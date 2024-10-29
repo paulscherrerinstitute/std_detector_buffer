@@ -11,18 +11,15 @@
 namespace cb {
 
 // TODO: Rewrite this into more scoped classes when communication architecture is clear.
-Communicator::Communicator(const RamBufferConfig& ram_config, const CommunicatorConfig& comm_config)
+Communicator::Communicator(const RamBufferConfig& ram_config, const CommunicatorConfig& comm_cfg)
     : buffer(ram_config.buffer_name, ram_config.n_bytes_data, ram_config.n_buffer_slots)
 {
-  auto port_name = comm_config.stream_name;
+  const auto port_name = comm_cfg.stream_name;
 
-  if (comm_config.connection_type == CONN_TYPE_BIND) {
-    socket = buffer_utils::bind_socket(comm_config.zmq_ctx, port_name, comm_config.zmq_socket_type);
-  }
-  else {
-    socket =
-        buffer_utils::connect_socket(comm_config.zmq_ctx, port_name, comm_config.zmq_socket_type);
-  }
+  if (comm_cfg.connection_type == CONN_TYPE_BIND)
+    socket = buffer_utils::bind_socket(comm_cfg.zmq_ctx, port_name, comm_cfg.zmq_socket_type);
+  else
+    socket = buffer_utils::connect_socket(comm_cfg.zmq_ctx, port_name, comm_cfg.zmq_socket_type);
 }
 
 void Communicator::send(uint64_t id, std::span<const char> meta, char* data, int flags)
@@ -31,7 +28,7 @@ void Communicator::send(uint64_t id, std::span<const char> meta, char* data, int
   zmq_send(socket, meta.data(), meta.size(), flags);
 }
 
-char* Communicator::get_data(uint64_t id) 
+char* Communicator::get_data(uint64_t id)
 {
   return buffer.get_data(id);
 }
@@ -46,7 +43,7 @@ std::tuple<uint64_t, char*> Communicator::receive(std::span<char> meta)
   return {id, buffer.get_data(id)};
 }
 
-int Communicator::receive_meta(std::span<char> meta)
+int Communicator::receive_meta(std::span<char> meta) const
 {
   return zmq_recv(socket, meta.data(), meta.size(), 0);
 }

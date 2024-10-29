@@ -45,9 +45,11 @@ int main(int argc, char* argv[])
 
   const auto source_name = fmt::format("{}-{}", config.detector_name, source_suffix);
   const auto stream_address = fmt::format("{}-filter", config.detector_name);
+  // it is unused currently
+  const auto source_name_image = fmt::format("{}-image", config.detector_name);
 
   auto receiver = cb::Communicator{
-      {source_name, utils::converted_image_n_bytes(config), utils::slots_number(config)},
+      {source_name_image, utils::converted_image_n_bytes(config), utils::slots_number(config)},
       {source_name, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
   auto sender_socket = buffer_utils::bind_socket(ctx, stream_address, ZMQ_PUB);
 
