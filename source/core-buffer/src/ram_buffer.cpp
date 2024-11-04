@@ -9,6 +9,7 @@
 #include <unistd.h>
 
 #include <cstring>
+#include <iostream>
 #include <stdexcept>
 #include <source_location>
 
@@ -33,7 +34,7 @@ RamBuffer::RamBuffer(std::string channel_name, const size_t data_n_bytes, const 
     throw std::runtime_error(strerror(errno));
 
   buffer_ = static_cast<char*>(
-      mmap(nullptr, buffer_bytes_, PROT_WRITE, MAP_SHARED, shm_fd_, 0));
+      mmap(nullptr, buffer_bytes_, PROT_WRITE, configure_mmap_flags(), shm_fd_, 0));
   if (buffer_ == MAP_FAILED) throw std::runtime_error(strerror(errno));
 }
 
@@ -42,6 +43,27 @@ RamBuffer::~RamBuffer()
   munmap(buffer_, buffer_bytes_);
   close(shm_fd_);
   shm_unlink(buffer_name_.c_str());
+}
+
+int RamBuffer::configure_mmap_flags()
+{
+  int flags = MAP_SHARED;
+// TODO: This will require changes in future as running on CI will invalidate some flags
+#ifdef MAP_LOCKED
+  flags |= MAP_LOCKED;
+#else
+  spdlog::info("MAP_LOCKED is not used");
+#endif
+
+#ifdef MAP_HUGETLB
+  flags |= MAP_HUGETLB;
+  #ifdef MAP_HUGE_1GB
+  flags |= MAP_HUGE_1GB;
+  #endif
+#else
+  spdlog::info("MAP_HUGETLB is not used");
+#endif
+  return flags;
 }
 
 void RamBuffer::write(const uint64_t id, const char* src_data)

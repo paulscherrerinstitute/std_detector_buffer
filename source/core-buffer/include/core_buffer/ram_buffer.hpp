@@ -20,6 +20,7 @@ class RamBuffer
   int shm_fd_;
   char* buffer_;
 
+  [[nodiscard]] static int configure_mmap_flags();
 public:
   RamBuffer(std::string channel_name, size_t data_n_bytes, size_t n_slots);
   ~RamBuffer();
