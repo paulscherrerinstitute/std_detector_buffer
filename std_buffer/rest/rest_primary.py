@@ -19,6 +19,7 @@ from utils import (
     read_metadata,
 )
 from uvicorn import run
+from typing import Optional
 
 # Initialize the logger
 logger = logging.getLogger("RestPrimaryLogger")
@@ -27,6 +28,11 @@ handler = logging.StreamHandler()
 formatter = logging.Formatter('[event] %(asctime)s [%(levelname)s]: %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
+
+def parse_secondary_server(value: Optional[str]) -> Optional[str]:
+    if value == "None":
+        return None
+    return value
 
 # JSON Schema for validation
 JSON_SCHEMA = {
@@ -257,9 +263,10 @@ def main():
     parser.add_argument("--rest_port", type=int, help="Port for REST api", default=5000)
     parser.add_argument(
         "--secondary_server",
-        type=str,
+        type=parse_secondary_server,
+        nargs="?",
         default=None,
-        help="Address of the secondary server for synchronization",
+        help="Address of the secondary server for synchronization. Use 'None' to specify no server.",
     )
 
     args = parser.parse_args()
