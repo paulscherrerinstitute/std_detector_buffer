@@ -21,7 +21,7 @@ RamBuffer::RamBuffer(std::string channel_name, const size_t data_n_bytes, const 
     : buffer_name_(std::move(channel_name))
     , n_slots_(n_slots)
     , data_bytes_(data_n_bytes)
-    , buffer_bytes_(data_bytes_ * n_slots_)
+    , buffer_bytes_(align_to_2mb(data_bytes_ * n_slots_))
 {
   spdlog::debug("{}: buffer_name: {}, n_slots: {}, data_bytes: {}",
                 std::source_location::current().function_name(), buffer_name_, n_slots_,
@@ -64,6 +64,11 @@ int RamBuffer::configure_mmap_flags()
 //   spdlog::info("MAP_HUGETLB is not used");
 // #endif
   return flags;
+}
+
+size_t RamBuffer::align_to_2mb(size_t size) {
+  constexpr size_t alignment = 2 * 1024 * 1024;
+  return ((size + alignment - 1) / alignment) * alignment;
 }
 
 void RamBuffer::write(const uint64_t id, const char* src_data)

@@ -21,6 +21,7 @@ class RamBuffer
   char* buffer_;
 
   [[nodiscard]] static int configure_mmap_flags();
+  [[nodiscard]] static size_t align_to_2mb(size_t size);
 public:
   RamBuffer(std::string channel_name, size_t data_n_bytes, size_t n_slots);
   ~RamBuffer();
