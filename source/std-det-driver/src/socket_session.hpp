@@ -36,6 +36,8 @@ private:
   void accept_and_process();
   void process_request();
   void start_recording(const std::string& message);
+  void stop_recording();
+  void get_status();
 
   void monitor_writer_state();
 

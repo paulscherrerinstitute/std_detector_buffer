@@ -29,11 +29,6 @@ void unsubscribe(void* socket)
     throw std::runtime_error(zmq_strerror(errno));
 }
 
-bool is_recording(driver_state state)
-{
-  return state == driver_state::recording || state == driver_state::waiting_for_first_image;
-}
-
 } // namespace
 
 writer_driver::writer_driver(std::shared_ptr<std_driver::state_manager> sm,
@@ -197,7 +192,7 @@ void writer_driver::record_images(const std::size_t n_images)
   std::string cmd;
 
   subscribe(sync_receive_socket);
-  for (auto i = 0u; i < n_images && is_recording(manager->get_state());) {
+  for (auto i = 0u; i < n_images && manager->is_recording();) {
     char buffer[512];
     if (const auto n_bytes = zmq_recv(sync_receive_socket, buffer, sizeof(buffer), 0); n_bytes > 0)
     {

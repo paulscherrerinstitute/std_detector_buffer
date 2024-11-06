@@ -58,10 +58,20 @@ void socket_session::process_request()
     self->buffer.consume(bytes_transferred);
     spdlog::info(R"([event] Received request: "{}")", message);
 
-    if (self->manager->get_state() == driver_state::idle)
-      self->start_recording(message);
+    if (auto command = parse_command(message); command.has_value()) {
+      const auto command_string = command->value("command", "");
+      if (command_string == "stop_all")
+        self->stop_recording();
+      else if (command_string == "status")
+        self->get_status();
+      else if (self->manager->get_state() == driver_state::idle)
+        self->start_recording(message);
+      else
+        self->reject_and_close();
+    }
     else
-      self->reject_and_close();
+      self->send_response("error", self->close_socket_handler,
+                          fmt::format("Invalid command! {}", message));
   });
 }
 
@@ -77,6 +87,17 @@ void socket_session::start_recording(const std::string& message)
     send_response(
         "error", close_socket_handler,
         fmt::format("Invalid command! expected: start with path parameter, received: {}", message));
+}
+
+void socket_session::stop_recording()
+{
+  if (manager->is_recording()) manager->change_state(driver_state::stop);
+  send_response("success", close_socket_handler);
+}
+
+void socket_session::get_status()
+{
+  send_response(to_string(manager->get_state()), close_socket_handler);
 }
 
 void socket_session::monitor_writer_state()

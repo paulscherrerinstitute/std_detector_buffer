@@ -37,6 +37,13 @@ public:
 
   [[nodiscard]] driver_state get_state() const { return state.load(); }
 
+  bool is_recording() const
+  {
+    const auto current_state = state.load();
+    return current_state == driver_state::recording ||
+           current_state == driver_state::waiting_for_first_image;
+  }
+
   template <typename... States> void wait_for_one_of_states(States... states) const
   {
     std::unique_lock lock(mutex);
