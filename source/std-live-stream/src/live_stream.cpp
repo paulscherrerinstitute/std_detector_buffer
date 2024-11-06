@@ -98,7 +98,7 @@ std::function<bool(uint64_t)> select_sending_condition(const utils::live_stream_
         return true;
       else if (auto now = steady_clock::now(); now > next_time) {
         count = 1;
-        next_time += data_period;
+        next_time = now + data_period;
         return true;
       }
       else
