@@ -197,7 +197,7 @@ void writer_driver::record_images(const std::size_t n_images)
   std::string cmd;
 
   subscribe(sync_receive_socket);
-  for (auto i = 0u; i < n_images && is_recording(manager->get_state()); i++) {
+  for (auto i = 0u; i < n_images && is_recording(manager->get_state());) {
     char buffer[512];
     if (const auto n_bytes = zmq_recv(sync_receive_socket, buffer, sizeof(buffer), 0); n_bytes > 0)
     {
@@ -209,6 +209,7 @@ void writer_driver::record_images(const std::size_t n_images)
       action.SerializeToString(&cmd);
       if (with_metadata_writer) zmq_send(writer_send_sockets[0], cmd.c_str(), cmd.size(), 0);
       zmq_send(writer_send_sockets[get_current_writer_index(i)], cmd.c_str(), cmd.size(), 0);
+      i++; // we increment number of images sent only when we received and successfully an image
     }
   }
   unsubscribe(sync_receive_socket);
