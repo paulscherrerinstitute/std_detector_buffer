@@ -47,23 +47,7 @@ RamBuffer::~RamBuffer()
 
 int RamBuffer::configure_mmap_flags()
 {
-  int flags = MAP_SHARED;
-// TODO: This will require changes in future as running on CI will invalidate some flags
-// #ifdef MAP_LOCKED
-//   flags |= MAP_LOCKED;
-// #else
-//   spdlog::info("MAP_LOCKED is not used");
-// #endif
-//
-// #ifdef MAP_HUGETLB
-//   flags |= MAP_HUGETLB;
-//   #ifdef MAP_HUGE_1GB
-//   flags |= MAP_HUGE_1GB;
-//   #endif
-// #else
-//   spdlog::info("MAP_HUGETLB is not used");
-// #endif
-  return flags;
+  return MAP_SHARED;
 }
 
 size_t RamBuffer::align_to_2mb(size_t size) {
