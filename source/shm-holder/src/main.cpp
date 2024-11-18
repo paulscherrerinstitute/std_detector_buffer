@@ -28,7 +28,7 @@ size_t align_to_2mb(size_t size)
 
 int configure_mmap_flags()
 {
-  return MAP_SHARED | MAP_LOCKED | MAP_POPULATE;
+  return MAP_SHARED | MAP_LOCKED;
 }
 
 // Function for mapping a memory chunk
