@@ -57,7 +57,7 @@ release_project:
     - job: upload_project
 
 docker_deploy:
-  stage: deploy
+  stage: test
   extends: [ .docker_build ]
 
 pages:
