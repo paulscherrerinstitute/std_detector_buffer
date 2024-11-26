@@ -64,3 +64,24 @@ Optional arguments:
 -s, --source_suffix     suffix for ipc source for ram_buffer [nargs=0..1] [default: "image"]
 -n, --no_filter         forward all images 
 ```
+## Delayed Filtering
+*TBD*
+Filtering service that is delaying in time processing of the `zmq` processing chain of the images for given time in seconds or given number of images (whichever goes first).
+
+```text
+Usage: std_delay_filter [--help] [--version] [--source_suffix VAR] detector_json_filename
+
+Positional arguments:
+detector_json_filename
+
+Optional arguments:
+-h, --help              shows help message and exits
+-v, --version           prints version information and exits
+-s, --source_suffix     suffix for ipc and shared memory sources for ram_buffer [nargs=0..1] [default: "image"]
+```
+
+Relevant config file parameters relevant to this filter:
+* `ram_buffer_gb` - size in GB of memory allocated as a ram buffer for fully assembled images - doesn't affect the size of udp receive buffer.
+* `delay_filter_timeout` - maximum time after images are forwarded for further processing. If the images are not overflowing the ram buffer - this timeout is the trigger for continuation of processing.
+
+Common parameters affecting service can be found [here](../Interfaces/configfile.md#common-configuration-options).
