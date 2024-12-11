@@ -105,12 +105,15 @@ void socket_session::monitor_writer_state()
   using namespace std::chrono_literals;
   std::thread([self = shared_from_this()]() {
     while (true) {
-      switch (auto state = self->manager->wait_for_change_or_timeout(1s); state) {
+      switch (auto state = self->manager->wait_for_change_or_timeout(100ms); state) {
       case driver_state::file_saved:
       case driver_state::error:
         self->send_response(to_string(state), self->close_socket_handler);
         self->manager->change_state(driver_state::idle);
         return;
+      case driver_state::recording:
+        self->send_recording_response(self->manager->get_images_processed());
+        break;
       default:
         self->send_response(to_string(state));
         break;
@@ -152,6 +155,12 @@ void socket_session::send_response(std::string_view status,
   json response = {{"status", status}};
   if (reason.has_value()) response["reason"] = reason.value();
   websocket.async_write(boost::asio::buffer(response.dump()), handler);
+}
+
+void socket_session::send_recording_response(unsigned int count)
+{
+  const json response = {{"status", "recording"}, {"count", count}};
+  websocket.async_write(boost::asio::buffer(response.dump()), noop_handler);
 }
 
 } // namespace std_driver

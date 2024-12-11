@@ -21,6 +21,7 @@ namespace std_driver {
 class state_manager
 {
   std::atomic<driver_state> state{driver_state::idle};
+  std::atomic<unsigned int> images_processed{0};
   mutable std::mutex mutex;
   mutable std::condition_variable cv;
 
@@ -30,12 +31,20 @@ public:
     {
       std::lock_guard lock(mutex);
       state = newState;
+      if (newState == driver_state::idle) images_processed = 0;
     }
     spdlog::debug("driver state changed: {}", to_string(newState));
     cv.notify_all();
   }
 
+  void update_image_count(const unsigned int sent_images)
+  {
+    std::lock_guard lock(mutex);
+    images_processed = sent_images;
+  }
+
   [[nodiscard]] driver_state get_state() const { return state.load(); }
+  [[nodiscard]] unsigned int get_images_processed() const { return images_processed.load(); }
 
   bool is_recording() const
   {
