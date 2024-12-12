@@ -205,6 +205,7 @@ void writer_driver::record_images(const std::size_t n_images)
       if (with_metadata_writer) zmq_send(writer_send_sockets[0], cmd.c_str(), cmd.size(), 0);
       zmq_send(writer_send_sockets[get_current_writer_index(i)], cmd.c_str(), cmd.size(), 0);
       i++; // we increment number of images sent only when we received and successfully an image
+      manager->update_image_count(i);
     }
   }
   unsubscribe(sync_receive_socket);
