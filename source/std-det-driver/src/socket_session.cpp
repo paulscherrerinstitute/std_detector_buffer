@@ -112,7 +112,8 @@ void socket_session::monitor_writer_state()
         self->manager->change_state(driver_state::idle);
         return;
       case driver_state::recording:
-        self->send_recording_response(self->manager->get_images_processed());
+      case driver_state::saving_file:
+        self->send_response_with_count(to_string(state), self->manager->get_images_processed());
         break;
       default:
         self->send_response(to_string(state));
@@ -157,9 +158,9 @@ void socket_session::send_response(std::string_view status,
   websocket.async_write(boost::asio::buffer(response.dump()), handler);
 }
 
-void socket_session::send_recording_response(unsigned int count)
+void socket_session::send_response_with_count(std::string_view status, unsigned int count)
 {
-  const json response = {{"status", "recording"}, {"count", count}};
+  const json response = {{"status", status}, {"count", count}};
   websocket.async_write(boost::asio::buffer(response.dump()), noop_handler);
 }
 

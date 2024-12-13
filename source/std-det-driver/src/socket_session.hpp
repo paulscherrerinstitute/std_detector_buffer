@@ -47,7 +47,7 @@ private:
   void send_response(std::string_view status,
                      response_handler handler = noop_handler,
                      std::optional<std::string_view> reason = std::nullopt);
-  void send_recording_response(unsigned int count);
+  void send_response_with_count(std::string_view status, unsigned int count);
 };
 
 } // namespace std_driver
