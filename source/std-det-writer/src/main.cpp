@@ -11,7 +11,7 @@
 
 #include "utils/utils.hpp"
 #include "core_buffer/communicator.hpp"
-#include "core_buffer/ram_buffer.hpp"
+#include "core_buffer/buffer_utils.hpp"
 #include "std_buffer/writer_action.pb.h"
 #include "writer_stats_collector.hpp"
 #include "hdf5_file.hpp"
@@ -80,12 +80,21 @@ int main(int argc, char* argv[])
   while (true) {
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
       action.ParseFromArray(buffer, n_bytes);
+      response.set_code(std_daq_protocol::ResponseCode::SUCCESS);
+      response.clear_reason();
+      response.SerializeToString(&send_msg);
 
       if (action.has_create_file()) {
         const auto& create_file = action.create_file();
-        if(switch_writer_user(create_file.writer_id()))
-        {
-          file = std::make_unique<HDF5File>(config, create_file.path(), suffix);
+        if (switch_writer_user(create_file.writer_id())) {
+          try {
+            file = std::make_unique<HDF5File>(config, create_file.path(), suffix);
+          }
+          catch (const std::runtime_error& err) {
+            response.set_code(std_daq_protocol::ResponseCode::FAILURE);
+            response.set_reason(err.what());
+            response.SerializeToString(&send_msg);
+          }
           zmq_send(sender, send_msg.c_str(), send_msg.size(), 0);
         }
       }

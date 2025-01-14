@@ -36,4 +36,5 @@ enum ResponseCode {
 
 message WriterResponse {
   ResponseCode code = 1;
+  string reason = 2;
 }

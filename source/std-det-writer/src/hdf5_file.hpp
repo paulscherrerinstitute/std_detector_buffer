@@ -7,9 +7,6 @@
 
 #include <memory>
 #include <string>
-#include <span>
-#include "core_buffer/buffer_utils.hpp"
-#include "core_buffer/formats.hpp"
 #include "std_buffer/image_metadata.pb.h"
 #include "utils/detector_config.hpp"
 
