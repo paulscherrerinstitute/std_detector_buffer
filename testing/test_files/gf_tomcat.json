@@ -1,0 +1,30 @@
+{
+  "detector_name": "gf-single-server",
+  "detector_type": "gigafrost",
+  "n_modules": 8,
+  "bit_depth": 16,
+  "image_pixel_height": 2016,
+  "image_pixel_width": 2016,
+  "start_udp_port": 2000,
+  "writer_user_id": 18600,
+  "max_number_of_forwarders_spawned": 8,
+  "use_all_forwarders": true,
+  "module_sync_queue_size": 4096,
+  "number_of_writers": 1,
+  "module_positions": {},
+  "delay_filter_timeout": 10,
+  "live_stream_configs": {
+    "tcp://129.129.95.111:20000": {
+      "type": "periodic",
+      "config": [1, 5]
+    },
+    "tcp://129.129.95.111:20001": {
+      "type": "periodic",
+      "config": [1, 5]
+    },
+    "tcp://129.129.95.38:20000": {
+      "type": "periodic",
+      "config": [1, 1]
+    }
+  }
+}

@@ -173,9 +173,13 @@ bool writer_driver::did_all_writers_acknowledge()
 {
   char buffer[512];
   auto files_created = 0u;
+  std_daq_protocol::WriterResponse response;
   for (const auto& socket : writer_receive_sockets)
-    if (const auto n_bytes = zmq_recv(socket, buffer, sizeof(buffer), 0); n_bytes > 0)
+    if (const auto n_bytes = zmq_recv(socket, buffer, sizeof(buffer), 0); n_bytes > 0) {
+      response.ParseFromArray(buffer, n_bytes);
+      if (response.code() == std_daq_protocol::ResponseCode::FAILURE) return false;
       files_created++;
+    }
 
   return files_created == writer_receive_sockets.size();
 }
