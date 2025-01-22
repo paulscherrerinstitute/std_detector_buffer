@@ -28,6 +28,7 @@ Commands are JSON formatted and should be sent through the established WebSocket
     ```
     Parameters:
     - `path` (string, mandatory): The filesystem path where image files will be created. The specified directory must pre-exist.
+    - `file_prefix` (string, optional): prefix for filename created by the system. Default is `file` createing files. `fileMeta.h5`, `file0.h5`, ...
     - `n_image` (integer, optional): The number of images to save. Default is `16777215` (maximum for Gigafrost in gfclient).
     - `writer_id` (integer, optional): ID of the user under whose account files are written. Default is `0` (root). Other IDs have not been tested.
     - `start_id` (integer, optional): Image ID from which to start writing. Default is `0`.
@@ -35,7 +36,7 @@ Commands are JSON formatted and should be sent through the established WebSocket
    Example:
 
     ```json
-    {"command": "start", "path": "/gpfs/test/test-beamline", "n_image": 100000}
+    {"command": "start", "path": "/gpfs/test/test-beamline", "file_prefix": "test_prefix.", "n_image": 100000}
     ```
    
 2. Stop Command

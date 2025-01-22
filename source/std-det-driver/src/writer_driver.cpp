@@ -147,10 +147,10 @@ std::string writer_driver::generate_file_path_for_writer(std::string_view base_p
                                                          unsigned int index) const
 {
   if (with_metadata_writer) {
-    if (index == 0) return fmt::format("{}/fileMeta.h5", base_path);
+    if (index == 0) return fmt::format("{}Meta.h5", base_path);
     index--;
   }
-  return fmt::format("{}/file{}.h5", base_path, index);
+  return fmt::format("{}{}.h5", base_path, index);
 }
 
 void writer_driver::send_create_file_requests(std::string_view base_path, const writer_id id) const
