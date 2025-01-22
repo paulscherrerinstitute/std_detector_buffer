@@ -24,7 +24,7 @@ inline constexpr int BUFFER_ZMQ_RCVHWM = 50000;
 inline constexpr std::string IPC_URL_BASE = "ipc:///tmp/";
 // Number of image slots in ram buffer for receivers - this can be fixed
 // as this is a reasonable minimal amount that is required for receivers to correctly function
-inline constexpr int RECEIVER_RAM_BUFFER_N_SLOTS = 10 * 100;
+inline constexpr int RECEIVER_RAM_BUFFER_N_SLOTS = 20 * 100;
 } // namespace buffer_config
 
 #endif // STD_DETECTOR_BUFFER_BUFFER_CONFIG_HPP
