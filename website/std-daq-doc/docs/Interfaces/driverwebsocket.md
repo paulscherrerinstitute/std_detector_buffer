@@ -21,6 +21,7 @@ Commands are JSON formatted and should be sent through the established WebSocket
     {
       "command": "start",
       "path": "<file_path>",
+      "file_prefix": "<file_prefix>",
       "n_image": <value>,
       "writer_id": <value>,
       "start_id": <value>
