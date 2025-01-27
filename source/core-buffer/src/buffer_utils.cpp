@@ -14,23 +14,26 @@
 
 using namespace buffer_config;
 
-void* buffer_utils::connect_socket(void* ctx,
-                                   const std::string& buffer_name,
-                                   const int zmq_socket_type)
+namespace buffer_utils {
+
+void* connect_socket(void* ctx, const std::string& buffer_name, const int zmq_socket_type)
 {
   auto socket = create_socket(ctx, zmq_socket_type);
-  const std::string ipc_address = IPC_URL_BASE + buffer_name;
 
-  spdlog::debug("{}: IPC address: {}", std::source_location::current().function_name(),
-                ipc_address);
+  spdlog::debug("{}: Connecting to address: {}", std::source_location::current().function_name(),
+                buffer_name);
 
-  if (zmq_connect(socket, ipc_address.c_str()) != 0) throw std::runtime_error(zmq_strerror(errno));
+  if (zmq_connect(socket, buffer_name.c_str()) != 0) throw std::runtime_error(zmq_strerror(errno));
   return socket;
 }
 
-void* buffer_utils::bind_socket(void* ctx,
-                                const std::string& buffer_name,
-                                const int zmq_socket_type)
+void* connect_socket_ipc(void* ctx, const std::string& buffer_name, const int zmq_socket_type)
+{
+  const std::string ipc_address = IPC_URL_BASE + buffer_name;
+  return connect_socket(ctx, ipc_address, zmq_socket_type);
+}
+
+void* bind_socket(void* ctx, const std::string& buffer_name, const int zmq_socket_type)
 {
   auto socket = create_socket(ctx, zmq_socket_type);
   const std::string ipc_address = IPC_URL_BASE + buffer_name;
@@ -42,7 +45,7 @@ void* buffer_utils::bind_socket(void* ctx,
   return socket;
 }
 
-void* buffer_utils::create_socket(void* ctx, const int zmq_socket_type)
+void* create_socket(void* ctx, const int zmq_socket_type)
 {
 
   void* socket = zmq_socket(ctx, zmq_socket_type);
@@ -73,3 +76,4 @@ void* buffer_utils::create_socket(void* ctx, const int zmq_socket_type)
 
   return socket;
 }
+} // namespace buffer_utils

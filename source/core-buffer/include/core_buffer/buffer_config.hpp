@@ -5,7 +5,6 @@
 #ifndef STD_DETECTOR_BUFFER_BUFFER_CONFIG_HPP
 #define STD_DETECTOR_BUFFER_BUFFER_CONFIG_HPP
 
-#include <cstddef>
 #include <string>
 
 namespace buffer_config {

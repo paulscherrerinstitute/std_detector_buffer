@@ -19,7 +19,7 @@ Communicator::Communicator(const RamBufferConfig& ram_config, const Communicator
   if (comm_cfg.connection_type == CONN_TYPE_BIND)
     socket = buffer_utils::bind_socket(comm_cfg.zmq_ctx, port_name, comm_cfg.zmq_socket_type);
   else
-    socket = buffer_utils::connect_socket(comm_cfg.zmq_ctx, port_name, comm_cfg.zmq_socket_type);
+    socket = buffer_utils::connect_socket_ipc(comm_cfg.zmq_ctx, port_name, comm_cfg.zmq_socket_type);
 }
 
 void Communicator::send(uint64_t id, std::span<const char> meta, char* data, int flags)
