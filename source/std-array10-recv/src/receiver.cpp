@@ -22,7 +22,7 @@ std::tuple<utils::DetectorConfig, std::string, int, std::size_t> read_arguments(
   auto program = utils::create_parser("std_array10_recv");
   program->add_argument("stream_address").help("address to bind input stream");
   program->add_argument("-n", "--number_of_connections")
-      .default_value(1ul)
+      .default_value(4ul)
       .scan<'u', std::size_t>()
       .help("Number of parallel connections to the source (4 for PCO cameras).");
   program->add_argument("-t", "--type")
@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
   meta.set_width(config.image_pixel_width);
   meta.set_size(max_byte_size);
 
-  char buffer[max_byte_size + 8];
+  auto buffer = new char[max_byte_size + 8];
 
   std::map<uint64_t, std_daq_protocol::ImageMetadata> image_order;
 
