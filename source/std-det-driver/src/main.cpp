@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
   auto driver =
       std::make_shared<std_driver::writer_driver>(sm, source_suffix, config, with_metadata_writer);
 
-  driver->init();
+  driver->init(config.stats_collection_period);
   do_accept(acceptor, sm, driver);
   ioc.run();
 

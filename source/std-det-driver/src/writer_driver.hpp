@@ -35,7 +35,7 @@ public:
                          const std::string& source_suffix,
                          const utils::DetectorConfig& config,
                          bool with_metadata_writer);
-  void init();
+  void init(std::chrono::seconds logging_period);
   void start(const run_settings& settings);
 
 private:

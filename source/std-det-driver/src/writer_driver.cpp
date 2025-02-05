@@ -60,13 +60,13 @@ writer_driver::writer_driver(std::shared_ptr<std_driver::state_manager> sm,
   sync_receive_socket = prepare_sync_receiver_socket(source_name);
 }
 
-void writer_driver::init()
+void writer_driver::init(std::chrono::seconds logging_period)
 {
   auto self = shared_from_this();
-  std::thread([self]() {
+  std::thread([self, logging_period]() {
     while (true) {
       self->stats.print_stats();
-      std::this_thread::sleep_for(std::chrono::seconds(10));
+      std::this_thread::sleep_for(logging_period);
     }
   }).detach();
 }
