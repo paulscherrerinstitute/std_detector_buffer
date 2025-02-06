@@ -87,12 +87,6 @@ int main(int argc, char* argv[])
         try {
           auto json = nlohmann::json::parse(std::string_view(buffer, n_bytes));
           meta.set_image_id(json["frame"].get<uint64_t>());
-          meta.mutable_gf()->set_exposure_time(json["exposure_time"].get<uint64_t>());
-          meta.mutable_gf()->set_frame_timestamp(json["timestamp"].get<uint64_t>());
-          meta.mutable_gf()->set_scan_id(json["scan_id"].get<uint32_t>());
-          meta.mutable_gf()->set_scan_time(json["scan_time"].get<uint32_t>());
-          meta.mutable_gf()->set_sync_time(json["sync_time"].get<uint32_t>());
-          meta.mutable_gf()->set_store_image(!json["do_not_store"].get<bool>());
         }
         catch (const nlohmann::json::exception& e) {
         }
