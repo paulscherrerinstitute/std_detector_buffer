@@ -77,15 +77,15 @@ int main(int argc, char* argv[])
   meta.set_width(config.image_pixel_width);
   meta.set_size(max_byte_size);
 
-  auto buffer = new char[max_byte_size + 8];
+  std::vector<char> buffer(max_byte_size + 8);
 
   std::map<uint64_t, std_daq_protocol::ImageMetadata> image_order;
 
   while (true) {
     for (auto& socket : receiver_sockets) {
-      if (auto n_bytes = zmq_recv(socket, buffer, sizeof(buffer), 0); n_bytes > 0) {
+      if (auto n_bytes = zmq_recv(socket, buffer.data(), buffer.size(), 0); n_bytes > 0) {
         try {
-          auto json = nlohmann::json::parse(std::string_view(buffer, n_bytes));
+          auto json = nlohmann::json::parse(std::string_view(buffer.data(), n_bytes));
           meta.set_image_id(json["frame"].get<uint64_t>());
         }
         catch (const nlohmann::json::exception& e) {
@@ -93,8 +93,8 @@ int main(int argc, char* argv[])
         int receive_more;
         size_t sz = sizeof(receive_more);
         if (zmq_getsockopt(socket, ZMQ_RCVMORE, &receive_more, &sz) != -1) {
-          if (n_bytes = zmq_recv(socket, buffer, sizeof(buffer), ZMQ_DONTWAIT); n_bytes > 0) {
-            std::memcpy(sender.get_data(meta.image_id()), buffer, n_bytes);
+          if (n_bytes = zmq_recv(socket, buffer.data(), buffer.size(), ZMQ_DONTWAIT); n_bytes > 0) {
+            std::memcpy(sender.get_data(meta.image_id()), buffer.data(), n_bytes);
             image_order.emplace(meta.image_id(), meta);
           }
         }
