@@ -45,7 +45,7 @@ std::tuple<utils::DetectorConfig, std::string, std::size_t, bool> read_arguments
       .help("websocket listening port");
   program->add_argument("-m", "--with_metadata_writer")
       .flag()
-      .help("Whether writer for metadata is accesible/used");
+      .help("Whether writer for metadata is accessible/used");
 
   program = utils::parse_arguments(std::move(program), argc, argv);
   return {utils::read_config_from_json_file(program->get("detector_json_filename")),

@@ -5,6 +5,8 @@
 #ifndef STD_DETECTOR_BUFFER_SOCKET_SESSION_HPP
 #define STD_DETECTOR_BUFFER_SOCKET_SESSION_HPP
 
+#include <thread>
+
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
 
@@ -22,6 +24,7 @@ class socket_session : public std::enable_shared_from_this<socket_session>
   boost::beast::multi_buffer buffer;
   std::shared_ptr<state_manager> manager;
   std::shared_ptr<writer_driver> writer;
+  std::jthread monitor_thread;
 
   response_handler close_socket_handler;
 

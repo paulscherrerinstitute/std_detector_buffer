@@ -34,6 +34,7 @@ void socket_session::initialize()
 {
   close_socket_handler = [self = shared_from_this()](boost::beast::error_code ec, std::size_t) {
     if (ec) return;
+    self->monitor_thread.request_stop();
     self->websocket.async_close(boost::beast::websocket::close_code::normal,
                                 [](boost::beast::error_code) {});
     spdlog::info("[event] socket_session finished - connection closed");
@@ -103,9 +104,12 @@ void socket_session::get_status()
 void socket_session::monitor_writer_state()
 {
   using namespace std::chrono_literals;
-  std::thread([self = shared_from_this()]() {
-    while (true) {
-      switch (auto state = self->manager->wait_for_change_or_timeout(100ms); state) {
+  monitor_thread = std::jthread([self = shared_from_this()](std::stop_token stop_token) {
+    while (!stop_token.stop_requested()) {
+      auto state = self->manager->wait_for_change_or_timeout(100ms);
+      if (stop_token.stop_requested()) break; // ensure to stop after timeout
+
+      switch (state) {
       case driver_state::file_saved:
       case driver_state::error:
         self->send_response(to_string(state), self->close_socket_handler);
@@ -120,7 +124,7 @@ void socket_session::monitor_writer_state()
         break;
       }
     }
-  }).detach();
+  });
 }
 
 void socket_session::listen_for_stop()
