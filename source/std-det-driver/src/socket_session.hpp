@@ -40,13 +40,9 @@ private:
   void process_request();
   void start_recording(const std::string& message);
   void stop_recording();
-  void get_status();
-
   void monitor_writer_state();
 
-  void listen_for_stop();
-
-  void reject_and_close();
+  void reject();
   void send_response(std::string_view status,
                      response_handler handler = noop_handler,
                      std::optional<std::string_view> reason = std::nullopt);

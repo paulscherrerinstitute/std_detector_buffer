@@ -50,7 +50,8 @@ public:
   {
     const auto current_state = state.load();
     return current_state == driver_state::recording ||
-           current_state == driver_state::waiting_for_first_image;
+           current_state == driver_state::waiting_for_first_image ||
+           current_state == driver_state::creating_file;
   }
 
   template <typename... States> void wait_for_one_of_states(States... states) const
