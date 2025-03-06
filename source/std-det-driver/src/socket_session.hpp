@@ -33,6 +33,7 @@ public:
                           std::shared_ptr<state_manager> sm,
                           std::shared_ptr<writer_driver> w);
   void start();
+  ~socket_session();
 
 private:
   void initialize();

@@ -14,6 +14,10 @@ namespace utils::stats {
 
 template <typename Derived> class StatsCollector
 {
+protected:
+  ~StatsCollector() = default;
+
+private:
   using time_point = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
 
 public:

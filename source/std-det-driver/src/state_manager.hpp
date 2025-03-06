@@ -22,6 +22,7 @@ class state_manager
 {
   std::atomic<driver_state> state{driver_state::idle};
   std::atomic<unsigned int> images_processed{0};
+  std::atomic<unsigned int> active_sessions;
   mutable std::mutex mutex;
   mutable std::condition_variable cv;
 
@@ -45,6 +46,9 @@ public:
 
   [[nodiscard]] driver_state get_state() const { return state.load(); }
   [[nodiscard]] unsigned int get_images_processed() const { return images_processed.load(); }
+  [[nodiscard]] unsigned int get_active_sessions() const { return active_sessions.load(); }
+  void add_active_session() { ++active_sessions; }
+  void remove_active_session() { --active_sessions; }
 
   bool is_recording() const
   {

@@ -14,7 +14,7 @@
 
 namespace utils::stats {
 
-class CompressionStatsCollector : public TimedStatsCollector
+class CompressionStatsCollector final : public TimedStatsCollector
 {
 public:
   explicit CompressionStatsCollector(std::string_view detector_name,

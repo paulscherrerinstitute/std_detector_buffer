@@ -14,6 +14,7 @@ class TimedStatsCollector : public utils::stats::StatsCollector<TimedStatsCollec
   using time_point = std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds>;
 
 public:
+  virtual ~TimedStatsCollector() = default;
   explicit TimedStatsCollector(std::string_view detector_name,
                                std::chrono::seconds period,
                                std::string_view suffix = "")

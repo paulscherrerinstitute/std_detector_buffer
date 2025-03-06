@@ -11,6 +11,8 @@
 
 #include <zmq.h>
 
+#include "core_buffer/communicator.hpp"
+
 using namespace std::chrono_literals;
 
 namespace std_driver {
@@ -65,6 +67,7 @@ void writer_driver::init(std::chrono::seconds logging_period)
   auto self = shared_from_this();
   std::thread([self, logging_period]() {
     while (true) {
+      self->stats.update_stats(self->manager->get_active_sessions());
       self->stats.print_stats();
       std::this_thread::sleep_for(logging_period);
     }

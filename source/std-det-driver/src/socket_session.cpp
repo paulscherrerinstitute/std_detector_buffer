@@ -21,7 +21,14 @@ socket_session::socket_session(tcp::socket socket,
     : websocket(std::move(socket))
     , manager(std::move(sm))
     , writer(std::move(w))
-{}
+{
+  manager->add_active_session();
+}
+
+socket_session::~socket_session()
+{
+  manager->remove_active_session();
+}
 
 void socket_session::start()
 {
@@ -70,8 +77,7 @@ void socket_session::process_request()
         self->reject();
     }
     else
-      self->send_response("error", noop_handler,
-                          fmt::format("Invalid command! {}", message));
+      self->send_response("error", noop_handler, fmt::format("Invalid command! {}", message));
     self->process_request();
   });
 }

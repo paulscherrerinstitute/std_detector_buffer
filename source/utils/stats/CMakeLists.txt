@@ -12,6 +12,7 @@ target_sources(${PROJECT_NAME}
         FILE_SET HEADERS
         BASE_DIRS include
         FILES
+            include/utils/stats/active_sessions_stats_collector.hpp
             include/utils/stats/compression_stats_collector.hpp
             include/utils/stats/module_stats_collector.hpp
             include/utils/stats/stats_collector.hpp

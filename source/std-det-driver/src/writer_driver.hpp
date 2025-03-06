@@ -8,9 +8,8 @@
 #include <string_view>
 
 #include "utils/detector_config.hpp"
-#include "core_buffer/communicator.hpp"
 #include "std_buffer/writer_action.pb.h"
-#include "utils/stats/timed_stats_collector.hpp"
+#include "utils/stats/active_sessions_stats_collector.hpp"
 
 #include "state_manager.hpp"
 #include "run_settings.hpp"
@@ -25,7 +24,7 @@ class writer_driver : public std::enable_shared_from_this<writer_driver>
   std::vector<void*> writer_send_sockets;
   std::vector<void*> writer_receive_sockets;
   std::atomic<driver_state> state{driver_state::idle};
-  utils::stats::TimedStatsCollector stats;
+  utils::stats::ActiveSessionStatsCollector stats;
   bool with_metadata_writer;
   mutable std::mutex mutex;
   mutable std::condition_variable cv;

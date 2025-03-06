@@ -14,7 +14,7 @@
 
 namespace utils::stats {
 
-class QueueStatsCollector : public utils::stats::SyncStatsCollector
+class QueueStatsCollector final : public utils::stats::SyncStatsCollector
 {
   using Parent = utils::stats::SyncStatsCollector;
 
