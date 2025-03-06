@@ -6,7 +6,7 @@ title: Driver WebSocket
 
 ## Driver WebSocket Interface for controlling Writers
 
-This API facilitates the control of a driver via WebSocket communication, providing interfaces to start and stop processes related to image file writing.
+This API facilitates the control of a driver via WebSocket communication, providing interfaces to start and stop processes related to image file writing. User established a connection to a websocket server and maintains it throughout operation.
 
 ### API Commands
 #### General Format
@@ -50,7 +50,7 @@ Commands are JSON formatted and should be sent through the established WebSocket
 
 ### Communication Feedback
 
-The driver will send updates every 1 second or upon any event change via the same WebSocket connection. Communication will continue until all files are saved or an error occurs, with the last message indicating either an error or successful file save. The feedback is in `JSON` form.
+The driver will send updates with 10 `Hz` frequency or upon any event change via the same WebSocket connection. Communication will continue until all files are saved or an error occurs, with the last message indicating either an error or successful file save. The feedback is in `JSON` form.
 
  ```json
  {"status": "creating_file"}
@@ -67,6 +67,8 @@ With possible status descriptions:
 - stop
 - error
 
+States connected to recording and saving the file will also contain information about the number of images being already saved.
+
 ### Connection Termination
 
 The WebSocket connection will be automatically closed either upon the completion of file saving or if an error interrupts the process.
@@ -76,17 +78,25 @@ The WebSocket connection will be automatically closed either upon the completion
 ```text
 >>>> wscat -c ws://127.0.0.1:8080
 Connected (press CTRL+C to quit)
-> {"command":"start", "path": "/gpfs/test/test-beamline", "n_image": 1000000}
-< {"status":"creating_file"}
-< {"status":"waiting_for_first_image"}
-< {"status":"recording"}
-< {"status":"recording"}
-< {"status":"recording"}
-< {"status":"recording"}
-< {"status":"recording"}
-> {"command":"stop"}
+< {"status":"idle"}                                                                                                                                                                                                                           
+< {"status":"idle"}                                                                                                                                                                                                                           
+< {"status":"idle"}                                                                                                                                                                                                                           
+> {"command": "start", "path": "/gpfs/test/test-beamline", "file_prefix": "test_prefix.", "n_image": 100000}                                                                                                                                  
+< {"status":"creating_file"}                                                                                                                                                                                                                  
+< {"status":"waiting_for_first_image"}                                                                                                                                                                                                        
+< {"status":"waiting_for_first_image"}                                                                                                                                                                                                        
+< {"count":0,"status":"recording"}                                                                                                                                                                                                            
+< {"count":1,"status":"recording"}                                                                                                                                                                                                            
+< {"count":2,"status":"recording"}                                                                                                                                                                                                            
+< {"count":4,"status":"recording"}    
+< {"count":5,"status":"recording"} 
+> {"command": "stop"}
 < {"status":"stop"}
-< {"status":"saving_file"}
+< {"status":"stop"}
+< {"count":6,"status":"saving_file"}
 < {"status":"file_saved"}
+< {"status":"idle"}
+< {"status":"idle"}
+< {"status":"idle"}
 Disconnected (code: 1000, reason: "")
 ```
