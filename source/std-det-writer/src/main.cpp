@@ -19,17 +19,31 @@
 using namespace std;
 
 namespace {
-constexpr uid_t root_user_id = 0;
 
-bool switch_user(uid_t new_user_id)
+class user_switch
 {
-  return seteuid(new_user_id) != -1;
-}
 
-bool switch_writer_user(uid_t writer_user)
-{
-  return writer_user == root_user_id || switch_user(writer_user);
-}
+public:
+  explicit user_switch(const bool switch_user)
+      : user_switch_active(switch_user)
+  {}
+
+  [[nodiscard]] bool switch_to_root() const { return switch_user(root_user_id); }
+  [[nodiscard]] bool switch_writer_user(uid_t writer_user) const
+  {
+    return writer_user == root_user_id || switch_user(writer_user);
+  }
+
+private:
+  bool user_switch_active;
+  constexpr static uid_t root_user_id = 0;
+
+  [[nodiscard]] bool switch_user(uid_t new_user_id) const
+  {
+    if (user_switch_active) return seteuid(new_user_id) != -1;
+    return true;
+  }
+};
 
 } // namespace
 
@@ -48,6 +62,7 @@ int main(int argc, char* argv[])
   const auto config = utils::read_config_from_json_file(program->get("detector_json_filename"));
   const auto writer_id = program->get<uint16_t>("writer_id");
   [[maybe_unused]] utils::log::logger l{program_name, config.log_level};
+  const user_switch manage_user(config.switch_user_active);
 
   if (config.number_of_writers <= writer_id) return 0; // shutdown - writer not needed
 
@@ -86,7 +101,7 @@ int main(int argc, char* argv[])
 
       if (action.has_create_file()) {
         const auto& create_file = action.create_file();
-        if (switch_writer_user(create_file.writer_id())) {
+        if (manage_user.switch_writer_user(create_file.writer_id())) {
           try {
             file = std::make_unique<HDF5File>(config, create_file.path(), suffix);
           }
@@ -107,7 +122,7 @@ int main(int argc, char* argv[])
       }
       else if (action.has_close_file()) {
         file.reset();
-        switch_user(root_user_id);
+        (void) manage_user.switch_to_root();
         zmq_send(sender, send_msg.c_str(), send_msg.size(), 0);
       }
       else if (action.has_confirm_last_image())
