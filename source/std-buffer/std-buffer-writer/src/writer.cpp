@@ -25,24 +25,30 @@ auto calculate_size(const std_daq_protocol::ImageMetadata* meta)
 
 } // namespace
 
-std::tuple<utils::DetectorConfig, std::string, std::string> read_arguments(int argc, char* argv[])
+std::tuple<utils::DetectorConfig, std::string, std::string, std::size_t> read_arguments(
+    int argc, char* argv[])
 {
   auto program = utils::create_parser("std_buffer_writer");
   program->add_argument("--root_dir").help("Root directory where files will be stored").required();
   program->add_argument("--db_address")
       .help("Address of Redis API compatible database to connect")
       .required();
+  program->add_argument("-t", "--timeout")
+      .default_value(1ul)
+      .scan<'u', std::size_t>()
+      .help("Number of hours used as TTL for record storing");
   program = utils::parse_arguments(std::move(program), argc, argv);
 
   return {utils::read_config_from_json_file(program->get("detector_json_filename")),
-          program->get("--db_address"), program->get("--root_dir")};
+          program->get("--db_address"), program->get("--root_dir"),
+          program->get<std::size_t>("--timeout")};
 }
 
 int main(int argc, char* argv[])
 {
-  const auto [config, db_address, root_dir] = read_arguments(argc, argv);
+  const auto [config, db_address, root_dir, timeout] = read_arguments(argc, argv);
   [[maybe_unused]] utils::log::logger l{"std_buffer_writer", config.log_level};
-  sbc::RedisHandler sender(config.detector_name, db_address);
+  sbc::RedisHandler sender(config.detector_name, db_address, timeout);
   sbc::BufferHandler writer(root_dir + config.detector_name, config.bit_depth / 8);
 
   utils::stats::TimedStatsCollector stats(config.detector_name, config.stats_collection_period);

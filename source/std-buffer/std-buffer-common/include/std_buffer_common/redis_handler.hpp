@@ -7,6 +7,7 @@
 
 #include <string>
 #include <optional>
+#include <chrono>
 
 #include <sw/redis++/redis++.h>
 
@@ -17,12 +18,13 @@ namespace sbc {
 class RedisHandler
 {
 public:
-  explicit RedisHandler(std::string detector_name, const std::string& address);
+  explicit RedisHandler(std::string detector_name, const std::string& address, std::size_t timeout);
   void send(uint64_t image_id, const std_daq_protocol::BufferedMetadata& meta);
   bool receive(uint64_t image_id, std_daq_protocol::BufferedMetadata& meta);
   std::optional<uint64_t> read_last_saved_image_id();
 
 private:
+  std::chrono::hours ttl;
   std::string key_prefix;
   sw::redis::Redis redis;
 };

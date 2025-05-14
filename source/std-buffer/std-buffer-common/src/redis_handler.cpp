@@ -21,10 +21,13 @@ std::string get_batch_suffix(uint64_t image_id)
   return ':' + std::to_string(image_id / 1000000) + "000000";
 }
 
-}
+} // namespace
 
-RedisHandler::RedisHandler(std::string detector_name, const std::string& address)
-    : key_prefix("camera:" + std::move(detector_name) + ":images")
+RedisHandler::RedisHandler(std::string detector_name,
+                           const std::string& address,
+                           const std::size_t timeout)
+    : ttl(std::chrono::hours(timeout))
+    , key_prefix("camera:" + std::move(detector_name) + ":images")
     , redis(address)
 {
   if (redis.ping() != "PONG")
@@ -41,11 +44,11 @@ void RedisHandler::send(uint64_t image_id, const std_daq_protocol::BufferedMetad
 
   auto pipe = redis.pipeline();
   pipe.hset(key, id, meta_buffer_send);
-  pipe.expire(key, std::chrono::hours(12));
+  pipe.expire(key, ttl);
   pipe.exec();
 }
 
-bool RedisHandler::receive(uint64_t , std_daq_protocol::BufferedMetadata& )
+bool RedisHandler::receive(uint64_t, std_daq_protocol::BufferedMetadata&)
 {
   return true;
 }

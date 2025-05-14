@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
       cb::Communicator{{sync_name, max_data_bytes, utils::slots_number(args.config)},
                        {sync_name, ctx, cb::CONN_TYPE_BIND, ZMQ_PUB}};
 
-  sbc::RedisHandler redis_handler(args.config.detector_name, args.db_address);
+  sbc::RedisHandler redis_handler(args.config.detector_name, args.db_address, 1);
   sbc::BufferHandler reader(args.root_dir + args.config.detector_name, args.config.bit_depth / 8);
   std_daq_protocol::BufferedMetadata buffered_meta;
   EndTester end_id_tester(redis_handler);
