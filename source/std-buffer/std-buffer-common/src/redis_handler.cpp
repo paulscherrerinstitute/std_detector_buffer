@@ -14,8 +14,17 @@ using namespace std::chrono_literals;
 
 namespace sbc {
 
+namespace {
+
+std::string get_batch_suffix(uint64_t image_id)
+{
+  return ':' + std::to_string(image_id / 1000000) + "000000";
+}
+
+}
+
 RedisHandler::RedisHandler(std::string detector_name, const std::string& address)
-    : prefix(std::move(detector_name) + ":")
+    : key_prefix("camera:" + std::move(detector_name) + ":images")
     , redis(address)
 {
   if (redis.ping() != "PONG")
@@ -24,34 +33,25 @@ RedisHandler::RedisHandler(std::string detector_name, const std::string& address
 
 void RedisHandler::send(uint64_t image_id, const std_daq_protocol::BufferedMetadata& meta)
 {
+  const auto key = key_prefix + get_batch_suffix(image_id);
+  const auto id = std::to_string(image_id);
+
   std::string meta_buffer_send;
   meta.SerializeToString(&meta_buffer_send);
 
-  const auto id = std::to_string(image_id);
-  // TODO: For now expiry is fixed to 48 hours - most likely should be improved
-  redis.setex(prefix + id, 48h, meta_buffer_send);
-  redis.set(prefix + "last", id);
+  auto pipe = redis.pipeline();
+  pipe.hset(key, id, meta_buffer_send);
+  pipe.expire(key, std::chrono::hours(12));
+  pipe.exec();
 }
 
-bool RedisHandler::receive(uint64_t image_id, std_daq_protocol::BufferedMetadata& meta)
+bool RedisHandler::receive(uint64_t , std_daq_protocol::BufferedMetadata& )
 {
-  if (auto meta_buffer_send = redis.get(prefix + std::to_string(image_id))) {
-    meta.ParseFromString(*meta_buffer_send);
-    return true;
-  }
-  else
-    return false;
+  return true;
 }
 
 std::optional<uint64_t> RedisHandler::read_last_saved_image_id()
 {
-  auto to_uint64 = [](std::string_view sv) -> std::optional<uint64_t> {
-    if (uint64_t value; std::from_chars(sv.begin(), sv.end(), value).ec == std::errc{})
-      return value;
-    return std::nullopt;
-  };
-
-  if (auto id = redis.get(prefix + "last")) return to_uint64(id.value());
   return std::nullopt;
 }
 

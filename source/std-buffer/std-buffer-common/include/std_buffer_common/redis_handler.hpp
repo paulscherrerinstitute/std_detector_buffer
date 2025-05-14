@@ -23,7 +23,7 @@ public:
   std::optional<uint64_t> read_last_saved_image_id();
 
 private:
-  std::string prefix;
+  std::string key_prefix;
   sw::redis::Redis redis;
 };
 
