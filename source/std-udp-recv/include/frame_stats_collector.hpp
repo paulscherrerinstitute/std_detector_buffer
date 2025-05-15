@@ -2,8 +2,7 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_FRAME_STATS_COLLECTOR_HPP
-#define STD_DETECTOR_BUFFER_FRAME_STATS_COLLECTOR_HPP
+#pragma once
 
 #include "utils/stats/module_stats_collector.hpp"
 
@@ -44,5 +43,3 @@ private:
   std::size_t n_missed_packets{};
   std::size_t n_corrupted_frames{};
 };
-
-#endif // STD_DETECTOR_BUFFER_FRAME_STATS_COLLECTOR_HPP

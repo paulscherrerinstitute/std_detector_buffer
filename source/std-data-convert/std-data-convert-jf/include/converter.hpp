@@ -2,8 +2,7 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_CONVERTER_HPP
-#define STD_DETECTOR_BUFFER_CONVERTER_HPP
+#pragma once
 
 #include <cstdint>
 #include <vector>
@@ -43,5 +42,3 @@ private:
 };
 
 } // namespace jf::sdc
-
-#endif // STD_DETECTOR_BUFFER_CONVERTER_HPP

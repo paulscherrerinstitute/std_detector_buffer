@@ -2,8 +2,7 @@
 // Copyright (c) 2023 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_ARGUMENTS_HPP
-#define STD_DETECTOR_BUFFER_ARGUMENTS_HPP
+#pragma once
 
 #include "utils/detector_config.hpp"
 #include "utils/args.hpp"
@@ -28,5 +27,3 @@ struct arguments
 arguments read_arguments(int argc, char* argv[]);
 
 } // namespace ls
-
-#endif // STD_DETECTOR_BUFFER_ARGUMENTS_HPP

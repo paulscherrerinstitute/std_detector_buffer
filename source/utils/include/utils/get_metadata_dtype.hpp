@@ -2,8 +2,7 @@
 // Copyright (c) 2023 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_GET_METADATA_DTYPE_HPP
-#define STD_DETECTOR_BUFFER_GET_METADATA_DTYPE_HPP
+#pragma once
 
 #include "std_buffer/image_metadata.pb.h"
 
@@ -40,5 +39,3 @@ inline std::string get_array10_type(std_daq_protocol::ImageMetadataDtype type)
 }
 
 } // namespace utils
-
-#endif // STD_DETECTOR_BUFFER_GET_METADATA_DTYPE_HPP

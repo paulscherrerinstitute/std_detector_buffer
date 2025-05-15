@@ -2,8 +2,7 @@
 // Copyright (c) 2023 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_DETECTOR_CONFIG_HPP
-#define STD_DETECTOR_BUFFER_DETECTOR_CONFIG_HPP
+#pragma once
 
 #include <unordered_map>
 #include <bitset>
@@ -90,5 +89,3 @@ void test_if_module_is_inside_image(const utils::DetectorConfig& config, int mod
 
 template <> struct fmt::formatter<utils::DetectorConfig> : ostream_formatter
 {};
-
-#endif // STD_DETECTOR_BUFFER_DETECTOR_CONFIG_HPP

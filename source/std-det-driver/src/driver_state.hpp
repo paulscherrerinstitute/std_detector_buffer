@@ -2,8 +2,7 @@
 // Copyright (c) 2024 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_DRIVER_STATE_HPP
-#define STD_DETECTOR_BUFFER_DRIVER_STATE_HPP
+#pragma once
 
 #include <array>
 #include <string_view>
@@ -36,5 +35,3 @@ constexpr std::string_view to_string(driver_state state)
 }
 
 } // namespace std_driver
-
-#endif // STD_DETECTOR_BUFFER_DRIVER_STATE_HPP

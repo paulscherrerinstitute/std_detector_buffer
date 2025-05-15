@@ -2,8 +2,7 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_JUNGFRAUJOCH_HPP
-#define STD_DETECTOR_BUFFER_JUNGFRAUJOCH_HPP
+#pragma once
 
 #include <cstdint>
 
@@ -37,5 +36,3 @@ struct jfjoch_packet_t
   char data[JFJOCH_DATA_BYTES_PER_PACKET];
 };
 #pragma pack(pop)
-
-#endif // STD_DETECTOR_BUFFER_JUNGFRAUJOCH_HPP

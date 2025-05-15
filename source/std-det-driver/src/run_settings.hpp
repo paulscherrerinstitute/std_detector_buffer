@@ -2,8 +2,7 @@
 // Copyright (c) 2024 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_RUN_SETTINGS_HPP
-#define STD_DETECTOR_BUFFER_RUN_SETTINGS_HPP
+#pragma once
 
 #include <string>
 
@@ -19,5 +18,3 @@ struct run_settings
   std::size_t start_image_id;
 };
 } // namespace std_driver
-
-#endif // STD_DETECTOR_BUFFER_RUN_SETTINGS_HPP

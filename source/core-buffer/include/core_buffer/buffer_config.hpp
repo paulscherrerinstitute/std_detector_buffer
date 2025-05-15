@@ -2,8 +2,7 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_BUFFER_CONFIG_HPP
-#define STD_DETECTOR_BUFFER_BUFFER_CONFIG_HPP
+#pragma once
 
 #include <string>
 
@@ -25,5 +24,3 @@ inline constexpr std::string IPC_URL_BASE = "ipc:///tmp/";
 // as this is a reasonable minimal amount that is required for receivers to correctly function
 inline constexpr int RECEIVER_RAM_BUFFER_N_SLOTS = 10 * 100;
 } // namespace buffer_config
-
-#endif // STD_DETECTOR_BUFFER_BUFFER_CONFIG_HPP

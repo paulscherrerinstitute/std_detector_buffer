@@ -2,8 +2,7 @@
 // Copyright (c) 2023 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_COMPRESSION_STATS_COLLECTOR_HPP
-#define STD_DETECTOR_BUFFER_COMPRESSION_STATS_COLLECTOR_HPP
+#pragma once
 
 #include <string>
 #include <string_view>
@@ -57,5 +56,3 @@ private:
 };
 
 } // namespace utils::stats
-
-#endif // STD_DETECTOR_BUFFER_COMPRESSION_STATS_COLLECTOR_HPP

@@ -2,8 +2,7 @@
 // Copyright (c) 2024 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_WRITER_DRIVER_HPP
-#define STD_DETECTOR_BUFFER_WRITER_DRIVER_HPP
+#pragma once
 
 #include <string_view>
 
@@ -52,5 +51,3 @@ private:
 };
 
 } // namespace std_driver
-
-#endif // STD_DETECTOR_BUFFER_WRITER_DRIVER_HPP

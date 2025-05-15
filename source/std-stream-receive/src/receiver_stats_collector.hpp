@@ -2,8 +2,7 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_RECEIVER_STATS_COLLECTOR_HPP
-#define STD_DETECTOR_BUFFER_RECEIVER_STATS_COLLECTOR_HPP
+#pragma once
 
 #include <chrono>
 #include <utility>
@@ -49,5 +48,3 @@ private:
 };
 
 } // namespace gf::rec
-
-#endif // STD_DETECTOR_BUFFER_RECEIVER_STATS_COLLECTOR_HPP

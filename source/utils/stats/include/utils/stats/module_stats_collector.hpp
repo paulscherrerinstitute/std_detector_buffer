@@ -2,8 +2,7 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_MODULE_STATS_COLLECTOR_HPP
-#define STD_DETECTOR_BUFFER_MODULE_STATS_COLLECTOR_HPP
+#pragma once
 
 #include "timed_stats_collector.hpp"
 
@@ -29,5 +28,3 @@ private:
 };
 
 } // namespace utils::stats
-
-#endif // STD_DETECTOR_BUFFER_MODULE_STATS_COLLECTOR_HPP

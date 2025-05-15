@@ -2,8 +2,7 @@
 // Copyright (c) 2023 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_UTILS_HPP
-#define STD_DETECTOR_BUFFER_UTILS_HPP
+#pragma once
 
 #include "utils/log/logger.hpp"
 
@@ -21,5 +20,3 @@
 #include "get_metadata_dtype.hpp"
 #include "image_size_calc.hpp"
 #include "image_id.hpp"
-
-#endif // STD_DETECTOR_BUFFER_UTILS_HPP

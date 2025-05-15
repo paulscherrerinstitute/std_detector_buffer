@@ -2,8 +2,7 @@
 // Copyright (c) 2024 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_META_BUFFER_HPP
-#define STD_DETECTOR_BUFFER_META_BUFFER_HPP
+#pragma once
 
 #include <vector>
 #include <chrono>
@@ -28,5 +27,3 @@ private:
   std::size_t begin_ = 0u;
   std::size_t end_ = 0u;
 };
-
-#endif // STD_DETECTOR_BUFFER_META_BUFFER_HPP

@@ -2,8 +2,7 @@
 // Copyright (c) 2023 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_LOGGING_HPP
-#define STD_DETECTOR_BUFFER_LOGGING_HPP
+#pragma once
 
 #include <string>
 
@@ -54,5 +53,3 @@ private:
 };
 
 } // namespace utils::log
-
-#endif // STD_DETECTOR_BUFFER_LOGGING_HPP

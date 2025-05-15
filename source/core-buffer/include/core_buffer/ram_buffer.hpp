@@ -2,8 +2,7 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_RAM_BUFFER_HPP
-#define STD_DETECTOR_BUFFER_RAM_BUFFER_HPP
+#pragma once
 
 #include <string>
 #include "formats.hpp"
@@ -29,5 +28,3 @@ public:
   void write(uint64_t id, const char* src_data);
   char* get_data(uint64_t id);
 };
-
-#endif // STD_DETECTOR_BUFFER_RAM_BUFFER_HPP

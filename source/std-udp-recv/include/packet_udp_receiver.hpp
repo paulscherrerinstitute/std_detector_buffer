@@ -2,8 +2,7 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_PACKET_UDP_RECEIVER_HPP
-#define STD_DETECTOR_BUFFER_PACKET_UDP_RECEIVER_HPP
+#pragma once
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -30,5 +29,3 @@ public:
 
   void disconnect();
 };
-
-#endif // STD_DETECTOR_BUFFER_PACKET_UDP_RECEIVER_HPP

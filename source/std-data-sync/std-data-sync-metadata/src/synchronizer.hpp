@@ -2,8 +2,7 @@
 // Copyright (c) 2024 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_SYNCHRONIZER_HPP
-#define STD_DETECTOR_BUFFER_SYNCHRONIZER_HPP
+#pragma once
 
 #include <cstddef>
 #include <set>
@@ -33,5 +32,3 @@ public:
 
   [[nodiscard]] std::size_t get_queue_length() const;
 };
-
-#endif // STD_DETECTOR_BUFFER_SYNCHRONIZER_HPP

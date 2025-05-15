@@ -2,8 +2,7 @@
 // Copyright (c) 2024 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_SOCKET_SESSION_HPP
-#define STD_DETECTOR_BUFFER_SOCKET_SESSION_HPP
+#pragma once
 
 #include <thread>
 
@@ -51,5 +50,3 @@ private:
 };
 
 } // namespace std_driver
-
-#endif // STD_DETECTOR_BUFFER_SOCKET_SESSION_HPP

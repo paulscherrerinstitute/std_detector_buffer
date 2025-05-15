@@ -2,8 +2,7 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_SYNCHRONIZER_HPP
-#define STD_DETECTOR_BUFFER_SYNCHRONIZER_HPP
+#pragma once
 
 #include <cstddef>
 #include <string>
@@ -103,5 +102,3 @@ private:
 
   [[nodiscard]] bool is_queue_too_long() const { return cache.size() > n_images_buffer; }
 };
-
-#endif // STD_DETECTOR_BUFFER_SYNCHRONIZER_HPP

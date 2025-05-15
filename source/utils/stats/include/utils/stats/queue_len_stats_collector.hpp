@@ -2,8 +2,7 @@
 // Copyright (c) 2024 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_QUEUE_LEN_STATS_COLLECTOR_HPP
-#define STD_DETECTOR_BUFFER_QUEUE_LEN_STATS_COLLECTOR_HPP
+#pragma once
 
 #include <string>
 #include <string_view>
@@ -37,4 +36,3 @@ private:
 };
 
 } // namespace sdss
-#endif // STD_DETECTOR_BUFFER_QUEUE_LEN_STATS_COLLECTOR_HPP

@@ -2,8 +2,7 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_COMMON_HPP
-#define STD_DETECTOR_BUFFER_COMMON_HPP
+#pragma once
 
 #include <cstdint>
 
@@ -20,5 +19,3 @@ struct CommonFrame
   uint16_t module_id;
 };
 #pragma pack(pop)
-
-#endif // STD_DETECTOR_BUFFER_COMMON_HPP

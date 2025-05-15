@@ -2,8 +2,7 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_COMMUNICATOR_HPP
-#define STD_DETECTOR_BUFFER_COMMUNICATOR_HPP
+#pragma once
 
 #include "ram_buffer.hpp"
 #include "ram_buffer_config.hpp"
@@ -30,4 +29,3 @@ private:
 };
 
 } // namespace cb
-#endif // STD_DETECTOR_BUFFER_COMMUNICATOR_HPP

@@ -2,8 +2,7 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_BUFFER_UTILS_HPP
-#define STD_DETECTOR_BUFFER_BUFFER_UTILS_HPP
+#pragma once
 
 #include <string>
 #include <vector>
@@ -18,5 +17,3 @@ void* connect_socket(void* ctx, const std::string& buffer_name, int zmq_socket_t
 void* create_socket(void* ctx, int zmq_socket_type);
 
 } // namespace buffer_utils
-
-#endif // STD_DETECTOR_BUFFER_BUFFER_UTILS_HPP

@@ -2,8 +2,7 @@
 // Copyright (c) 2023 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_ARGS_HPP
-#define STD_DETECTOR_BUFFER_ARGS_HPP
+#pragma once
 
 #include <cstdlib>
 #include <iostream>
@@ -39,5 +38,3 @@ inline parser parse_arguments(parser program_parser, int argc, char* argv[])
 }
 
 } // namespace utils
-
-#endif // STD_DETECTOR_BUFFER_ARGS_HPP

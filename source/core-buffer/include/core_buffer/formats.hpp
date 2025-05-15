@@ -2,8 +2,7 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_FORMATS_HPP
-#define STD_DETECTOR_BUFFER_FORMATS_HPP
+#pragma once
 
 #include <cstdint>
 
@@ -62,5 +61,3 @@ inline constexpr auto get_meta_data_status(uint64_t missing)
 {
   return missing == 0 ? ImageMetadataStatus::good_image : ImageMetadataStatus::missing_packets;
 }
-
-#endif // STD_DETECTOR_BUFFER_FORMATS_HPP

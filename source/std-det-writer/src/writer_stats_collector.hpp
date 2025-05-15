@@ -2,8 +2,7 @@
 // Copyright (c) 2024 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_WRITER_STATS_COLLECTOR_HPP
-#define STD_DETECTOR_BUFFER_WRITER_STATS_COLLECTOR_HPP
+#pragma once
 
 #include <utility>
 
@@ -81,5 +80,3 @@ private:
   std::string source;
   std::size_t writer_id;
 };
-
-#endif // STD_DETECTOR_BUFFER_WRITER_STATS_COLLECTOR_HPP

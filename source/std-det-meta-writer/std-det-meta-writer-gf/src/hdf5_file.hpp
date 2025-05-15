@@ -2,8 +2,7 @@
 // Copyright (c) 2024 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_H5_WRITER
-#define STD_DETECTOR_BUFFER_H5_WRITER
+#pragma once
 
 #include <memory>
 #include <string>
@@ -32,5 +31,3 @@ private:
   hid_t file_id = -1;
   hid_t metadata_ds = -1;
 };
-
-#endif // STD_DETECTOR_BUFFER_H5_WRITER

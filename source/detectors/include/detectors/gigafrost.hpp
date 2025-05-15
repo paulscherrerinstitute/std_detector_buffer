@@ -2,8 +2,7 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_GIGAFROST_HPP
-#define STD_DETECTOR_BUFFER_GIGAFROST_HPP
+#pragma once
 
 #include <cstdint>
 #include <string>
@@ -158,5 +157,3 @@ inline std::size_t last_packet_n_bytes(int image_pixel_height, int image_pixel_w
 }
 
 } // namespace gf
-
-#endif // STD_DETECTOR_BUFFER_GIGAFROST_HPP

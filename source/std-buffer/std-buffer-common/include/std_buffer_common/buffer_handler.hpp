@@ -2,8 +2,7 @@
 // Copyright (c) 2023 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_BUFFER_HANDLER_HPP
-#define STD_DETECTOR_BUFFER_BUFFER_HANDLER_HPP
+#pragma once
 
 #include <blosc2.h>
 
@@ -46,5 +45,3 @@ private:
 };
 
 } // namespace sbc
-
-#endif // STD_DETECTOR_BUFFER_BUFFER_HANDLER_HPP

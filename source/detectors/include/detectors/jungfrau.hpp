@@ -2,8 +2,7 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_JUNGFRAU_HPP
-#define STD_DETECTOR_BUFFER_JUNGFRAU_HPP
+#pragma once
 
 #include <cstdint>
 #include <string_view>
@@ -68,5 +67,3 @@ static_assert(sizeof(JFUdpPacket) == BYTES_PER_PACKET);
 static_assert(sizeof(JFFrame) == DET_FRAME_STRUCT_BYTES);
 
 } // namespace jf
-
-#endif // STD_DETECTOR_BUFFER_JUNGFRAU_HPP

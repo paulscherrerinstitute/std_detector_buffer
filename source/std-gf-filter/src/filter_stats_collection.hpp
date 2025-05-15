@@ -2,8 +2,7 @@
 // Copyright (c) 2024 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_UTILS_FILTER_STATS_COLLECTOR_HPP
-#define STD_DETECTOR_BUFFER_UTILS_FILTER_STATS_COLLECTOR_HPP
+#pragma once
 
 #include "utils/stats/timed_stats_collector.hpp"
 
@@ -32,5 +31,3 @@ private:
   void reset_stats() { forwarded_images = 0; }
   unsigned forwarded_images = 0;
 };
-
-#endif // STD_DETECTOR_BUFFER_UTILS_FILTER_STATS_COLLECTOR_HPP

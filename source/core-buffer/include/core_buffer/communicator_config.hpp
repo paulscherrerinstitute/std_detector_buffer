@@ -2,8 +2,7 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_COMMUNICATOR_CONFIG_HPP
-#define STD_DETECTOR_BUFFER_COMMUNICATOR_CONFIG_HPP
+#pragma once
 
 namespace cb {
 
@@ -18,5 +17,3 @@ struct CommunicatorConfig
   const int zmq_socket_type;
 };
 } // namespace cb
-
-#endif // STD_DETECTOR_BUFFER_RAM_BUFFER_CONFIG_HPP

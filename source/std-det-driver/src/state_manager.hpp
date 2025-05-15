@@ -2,8 +2,7 @@
 // Copyright (c) 2024 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_STATE_MANAGER_HPP
-#define STD_DETECTOR_BUFFER_STATE_MANAGER_HPP
+#pragma once
 
 #include <atomic>
 #include <mutex>
@@ -78,5 +77,3 @@ public:
 };
 
 } // namespace std_driver
-
-#endif // STD_DETECTOR_BUFFER_STATE_MANAGER_HPP

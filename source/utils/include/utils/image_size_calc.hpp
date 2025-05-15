@@ -2,8 +2,7 @@
 // Copyright (c) 2023 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_IMAGE_SIZE_CALC_HPP
-#define STD_DETECTOR_BUFFER_IMAGE_SIZE_CALC_HPP
+#pragma once
 
 #include "detector_config.hpp"
 
@@ -17,5 +16,3 @@ std::size_t calculate_image_bytes_sent(const utils::DetectorConfig& config, std:
 std::size_t number_of_senders(const utils::DetectorConfig& config);
 
 } // namespace utils
-
-#endif // STD_DETECTOR_BUFFER_IMAGE_SIZE_CALC_HPP

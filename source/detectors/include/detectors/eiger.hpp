@@ -2,8 +2,7 @@
 // Copyright (c) 2022 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
-#ifndef STD_DETECTOR_BUFFER_EIGER_HPP
-#define STD_DETECTOR_BUFFER_EIGER_HPP
+#pragma once
 
 #include <cstdint>
 #include <string>
@@ -78,5 +77,3 @@ static_assert(sizeof(EGUdpPacket) == BYTES_PER_PACKET);
 static_assert(sizeof(EGFrame) == DET_FRAME_STRUCT_BYTES);
 
 } // namespace eg
-
-#endif // STD_DETECTOR_BUFFER_EIGER_HPP
