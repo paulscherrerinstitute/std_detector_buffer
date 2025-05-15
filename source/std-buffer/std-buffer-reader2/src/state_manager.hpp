@@ -14,25 +14,25 @@
 
 #include <spdlog/spdlog.h>
 
-#include "driver_state.hpp"
+#include "reader_state.hpp"
 
 namespace sbr {
 
 class state_manager
 {
-  std::atomic<driver_state> state{driver_state::idle};
+  std::atomic<reader_state> state{reader_state::idle};
   std::atomic<unsigned int> images_processed{0};
   std::atomic<unsigned int> active_sessions;
   mutable std::mutex mutex;
   mutable std::condition_variable cv;
 
 public:
-  void change_state(const driver_state newState)
+  void change_state(const reader_state newState)
   {
     {
       std::lock_guard lock(mutex);
       state = newState;
-      if (newState == driver_state::idle) images_processed = 0;
+      if (newState == reader_state::idle) images_processed = 0;
     }
     spdlog::debug("driver state changed: {}", to_string(newState));
     cv.notify_all();
@@ -44,7 +44,7 @@ public:
     images_processed = sent_images;
   }
 
-  [[nodiscard]] driver_state get_state() const { return state.load(); }
+  [[nodiscard]] reader_state get_state() const { return state.load(); }
   [[nodiscard]] unsigned int get_images_processed() const { return images_processed.load(); }
   [[nodiscard]] unsigned int get_active_sessions() const { return active_sessions.load(); }
   void add_active_session() { ++active_sessions; }
@@ -53,9 +53,9 @@ public:
   bool is_recording() const
   {
     const auto current_state = state.load();
-    return current_state == driver_state::recording ||
-           current_state == driver_state::waiting_for_first_image ||
-           current_state == driver_state::creating_file;
+    return current_state == reader_state::recording ||
+           current_state == reader_state::waiting_for_first_image ||
+           current_state == reader_state::creating_file;
   }
 
   template <typename... States> void wait_for_one_of_states(States... states) const
@@ -67,11 +67,11 @@ public:
     });
   }
 
-  [[nodiscard]] driver_state wait_for_change_or_timeout(
+  [[nodiscard]] reader_state wait_for_change_or_timeout(
       const std::chrono::milliseconds timeout) const
   {
     std::unique_lock lock(mutex);
-    driver_state current_state = state.load();
+    reader_state current_state = state.load();
     cv.wait_for(lock, timeout, [this, current_state]() { return state != current_state; });
     return state.load();
   }

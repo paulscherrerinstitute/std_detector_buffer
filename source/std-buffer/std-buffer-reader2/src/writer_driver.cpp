@@ -80,12 +80,12 @@ void writer_driver::start(const run_settings& settings)
   std::thread([self, settings]() {
     self->send_create_file_requests(settings.path, settings.writer);
     if (self->did_all_writers_acknowledge()) {
-      self->manager->change_state(driver_state::waiting_for_first_image);
+      self->manager->change_state(reader_state::waiting_for_first_image);
       self->record_images(settings.n_images);
       if (self->did_all_writers_record_data()) self->send_save_file_requests();
     }
     else
-      self->manager->change_state(driver_state::error);
+      self->manager->change_state(reader_state::error);
   }).detach();
 }
 
@@ -158,7 +158,7 @@ std::string writer_driver::generate_file_path_for_writer(std::string_view base_p
 
 void writer_driver::send_create_file_requests(std::string_view base_path, const writer_id id) const
 {
-  manager->change_state(driver_state::creating_file);
+  manager->change_state(reader_state::creating_file);
 
   std_daq_protocol::WriterAction msg;
   const auto createFileCmd = msg.mutable_create_file();
@@ -204,7 +204,7 @@ void writer_driver::record_images(const std::size_t n_images)
     if (const auto n_bytes = zmq_recv(sync_receive_socket, buffer, sizeof(buffer), 0); n_bytes > 0)
     {
       stats.process();
-      if (i == 0) manager->change_state(driver_state::recording);
+      if (i == 0) manager->change_state(reader_state::recording);
       meta.ParseFromArray(buffer, n_bytes);
       std_daq_protocol::WriterAction action;
       *action.mutable_record_image()->mutable_image_metadata() = meta;
@@ -220,16 +220,16 @@ void writer_driver::record_images(const std::size_t n_images)
 
 void writer_driver::send_save_file_requests()
 {
-  manager->change_state(driver_state::saving_file);
+  manager->change_state(reader_state::saving_file);
 
   std_daq_protocol::WriterAction action;
   action.mutable_close_file();
   send_command_to_all_writers(action);
 
   if (did_all_writers_acknowledge())
-    manager->change_state(driver_state::file_saved);
+    manager->change_state(reader_state::file_saved);
   else
-    manager->change_state(driver_state::error);
+    manager->change_state(reader_state::error);
 }
 
 bool writer_driver::did_all_writers_record_data()

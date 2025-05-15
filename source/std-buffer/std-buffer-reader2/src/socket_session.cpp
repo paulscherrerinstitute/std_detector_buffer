@@ -71,7 +71,7 @@ void socket_session::process_request()
       const auto command_string = command->value("command", "");
       if (command_string == "stop")
         self->stop_recording();
-      else if (self->manager->get_state() == driver_state::idle)
+      else if (self->manager->get_state() == reader_state::idle)
         self->start_recording(message);
       else
         self->reject();
@@ -96,7 +96,7 @@ void socket_session::start_recording(const std::string& message)
 
 void socket_session::stop_recording()
 {
-  if (manager->is_recording()) manager->change_state(driver_state::stop);
+  if (manager->is_recording()) manager->change_state(reader_state::stop);
 }
 
 void socket_session::monitor_writer_state()
@@ -108,13 +108,13 @@ void socket_session::monitor_writer_state()
       if (stop_token.stop_requested()) break; // ensure to stop after timeout
 
       switch (state) {
-      case driver_state::file_saved:
-      case driver_state::error:
+      case reader_state::file_saved:
+      case reader_state::error:
         self->send_response(to_string(state));
-        self->manager->change_state(driver_state::idle);
+        self->manager->change_state(reader_state::idle);
         break;
-      case driver_state::recording:
-      case driver_state::saving_file:
+      case reader_state::recording:
+      case reader_state::saving_file:
         self->send_response_with_count(to_string(state), self->manager->get_images_processed());
         break;
       default:

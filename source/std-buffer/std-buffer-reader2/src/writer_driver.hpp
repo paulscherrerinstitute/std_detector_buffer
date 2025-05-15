@@ -23,7 +23,7 @@ class writer_driver : public std::enable_shared_from_this<writer_driver>
   void* sync_receive_socket;
   std::vector<void*> writer_send_sockets;
   std::vector<void*> writer_receive_sockets;
-  std::atomic<driver_state> state{driver_state::idle};
+  std::atomic<reader_state> state{reader_state::idle};
   utils::stats::ActiveSessionStatsCollector stats;
   bool with_metadata_writer;
   mutable std::mutex mutex;

@@ -10,7 +10,7 @@
 
 namespace sbr {
 
-enum class driver_state
+enum class reader_state
 {
   idle,
   started,
@@ -25,11 +25,11 @@ enum class driver_state
   num_states
 };
 
-constexpr std::array<std::string_view, static_cast<size_t>(driver_state::num_states)> state_names{
+constexpr std::array<std::string_view, static_cast<size_t>(reader_state::num_states)> state_names{
     "idle",      "started",     "creating_file", "file_created", "waiting_for_first_image",
     "recording", "saving_file", "file_saved",    "stop",         "error"};
 
-constexpr std::string_view to_string(driver_state state)
+constexpr std::string_view to_string(reader_state state)
 {
   auto index = static_cast<size_t>(state);
   return index < state_names.size() ? state_names[index] : "unknown";
