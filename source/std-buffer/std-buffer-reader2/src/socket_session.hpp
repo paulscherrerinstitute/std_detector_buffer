@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024 Paul Scherrer Institute. All rights reserved.
+// Copyright (c) 2025 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
 #pragma once
@@ -9,7 +9,7 @@
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
 
-#include "writer_driver.hpp"
+#include "replayer.hpp"
 
 namespace sbr {
 
@@ -22,7 +22,7 @@ class socket_session : public std::enable_shared_from_this<socket_session>
   boost::beast::websocket::stream<tcp::socket> websocket;
   boost::beast::multi_buffer buffer;
   std::shared_ptr<state_manager> manager;
-  std::shared_ptr<writer_driver> writer;
+  std::shared_ptr<replayer> writer;
   std::jthread monitor_thread;
 
   response_handler close_socket_handler;
@@ -30,7 +30,7 @@ class socket_session : public std::enable_shared_from_this<socket_session>
 public:
   explicit socket_session(tcp::socket socket,
                           std::shared_ptr<state_manager> sm,
-                          std::shared_ptr<writer_driver> w);
+                          std::shared_ptr<replayer> w);
   void start();
   ~socket_session();
 

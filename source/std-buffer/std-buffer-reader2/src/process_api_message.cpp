@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024 Paul Scherrer Institute. All rights reserved.
+// Copyright (c) 2025 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
 #include "process_api_message.hpp"
@@ -18,14 +18,19 @@ std::optional<json> parse_command(const std::string& msg) noexcept
   }
 }
 
-std::optional<run_settings> process_start_request(const nlohmann::json& command) noexcept
+std::optional<replay_settings> process_start_request(const nlohmann::json& cmd) noexcept
 {
-  if (command.value("command", "") == "start" && command.contains("path"))
-    return run_settings{command.at("path").get<std::string>() + "/" +
-                            command.value("file_prefix", "file"),
-                        command.value("n_image", 16777215ul), command.value("writer_id", 0),
-                        command.value("start_id", 0ul)};
+  if (cmd.value("command", "") == "start" && cmd.contains("start_image_id"))
+    return replay_settings{
+        .start_image_id = cmd.at("start_image_id").get<std::size_t>(),
+        .end_image_id = cmd.contains("end_image_id")
+                            ? std::make_optional(cmd.at("end_image_id").get<std::size_t>())
+                            : std::nullopt,
+        .delay =
+            cmd.contains("delay")
+                ? std::make_optional(std::chrono::milliseconds{cmd.at("delay").get<std::size_t>()})
+                : std::nullopt};
   return std::nullopt;
 }
 
-} // namespace std_driver
+} // namespace sbr

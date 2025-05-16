@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024 Paul Scherrer Institute. All rights reserved.
+// Copyright (c) 2025 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
 #pragma once
@@ -49,21 +49,10 @@ public:
   void add_active_session() { ++active_sessions; }
   void remove_active_session() { --active_sessions; }
 
-  bool is_recording() const
+  bool is_replaying() const
   {
     const auto current_state = state.load();
-    return current_state == reader_state::recording ||
-           current_state == reader_state::waiting_for_first_image ||
-           current_state == reader_state::creating_file;
-  }
-
-  template <typename... States> void wait_for_one_of_states(States... states) const
-  {
-    std::unique_lock lock(mutex);
-    std::vector validStates = {states...};
-    cv.wait(lock, [this, &validStates]() {
-      return std::ranges::any_of(validStates, [this](auto s) { return state == s; });
-    });
+    return current_state == reader_state::replaying;
   }
 
   [[nodiscard]] reader_state wait_for_change_or_timeout(
@@ -76,4 +65,4 @@ public:
   }
 };
 
-} // namespace std_driver
+} // namespace sbr

@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024 Paul Scherrer Institute. All rights reserved.
+// Copyright (c) 2025 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
 #include "socket_session.hpp"
@@ -17,7 +17,7 @@ namespace sbr {
 
 socket_session::socket_session(tcp::socket socket,
                                std::shared_ptr<state_manager> sm,
-                               std::shared_ptr<writer_driver> w)
+                               std::shared_ptr<replayer> w)
     : websocket(std::move(socket))
     , manager(std::move(sm))
     , writer(std::move(w))
@@ -96,7 +96,7 @@ void socket_session::start_recording(const std::string& message)
 
 void socket_session::stop_recording()
 {
-  if (manager->is_recording()) manager->change_state(reader_state::stop);
+  if (manager->is_replaying()) manager->change_state(reader_state::stop);
 }
 
 void socket_session::monitor_writer_state()
@@ -108,13 +108,12 @@ void socket_session::monitor_writer_state()
       if (stop_token.stop_requested()) break; // ensure to stop after timeout
 
       switch (state) {
-      case reader_state::file_saved:
       case reader_state::error:
         self->send_response(to_string(state));
         self->manager->change_state(reader_state::idle);
         break;
-      case reader_state::recording:
-      case reader_state::saving_file:
+      case reader_state::replaying:
+      case reader_state::finished:
         self->send_response_with_count(to_string(state), self->manager->get_images_processed());
         break;
       default:

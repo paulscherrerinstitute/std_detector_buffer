@@ -1,0 +1,42 @@
+/////////////////////////////////////////////////////////////////////
+// Copyright (c) 2025 Paul Scherrer Institute. All rights reserved.
+/////////////////////////////////////////////////////////////////////
+
+#pragma once
+
+#include <string_view>
+
+#include "core_buffer/communicator.hpp"
+#include "std_buffer/writer_action.pb.h"
+#include "std_buffer_common/redis_handler.hpp"
+#include "std_buffer_common/buffer_handler.hpp"
+#include "utils/detector_config.hpp"
+#include "utils/stats/active_sessions_stats_collector.hpp"
+
+#include "state_manager.hpp"
+#include "replay_settings.hpp"
+
+namespace sbr {
+
+class replayer : public std::enable_shared_from_this<replayer>
+{
+  std::shared_ptr<sbr::state_manager> manager;
+  void* zmq_ctx;
+  std::atomic<reader_state> state{reader_state::idle};
+  sbc::RedisHandler redis_handler;
+  sbc::BufferHandler reader;
+  utils::stats::ActiveSessionStatsCollector stats;
+  std::unique_ptr<cb::Communicator> sender;
+  mutable std::mutex mutex;
+  mutable std::condition_variable cv;
+
+public:
+  explicit replayer(std::shared_ptr<sbr::state_manager> sm,
+                         const utils::DetectorConfig& config,
+                         const std::string& root_dir,
+                         const std::string& redis_address);
+  void init(std::chrono::seconds logging_period);
+  void start(const replay_settings& settings);
+};
+
+} // namespace std_driver

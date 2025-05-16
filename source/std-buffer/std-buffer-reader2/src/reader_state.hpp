@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024 Paul Scherrer Institute. All rights reserved.
+// Copyright (c) 2025 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
 #pragma once
@@ -12,21 +12,15 @@ namespace sbr {
 enum class reader_state
 {
   idle,
-  started,
-  creating_file,
-  file_created,
-  waiting_for_first_image,
-  recording,
-  saving_file,
-  file_saved,
+  replaying,
+  finished,
   stop,
   error,
   num_states
 };
 
 constexpr std::array<std::string_view, static_cast<size_t>(reader_state::num_states)> state_names{
-    "idle",      "started",     "creating_file", "file_created", "waiting_for_first_image",
-    "recording", "saving_file", "file_saved",    "stop",         "error"};
+    "idle", "replaying", "finished", "stop", "error"};
 
 constexpr std::string_view to_string(reader_state state)
 {
@@ -34,4 +28,4 @@ constexpr std::string_view to_string(reader_state state)
   return index < state_names.size() ? state_names[index] : "unknown";
 }
 
-} // namespace std_driver
+} // namespace sbr

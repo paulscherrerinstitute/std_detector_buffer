@@ -14,10 +14,10 @@ target_sources(${PROJECT_NAME}
         src/process_api_message.hpp
         src/process_api_message.cpp
         src/reader_state.hpp
-        src/run_settings.hpp
+        src/replay_settings.hpp
         src/state_manager.hpp
-        src/writer_driver.hpp
-        src/writer_driver.cpp
+        src/replayer.hpp
+        src/replayer.cpp
         src/socket_session.hpp
         src/socket_session.cpp
 )
@@ -33,6 +33,7 @@ target_link_libraries(${PROJECT_NAME}
         nlohmann_json::nlohmann_json
         spdlog::spdlog
         ZeroMQ::ZeroMQ
+        std_buffer_common::std_buffer_common
         std_daq_interface::std_daq_interface
         std_detector_buffer::settings
 )

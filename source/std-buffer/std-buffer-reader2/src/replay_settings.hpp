@@ -1,20 +1,19 @@
 /////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024 Paul Scherrer Institute. All rights reserved.
+// Copyright (c) 2025 Paul Scherrer Institute. All rights reserved.
 /////////////////////////////////////////////////////////////////////
 
 #pragma once
 
-#include <string>
+#include <optional>
+#include <chrono>
 
 namespace sbr {
 
-using writer_id = int32_t;
-
-struct run_settings
+struct replay_settings
 {
-  std::string path;
-  std::size_t n_images;
-  writer_id writer;
   std::size_t start_image_id;
+  std::optional<std::size_t> end_image_id;
+  std::optional<std::chrono::milliseconds> delay;
 };
+
 } // namespace std_driver
