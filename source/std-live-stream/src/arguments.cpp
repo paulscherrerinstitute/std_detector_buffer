@@ -31,12 +31,26 @@ arguments read_arguments(int argc, char* argv[])
         else
           return it->second;
       });
+  program->add_argument("-s", "--socket")
+      .default_value(socket_type::pub)
+      .help("choose the type: 'pub' or 'push'")
+      .action([](const std::string& arg) {
+        static const std::unordered_map<std::string, socket_type> type_map = {
+            {"pub", socket_type::pub}, {"push", socket_type::push}};
+        if (auto it = type_map.find(arg); it == type_map.end())
+          throw std::runtime_error("Invalid choice for --type: " + arg);
+        else
+          return it->second;
+      });
 
   program = utils::parse_arguments(std::move(program), argc, argv);
 
   return {utils::read_config_from_json_file(program->get("detector_json_filename")),
-          program->get("stream_address"), program->get("--source_suffix_meta"),
-          program->get("--source_suffix_image"), program->get<stream_type>("--type")};
+          program->get("stream_address"),
+          program->get("--source_suffix_meta"),
+          program->get("--source_suffix_image"),
+          program->get<stream_type>("--type"),
+          program->get<socket_type>("--socket")};
 }
 
 } // namespace ls
