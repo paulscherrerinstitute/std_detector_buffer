@@ -79,11 +79,11 @@ void send_bsread_stream(std::size_t bit_depth,
       digest.getHash());
 
   auto encoded_main_header = main_header.c_str();
-  zmq_send(sender_socket, encoded_main_header, main_header.length(), ZMQ_SNDMORE);
-  zmq_send(sender_socket, encoded_data_header, data_header.length(), ZMQ_SNDMORE);
-  zmq_send(sender_socket, image_data, meta.size(), ZMQ_SNDMORE);
+  zmq_send(sender_socket, encoded_main_header, main_header.length(), ZMQ_SNDMORE | ZMQ_DONTWAIT);
+  zmq_send(sender_socket, encoded_data_header, data_header.length(), ZMQ_SNDMORE | ZMQ_DONTWAIT);
+  zmq_send(sender_socket, image_data, meta.size(), ZMQ_SNDMORE | ZMQ_DONTWAIT);
   // null message instead of timestamp
-  zmq_send(sender_socket, nullptr, 0, 0);
+  zmq_send(sender_socket, nullptr, 0, ZMQ_DONTWAIT);
 }
 
 std::function<bool(uint64_t)> select_sending_condition(const utils::live_stream_config& conf)
