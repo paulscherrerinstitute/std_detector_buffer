@@ -23,9 +23,9 @@ namespace {
 constexpr auto zmq_io_threads = 1;
 constexpr auto zmq_sndhwm = 100;
 
-void* bind_sender_socket(void* ctx, const std::string& stream_address, const ls::socket_type type)
+void* bind_sender_socket(void* ctx, const std::string& stream_address)
 {
-  void* socket = zmq_socket(ctx, static_cast<int>(type));
+  void* socket = zmq_socket(ctx, ZMQ_PUB);
 
   if (zmq_setsockopt(socket, ZMQ_SNDHWM, &zmq_sndhwm, sizeof(zmq_sndhwm)) != 0)
     throw std::runtime_error(zmq_strerror(errno));
@@ -91,7 +91,7 @@ std::function<bool(uint64_t)> select_sending_condition(const utils::live_stream_
   switch (conf.type) {
   case utils::live_stream_config::periodic:
   {
-    const auto data_period = 1000ms / static_cast<int>(conf.value.second);
+    const auto data_period = 1000ms / (int)conf.value.second;
     auto next_time = steady_clock::now() + data_period;
     return [conf, data_period, next_time, count = 0u](auto) mutable -> bool {
       if (count > 0 && count++ < conf.value.first)
@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
   auto receiver = cb::Communicator{{source_name_image, utils::converted_image_n_bytes(args.config),
                                     utils::slots_number(args.config)},
                                    {source_name_meta, ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}};
-  auto sender_socket = bind_sender_socket(ctx, args.stream_address, args.socket);
+  auto sender_socket = bind_sender_socket(ctx, args.stream_address);
   ls::LiveStreamStatsCollector stats(args);
 
   char buffer[512];
