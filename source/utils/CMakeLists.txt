@@ -29,6 +29,7 @@ target_link_libraries(${PROJECT_NAME}
         utils::stats
         utils::log
         utils::version
+        utils::stream
         std_daq_interface::std_daq_interface
         std_detector_buffer::settings
     PRIVATE
@@ -37,6 +38,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 add_subdirectory(log)
+add_subdirectory(stream)
 add_subdirectory(stats)
 add_subdirectory(version)
 

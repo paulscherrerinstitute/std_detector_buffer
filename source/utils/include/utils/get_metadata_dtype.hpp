@@ -29,13 +29,4 @@ inline std::size_t get_bytes_from_metadata_dtype(std_daq_protocol::ImageMetadata
   throw std::runtime_error("Unsupported bit_depth of the image");
 }
 
-inline std::string get_array10_type(std_daq_protocol::ImageMetadataDtype type)
-{
-  if (type == std_daq_protocol::ImageMetadataDtype::float32) return "float32";
-  if (type == std_daq_protocol::ImageMetadataDtype::uint8) return "uint8";
-  if (type == std_daq_protocol::ImageMetadataDtype::uint16) return "uint16";
-  if (type == std_daq_protocol::ImageMetadataDtype::uint32) return "uint32";
-  throw std::runtime_error("Unsupported type of the image");
-}
-
 } // namespace utils

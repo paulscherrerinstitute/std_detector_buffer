@@ -4,7 +4,6 @@
 
 #include <chrono>
 
-#include <md5.h>
 #include <zmq.h>
 #include <fmt/core.h>
 
@@ -42,43 +41,21 @@ void send_array_1_0_stream(void* sender_socket,
                            const std_daq_protocol::ImageMetadata& meta,
                            const char* image_data)
 {
-  auto encoded = fmt::format(R"({{"htype":"array-1.0", "shape":[{},{}], "type":"{}", "frame":{}}})",
-                             meta.height(), meta.width(), utils::get_array10_type(meta.dtype()),
-                             meta.image_id());
-  auto encoded_c = encoded.c_str();
+  auto data_header = utils::stream::prepare_array10_header(meta);
+  auto encoded_c = data_header.c_str();
 
-  zmq_send(sender_socket, encoded_c, encoded.length(), ZMQ_SNDMORE);
+  zmq_send(sender_socket, encoded_c, data_header.length(), ZMQ_SNDMORE);
   zmq_send(sender_socket, image_data, meta.size(), 0);
 }
 
-std::string map_bit_depth_to_type(int bit_depth)
-{
-  if (bit_depth == 8) return "uint8";
-  if (bit_depth == 16) return "uint16";
-  if (bit_depth == 32) return "uint32";
-  return "uint64";
-}
-
-void send_bsread_stream(std::size_t bit_depth,
-                        void* sender_socket,
+void send_bsread_stream(void* sender_socket,
                         const std_daq_protocol::ImageMetadata& meta,
                         const char* image_data)
 {
-  auto data_header = fmt::format(
-      R"({{"htype":"bsr_d-1.1","channels":[{{"name":"{}","shape":[{},{}])"
-      R"(,"type":"{}","compression":"bitshuffle_lz4"}}]}})",
-      meta.pco().bsread_name(), meta.width(), meta.height(), map_bit_depth_to_type(bit_depth));
-
-  MD5 digest;
-  auto encoded_data_header = data_header.c_str();
-  digest.add(encoded_data_header, data_header.length());
-
-  auto main_header = fmt::format(
-      R"({{"htype":"bsr_m-1.1","pulse_id":{},"global_timestamp":{{"sec":{},"ns":{}}},"hash":"{}"}})",
-      meta.image_id(), meta.pco().global_timestamp_sec(), meta.pco().global_timestamp_ns(),
-      digest.getHash());
-
+  auto [main_header, data_header] = utils::stream::prepare_bsread_headers(meta);
   auto encoded_main_header = main_header.c_str();
+  auto encoded_data_header = data_header.c_str();
+
   zmq_send(sender_socket, encoded_main_header, main_header.length(), ZMQ_SNDMORE);
   zmq_send(sender_socket, encoded_data_header, data_header.length(), ZMQ_SNDMORE);
   zmq_send(sender_socket, image_data, meta.size(), ZMQ_SNDMORE);
@@ -147,7 +124,7 @@ int main(int argc, char* argv[])
         if (args.type == ls::stream_type::array10)
           send_array_1_0_stream(sender_socket, meta, image_data);
         else if (args.type == ls::stream_type::bsread)
-          send_bsread_stream(args.config.bit_depth, sender_socket, meta, image_data);
+          send_bsread_stream(sender_socket, meta, image_data);
       }
       stats.process();
     }

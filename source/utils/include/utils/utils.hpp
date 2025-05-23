@@ -15,6 +15,9 @@
 
 #include "utils/version.hpp"
 
+#include "utils/stream/bsread.hpp"
+#include "utils/stream/array10.hpp"
+
 #include "args.hpp"
 #include "detector_config.hpp"
 #include "get_metadata_dtype.hpp"

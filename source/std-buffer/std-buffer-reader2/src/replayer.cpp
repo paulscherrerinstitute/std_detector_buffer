@@ -75,7 +75,7 @@ void replayer::start(const replay_settings& settings)
 
       std::string meta_buffer_send;
       data->metadata().SerializeToString(&meta_buffer_send);
-      self->sender->send(image_id, meta_buffer_send, nullptr, ZMQ_NOBLOCK);
+      self->sender->send(image_id, meta_buffer_send, nullptr, zmq_flags);
       std::this_thread::sleep_for(std::chrono::milliseconds(10)); // todo this has to be controlled
       zmq_flags = ZMQ_NOBLOCK;                                               // the first transmission is blocking
       self->manager->update_image_count(sent_images);
