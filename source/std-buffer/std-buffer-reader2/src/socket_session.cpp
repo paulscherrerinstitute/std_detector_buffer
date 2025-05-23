@@ -20,7 +20,7 @@ socket_session::socket_session(tcp::socket socket,
                                std::shared_ptr<replayer> w)
     : websocket(std::move(socket))
     , manager(std::move(sm))
-    , writer(std::move(w))
+    , replay(std::move(w))
 {
   manager->add_active_session();
 }
@@ -86,7 +86,7 @@ void socket_session::start_recording(const std::string& message)
 {
   if (auto settings = parse_command(message).and_then(process_start_request); settings.has_value())
   {
-    writer->start(settings.value());
+    replay->start(settings.value());
   }
   else
     send_response(

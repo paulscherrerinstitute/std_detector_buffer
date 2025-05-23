@@ -7,6 +7,7 @@
 #include <string>
 #include <optional>
 #include <chrono>
+#include <deque>
 
 #include <sw/redis++/redis++.h>
 
@@ -19,13 +20,19 @@ class RedisHandler
 public:
   explicit RedisHandler(std::string detector_name, const std::string& address, std::size_t timeout);
   void send(uint64_t image_id, const std_daq_protocol::BufferedMetadata& meta);
-  bool receive(uint64_t image_id, std_daq_protocol::BufferedMetadata& meta);
-  std::optional<uint64_t> read_last_saved_image_id();
+  void prepare_receiving(uint64_t from_id, std::optional<uint64_t> to_id);
+  std::optional<std_daq_protocol::BufferedMetadata> receive();
 
 private:
-  std::chrono::hours ttl;
+  void receive_data_from_redis(uint64_t from_id, double from_score);
+  void receive_more();
+
+  uint64_t bucket_id = 0;
+  double end_score = 0;
   std::string key_prefix;
+  std::chrono::hours ttl;
   sw::redis::Redis redis;
+  std::deque<std_daq_protocol::BufferedMetadata> proto_queue;
 };
 
 } // namespace sbc

@@ -5,7 +5,6 @@
 #include "replayer.hpp"
 
 #include <algorithm>
-#include <ranges>
 #include <thread>
 #include <utility>
 
@@ -17,6 +16,13 @@
 using namespace std::chrono_literals;
 
 namespace sbr {
+namespace {
+std::size_t get_uncompressed_size(const std_daq_protocol::ImageMetadata& data)
+{
+  return data.width() * data.height() * utils::get_bytes_from_metadata_dtype(data.dtype());
+}
+
+} // namespace
 
 replayer::replayer(std::shared_ptr<sbr::state_manager> sm,
                    const utils::DetectorConfig& config,
@@ -54,7 +60,27 @@ void replayer::start(const replay_settings& settings)
 {
   auto self = shared_from_this();
   std::thread([self, settings]() {
-      self->manager->change_state(reader_state::error);
+    auto zmq_flags = 0;
+    self->redis_handler.prepare_receiving(settings.start_image_id, settings.end_image_id);
+    self->manager->change_state(reader_state::replaying);
+    for (auto sent_images = 0ul; auto data = self->redis_handler.receive(); sent_images++) {
+      if (self->manager->get_state() != reader_state::replaying) break;
+      const auto image_id = data->metadata().image_id();
+      const auto uncompressed_size = get_uncompressed_size(data->metadata());
+      self->reader.read(image_id, {self->sender->get_data(image_id), uncompressed_size},
+                        data->offset(), data->metadata().size());
+
+      data->mutable_metadata()->set_size(uncompressed_size);
+      data->mutable_metadata()->set_compression(std_daq_protocol::none);
+
+      std::string meta_buffer_send;
+      data->metadata().SerializeToString(&meta_buffer_send);
+      self->sender->send(image_id, meta_buffer_send, nullptr, ZMQ_NOBLOCK);
+      std::this_thread::sleep_for(std::chrono::milliseconds(10)); // todo this has to be controlled
+      zmq_flags = ZMQ_NOBLOCK;                                               // the first transmission is blocking
+      self->manager->update_image_count(sent_images);
+    }
+    self->manager->change_state(reader_state::finished);
   }).detach();
 }
 

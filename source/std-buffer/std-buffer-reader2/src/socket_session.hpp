@@ -22,7 +22,7 @@ class socket_session : public std::enable_shared_from_this<socket_session>
   boost::beast::websocket::stream<tcp::socket> websocket;
   boost::beast::multi_buffer buffer;
   std::shared_ptr<state_manager> manager;
-  std::shared_ptr<replayer> writer;
+  std::shared_ptr<replayer> replay;
   std::jthread monitor_thread;
 
   response_handler close_socket_handler;
