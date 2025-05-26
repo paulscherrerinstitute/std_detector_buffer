@@ -23,18 +23,17 @@ class replayer : public std::enable_shared_from_this<replayer>
   std::shared_ptr<sbr::state_manager> manager;
   void* zmq_ctx;
   std::atomic<reader_state> state{reader_state::idle};
-  sbc::RedisHandler redis_handler;
-  sbc::BufferHandler reader;
   utils::stats::ActiveSessionStatsCollector stats;
-  std::unique_ptr<cb::Communicator> sender;
+  std::unique_ptr<cb::Communicator> receiver;
+  void* push_socket;
+  void* driver_socket;
   mutable std::mutex mutex;
   mutable std::condition_variable cv;
 
 public:
   explicit replayer(std::shared_ptr<sbr::state_manager> sm,
                          const utils::DetectorConfig& config,
-                         const std::string& root_dir,
-                         const std::string& redis_address);
+                         const std::string& stream_address);
   void init(std::chrono::seconds logging_period);
   void start(const replay_settings& settings);
 };

@@ -31,13 +31,11 @@ void do_accept(boost::asio::ip::tcp::acceptor& acceptor,
   });
 }
 
-std::tuple<utils::DetectorConfig, std::string, std::string, std::size_t> read_arguments(
-    int argc, char* argv[])
+std::tuple<utils::DetectorConfig, std::string, std::size_t> read_arguments(int argc, char* argv[])
 {
   auto program = utils::create_parser("std_det_driver");
-  program->add_argument("--root_dir").help("Root directory where files are stored").required();
-  program->add_argument("--db_address")
-      .help("Address of Redis API compatible database to connect")
+  program->add_argument("--stream_address")
+      .help("Address of output stream where data will be pushed")
       .required();
   program->add_argument("-p", "--port")
       .default_value(8080ul)
@@ -47,8 +45,7 @@ std::tuple<utils::DetectorConfig, std::string, std::string, std::size_t> read_ar
   program = utils::parse_arguments(std::move(program), argc, argv);
   return {
       utils::read_config_from_json_file(program->get("detector_json_filename")),
-      program->get("--db_address"),
-      program->get("--root_dir"),
+      program->get("--stream_address"),
       program->get<std::size_t>("--port"),
   };
 }
@@ -57,7 +54,7 @@ std::tuple<utils::DetectorConfig, std::string, std::string, std::size_t> read_ar
 
 int main(int argc, char* argv[])
 {
-  const auto [config, db_address, root_dir, port] = read_arguments(argc, argv);
+  const auto [config, stream_address, port] = read_arguments(argc, argv);
   [[maybe_unused]] utils::log::logger l{"std_det_driver", config.log_level};
 
   boost::asio::io_context ioc{1};
@@ -65,7 +62,7 @@ int main(int argc, char* argv[])
   tcp::acceptor acceptor{ioc, {address, static_cast<boost::asio::ip::port_type>(port)}};
 
   auto sm = std::make_shared<sbr::state_manager>();
-  auto driver = std::make_shared<sbr::replayer>(sm, config, root_dir, db_address);
+  auto driver = std::make_shared<sbr::replayer>(sm, config, stream_address);
 
   driver->init(config.stats_collection_period);
   do_accept(acceptor, sm, driver);
