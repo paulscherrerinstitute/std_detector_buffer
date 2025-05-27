@@ -36,6 +36,8 @@ public:
                          const std::string& stream_address);
   void init(std::chrono::seconds logging_period);
   void start(const replay_settings& settings);
+  void control_reader(const replay_settings& settings);
+  void forward_images() const;
 };
 
 } // namespace std_driver

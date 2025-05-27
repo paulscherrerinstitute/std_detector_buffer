@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package std_daq_protocol;
+
+message RequestNextImage {
+    uint64 image_id = 1;
+}
+
+message NextImageResponse {
+    oneof action {
+        NoImages no_image = 1;
+        Ack ack = 2;
+    }
+}
+
+message NoImages {
+}
+
+message Ack {
+    uint64 image_id = 1;
+}

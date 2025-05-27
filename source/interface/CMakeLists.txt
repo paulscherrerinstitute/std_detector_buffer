@@ -9,6 +9,7 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 target_sources(${PROJECT_NAME}
     PUBLIC
         std_buffer/buffered_metadata.proto
+        std_buffer/image_buffer.proto
         std_buffer/image_metadata.proto
         std_buffer/writer_action.proto
 )
