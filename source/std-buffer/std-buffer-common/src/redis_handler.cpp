@@ -4,6 +4,7 @@
 
 #include <chrono>
 #include <charconv>
+#include <ranges>
 
 #include <fmt/core.h>
 #include <range/v3/all.hpp>
@@ -16,19 +17,16 @@ using namespace sw::redis;
 namespace sbc {
 namespace {
 
-uint64_t get_bucket_id(const uint64_t image_id)
+std::optional<uint64_t> parse_uint64(const std::string& s)
 {
-  return (image_id / 1000) * 1000;
-}
-
-uint64_t increment_bucket(const uint64_t bucket_id)
-{
-  return bucket_id + 1000;
-}
-
-std::string get_bucket_suffix(const uint64_t image_id)
-{
-  return ':' + std::to_string(get_bucket_id(image_id));
+  try {
+    size_t idx{};
+    auto value = std::stoull(s, &idx);
+    if (idx == s.size()) return value;
+  }
+  catch (...) {
+  }
+  return std::nullopt;
 }
 
 } // namespace
@@ -36,7 +34,7 @@ std::string get_bucket_suffix(const uint64_t image_id)
 RedisHandler::RedisHandler(std::string detector_name,
                            const std::string& address,
                            const std::size_t timeout)
-    : key_prefix("camera:" + std::move(detector_name) + ":images")
+    : key_prefix("camera:" + std::move(detector_name) + ":")
     , ttl(std::chrono::hours(timeout))
     , redis(address)
 {
@@ -44,53 +42,65 @@ RedisHandler::RedisHandler(std::string detector_name,
     throw std::runtime_error(fmt::format("Connection to Redis API on address={} failed.", address));
 }
 
-void RedisHandler::send(uint64_t image_id, const std_daq_protocol::BufferedMetadata& meta)
+void RedisHandler::send(const Meta& meta)
 {
-  const auto key = key_prefix + get_bucket_suffix(image_id);
-  const double score = image_id;  // required by Redis ZSET
+  auto image_id = meta.metadata().image_id();
+  auto meta_key = make_meta_key(image_id);
 
-  std::string meta_buffer_send;
-  meta.SerializeToString(&meta_buffer_send);
+  std::string blob;
+  meta.SerializeToString(&blob);
   auto pipe = redis.pipeline();
-  pipe.zadd(key, meta_buffer_send, score);
-  pipe.expire(key, ttl);
+  pipe.set(meta_key, blob);
+  pipe.expire(meta_key, ttl);
+
+  pipe.zadd(key_prefix + "ids", std::to_string(image_id), image_id);
   pipe.exec();
 }
 
-void RedisHandler::prepare_receiving(uint64_t from_id, std::optional<uint64_t> to_id)
+std::optional<std_daq_protocol::BufferedMetadata> RedisHandler::get_metadata(uint64_t image_id)
 {
-  end_score = to_id ? static_cast<double>(*to_id) : std::numeric_limits<double>::max();
-  bucket_id = get_bucket_id(from_id);
-  receive_data_from_redis(from_id, from_id);
+  auto key = make_meta_key(image_id);
+  auto val = redis.get(key);
+  if (!val) return std::nullopt;
+
+  Meta meta;
+  if (meta.ParseFromString(*val)) return meta;
+  return std::nullopt;
 }
 
-std::optional<std_daq_protocol::BufferedMetadata> RedisHandler::receive()
+std::vector<uint64_t> RedisHandler::get_image_ids_in_file_range(uint64_t file_base_id)
 {
-  if (proto_queue.empty()) return std::nullopt;
+  const uint64_t end_id = file_base_id + 999;
 
-  std_daq_protocol::BufferedMetadata value = std::move(proto_queue.front());
-  proto_queue.pop_front();
-  if (proto_queue.empty()) receive_more();
-  return value;
+  std::vector<std::string> string_ids;
+  redis.zrangebyscore(key_prefix + "ids",
+                      sw::redis::BoundedInterval<std::string>(
+                          std::to_string(file_base_id), std::to_string(end_id), BoundType::CLOSED),
+                      sw::redis::LimitOptions{}, std::back_inserter(string_ids));
+
+  auto ids_view = string_ids
+      | std::views::transform([](const auto& id_str) { return parse_uint64(id_str); })
+      | std::views::filter([](const auto& id) { return id.has_value(); })
+      | std::views::transform([](const auto& id) { return *id; });
+
+  return {ids_view.begin(), ids_view.end()};
 }
 
-void RedisHandler::receive_more()
+std::vector<std_daq_protocol::BufferedMetadata> RedisHandler::get_metadatas_in_file_range(
+    uint64_t file_base_id)
 {
-  bucket_id = increment_bucket(bucket_id);
-  receive_data_from_redis(bucket_id, 0);
+  auto ids = get_image_ids_in_file_range(file_base_id);
+  std::vector<Meta> result;
+  result.reserve(ids.size());
+  for (auto id : ids) {
+    if (auto meta = get_metadata(id)) result.push_back(std::move(*meta));
+  }
+  return result;
 }
 
-void RedisHandler::receive_data_from_redis(const uint64_t from_id, const double from_score)
+std::string RedisHandler::make_meta_key(uint64_t image_id) const
 {
-  const auto key = key_prefix + get_bucket_suffix(from_id);
-
-  std::vector<std::string> serialized_protos;
-  redis.zrangebyscore(key, BoundedInterval<double>(from_score, end_score, BoundType::CLOSED),
-                      std::back_inserter(serialized_protos));
-
-  std_daq_protocol::BufferedMetadata proto;
-  for (const auto& serialized : serialized_protos)
-    if (proto.ParseFromString(serialized)) proto_queue.push_back(std::move(proto));
+  return key_prefix + std::to_string(image_id);
 }
 
 } // namespace sbc

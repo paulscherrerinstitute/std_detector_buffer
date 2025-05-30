@@ -8,18 +8,17 @@
 
 #include <fstream>
 #include <filesystem>
-#include <cstdint>
 #include <string>
 #include <span>
 #include <vector>
 
 namespace sbc {
 
-class BufferHandler
+class FileHandler
 {
 public:
-  explicit BufferHandler(std::string root_directory, std::size_t type_size);
-  ~BufferHandler();
+  explicit FileHandler(std::string root_directory, std::size_t type_size);
+  ~FileHandler();
   std::pair<uint64_t, uint64_t> write(uint64_t image_id, std::span<char> buffered_data);
   bool read(uint64_t image_id,
             std::span<char> buffered_data,

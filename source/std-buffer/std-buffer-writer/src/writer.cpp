@@ -6,8 +6,7 @@
 #include <fmt/core.h>
 
 #include "core_buffer/communicator.hpp"
-#include "core_buffer/ram_buffer.hpp"
-#include "std_buffer_common/buffer_handler.hpp"
+#include "std_buffer_common/file_handler.hpp"
 #include "std_buffer_common/redis_handler.hpp"
 #include "std_buffer/buffered_metadata.pb.h"
 #include "std_buffer/image_metadata.pb.h"
@@ -15,8 +14,6 @@
 
 namespace {
 constexpr auto zmq_io_threads = 1;
-constexpr auto zmq_sndhwm = 100;
-constexpr auto zmq_success = 0;
 
 auto calculate_size(const std_daq_protocol::ImageMetadata* meta)
 {
@@ -49,7 +46,7 @@ int main(int argc, char* argv[])
   const auto [config, db_address, root_dir, timeout] = read_arguments(argc, argv);
   [[maybe_unused]] utils::log::logger l{"std_buffer_writer", config.log_level};
   sbc::RedisHandler sender(config.detector_name, db_address, timeout);
-  sbc::BufferHandler writer(root_dir + config.detector_name, config.bit_depth / 8);
+  sbc::FileHandler writer(root_dir + config.detector_name, config.bit_depth / 8);
 
   utils::stats::TimedStatsCollector stats(config.detector_name, config.stats_collection_period);
 
@@ -79,7 +76,7 @@ int main(int argc, char* argv[])
       meta->set_compression(std_daq_protocol::blosc2);
       meta->set_size(compressed_size);
       buffered_meta.set_offset(offset);
-      sender.send(meta->image_id(), buffered_meta);
+      sender.send(buffered_meta);
       stats.process();
     }
     stats.print_stats();

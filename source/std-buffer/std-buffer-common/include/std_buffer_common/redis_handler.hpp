@@ -7,7 +7,6 @@
 #include <string>
 #include <optional>
 #include <chrono>
-#include <deque>
 
 #include <sw/redis++/redis++.h>
 
@@ -17,22 +16,22 @@ namespace sbc {
 
 class RedisHandler
 {
+  using Meta = std_daq_protocol::BufferedMetadata;
 public:
   explicit RedisHandler(std::string detector_name, const std::string& address, std::size_t timeout);
-  void send(uint64_t image_id, const std_daq_protocol::BufferedMetadata& meta);
-  void prepare_receiving(uint64_t from_id, std::optional<uint64_t> to_id);
-  std::optional<std_daq_protocol::BufferedMetadata> receive();
+  void send(const Meta& meta);
+  void prepare_receiving(uint64_t from_id);
+  std::optional<Meta> receive();
 
 private:
-  void receive_data_from_redis(uint64_t from_id, double from_score);
-  void receive_more();
+  [[nodiscard]] std::string make_meta_key(uint64_t image_id) const;
+  [[nodiscard]] std::optional<Meta> get_metadata(uint64_t image_id);
+  std::vector<Meta> get_metadatas_in_file_range(uint64_t file_base_id);
+  std::vector<uint64_t> get_image_ids_in_file_range(uint64_t file_base_id);
 
-  uint64_t bucket_id = 0;
-  double end_score = 0;
   std::string key_prefix;
   std::chrono::hours ttl;
   sw::redis::Redis redis;
-  std::deque<std_daq_protocol::BufferedMetadata> proto_queue;
 };
 
 } // namespace sbc

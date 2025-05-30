@@ -12,9 +12,9 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 target_sources(${PROJECT_NAME}
     PRIVATE
-        include/std_buffer_common/buffer_handler.hpp
+        include/std_buffer_common/file_handler.hpp
         include/std_buffer_common/redis_handler.hpp
-        src/buffer_handler.cpp
+        src/file_handler.cpp
         src/redis_handler.cpp
 )
 
@@ -24,9 +24,9 @@ target_link_libraries(${PROJECT_NAME}
     PUBLIC
         c-blosc2::c-blosc2
         redis++::redis++
+        std_daq_interface::std_daq_interface
     PRIVATE
         fmt::fmt
         range-v3::range-v3
-        std_daq_interface::std_daq_interface
         std_detector_buffer::settings
 )

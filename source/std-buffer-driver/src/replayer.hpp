@@ -4,12 +4,7 @@
 
 #pragma once
 
-#include <string_view>
-
 #include "core_buffer/communicator.hpp"
-#include "std_buffer/writer_action.pb.h"
-#include "std_buffer_common/redis_handler.hpp"
-#include "std_buffer_common/buffer_handler.hpp"
 #include "utils/detector_config.hpp"
 #include "utils/stats/active_sessions_stats_collector.hpp"
 
