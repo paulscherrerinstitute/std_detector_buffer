@@ -33,6 +33,8 @@ std::optional<std_daq_protocol::ImageMetadata> BufferHandler::get_image(uint64_t
     return metadata;
   }
   if (auto id = file_handler_.get_first_matching_root_id(image_id)) {
+    metadatas_.clear(); // it might be that the data in the buffer is stale
+
     auto buffered_metadatas = redis_.get_metadatas_in_file_range(*id);
 
     for (auto& buffered_meta : buffered_metadatas) {
