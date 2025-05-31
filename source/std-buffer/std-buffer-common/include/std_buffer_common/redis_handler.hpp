@@ -20,14 +20,12 @@ class RedisHandler
 public:
   explicit RedisHandler(std::string detector_name, const std::string& address, std::size_t timeout);
   void send(const Meta& meta);
-  void prepare_receiving(uint64_t from_id);
-  std::optional<Meta> receive();
+  [[nodiscard]] std::vector<Meta> get_metadatas_in_file_range(uint64_t file_base_id);
 
 private:
-  [[nodiscard]] std::string make_meta_key(uint64_t image_id) const;
+  [[nodiscard]] std::vector<uint64_t> get_image_ids_in_file_range(uint64_t file_base_id);
   [[nodiscard]] std::optional<Meta> get_metadata(uint64_t image_id);
-  std::vector<Meta> get_metadatas_in_file_range(uint64_t file_base_id);
-  std::vector<uint64_t> get_image_ids_in_file_range(uint64_t file_base_id);
+  [[nodiscard]] std::string make_meta_key(uint64_t image_id) const;
 
   std::string key_prefix;
   std::chrono::hours ttl;

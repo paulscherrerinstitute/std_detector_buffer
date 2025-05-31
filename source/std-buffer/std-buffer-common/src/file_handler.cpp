@@ -4,6 +4,13 @@
 
 #include "file_handler.hpp"
 
+#include <ranges>
+#include <algorithm>
+
+#include <range/v3/all.hpp>
+
+namespace fs = std::filesystem;
+
 namespace sbc {
 
 FileHandler::FileHandler(std::string root_directory, std::size_t type_size)
@@ -27,6 +34,51 @@ FileHandler::~FileHandler()
 {
   if (compression_ctx != nullptr) blosc2_free_ctx(compression_ctx);
   if (decompression_ctx != nullptr) blosc2_free_ctx(decompression_ctx);
+}
+
+std::optional<uint64_t> FileHandler::get_first_matching_root_id(uint64_t image_id) const
+{
+  using std::ranges::lower_bound;
+  auto folder_ids = get_folder_ids_in_root_directory();
+  if (folder_ids.empty()) return std::nullopt;
+
+  const uint64_t target_folder = (image_id / 1000000) * 1000000;
+  const uint64_t block_id = (image_id / 1000) * 1000;
+
+  auto folder_it = lower_bound(folder_ids, target_folder);
+
+  // First, try in the target folder (if it exists)
+  if (folder_it != folder_ids.end() && *folder_it == target_folder) {
+    auto file_ids = get_file_ids_in_folder(*folder_it);
+    if (auto file_it = lower_bound(file_ids, block_id); file_it != file_ids.end()) return *file_it;
+    ++folder_it; // move to the next folder if not found
+  }
+
+  // For any remaining folders, just return the first file in the first folder found
+  if (folder_it != folder_ids.end()) return get_file_ids_in_folder(*folder_it).front();
+  return std::nullopt;
+}
+
+[[nodiscard]] std::vector<uint64_t> FileHandler::get_folder_ids_in_root_directory() const
+{
+  const auto rng{fs::directory_iterator(root_directory_)};
+  auto folder_ids = rng | ranges::views::transform([](const auto& e) {
+                      return std::stoul(e.path().filename().string());
+                    }) |
+                    ranges::to<std::vector>();
+  std::ranges::sort(folder_ids);
+  return folder_ids;
+}
+
+[[nodiscard]] std::vector<uint64_t> FileHandler::get_file_ids_in_folder(uint64_t folder_id) const
+{
+  const auto rng = fs::directory_iterator(fs::path(get_folder_path(folder_id)));
+  auto file_ids = rng | ranges::views::transform([](const fs::directory_entry& e) {
+                    return std::stoul(e.path().stem().string());
+                  }) |
+                  ranges::to<std::vector>();
+  std::ranges::sort(file_ids);
+  return file_ids;
 }
 
 std::pair<uint64_t, uint64_t> FileHandler::write(uint64_t image_id, std::span<char> buffered_data)
@@ -67,9 +119,9 @@ std::string FileHandler::get_folder_path(uint64_t image_id) const
 }
 
 bool FileHandler::read(uint64_t image_id,
-                         std::span<char> buffered_data,
-                         uint64_t offset,
-                         uint64_t compressed_size)
+                       std::span<char> buffered_data,
+                       uint64_t offset,
+                       uint64_t compressed_size)
 {
   if (!open_read_file(image_id)) return false;
   buffer.resize(buffered_data.size() + BLOSC2_MAX_OVERHEAD);

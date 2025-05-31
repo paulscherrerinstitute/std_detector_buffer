@@ -7,7 +7,9 @@ find_package(ZeroMQ REQUIRED)
 add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME}
     PRIVATE
-        src/reader.cpp
+        src/buffer_handler.cpp
+        src/buffer_handler.hpp
+        src/main.cpp
 )
 
 sdb_package(${PROJECT_NAME})

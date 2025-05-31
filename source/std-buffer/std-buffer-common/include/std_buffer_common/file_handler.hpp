@@ -11,6 +11,7 @@
 #include <string>
 #include <span>
 #include <vector>
+#include <optional>
 
 namespace sbc {
 
@@ -19,6 +20,8 @@ class FileHandler
 public:
   explicit FileHandler(std::string root_directory, std::size_t type_size);
   ~FileHandler();
+
+  [[nodiscard]] std::optional<uint64_t> get_first_matching_root_id(uint64_t image_id) const;
   std::pair<uint64_t, uint64_t> write(uint64_t image_id, std::span<char> buffered_data);
   bool read(uint64_t image_id,
             std::span<char> buffered_data,
@@ -32,6 +35,8 @@ private:
   bool open_read_file(uint64_t image_id);
   [[nodiscard]] std::string get_filename(uint64_t image_id) const;
   [[nodiscard]] std::string get_folder_path(uint64_t image_id) const;
+  [[nodiscard]] std::vector<uint64_t> get_folder_ids_in_root_directory() const;
+  [[nodiscard]] std::vector<uint64_t> get_file_ids_in_folder(uint64_t folder_id) const;
 
   std::string root_directory_;
   std::string current_filename_;
