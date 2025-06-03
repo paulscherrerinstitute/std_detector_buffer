@@ -130,7 +130,7 @@ void replayer::forward_images() const
   std_daq_protocol::ImageMetadata meta;
 
   while (manager->get_state() == reader_state::replaying) {
-    if (auto [n_bytes, image_data] = receiver->receive(buffer); n_bytes > 0) {
+    if (auto n_bytes = receiver->receive_meta(buffer); n_bytes > 0) {
       meta.ParseFromArray(buffer, n_bytes);
 
       spdlog::info("Received image {} with dtype {}, nbytes {}", meta.image_id(), (int)meta.dtype(),
@@ -140,7 +140,7 @@ void replayer::forward_images() const
       auto encoded_c = data_header.c_str();
 
       zmq_send(push_socket, encoded_c, data_header.length(), ZMQ_SNDMORE);
-      zmq_send(push_socket, image_data, meta.size(), 0);
+      zmq_send(push_socket, receiver->get_data(meta.image_id()), meta.size(), 0);
 
       cv.notify_all();
     }
