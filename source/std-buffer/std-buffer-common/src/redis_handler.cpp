@@ -78,7 +78,7 @@ std::vector<uint64_t> RedisHandler::get_image_ids_in_file_range(uint64_t file_ba
   std::vector<std::string> string_ids;
   redis.zrangebyscore(key_prefix + "ids",
                       sw::redis::BoundedInterval<double>(file_base_id, end_id, BoundType::CLOSED),
-                      sw::redis::LimitOptions{}, std::back_inserter(string_ids));
+                      std::back_inserter(string_ids));
 
   spdlog::info("received {}", string_ids.size());
 
