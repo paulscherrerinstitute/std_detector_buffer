@@ -11,6 +11,8 @@
 
 #include "redis_handler.hpp"
 
+#include "../../../../.conan_cache/.conan/data/spdlog/1.13.0/_/_/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/include/spdlog/spdlog.h"
+
 using namespace std::chrono_literals;
 using namespace sw::redis;
 
@@ -76,6 +78,10 @@ std::vector<uint64_t> RedisHandler::get_image_ids_in_file_range(uint64_t file_ba
   redis.zrangebyscore(key_prefix + "ids",
                       sw::redis::BoundedInterval<double>(file_base_id, end_id, BoundType::CLOSED),
                       sw::redis::LimitOptions{}, std::back_inserter(string_ids));
+
+  for (auto i = 0u; i < string_ids.size() && i < 10; ++i) {
+    spdlog::info("ids {}: {}", i, string_ids[i]);
+  }
 
   auto ids_view = string_ids |
                   std::views::transform([](const auto& id_str) { return parse_uint64(id_str); }) |
