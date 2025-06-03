@@ -11,9 +11,10 @@
 #include "core_buffer/ram_buffer.hpp"
 #include "std_buffer_common/redis_handler.hpp"
 #include "std_buffer_common/file_handler.hpp"
-#include "std_buffer/buffered_metadata.pb.h"
 #include "std_buffer/image_buffer.pb.h"
 #include "utils/utils.hpp"
+
+#include "buffer_handler.hpp"
 
 namespace {
 
@@ -57,11 +58,6 @@ void* bind_driver_socket(void* ctx, const std::string& stream_address)
   return socket;
 }
 
-// std::size_t get_uncompressed_size(const std_daq_protocol::ImageMetadata& data)
-// {
-//   return data.width() * data.height() * utils::get_bytes_from_metadata_dtype(data.dtype());
-// }
-
 } // namespace
 
 int main(int argc, char* argv[])
@@ -81,42 +77,28 @@ int main(int argc, char* argv[])
   void* driver_socket = bind_driver_socket(ctx, driver_address);
 
   sbc::RedisHandler redis_handler(args.config.detector_name, args.db_address, 1);
-  sbc::FileHandler reader(args.root_dir + args.config.detector_name, args.config.bit_depth / 8);
-  std_daq_protocol::BufferedMetadata buffered_meta;
+  BufferHandler buffer_handler(redis_handler, args.root_dir + args.config.detector_name,
+                               args.config.bit_depth / 8, sender);
 
   std_daq_protocol::RequestNextImage request;
-  std_daq_protocol::NextImageResponse response;
-  std::string cmd;
   char buffer[512];
 
   while (true) {
     if (const auto n_bytes = zmq_recv(driver_socket, buffer, sizeof(buffer), 0); n_bytes > 0) {
       request.ParseFromArray(buffer, n_bytes);
-      (void) request.image_id();
+      std_daq_protocol::NextImageResponse response;
+      std::string cmd;
+      if (auto image = buffer_handler.get_image(request.image_id())) {
+        image->SerializeToString(&cmd);
+        sender.send(image->image_id(), cmd, nullptr, 0);
+        response.mutable_ack()->set_image_id(image->image_id());
+      }
+      else
+        response.mutable_no_image();
+
+      response.SerializeToString(&cmd);
+      zmq_send(driver_socket, cmd.c_str(), cmd.length(), 0);
     }
-
   }
-
-  //  while (true) {
-  //   const auto end_id = std::min(args.end_image_id, end_id_tester.test_end_id());
-  //
-  //   for (std::weakly_incrementable auto image : std::views::iota(args.start_image_id, end_id)) {
-  //     if (redis_handler.receive(image, buffered_meta)) {
-  //       if (auto size = get_uncompressed_size(buffered_meta.metadata()); size <= max_data_bytes)
-  //       {
-  //         reader.read(image, {sender.get_data(image), size}, buffered_meta.offset(),
-  //                     buffered_meta.metadata().size());
-  //
-  //         buffered_meta.mutable_metadata()->set_size(size);
-  //         buffered_meta.mutable_metadata()->set_compression(std_daq_protocol::none);
-  //         std::string meta_buffer_send;
-  //         buffered_meta.metadata().SerializeToString(&meta_buffer_send);
-  //         sender.send(image, meta_buffer_send, nullptr, zmq_flags);
-  //         std::this_thread::sleep_for(std::chrono::milliseconds(args.delay));
-  //         zmq_flags = ZMQ_NOBLOCK;
-  //       }
-  //     }
-  //   }
-  // }
   return 0;
 }
