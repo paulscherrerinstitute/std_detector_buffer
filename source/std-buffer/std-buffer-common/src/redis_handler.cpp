@@ -74,14 +74,13 @@ std::vector<uint64_t> RedisHandler::get_image_ids_in_file_range(uint64_t file_ba
 
   std::vector<std::string> string_ids;
   redis.zrangebyscore(key_prefix + "ids",
-                      sw::redis::BoundedInterval<std::string>(
-                          std::to_string(file_base_id), std::to_string(end_id), BoundType::CLOSED),
+                      sw::redis::BoundedInterval<double>(file_base_id, end_id, BoundType::CLOSED),
                       sw::redis::LimitOptions{}, std::back_inserter(string_ids));
 
-  auto ids_view = string_ids
-      | std::views::transform([](const auto& id_str) { return parse_uint64(id_str); })
-      | std::views::filter([](const auto& id) { return id.has_value(); })
-      | std::views::transform([](const auto& id) { return *id; });
+  auto ids_view = string_ids |
+                  std::views::transform([](const auto& id_str) { return parse_uint64(id_str); }) |
+                  std::views::filter([](const auto& id) { return id.has_value(); }) |
+                  std::views::transform([](const auto& id) { return *id; });
 
   return {ids_view.begin(), ids_view.end()};
 }
