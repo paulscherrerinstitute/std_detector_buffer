@@ -8,10 +8,10 @@
 
 #include <fmt/core.h>
 #include <range/v3/all.hpp>
+#include <spdlog/spdlog.h>
 
 #include "redis_handler.hpp"
 
-#include "../../../../.conan_cache/.conan/data/spdlog/1.13.0/_/_/package/5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9/include/spdlog/spdlog.h"
 
 using namespace std::chrono_literals;
 using namespace sw::redis;

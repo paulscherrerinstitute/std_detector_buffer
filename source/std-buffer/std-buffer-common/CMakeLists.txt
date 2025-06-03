@@ -24,6 +24,7 @@ target_link_libraries(${PROJECT_NAME}
     PUBLIC
         c-blosc2::c-blosc2
         redis++::redis++
+        utils::utils
         std_daq_interface::std_daq_interface
     PRIVATE
         fmt::fmt
