@@ -88,6 +88,7 @@ int main(int argc, char* argv[])
       std_daq_protocol::NextImageResponse response;
       std::string cmd;
       if (auto image = buffer_handler.get_image(request.image_id())) {
+        spdlog::info("Sending image {} with dtype {}", image->image_id(), (int)image->dtype());
         image->SerializeToString(&cmd);
         sender.send(image->image_id(), cmd, nullptr, 0);
         response.mutable_ack()->set_image_id(image->image_id());
