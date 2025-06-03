@@ -36,7 +36,7 @@ std::optional<uint64_t> parse_uint64(const std::string& s)
 RedisHandler::RedisHandler(std::string,
                            const std::string& address,
                            const std::size_t timeout)
-    : key_prefix("camera:S10BC02-DSRM310:ids:")
+    : key_prefix("camera:S10BC02-DSRM310:")
     , ttl(std::chrono::hours(timeout))
     , redis(address)
 {
