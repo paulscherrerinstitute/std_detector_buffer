@@ -35,6 +35,7 @@ std::optional<std_daq_protocol::ImageMetadata> BufferHandler::get_image(uint64_t
   if (auto id = file_handler_.get_first_matching_root_id(image_id)) {
     spdlog::info("requested if {}, root_id_found {}", image_id, *id);
     metadatas_.clear(); // it might be that the data in the buffer is stale
+    spdlog::info("metadata cleared");
 
     auto buffered_metadatas = redis_.get_metadatas_in_file_range(*id);
 

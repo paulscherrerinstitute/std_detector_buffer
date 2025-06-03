@@ -74,10 +74,13 @@ std::vector<uint64_t> RedisHandler::get_image_ids_in_file_range(uint64_t file_ba
 {
   const uint64_t end_id = file_base_id + 999;
 
+  spdlog::info("requesting range");
   std::vector<std::string> string_ids;
   redis.zrangebyscore(key_prefix + "ids",
                       sw::redis::BoundedInterval<double>(file_base_id, end_id, BoundType::CLOSED),
                       sw::redis::LimitOptions{}, std::back_inserter(string_ids));
+
+  spdlog::info("received");
 
   for (auto i = 0u; i < string_ids.size() && i < 10; ++i) {
     spdlog::info("ids {}: {}", i, string_ids[i]);
