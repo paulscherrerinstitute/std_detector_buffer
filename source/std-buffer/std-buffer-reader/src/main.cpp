@@ -77,8 +77,7 @@ int main(int argc, char* argv[])
   void* driver_socket = bind_driver_socket(ctx, driver_address);
 
   sbc::RedisHandler redis_handler(args.config.detector_name, args.db_address, 1);
-  BufferHandler buffer_handler(redis_handler, args.root_dir + args.config.detector_name,
-                               args.config.bit_depth / 8, sender);
+  BufferHandler buffer_handler(redis_handler, args.root_dir, args.config.bit_depth / 8, sender);
 
   std_daq_protocol::RequestNextImage request;
   char buffer[512];
