@@ -113,6 +113,7 @@ void replayer::control_reader(const replay_settings& settings)
 
     if (const auto n_bytes = zmq_recv(driver_socket, buffer, sizeof(buffer), 0); n_bytes > 0) {
       response.ParseFromArray(buffer, n_bytes);
+      spdlog::info("received response: {} ", response.DebugString());
       if (response.has_ack())
         image_id = response.ack().image_id();
       else

@@ -33,9 +33,7 @@ std::optional<std_daq_protocol::ImageMetadata> BufferHandler::get_image(uint64_t
     return metadata;
   }
   if (auto id = file_handler_.get_first_matching_root_id(image_id)) {
-    spdlog::info("requested if {}, root_id_found {}", image_id, *id);
     metadatas_.clear(); // it might be that the data in the buffer is stale
-    spdlog::info("metadata cleared");
 
     auto buffered_metadatas = redis_.get_metadatas_in_file_range(*id);
 
@@ -43,7 +41,6 @@ std::optional<std_daq_protocol::ImageMetadata> BufferHandler::get_image(uint64_t
       // todo check if size fits buffer
       const auto size = get_uncompressed_size(buffered_meta.metadata());
       const auto image = buffered_meta.metadata().image_id();
-      spdlog::info("buffered image {}, being read type {}", image, (int) buffered_meta.metadata().dtype());
 
       file_handler_.read(image, {communicator_.get_data(image), size}, buffered_meta.offset(),
                          buffered_meta.metadata().size());

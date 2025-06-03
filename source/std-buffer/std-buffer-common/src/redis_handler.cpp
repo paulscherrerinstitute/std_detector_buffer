@@ -80,12 +80,6 @@ std::vector<uint64_t> RedisHandler::get_image_ids_in_file_range(uint64_t file_ba
                       sw::redis::BoundedInterval<double>(file_base_id, end_id, BoundType::CLOSED),
                       std::back_inserter(string_ids));
 
-  spdlog::info("received key {} {}", key_prefix + "ids", string_ids.size());
-
-  for (auto i = 0u; i < string_ids.size() && i < 10; ++i) {
-    spdlog::info("ids {}: {}", i, string_ids[i]);
-  }
-
   auto ids_view = string_ids |
                   std::views::transform([](const auto& id_str) { return parse_uint64(id_str); }) |
                   std::views::filter([](const auto& id) { return id.has_value(); }) |
