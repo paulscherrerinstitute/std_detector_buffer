@@ -133,6 +133,8 @@ void replayer::forward_images() const
     if (auto [n_bytes, image_data] = receiver->receive(buffer); n_bytes > 0) {
       meta.ParseFromArray(buffer, n_bytes);
 
+      spdlog::info("Received image {} with dtype {}", meta.image_id(), (int)meta.dtype());
+
       auto data_header = utils::stream::prepare_array10_header(meta);
       auto encoded_c = data_header.c_str();
 
