@@ -25,9 +25,6 @@ void* bind_sender_socket(void* ctx, const std::string& stream_address)
 {
   void* socket = zmq_socket(ctx, ZMQ_PUSH);
 
-  if (zmq_setsockopt(socket, ZMQ_SNDHWM, &zmq_sndhwm, sizeof(zmq_sndhwm)) != 0)
-    throw std::runtime_error(zmq_strerror(errno));
-
   const int linger = 0;
   if (zmq_setsockopt(socket, ZMQ_LINGER, &linger, sizeof(linger)) != 0)
     throw std::runtime_error(zmq_strerror(errno));
