@@ -106,6 +106,8 @@ void replayer::control_reader(const replay_settings& settings)
     request.set_image_id(image_id);
     request.SerializeToString(&cmd);
 
+    spdlog::info("sending request: {} ", request.DebugString());
+
     zmq_send(driver_socket, cmd.c_str(), cmd.size(), 0);
 
     if (const auto n_bytes = zmq_recv(driver_socket, buffer, sizeof(buffer), 0); n_bytes > 0) {
