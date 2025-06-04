@@ -141,6 +141,7 @@ void replayer::forward_images() const
       auto encoded_c = data_header.c_str();
       auto data = receiver->get_data(meta.image_id());
       spdlog::info("{} data: {}", static_cast<void*>(data), meta.size());
+      std::this_thread::sleep_for(10ms);
 
       zmq_send(push_socket, encoded_c, data_header.length(), ZMQ_SNDMORE);
       zmq_send(push_socket, data, meta.size(), 0);
