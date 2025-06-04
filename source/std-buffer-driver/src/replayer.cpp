@@ -121,7 +121,7 @@ void replayer::control_reader(const replay_settings& settings)
       cv.wait(lock);
     }
   }
-  manager->change_state(reader_state::finished);
+  manager->change_state(reader_state::finishing);
 }
 
 void replayer::forward_images() const
@@ -131,7 +131,7 @@ void replayer::forward_images() const
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;
 
-  while (manager->get_state() == reader_state::replaying) {
+  for (auto n_images = 0ul; manager->get_state() == reader_state::replaying;) {
     if (auto n_bytes = receiver->receive_meta(buffer); n_bytes > 0) {
       meta.ParseFromArray(buffer, n_bytes);
 
@@ -151,6 +151,7 @@ void replayer::forward_images() const
       zmq_send(push_socket, encoded_c, data_header.length(), ZMQ_SNDMORE);
       char testbuf[16] = "abcdefghijklmno";
       zmq_send(push_socket, testbuf, sizeof(testbuf), 0);
+      manager->update_image_count(++n_images);
       // zmq_send(push_socket, data, meta.size(), 0);
 
       cv.notify_all();
