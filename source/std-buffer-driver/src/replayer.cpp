@@ -127,6 +127,8 @@ void replayer::control_reader(const replay_settings& settings)
 
 void replayer::forward_images() const
 {
+  spdlog::default_logger()->flush_on(spdlog::level::info);
+
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;
 
@@ -141,7 +143,11 @@ void replayer::forward_images() const
       auto encoded_c = data_header.c_str();
       auto data = receiver->get_data(meta.image_id());
       spdlog::info("{} data: {}", static_cast<void*>(data), meta.size());
+
+      spdlog::info("Before sleep");
       std::this_thread::sleep_for(10ms);
+
+      spdlog::info("Before after");
 
       zmq_send(push_socket, encoded_c, data_header.length(), ZMQ_SNDMORE);
       zmq_send(push_socket, data, meta.size(), 0);
