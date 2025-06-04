@@ -114,7 +114,7 @@ void replayer::control_reader(const replay_settings& settings)
       response.ParseFromArray(buffer, n_bytes);
       spdlog::info("received response: {} ", response.DebugString());
       if (response.has_ack())
-        image_id = response.ack().image_id();
+        image_id = response.ack().image_id() + 1;
       else
         break;
       std::unique_lock lock(mutex);
