@@ -147,7 +147,9 @@ void replayer::forward_images() const
       spdlog::info("Before after");
 
       zmq_send(push_socket, encoded_c, data_header.length(), ZMQ_SNDMORE);
-      zmq_send(push_socket, data, meta.size(), 0);
+      char testbuf[16] = "abcdefghijklmno";
+      zmq_send(push_socket, testbuf, sizeof(testbuf), 0);
+      // zmq_send(push_socket, data, meta.size(), 0);
 
       cv.notify_all();
     }
