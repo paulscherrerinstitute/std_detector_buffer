@@ -90,6 +90,13 @@ int main(int argc, char* argv[])
       if (auto image = buffer_handler.get_image(request.image_id())) {
         spdlog::info("Sending image {} with dtype {}", image->image_id(), (int)image->dtype());
         image->SerializeToString(&cmd);
+        auto data = sender.get_data(image->image_id());
+        data[0] = 'M';
+        data[0] = 'A';
+        data[0] = 'C';
+        data[0] = 'I';
+        data[0] = 'E';
+        data[0] = 'J';
         sender.send(image->image_id(), cmd, nullptr, 0);
         response.mutable_ack()->set_image_id(image->image_id());
       }

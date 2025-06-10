@@ -149,6 +149,9 @@ void replayer::forward_images() const
       spdlog::info("Before after");
 
       zmq_send(push_socket, encoded_c, data_header.length(), ZMQ_SNDMORE);
+      auto databuf = receiver->get_data(meta.image_id());
+      spdlog::info("FIRST CHARS: {} {} {} {} {}", databuf[0], databuf[1], databuf[2], databuf[3],
+                   databuf[4]);
       char testbuf[16] = "abcdefghijklmno";
       zmq_send(push_socket, testbuf, sizeof(testbuf), 0);
       manager->update_image_count(++n_images);
