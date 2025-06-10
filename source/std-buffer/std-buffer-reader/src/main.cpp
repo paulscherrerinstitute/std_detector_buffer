@@ -63,6 +63,7 @@ void* bind_driver_socket(void* ctx, const std::string& stream_address)
 int main(int argc, char* argv[])
 {
   const auto args = read_arguments(argc, argv);
+  [[maybe_unused]] utils::log::logger l{"std_buffer_reader", args.config.log_level};
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
