@@ -64,6 +64,8 @@ replayer::replayer(std::shared_ptr<sbr::state_manager> sm,
 
   const auto source_name = fmt::format("{}-image", config.detector_name);
   const std::size_t max_data_bytes = utils::converted_image_n_bytes(config);
+  spdlog::info("BUFFER config: source_name={}, max_data_byts={}, slot={}", source_name,
+               max_data_bytes, utils::slots_number(config));
   receiver = std::make_unique<cb::Communicator>(
       cb::Communicator{{source_name, max_data_bytes, utils::slots_number(config)},
                        {source_name, zmq_ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}});
