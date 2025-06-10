@@ -19,7 +19,7 @@ class replayer : public std::enable_shared_from_this<replayer>
   void* zmq_ctx;
   std::atomic<reader_state> state{reader_state::idle};
   utils::stats::ActiveSessionStatsCollector stats;
-  std::unique_ptr<cb::Communicator> receiver;
+  std::shared_ptr<cb::Communicator> receiver;
   void* push_socket;
   void* driver_socket;
   mutable std::mutex mutex;
