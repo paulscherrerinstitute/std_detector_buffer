@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <string>
+#include <string_view>
 #include <optional>
 #include <chrono>
 
@@ -17,8 +17,11 @@ namespace sbc {
 class RedisHandler
 {
   using Meta = std_daq_protocol::BufferedMetadata;
+
 public:
-  explicit RedisHandler(std::string detector_name, const std::string& address, std::size_t timeout);
+  explicit RedisHandler(std::string_view detector_name,
+                        const std::string& address,
+                        std::size_t timeout);
   void send(const Meta& meta);
   [[nodiscard]] std::vector<Meta> get_metadatas_in_file_range(uint64_t file_base_id);
 

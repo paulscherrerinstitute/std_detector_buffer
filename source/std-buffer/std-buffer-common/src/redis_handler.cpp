@@ -12,7 +12,6 @@
 
 #include "redis_handler.hpp"
 
-
 using namespace std::chrono_literals;
 using namespace sw::redis;
 
@@ -31,12 +30,20 @@ std::optional<uint64_t> parse_uint64(const std::string& s)
   return std::nullopt;
 }
 
+std::string strip_replay_prefix(std::string_view cfg)
+{
+  constexpr std::string_view prefix = "REPLAY-";
+  if (!cfg.starts_with(prefix))
+    throw std::invalid_argument("Config string must start with \"REPLAY-\": " + std::string(cfg));
+  return std::string{cfg.substr(prefix.size())};
+}
+
 } // namespace
 
-RedisHandler::RedisHandler(std::string,
+RedisHandler::RedisHandler(std::string_view detector_name,
                            const std::string& address,
                            const std::size_t timeout)
-    : key_prefix("camera:S10BC02-DSRM310:")
+    : key_prefix(fmt::format("camera:{}:", strip_replay_prefix(detector_name)))
     , ttl(std::chrono::hours(timeout))
     , redis(address)
 {
