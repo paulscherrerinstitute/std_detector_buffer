@@ -99,6 +99,7 @@ std::vector<std_daq_protocol::BufferedMetadata> RedisHandler::get_metadatas_in_f
     uint64_t file_base_id)
 {
   auto ids = get_image_ids_in_file_range(file_base_id);
+  spdlog::info("prefix: {}, found ids= {}", key_prefix, ids.size());
   std::vector<Meta> result;
   result.reserve(ids.size());
   for (auto id : ids) {
