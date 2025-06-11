@@ -62,11 +62,11 @@ replayer::replayer(std::shared_ptr<sbr::state_manager> sm,
   static constexpr auto zmq_io_threads = 4;
   zmq_ctx_set(zmq_ctx, ZMQ_IO_THREADS, zmq_io_threads);
 
-  const auto source_name = fmt::format("{}-image", "S10BC02-DSRM310");
+  const auto source_name = fmt::format("{}-image", config.detector_name);
   const std::size_t max_data_bytes = utils::converted_image_n_bytes(config);
   spdlog::info("BUFFER config: source_name={}, max_data_byts={}, slot={}", source_name,
                max_data_bytes, utils::slots_number(config));
-  receiver = std::make_shared<cb::Communicator>(
+  receiver = std::make_unique<cb::Communicator>(
       cb::Communicator{{source_name, max_data_bytes, utils::slots_number(config)},
                        {source_name, zmq_ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}});
   push_socket = bind_sender_socket(zmq_ctx, stream_address);
@@ -152,6 +152,8 @@ void replayer::forward_images() const
 
       zmq_send(push_socket, encoded_c, data_header.length(), ZMQ_SNDMORE);
       auto databuf = receiver->get_data(meta.image_id());
+      spdlog::info("databuf pointer for image {} is {}", meta.image_id(), static_cast<void*>(databuf));
+      spdlog::info("woah");
       spdlog::info("FIRST CHARS: {} {} {} {} {}", databuf[0], databuf[1], databuf[2], databuf[3],
                    databuf[4]);
       char testbuf[16] = "abcdefghijklmno";
