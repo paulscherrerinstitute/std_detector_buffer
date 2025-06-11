@@ -62,7 +62,7 @@ replayer::replayer(std::shared_ptr<sbr::state_manager> sm,
   static constexpr auto zmq_io_threads = 4;
   zmq_ctx_set(zmq_ctx, ZMQ_IO_THREADS, zmq_io_threads);
 
-  const auto source_name = fmt::format("{}-image", config.detector_name);
+  const auto source_name = fmt::format("{}-image", "S10BC02-DSRM310");
   const std::size_t max_data_bytes = utils::converted_image_n_bytes(config);
   spdlog::info("BUFFER config: source_name={}, max_data_byts={}, slot={}", source_name,
                max_data_bytes, utils::slots_number(config));
