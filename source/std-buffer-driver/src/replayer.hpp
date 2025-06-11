@@ -19,7 +19,7 @@ class replayer : public std::enable_shared_from_this<replayer>
   void* zmq_ctx;
   std::atomic<reader_state> state{reader_state::idle};
   utils::stats::ActiveSessionStatsCollector stats;
-  std::unique_ptr<cb::Communicator> receiver;
+  cb::Communicator receiver;
   void* push_socket;
   void* driver_socket;
   mutable std::mutex mutex;
@@ -31,8 +31,8 @@ public:
                          const std::string& stream_address);
   void init(std::chrono::seconds logging_period);
   void start(const replay_settings& settings);
-  void control_reader(const replay_settings& settings);
-  void forward_images() const;
+  void control_reader(const replay_settings& settings) const;
+  void forward_images();
 };
 
 } // namespace std_driver

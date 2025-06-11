@@ -12,7 +12,6 @@
 
 #include "redis_handler.hpp"
 
-
 using namespace std::chrono_literals;
 using namespace sw::redis;
 
@@ -31,12 +30,19 @@ std::optional<uint64_t> parse_uint64(const std::string& s)
   return std::nullopt;
 }
 
+std::string strip_replay_prefix(std::string_view cfg)
+{
+  constexpr std::string_view prefix = "REPLAY-";
+  if (!cfg.starts_with(prefix))
+    throw std::invalid_argument("Config string must start with \"REPLAY-\": " + std::string(cfg));
+  return std::string{cfg.substr(prefix.size())};
+}
 } // namespace
 
-RedisHandler::RedisHandler(std::string detector_name,
+RedisHandler::RedisHandler(std::string_view detector_name,
                            const std::string& address,
                            const std::size_t timeout)
-    : key_prefix("camera:" + std::move(detector_name) + ":")
+    : key_prefix(fmt::format("camera:{}:", strip_replay_prefix(detector_name)))
     , ttl(std::chrono::hours(timeout))
     , redis(address)
 {
@@ -77,11 +83,7 @@ std::vector<uint64_t> RedisHandler::get_image_ids_in_file_range(uint64_t file_ba
   std::vector<std::string> string_ids;
   redis.zrangebyscore(key_prefix + "ids",
                       sw::redis::BoundedInterval<double>(file_base_id, end_id, BoundType::CLOSED),
-                      sw::redis::LimitOptions{}, std::back_inserter(string_ids));
-
-  for (auto i = 0u; i < string_ids.size() && i < 10; ++i) {
-    spdlog::info("ids {}: {}", i, string_ids[i]);
-  }
+                      std::back_inserter(string_ids));
 
   auto ids_view = string_ids |
                   std::views::transform([](const auto& id_str) { return parse_uint64(id_str); }) |

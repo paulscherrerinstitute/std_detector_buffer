@@ -109,12 +109,16 @@ void socket_session::monitor_writer_state()
 
       switch (state) {
       case reader_state::error:
+      case reader_state::finished:
         self->send_response(to_string(state));
         self->manager->change_state(reader_state::idle);
         break;
       case reader_state::replaying:
-      case reader_state::finished:
         self->send_response_with_count(to_string(state), self->manager->get_images_processed());
+        break;
+      case reader_state::finishing:
+        self->send_response_with_count(to_string(state), self->manager->get_images_processed());
+        self->manager->change_state(reader_state::finished);
         break;
       default:
         self->send_response(to_string(state));
@@ -145,4 +149,4 @@ void socket_session::send_response_with_count(std::string_view status, unsigned 
   websocket.async_write(boost::asio::buffer(response.dump()), noop_handler);
 }
 
-} // namespace std_driver
+} // namespace sbr
