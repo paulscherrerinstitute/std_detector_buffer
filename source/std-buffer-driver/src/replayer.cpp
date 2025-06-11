@@ -58,6 +58,10 @@ replayer::replayer(std::shared_ptr<sbr::state_manager> sm,
     : manager(std::move(sm))
     , zmq_ctx(zmq_ctx_new())
     , stats(config.detector_name, config.stats_collection_period, "none")
+    , receiver{
+          {fmt::format("{}-image", config.detector_name), utils::converted_image_n_bytes(config),
+           utils::slots_number(config)},
+          {fmt::format("{}-image", config.detector_name), zmq_ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}}
 {
   static constexpr auto zmq_io_threads = 4;
   zmq_ctx_set(zmq_ctx, ZMQ_IO_THREADS, zmq_io_threads);
@@ -66,9 +70,6 @@ replayer::replayer(std::shared_ptr<sbr::state_manager> sm,
   const std::size_t max_data_bytes = utils::converted_image_n_bytes(config);
   spdlog::info("BUFFER config: source_name={}, max_data_byts={}, slot={}", source_name,
                max_data_bytes, utils::slots_number(config));
-  receiver = std::move(std::make_unique<cb::Communicator>(
-      cb::Communicator{{source_name, max_data_bytes, utils::slots_number(config)},
-                       {source_name, zmq_ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}}));
   spdlog::info("tutaj");
   push_socket = bind_sender_socket(zmq_ctx, stream_address);
   auto driver_address =
@@ -96,7 +97,7 @@ void replayer::start(const replay_settings& settings)
   std::thread([self]() { self->forward_images(); }).detach();
 }
 
-void replayer::control_reader(const replay_settings& settings)
+void replayer::control_reader(const replay_settings& settings) const
 {
   std_daq_protocol::RequestNextImage request;
   std_daq_protocol::NextImageResponse response;
@@ -127,7 +128,7 @@ void replayer::control_reader(const replay_settings& settings)
   manager->change_state(reader_state::finishing);
 }
 
-void replayer::forward_images() const
+void replayer::forward_images()
 {
   spdlog::default_logger()->flush_on(spdlog::level::info);
 
@@ -135,7 +136,7 @@ void replayer::forward_images() const
   std_daq_protocol::ImageMetadata meta;
 
   for (auto n_images = 0ul; manager->get_state() == reader_state::replaying;) {
-    if (auto n_bytes = receiver->receive_meta(buffer); n_bytes > 0) {
+    if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
       meta.ParseFromArray(buffer, n_bytes);
 
       spdlog::info("Received image {} with dtype {}, nbytes {}", meta.image_id(), (int)meta.dtype(),
@@ -143,7 +144,7 @@ void replayer::forward_images() const
 
       auto data_header = utils::stream::prepare_array10_header(meta);
       auto encoded_c = data_header.c_str();
-      auto data = receiver->get_data(meta.image_id());
+      auto data = receiver.get_data(meta.image_id());
       spdlog::info("{} data: {}", static_cast<void*>(data), meta.size());
 
       spdlog::info("Before sleep");
@@ -152,8 +153,9 @@ void replayer::forward_images() const
       spdlog::info("Before after");
 
       zmq_send(push_socket, encoded_c, data_header.length(), ZMQ_SNDMORE);
-      auto databuf = receiver->get_data(meta.image_id());
-      spdlog::info("databuf pointer for image {} is {}", meta.image_id(), static_cast<void*>(databuf));
+      auto databuf = receiver.get_data(meta.image_id());
+      spdlog::info("databuf pointer for image {} is {}", meta.image_id(),
+                   static_cast<void*>(databuf));
       spdlog::info("woah");
       spdlog::info("FIRST CHARS: {} {} {} {} {}", databuf[0], databuf[1], databuf[2], databuf[3],
                    databuf[4]);
