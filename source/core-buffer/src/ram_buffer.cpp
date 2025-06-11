@@ -43,6 +43,7 @@ RamBuffer::~RamBuffer()
   munmap(buffer_, buffer_bytes_);
   close(shm_fd_);
   shm_unlink(buffer_name_.c_str());
+  spdlog::info("destroying RamBuffer");
 }
 
 int RamBuffer::configure_mmap_flags()
