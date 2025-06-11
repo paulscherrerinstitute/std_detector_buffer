@@ -66,7 +66,7 @@ replayer::replayer(std::shared_ptr<sbr::state_manager> sm,
   const std::size_t max_data_bytes = utils::converted_image_n_bytes(config);
   spdlog::info("BUFFER config: source_name={}, max_data_byts={}, slot={}", source_name,
                max_data_bytes, utils::slots_number(config));
-  receiver = std::make_unique<cb::Communicator>(
+  receiver = std::make_shared<cb::Communicator>(
       cb::Communicator{{source_name, max_data_bytes, utils::slots_number(config)},
                        {source_name, zmq_ctx, cb::CONN_TYPE_CONNECT, ZMQ_SUB}});
   push_socket = bind_sender_socket(zmq_ctx, stream_address);
