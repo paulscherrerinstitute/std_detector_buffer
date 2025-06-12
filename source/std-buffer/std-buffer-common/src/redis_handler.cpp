@@ -33,9 +33,8 @@ std::optional<uint64_t> parse_uint64(const std::string& s)
 std::string strip_replay_prefix(std::string_view cfg)
 {
   constexpr std::string_view prefix = "REPLAY-";
-  if (!cfg.starts_with(prefix))
-    throw std::invalid_argument("Config string must start with \"REPLAY-\": " + std::string(cfg));
-  return std::string{cfg.substr(prefix.size())};
+  if (cfg.starts_with(prefix)) return std::string{cfg.substr(prefix.size())};
+  return std::string(cfg);
 }
 } // namespace
 
