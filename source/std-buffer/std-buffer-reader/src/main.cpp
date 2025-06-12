@@ -65,6 +65,8 @@ int main(int argc, char* argv[])
   const auto args = read_arguments(argc, argv);
   [[maybe_unused]] utils::log::logger l{"std_buffer_reader", args.config.log_level};
 
+  utils::stats::TimedStatsCollector stats(args.config.detector_name, args.config.stats_collection_period);
+
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
 
@@ -99,7 +101,9 @@ int main(int argc, char* argv[])
 
       response.SerializeToString(&cmd);
       zmq_send(driver_socket, cmd.c_str(), cmd.length(), 0);
+      stats.process();
     }
+    stats.print_stats();
   }
   return 0;
 }
