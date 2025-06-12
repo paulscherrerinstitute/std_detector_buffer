@@ -33,7 +33,7 @@ void do_accept(boost::asio::ip::tcp::acceptor& acceptor,
 
 std::tuple<utils::DetectorConfig, std::string, std::size_t> read_arguments(int argc, char* argv[])
 {
-  auto program = utils::create_parser("std_det_driver");
+  auto program = utils::create_parser("std_buffer_driver");
   program->add_argument("--stream_address")
       .help("Address of output stream where data will be pushed")
       .required();
@@ -55,7 +55,7 @@ std::tuple<utils::DetectorConfig, std::string, std::size_t> read_arguments(int a
 int main(int argc, char* argv[])
 {
   const auto [config, stream_address, port] = read_arguments(argc, argv);
-  [[maybe_unused]] utils::log::logger l{"std_det_driver", config.log_level};
+  [[maybe_unused]] utils::log::logger l{"std_buffer_driver", config.log_level};
 
   boost::asio::io_context ioc{1};
   auto const address = boost::asio::ip::make_address("0.0.0.0");
