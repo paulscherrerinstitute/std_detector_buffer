@@ -70,8 +70,6 @@ replayer::replayer(std::shared_ptr<sbr::state_manager> sm,
   static constexpr auto zmq_io_threads = 4;
   zmq_ctx_set(zmq_ctx, ZMQ_IO_THREADS, zmq_io_threads);
 
-  const auto source_name = fmt::format("{}-image", config.detector_name);
-  const std::size_t max_data_bytes = utils::converted_image_n_bytes(config);
   push_socket = bind_sender_socket(zmq_ctx, stream_address);
   auto driver_address =
       fmt::format("{}{}-driver", buffer_config::IPC_URL_BASE, config.detector_name);
