@@ -83,6 +83,7 @@ int main(int argc, char* argv[])
   std_daq_protocol::RequestNextImage request;
   char buffer[512];
 
+  buffer_handler.start_loader();
   while (true) {
     if (const auto n_bytes = zmq_recv(driver_socket, buffer, sizeof(buffer), 0); n_bytes > 0) {
       request.ParseFromArray(buffer, n_bytes);
