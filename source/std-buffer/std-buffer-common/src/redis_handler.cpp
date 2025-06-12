@@ -45,6 +45,8 @@ RedisHandler::RedisHandler(std::string_view detector_name,
     , ttl(std::chrono::hours(timeout))
     , redis(address)
 {
+  spdlog::debug("RedisHandler key_prefix: {}", key_prefix);
+  
   if (redis.ping() != "PONG")
     throw std::runtime_error(fmt::format("Connection to Redis API on address={} failed.", address));
 }
