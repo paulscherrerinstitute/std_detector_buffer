@@ -30,6 +30,7 @@ std::optional<std_daq_protocol::ImageMetadata> BufferHandler::get_image(uint64_t
 {
   std::unique_lock lock(mtx_);
 
+  spdlog::info("requesting image {}", image_id);
   if (auto meta = try_pop_image(image_id)) return meta;
 
   request_loader_if_needed(image_id);
@@ -50,6 +51,7 @@ void BufferHandler::loader_loop(std::stop_token stoken)
     {
       std::unique_lock lock(mtx_);
       cv_.wait(lock, [this] { return loader_active_ || !running_; });
+      spdlog::info("loader_loop - wait finished");
       if (!running_) break;
 
       loader_active_ = false;
@@ -79,6 +81,7 @@ void BufferHandler::loader_loop(std::stop_token stoken)
 
 std::optional<std_daq_protocol::ImageMetadata> BufferHandler::try_pop_image(uint64_t image_id)
 {
+  spdlog::info("try_pop image {}", image_id);
   if (!metadatas_.empty() && metadatas_.front().image_id() >= image_id) {
     auto metadata = metadatas_.front();
     metadatas_.pop_front();
@@ -89,6 +92,7 @@ std::optional<std_daq_protocol::ImageMetadata> BufferHandler::try_pop_image(uint
 
 void BufferHandler::request_loader_if_needed(uint64_t image_id)
 {
+  spdlog::info("request_loader_if_needed image {}", image_id);
   if (!loader_active_ || loader_image_id_ != image_id) {
     loader_active_ = true;
     loader_image_id_ = image_id;
@@ -108,6 +112,7 @@ std::optional<std::vector<std_daq_protocol::BufferedMetadata>> BufferHandler::fe
 
 void BufferHandler::read_single_image(std_daq_protocol::BufferedMetadata& buffered_meta)
 {
+  spdlog::info("read_single_image - {}", buffered_meta.metadata().image_id());
   const auto size = get_uncompressed_size(buffered_meta.metadata());
   const auto image = buffered_meta.metadata().image_id();
 
