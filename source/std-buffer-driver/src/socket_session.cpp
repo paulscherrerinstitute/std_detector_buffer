@@ -110,7 +110,7 @@ void socket_session::monitor_writer_state()
       switch (state) {
       case reader_state::error:
       case reader_state::finished:
-        self->send_response(to_string(state));
+        self->send_response(to_string(state), self->close_socket_handler);
         self->manager->change_state(reader_state::idle);
         break;
       case reader_state::replaying:
@@ -118,7 +118,7 @@ void socket_session::monitor_writer_state()
         break;
       case reader_state::finishing:
         self->send_response_with_count(to_string(state), self->manager->get_images_processed());
-        self->manager->change_state(reader_state::finished);
+        self->manager->change_state(reader_state::finishing);
         break;
       default:
         self->send_response(to_string(state));
