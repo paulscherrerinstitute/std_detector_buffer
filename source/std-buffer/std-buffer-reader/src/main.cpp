@@ -55,6 +55,9 @@ void* bind_driver_socket(void* ctx, const std::string& stream_address)
 
   if (zmq_bind(socket, stream_address.c_str()) != 0) throw std::runtime_error(zmq_strerror(errno));
 
+  const int timeout_ms = 1000;
+  zmq_setsockopt(socket, ZMQ_RCVTIMEO, &timeout_ms, sizeof(timeout_ms));
+
   return socket;
 }
 
