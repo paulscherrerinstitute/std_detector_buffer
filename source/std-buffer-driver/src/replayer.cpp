@@ -93,7 +93,7 @@ void replayer::start(const replay_settings& settings)
   manager->change_state(reader_state::replaying);
   auto self = shared_from_this();
   std::thread([self, settings]() { self->control_reader(settings); }).detach();
-  std::thread([self]() { self->forward_images(); }).detach();
+  std::thread([self, settings]() { self->forward_images(settings); }).detach();
 }
 
 void replayer::control_reader(const replay_settings& settings) const
@@ -104,7 +104,7 @@ void replayer::control_reader(const replay_settings& settings) const
   char buffer[512];
 
   for (auto image_id = settings.start_image_id;
-       image_id < settings.end_image_id && manager->get_state() == reader_state::replaying;)
+       image_id <= settings.end_image_id && manager->get_state() == reader_state::replaying;)
   {
     request.set_image_id(image_id);
     request.SerializeToString(&cmd);
@@ -124,7 +124,7 @@ void replayer::control_reader(const replay_settings& settings) const
   manager->change_state(reader_state::finishing);
 }
 
-void replayer::forward_images()
+void replayer::forward_images(const replay_settings& settings)
 {
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;
@@ -133,17 +133,19 @@ void replayer::forward_images()
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
       meta.ParseFromArray(buffer, n_bytes);
 
-      auto data_header = utils::stream::prepare_array10_header(meta);
-      auto encoded_c = data_header.c_str();
-      auto data = receiver.get_data(meta.image_id());
+      if (meta.image_id() <= settings.end_image_id) {
+        auto data_header = utils::stream::prepare_array10_header(meta);
+        auto encoded_c = data_header.c_str();
+        auto data = receiver.get_data(meta.image_id());
 
-      zmq_send(push_socket, encoded_c, data_header.length(), ZMQ_SNDMORE);
-      zmq_send(push_socket, data, meta.size(), 0);
+        zmq_send(push_socket, encoded_c, data_header.length(), ZMQ_SNDMORE);
+        zmq_send(push_socket, data, meta.size(), 0);
 
-      manager->update_image_count(++n_images);
-
+        manager->update_image_count(++n_images);
+      }
       cv.notify_all();
     }
   }
+  manager->change_state(reader_state::finished);
 }
 } // namespace sbr

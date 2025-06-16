@@ -32,7 +32,7 @@ public:
   void init(std::chrono::seconds logging_period);
   void start(const replay_settings& settings);
   void control_reader(const replay_settings& settings) const;
-  void forward_images();
+  void forward_images(const replay_settings& settings);
 };
 
 } // namespace std_driver

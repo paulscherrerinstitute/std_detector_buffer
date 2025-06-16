@@ -105,20 +105,17 @@ void socket_session::monitor_writer_state()
   monitor_thread = std::jthread([self = shared_from_this()](std::stop_token stop_token) {
     while (!stop_token.stop_requested()) {
       auto state = self->manager->wait_for_change_or_timeout(100ms);
-      if (stop_token.stop_requested()) break; // ensure to stop after timeout
+      if (stop_token.stop_requested() || !self->websocket.is_open()) break; // ensure to stop after timeout
 
       switch (state) {
       case reader_state::error:
       case reader_state::finished:
-        self->send_response(to_string(state), self->close_socket_handler);
+        self->send_response(to_string(state));
         self->manager->change_state(reader_state::idle);
         break;
       case reader_state::replaying:
-        self->send_response_with_count(to_string(state), self->manager->get_images_processed());
-        break;
       case reader_state::finishing:
         self->send_response_with_count(to_string(state), self->manager->get_images_processed());
-        self->manager->change_state(reader_state::finished);
         break;
       default:
         self->send_response(to_string(state));
