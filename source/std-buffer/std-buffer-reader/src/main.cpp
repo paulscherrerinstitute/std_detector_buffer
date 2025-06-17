@@ -68,7 +68,8 @@ int main(int argc, char* argv[])
   const auto args = read_arguments(argc, argv);
   [[maybe_unused]] utils::log::logger l{"std_buffer_reader", args.config.log_level};
 
-  utils::stats::TimedStatsCollector stats(args.config.detector_name, args.config.stats_collection_period);
+  utils::stats::TimedStatsCollector stats(args.config.detector_name,
+                                          args.config.stats_collection_period);
 
   auto ctx = zmq_ctx_new();
   zmq_ctx_set(ctx, ZMQ_IO_THREADS, zmq_io_threads);
@@ -83,19 +84,26 @@ int main(int argc, char* argv[])
   void* driver_socket = bind_driver_socket(ctx, driver_address);
 
   sbc::RedisHandler redis_handler(args.config.detector_name, args.db_address, 1);
-  BufferHandler buffer_handler(redis_handler, args.root_dir, args.config.bit_depth / 8, sender);
+  auto buffer_handler = std::make_unique<BufferHandler>(redis_handler, args.root_dir,
+                                                        args.config.bit_depth / 8, sender);
 
   std_daq_protocol::RequestNextImage request;
   char buffer[512];
 
-  buffer_handler.start_loader();
+  buffer_handler->start_loader();
   while (true) {
     if (const auto n_bytes = zmq_recv(driver_socket, buffer, sizeof(buffer), 0); n_bytes > 0) {
       request.ParseFromArray(buffer, n_bytes);
+      if (request.new_request()) {
+        buffer_handler = std::make_unique<BufferHandler>(redis_handler, args.root_dir,
+                                                         args.config.bit_depth / 8, sender);
+        buffer_handler->start_loader();
+      }
+
       std_daq_protocol::NextImageResponse response;
       std::string cmd;
-      if (request.new_request()) buffer_handler.reset();
-      if (auto image = buffer_handler.get_image(request.image_id())) {
+
+      if (auto image = buffer_handler->get_image(request.image_id())) {
         image->SerializeToString(&cmd);
         sender.send(image->image_id(), cmd, nullptr, 0);
         response.mutable_ack()->set_image_id(image->image_id());
