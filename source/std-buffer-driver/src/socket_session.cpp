@@ -22,11 +22,13 @@ socket_session::socket_session(tcp::socket socket,
     , manager(std::move(sm))
     , replay(std::move(w))
 {
+  spdlog::info("{}", __func__);
   manager->add_active_session();
 }
 
 socket_session::~socket_session()
 {
+  spdlog::info("{}", __func__);
   manager->remove_active_session();
 }
 
@@ -50,7 +52,9 @@ void socket_session::initialize()
 void socket_session::accept_and_process()
 {
   websocket.async_accept([self = shared_from_this()](boost::beast::error_code ec) {
+  spdlog::info("{}", __func__);
     if (ec) {
+      spdlog::info("{} error", __func__);
       self->monitor_thread.request_stop();
       return;
     }
@@ -63,7 +67,11 @@ void socket_session::process_request()
 {
   websocket.async_read(buffer, [self = shared_from_this()](boost::beast::error_code ec,
                                                            std::size_t bytes_transferred) {
+
+  spdlog::info("{}", __func__);
     if (ec) {
+
+      spdlog::info("{} error", __func__);
       self->monitor_thread.request_stop();
       return;
     }
