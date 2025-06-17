@@ -29,6 +29,7 @@ void BufferHandler::stop_loader()
 void BufferHandler::reset()
 {
   std::lock_guard lock(mtx_);
+  loader_ = std::jthread([this](std::stop_token stoken) { loader_loop(stoken); });
   metadatas_.clear();
 }
 
@@ -73,8 +74,10 @@ void BufferHandler::loader_loop(std::stop_token stoken)
       continue;
     }
 
-    for (auto& buffered_meta : *metadatas_opt)
+    for (auto& buffered_meta : *metadatas_opt) {
+      if (stoken.stop_requested()) break;
       read_single_image(buffered_meta);
+    }
 
     {
       std::lock_guard lock(mtx_);
