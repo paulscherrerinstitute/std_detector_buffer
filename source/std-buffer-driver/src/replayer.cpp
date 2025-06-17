@@ -123,7 +123,7 @@ void replayer::control_reader(const replay_settings& settings) const
       else
         break;
       std::unique_lock lock(mutex);
-      cv.wait(lock);
+      cv.wait(lock, [this, image_id]() { return last_sent_id.load() >= image_id; });
     }
   }
   manager->change_state(reader_state::finishing);
@@ -147,8 +147,9 @@ void replayer::forward_images(const replay_settings& settings)
         zmq_send(push_socket, data, meta.size(), 0);
 
         manager->update_image_count(++n_images);
+        last_sent_id.store(meta.image_id());
       }
-      cv.notify_all();
+      cv.notify_one();
     }
   }
   manager->change_state(reader_state::finished);

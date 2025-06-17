@@ -24,6 +24,7 @@ class replayer : public std::enable_shared_from_this<replayer>
   void* driver_socket;
   mutable std::mutex mutex;
   mutable std::condition_variable cv;
+  std::atomic<uint64_t> last_sent_id{0};
 
 public:
   explicit replayer(std::shared_ptr<sbr::state_manager> sm,
