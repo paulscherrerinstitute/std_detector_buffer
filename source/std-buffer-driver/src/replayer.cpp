@@ -113,8 +113,10 @@ void replayer::control_reader(const replay_settings& settings) const
 
     if (const auto n_bytes = zmq_recv(driver_socket, buffer, sizeof(buffer), 0); n_bytes > 0) {
       response.ParseFromArray(buffer, n_bytes);
-      if (response.has_ack())
+      if (response.has_ack()) {
+        spdlog::info("image id {}, received {}", image_id, response.ack().image_id());
         image_id = response.ack().image_id() + 1;
+      }
       else
         break;
       std::unique_lock lock(mutex);
