@@ -44,6 +44,7 @@ void socket_session::initialize()
   close_socket_handler = [weak_self = weak_from_this()](boost::beast::error_code, std::size_t) {
     if (auto self = weak_self.lock()) {
       self->monitor_thread.request_stop();
+      self->monitor_thread.join();
       self->websocket.async_close(boost::beast::websocket::close_code::normal,
                                   [](boost::beast::error_code) {});
       spdlog::info("[event] socket_session finished - connection closed");
@@ -58,6 +59,7 @@ void socket_session::accept_and_process()
     if (ec) {
       spdlog::info("accept_and_process error");
       self->monitor_thread.request_stop();
+      self->monitor_thread.join();
       spdlog::info("amount: {}", self.use_count());
       return;
     }
@@ -75,6 +77,7 @@ void socket_session::process_request()
 
       spdlog::info("process_request error");
       self->monitor_thread.request_stop();
+      self->monitor_thread.join();
       spdlog::info("amount: {}", self.use_count());
       return;
     }
