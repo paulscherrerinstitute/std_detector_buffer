@@ -26,7 +26,6 @@ public:
   void stop_loader();
 
   [[nodiscard]] std::optional<std_daq_protocol::ImageMetadata> get_image(uint64_t image_id);
-  void reset();
 
 private:
   static std::size_t get_uncompressed_size(const std_daq_protocol::ImageMetadata& data);
