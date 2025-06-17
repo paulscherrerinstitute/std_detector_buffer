@@ -39,8 +39,7 @@ void socket_session::start()
 
 void socket_session::initialize()
 {
-  close_socket_handler = [self = shared_from_this()](boost::beast::error_code ec, std::size_t) {
-    if (ec) return;
+  close_socket_handler = [self = shared_from_this()](boost::beast::error_code, std::size_t) {
     self->monitor_thread.request_stop();
     self->websocket.async_close(boost::beast::websocket::close_code::normal,
                                 [](boost::beast::error_code) {});
