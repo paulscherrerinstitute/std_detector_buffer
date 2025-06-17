@@ -17,6 +17,7 @@ void BufferHandler::start_loader()
 {
   running_ = true;
   loader_ = std::jthread([this](std::stop_token stoken) { loader_loop(stoken); });
+  spdlog::debug("started loader thread");
 }
 
 void BufferHandler::stop_loader()
@@ -28,6 +29,7 @@ void BufferHandler::stop_loader()
 
 std::optional<std_daq_protocol::ImageMetadata> BufferHandler::get_image(uint64_t image_id)
 {
+  spdlog::debug("get_image: image_id={}", image_id);
   std::unique_lock lock(mtx_);
 
   if (auto meta = try_pop_image(image_id)) return meta;
@@ -77,11 +79,12 @@ void BufferHandler::loader_loop(std::stop_token stoken)
       cv_.notify_all();
     }
   }
-  spdlog::debug("finished");
+  spdlog::debug("loader loop finished");
 }
 
 std::optional<std_daq_protocol::ImageMetadata> BufferHandler::try_pop_image(uint64_t image_id)
 {
+  spdlog::debug("try_pop_image: image_id={}", image_id);
   if (!metadatas_.empty() && metadatas_.front().image_id() >= image_id) {
     auto metadata = metadatas_.front();
     metadatas_.pop_front();
@@ -92,6 +95,7 @@ std::optional<std_daq_protocol::ImageMetadata> BufferHandler::try_pop_image(uint
 
 void BufferHandler::request_loader_if_needed(uint64_t image_id)
 {
+  spdlog::debug("request_loader_if_needed: image_id={}", image_id);
   if (!loader_active_ || loader_image_id_ != image_id) {
     loader_active_ = true;
     loader_image_id_ = image_id;
