@@ -29,6 +29,8 @@ void BufferHandler::stop_loader()
 void BufferHandler::reset()
 {
   std::lock_guard lock(mtx_);
+  loader_.request_stop();
+  loader_.join();
   loader_ = std::jthread([this](std::stop_token stoken) { loader_loop(stoken); });
   metadatas_.clear();
 }
@@ -84,6 +86,7 @@ void BufferHandler::loader_loop(std::stop_token stoken)
       cv_.notify_all();
     }
   }
+  spdlog::debug("finished");
 }
 
 std::optional<std_daq_protocol::ImageMetadata> BufferHandler::try_pop_image(uint64_t image_id)
