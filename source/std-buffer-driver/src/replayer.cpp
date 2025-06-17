@@ -103,6 +103,7 @@ void replayer::control_reader(const replay_settings& settings) const
   std::string cmd;
   char buffer[512];
 
+  request.set_new_request(true);
   for (auto image_id = settings.start_image_id;
        image_id <= settings.end_image_id && manager->get_state() == reader_state::replaying;)
   {
@@ -120,6 +121,7 @@ void replayer::control_reader(const replay_settings& settings) const
       std::unique_lock lock(mutex);
       cv.wait(lock);
     }
+    request.set_new_request(false);
   }
   manager->change_state(reader_state::finishing);
 }

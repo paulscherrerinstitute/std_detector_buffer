@@ -39,19 +39,25 @@ void socket_session::start()
 
 void socket_session::initialize()
 {
-  close_socket_handler = [self = shared_from_this()](boost::beast::error_code ec, std::size_t) {
-    if (ec) return;
-    self->monitor_thread.request_stop();
-    self->websocket.async_close(boost::beast::websocket::close_code::normal,
-                                [](boost::beast::error_code) {});
-    spdlog::info("[event] socket_session finished - connection closed");
+  close_socket_handler = [weak_self = weak_from_this()](boost::beast::error_code, std::size_t) {
+    if (auto self = weak_self.lock()) {
+      self->monitor_thread.request_stop();
+      self->monitor_thread.join();
+      self->websocket.async_close(boost::beast::websocket::close_code::normal,
+                                  [](boost::beast::error_code) {});
+      spdlog::info("[event] socket_session finished - connection closed");
+    }
   };
 }
 
 void socket_session::accept_and_process()
 {
   websocket.async_accept([self = shared_from_this()](boost::beast::error_code ec) {
-    if (ec) return;
+    if (ec) {
+      self->monitor_thread.request_stop();
+      self->monitor_thread.join();
+      return;
+    }
     self->monitor_writer_state();
     self->process_request();
   });
@@ -61,7 +67,11 @@ void socket_session::process_request()
 {
   websocket.async_read(buffer, [self = shared_from_this()](boost::beast::error_code ec,
                                                            std::size_t bytes_transferred) {
-    if (ec) return;
+    if (ec) {
+      self->monitor_thread.request_stop();
+      self->monitor_thread.join();
+      return;
+    }
 
     auto message = boost::beast::buffers_to_string(self->buffer.data());
     self->buffer.consume(bytes_transferred);
@@ -105,7 +115,8 @@ void socket_session::monitor_writer_state()
   monitor_thread = std::jthread([self = shared_from_this()](std::stop_token stop_token) {
     while (!stop_token.stop_requested()) {
       auto state = self->manager->wait_for_change_or_timeout(100ms);
-      if (stop_token.stop_requested() || !self->websocket.is_open()) break; // ensure to stop after timeout
+      if (stop_token.stop_requested() || !self->websocket.is_open())
+        break; // ensure to stop after timeout
 
       switch (state) {
       case reader_state::error:
