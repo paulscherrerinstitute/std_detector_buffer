@@ -56,6 +56,7 @@ void socket_session::accept_and_process()
     if (ec) {
       spdlog::info("accept_and_process error");
       self->monitor_thread.request_stop();
+      spdlog::info("amount: {}", self.use_count());
       return;
     }
     self->monitor_writer_state();
@@ -73,6 +74,7 @@ void socket_session::process_request()
 
       spdlog::info("process_request error");
       self->monitor_thread.request_stop();
+      spdlog::info("amount: {}", self.use_count());
       return;
     }
     auto message = boost::beast::buffers_to_string(self->buffer.data());
