@@ -93,7 +93,6 @@ int main(int argc, char* argv[])
     if (const auto n_bytes = zmq_recv(driver_socket, buffer, sizeof(buffer), 0); n_bytes > 0) {
       request.ParseFromArray(buffer, n_bytes);
       if (request.new_request()) {
-        buffer_handler->stop_loader();
         buffer_handler = std::make_unique<BufferHandler>(redis_handler, args.root_dir,
                                                          args.config.bit_depth / 8, sender);
         buffer_handler->start_loader();

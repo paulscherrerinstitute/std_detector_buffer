@@ -13,6 +13,14 @@ BufferHandler::BufferHandler(sbc::RedisHandler& redis,
     , communicator_(communicator)
 {}
 
+BufferHandler::~BufferHandler()
+{
+  running_ = false;
+  cv_.notify_all();
+  if (loader_.joinable()) loader_.request_stop();
+  if (loader_.joinable()) loader_.join();
+}
+
 void BufferHandler::start_loader()
 {
   running_ = true;

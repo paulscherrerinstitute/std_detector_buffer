@@ -21,6 +21,7 @@ public:
                 std::string root_directory,
                 std::size_t type_size,
                 cb::Communicator& communicator);
+  ~BufferHandler();
 
   void start_loader();
   void stop_loader();
