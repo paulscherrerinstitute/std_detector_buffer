@@ -30,9 +30,6 @@ void BufferHandler::reset()
 {
   spdlog::debug("Resetting buffer handler");
   std::lock_guard lock(mtx_);
-  loader_.request_stop();
-  loader_.join();
-  loader_ = std::jthread([this](std::stop_token stoken) { loader_loop(stoken); });
   metadatas_.clear();
 }
 
