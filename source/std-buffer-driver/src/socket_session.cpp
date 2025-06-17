@@ -52,9 +52,9 @@ void socket_session::initialize()
 void socket_session::accept_and_process()
 {
   websocket.async_accept([self = shared_from_this()](boost::beast::error_code ec) {
-  spdlog::info("{}", __func__);
+  spdlog::info("accept_and_process");
     if (ec) {
-      spdlog::info("{} error", __func__);
+      spdlog::info("accept_and_process error");
       self->monitor_thread.request_stop();
       return;
     }
@@ -68,10 +68,10 @@ void socket_session::process_request()
   websocket.async_read(buffer, [self = shared_from_this()](boost::beast::error_code ec,
                                                            std::size_t bytes_transferred) {
 
-  spdlog::info("{}", __func__);
+  spdlog::info("process_request");
     if (ec) {
 
-      spdlog::info("{} error", __func__);
+      spdlog::info("process_request error");
       self->monitor_thread.request_stop();
       return;
     }
