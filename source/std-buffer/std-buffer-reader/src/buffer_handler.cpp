@@ -26,6 +26,12 @@ void BufferHandler::stop_loader()
   if (loader_.joinable()) loader_.request_stop();
 }
 
+void BufferHandler::reset()
+{
+  std::lock_guard lock(mtx_);
+  metadatas_.clear();
+}
+
 std::optional<std_daq_protocol::ImageMetadata> BufferHandler::get_image(uint64_t image_id)
 {
   std::unique_lock lock(mtx_);

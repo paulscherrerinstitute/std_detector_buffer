@@ -4,6 +4,7 @@ package std_daq_protocol;
 
 message RequestNextImage {
     uint64 image_id = 1;
+    bool new_request = 2;
 }
 
 message NextImageResponse {

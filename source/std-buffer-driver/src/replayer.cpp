@@ -103,6 +103,8 @@ void replayer::control_reader(const replay_settings& settings) const
   std::string cmd;
   char buffer[512];
 
+  request.set_new_request(true);
+
   for (auto image_id = settings.start_image_id;
        image_id <= settings.end_image_id && manager->get_state() == reader_state::replaying;)
   {
@@ -110,6 +112,7 @@ void replayer::control_reader(const replay_settings& settings) const
     request.SerializeToString(&cmd);
 
     zmq_send(driver_socket, cmd.c_str(), cmd.size(), 0);
+    request.set_new_request(false);
 
     if (const auto n_bytes = zmq_recv(driver_socket, buffer, sizeof(buffer), 0); n_bytes > 0) {
       response.ParseFromArray(buffer, n_bytes);

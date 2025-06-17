@@ -94,6 +94,7 @@ int main(int argc, char* argv[])
       request.ParseFromArray(buffer, n_bytes);
       std_daq_protocol::NextImageResponse response;
       std::string cmd;
+      if (request.new_request()) buffer_handler.reset();
       if (auto image = buffer_handler.get_image(request.image_id())) {
         image->SerializeToString(&cmd);
         sender.send(image->image_id(), cmd, nullptr, 0);
