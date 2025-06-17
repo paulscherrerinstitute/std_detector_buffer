@@ -28,6 +28,7 @@ void BufferHandler::stop_loader()
 
 void BufferHandler::reset()
 {
+  spdlog::debug("Resetting buffer handler");
   std::lock_guard lock(mtx_);
   loader_.request_stop();
   loader_.join();
