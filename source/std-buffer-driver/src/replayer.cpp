@@ -123,9 +123,14 @@ void replayer::control_reader(const replay_settings& settings) const
       }
       else
         break;
-      std::unique_lock lock(mutex);
-      cv.wait(lock, [this, image_id]() { return last_sent_id.load() >= image_id; });
-      spdlog::info("unlocked");
+      const uint64_t wait_for_id = response.ack().image_id();
+      {
+        std::unique_lock lock(mutex);
+        cv.wait(lock, [this, image_id]() {
+          return last_sent_id.load(std::memory_order_acquire) >= wait_for_id;
+        });
+        spdlog::info("unlocked");
+      }
     }
   }
   manager->change_state(reader_state::finishing);
@@ -150,7 +155,7 @@ void replayer::forward_images(const replay_settings& settings)
         zmq_send(push_socket, data, meta.size(), 0);
 
         manager->update_image_count(++n_images);
-        last_sent_id.store(meta.image_id());
+        last_sent_id.store(meta.image_id(), std::memory_order_release);
       }
       cv.notify_one();
     }
