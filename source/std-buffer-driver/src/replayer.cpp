@@ -139,7 +139,7 @@ void replayer::forward_images(const replay_settings& settings)
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
       meta.ParseFromArray(buffer, n_bytes);
 
-      spdlog::info(">>>>image id {}, received {}", meta.image_id());
+      spdlog::info(">>>>image id {}, to forward received ", meta.image_id());
       if (meta.image_id() <= settings.end_image_id) {
         auto data_header = utils::stream::prepare_array10_header(meta);
         auto encoded_c = data_header.c_str();
