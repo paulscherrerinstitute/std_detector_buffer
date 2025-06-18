@@ -112,6 +112,7 @@ void replayer::control_reader(const replay_settings& settings) const
     request.SerializeToString(&cmd);
 
     zmq_send(driver_socket, cmd.c_str(), cmd.size(), 0);
+    spdlog::info("><><><>>>>: sent to reader");
     request.set_new_request(false);
 
     if (const auto n_bytes = zmq_recv(driver_socket, buffer, sizeof(buffer), 0); n_bytes > 0) {
@@ -138,6 +139,7 @@ void replayer::forward_images(const replay_settings& settings)
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
       meta.ParseFromArray(buffer, n_bytes);
 
+      spdlog::info(">>>>image id {}, received {}", meta.image_id());
       if (meta.image_id() <= settings.end_image_id) {
         auto data_header = utils::stream::prepare_array10_header(meta);
         auto encoded_c = data_header.c_str();
