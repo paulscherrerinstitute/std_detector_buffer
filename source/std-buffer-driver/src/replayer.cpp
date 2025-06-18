@@ -141,7 +141,7 @@ void replayer::forward_images(const replay_settings& settings)
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;
 
-  for (auto n_images = 0ul; manager->get_state() != reader_state::replaying;) {
+  for (auto n_images = 0ul; manager->get_state() == reader_state::replaying;) {
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
       meta.ParseFromArray(buffer, n_bytes);
 
