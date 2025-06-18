@@ -125,6 +125,7 @@ void replayer::control_reader(const replay_settings& settings) const
         break;
       std::unique_lock lock(mutex);
       cv.wait(lock, [this, image_id]() { return last_sent_id.load() >= image_id; });
+      spdlog::info("unlocked");
     }
   }
   manager->change_state(reader_state::finishing);
