@@ -123,10 +123,10 @@ void replayer::control_reader(const replay_settings& settings) const
       }
       else
         break;
-      const uint64_t wait_for_id = response.ack().image_id();
       {
+        const uint64_t wait_for_id = response.ack().image_id();
         std::unique_lock lock(mutex);
-        cv.wait(lock, [this, image_id]() {
+        cv.wait(lock, [this, wait_for_id]() {
           return last_sent_id.load(std::memory_order_acquire) >= wait_for_id;
         });
         spdlog::info("unlocked");
@@ -141,7 +141,7 @@ void replayer::forward_images(const replay_settings& settings)
   char buffer[512];
   std_daq_protocol::ImageMetadata meta;
 
-  for (auto n_images = 0ul; manager->get_state() == reader_state::replaying;) {
+  for (auto n_images = 0ul; manager->get_state() != reader_state::replaying;) {
     if (auto n_bytes = receiver.receive_meta(buffer); n_bytes > 0) {
       meta.ParseFromArray(buffer, n_bytes);
 
