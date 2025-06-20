@@ -30,7 +30,7 @@ public:
   {
     {
       std::lock_guard lock(mutex);
-      state = newState;
+      state.store(newState, std::memory_order::release);
       if (newState == reader_state::idle) images_processed = 0;
     }
     spdlog::debug("driver state changed: {}", to_string(newState));
@@ -43,7 +43,7 @@ public:
     images_processed = sent_images;
   }
 
-  [[nodiscard]] reader_state get_state() const { return state.load(); }
+  [[nodiscard]] reader_state get_state() const { return state.load(std::memory_order_acquire); }
   [[nodiscard]] unsigned int get_images_processed() const { return images_processed.load(); }
   [[nodiscard]] unsigned int get_active_sessions() const { return active_sessions.load(); }
   void add_active_session() { ++active_sessions; }
@@ -51,7 +51,7 @@ public:
 
   bool is_replaying() const
   {
-    const auto current_state = state.load();
+    const auto current_state = state.load(std::memory_order_acquire);
     return current_state == reader_state::replaying;
   }
 
@@ -59,9 +59,9 @@ public:
       const std::chrono::milliseconds timeout) const
   {
     std::unique_lock lock(mutex);
-    reader_state current_state = state.load();
+    reader_state current_state = state.load(std::memory_order_acquire);
     cv.wait_for(lock, timeout, [this, current_state]() { return state != current_state; });
-    return state.load();
+    return state.load(std::memory_order_acquire);
   }
 };
 

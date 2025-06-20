@@ -30,7 +30,7 @@ public:
   {
     {
       std::lock_guard lock(mutex);
-      state = newState;
+      state.store(newState, std::memory_order::release);
       if (newState == driver_state::idle) images_processed = 0;
     }
     spdlog::debug("driver state changed: {}", to_string(newState));
@@ -43,7 +43,7 @@ public:
     images_processed = sent_images;
   }
 
-  [[nodiscard]] driver_state get_state() const { return state.load(); }
+  [[nodiscard]] driver_state get_state() const { return state.load(std::memory_order_acquire); }
   [[nodiscard]] unsigned int get_images_processed() const { return images_processed.load(); }
   [[nodiscard]] unsigned int get_active_sessions() const { return active_sessions.load(); }
   void add_active_session() { ++active_sessions; }
@@ -51,7 +51,7 @@ public:
 
   bool is_recording() const
   {
-    const auto current_state = state.load();
+    const auto current_state = state.load(std::memory_order_acquire);
     return current_state == driver_state::recording ||
            current_state == driver_state::waiting_for_first_image ||
            current_state == driver_state::creating_file;
@@ -70,9 +70,9 @@ public:
       const std::chrono::milliseconds timeout) const
   {
     std::unique_lock lock(mutex);
-    driver_state current_state = state.load();
+    driver_state current_state = state.load(std::memory_order_acquire);
     cv.wait_for(lock, timeout, [this, current_state]() { return state != current_state; });
-    return state.load();
+    return state.load(std::memory_order_acquire);
   }
 };
 
