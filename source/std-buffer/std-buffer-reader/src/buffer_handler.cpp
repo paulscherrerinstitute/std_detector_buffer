@@ -13,6 +13,14 @@ BufferHandler::BufferHandler(sbc::RedisHandler& redis,
     , communicator_(communicator)
 {}
 
+BufferHandler::~BufferHandler()
+{
+  running_ = false;
+  cv_.notify_all();
+  if (loader_.joinable()) loader_.request_stop();
+  if (loader_.joinable()) loader_.join();
+}
+
 void BufferHandler::start_loader()
 {
   running_ = true;
@@ -67,9 +75,10 @@ void BufferHandler::loader_loop(std::stop_token stoken)
       continue;
     }
 
-    for (auto& buffered_meta : *metadatas_opt)
+    for (auto& buffered_meta : *metadatas_opt) {
+      if (stoken.stop_requested()) break;
       read_single_image(buffered_meta);
-
+    }
     {
       std::lock_guard lock(mtx_);
       cv_.notify_all();

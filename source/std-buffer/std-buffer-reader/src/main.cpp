@@ -84,24 +84,23 @@ int main(int argc, char* argv[])
   void* driver_socket = bind_driver_socket(ctx, driver_address);
 
   sbc::RedisHandler redis_handler(args.config.detector_name, args.db_address, 1);
-  std::unique_ptr<BufferHandler> buffer_handler = std::make_unique<BufferHandler>(
-      redis_handler, args.root_dir, args.config.bit_depth / 8, sender);
+  std::unique_ptr<BufferHandler> buffer_handler;
 
   std_daq_protocol::RequestNextImage request;
   char buffer[512];
 
-  buffer_handler->start_loader();
   while (true) {
     if (const auto n_bytes = zmq_recv(driver_socket, buffer, sizeof(buffer), 0); n_bytes > 0) {
       request.ParseFromArray(buffer, n_bytes);
-      std_daq_protocol::NextImageResponse response;
-      std::string cmd;
 
       if (request.new_request()) {
         buffer_handler = std::make_unique<BufferHandler>(redis_handler, args.root_dir,
                                                          args.config.bit_depth / 8, sender);
         buffer_handler->start_loader();
       }
+      std_daq_protocol::NextImageResponse response;
+      std::string cmd;
+
       if (auto image = buffer_handler->get_image(request.image_id())) {
         image->SerializeToString(&cmd);
         sender.send(image->image_id(), cmd, nullptr, 0);

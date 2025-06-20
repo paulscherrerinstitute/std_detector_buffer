@@ -104,6 +104,7 @@ void replayer::control_reader(const replay_settings& settings) const
   char buffer[512];
 
   request.set_new_request(true);
+
   for (auto image_id = settings.start_image_id;
        image_id <= settings.end_image_id && manager->get_state() == reader_state::replaying;)
   {
@@ -111,6 +112,7 @@ void replayer::control_reader(const replay_settings& settings) const
     request.SerializeToString(&cmd);
 
     zmq_send(driver_socket, cmd.c_str(), cmd.size(), 0);
+    request.set_new_request(false);
 
     if (const auto n_bytes = zmq_recv(driver_socket, buffer, sizeof(buffer), 0); n_bytes > 0) {
       response.ParseFromArray(buffer, n_bytes);
@@ -118,10 +120,14 @@ void replayer::control_reader(const replay_settings& settings) const
         image_id = response.ack().image_id() + 1;
       else
         break;
-      std::unique_lock lock(mutex);
-      cv.wait(lock);
+      {
+        const uint64_t wait_for_id = response.ack().image_id();
+        std::unique_lock lock(mutex);
+        cv.wait(lock, [this, wait_for_id]() {
+          return last_sent_id.load(std::memory_order_acquire) >= wait_for_id;
+        });
+      }
     }
-    request.set_new_request(false);
   }
   manager->change_state(reader_state::finishing);
 }
@@ -144,8 +150,9 @@ void replayer::forward_images(const replay_settings& settings)
         zmq_send(push_socket, data, meta.size(), 0);
 
         manager->update_image_count(++n_images);
+        last_sent_id.store(meta.image_id(), std::memory_order_release);
       }
-      cv.notify_all();
+      cv.notify_one();
     }
   }
   manager->change_state(reader_state::finished);
