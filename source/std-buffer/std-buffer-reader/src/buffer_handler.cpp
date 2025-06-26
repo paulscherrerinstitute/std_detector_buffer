@@ -90,7 +90,7 @@ void BufferHandler::loader_loop(std::stop_token stoken)
       if (stoken.stop_requested()) break;
       read_single_image(buffered_meta);
     }
-
+    spdlog::debug("LOOOOPP ENDED");
     {
       std::lock_guard lock(mtx_);
       cv_.notify_all();
@@ -130,6 +130,7 @@ std::optional<std::vector<std_daq_protocol::BufferedMetadata>> BufferHandler::fe
 
 void BufferHandler::read_single_image(std_daq_protocol::BufferedMetadata& buffered_meta)
 {
+  spdlog::debug("reading single image {}", buffered_meta.metadata().image_id());
   const auto size = get_uncompressed_size(buffered_meta.metadata());
   const auto image = buffered_meta.metadata().image_id();
 
