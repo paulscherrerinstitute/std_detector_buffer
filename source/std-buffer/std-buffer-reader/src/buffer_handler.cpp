@@ -71,6 +71,7 @@ void BufferHandler::loader_loop(std::stop_token stoken)
       if (!running_.load(std::memory_order_acquire)) break;
       if (!loader_active_.load(std::memory_order_acquire)) continue;
 
+      spdlog::info("DEBUG>>> loader_{},meta={}", loader_active_.load(std::memory_order_acquire), metadatas_.size());
       loader_active_.store(false, std::memory_order_release);
       no_more_data_.store(false, std::memory_order_release);
       metadatas_.clear();
