@@ -48,6 +48,7 @@ std::optional<std_daq_protocol::ImageMetadata> BufferHandler::get_image(uint64_t
   cv_.wait(lock,
            [this] { return !metadatas_.empty() || no_more_data_.load(std::memory_order_acquire); });
 
+  spdlog::debug("one more time, no_more_data={}", no_more_data_.load(std::memory_order_acquire));
   if (auto meta = try_pop_image(image_id)) return meta;
   return std::nullopt;
 }
