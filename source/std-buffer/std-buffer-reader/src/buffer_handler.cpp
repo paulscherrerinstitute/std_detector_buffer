@@ -69,7 +69,6 @@ void BufferHandler::loader_loop(std::stop_token stoken)
                !running_.load(std::memory_order_acquire);
       });
       if (!running_.load(std::memory_order_acquire)) break;
-      if (!loader_active_.load(std::memory_order_acquire)) continue;
 
       spdlog::info("DEBUG>>> loader_{},meta={}", loader_active_.load(std::memory_order_acquire), metadatas_.size());
       loader_active_.store(false, std::memory_order_release);
@@ -147,6 +146,9 @@ void BufferHandler::read_single_image(std_daq_protocol::BufferedMetadata& buffer
     std::lock_guard lock(mtx_);
     bool was_empty = metadatas_.empty();
     metadatas_.push_back(buffered_meta.metadata());
-    if (was_empty) cv_.notify_all();
+    if (was_empty) {
+      loader_active_.store(false, std::memory_order_release);
+      cv_.notify_all();
+    }
   }
 }
