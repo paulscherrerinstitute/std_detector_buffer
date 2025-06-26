@@ -109,6 +109,8 @@ int main(int argc, char* argv[])
       else
         response.mutable_no_image();
 
+      spdlog::info("{}", response.DebugString());
+
       response.SerializeToString(&cmd);
       zmq_send(driver_socket, cmd.c_str(), cmd.length(), 0);
       stats.process();
