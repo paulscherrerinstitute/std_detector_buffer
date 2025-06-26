@@ -39,7 +39,8 @@ void BufferHandler::stop_loader()
 std::optional<std_daq_protocol::ImageMetadata> BufferHandler::get_image(uint64_t image_id)
 {
   spdlog::debug("get_image: image_id={}, no_more_data={}, loader={}", image_id,
-                no_more_data_.load(std::memory_order_acquire), loader_active_.load(std::memory_order_acquire));
+                no_more_data_.load(std::memory_order_acquire),
+                loader_active_.load(std::memory_order_acquire));
   std::unique_lock lock(mtx_);
 
   if (auto meta = try_pop_image(image_id)) return meta;
@@ -48,8 +49,7 @@ std::optional<std_daq_protocol::ImageMetadata> BufferHandler::get_image(uint64_t
   cv_.wait(lock,
            [this] { return !metadatas_.empty() || no_more_data_.load(std::memory_order_acquire); });
 
-  if (!metadatas_.empty())
-  spdlog::debug("{}",  metadatas_.front().DebugString());
+  if (!metadatas_.empty()) spdlog::debug("{}", metadatas_.front().DebugString());
   if (auto meta = try_pop_image(image_id)) return meta;
   return std::nullopt;
 }
@@ -101,7 +101,9 @@ void BufferHandler::loader_loop(std::stop_token stoken)
 std::optional<std_daq_protocol::ImageMetadata> BufferHandler::try_pop_image(uint64_t image_id)
 {
   spdlog::debug("try_pop_image: image_id={}", image_id);
-  spdlog::debug("one more time, no_more_data={}, metadatas_.size() = {}", no_more_data_.load(std::memory_order_acquire), metadatas_.size());
+  spdlog::debug("one more time, no_more_data={}, metadatas_.size() = {} running={}",
+                no_more_data_.load(std::memory_order_acquire), metadatas_.size(),
+                running_.load(std::memory_order_acquire));
   if (!metadatas_.empty() && metadatas_.front().image_id() >= image_id) {
     auto metadata = metadatas_.front();
     metadatas_.pop_front();
