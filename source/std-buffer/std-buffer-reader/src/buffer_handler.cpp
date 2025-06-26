@@ -69,6 +69,7 @@ void BufferHandler::loader_loop(std::stop_token stoken)
                !running_.load(std::memory_order_acquire);
       });
       if (!running_.load(std::memory_order_acquire)) break;
+      if (loader_active_.load(std::memory_order_acquire)) continue;
 
       loader_active_.store(false, std::memory_order_release);
       no_more_data_.store(false, std::memory_order_release);
