@@ -49,5 +49,5 @@ private:
   std::atomic<bool> running_{false};
   std::atomic<bool> loader_active_{false};
   std::atomic<bool> no_more_data_{false};
-  uint64_t loader_image_id_ = 0;
+  std::atomic<uint64_t> loader_image_id_{0};
 };

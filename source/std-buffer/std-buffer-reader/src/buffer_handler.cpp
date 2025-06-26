@@ -15,7 +15,7 @@ BufferHandler::BufferHandler(sbc::RedisHandler& redis,
 
 BufferHandler::~BufferHandler()
 {
-  running_ = false;
+  running_.store(false, std::memory_order_release);
   cv_.notify_all();
   if (loader_.joinable()) loader_.request_stop();
   if (loader_.joinable()) loader_.join();
@@ -23,27 +23,30 @@ BufferHandler::~BufferHandler()
 
 void BufferHandler::start_loader()
 {
-  running_ = true;
+  running_.store(true, std::memory_order_release);
   loader_ = std::jthread([this](std::stop_token stoken) { loader_loop(stoken); });
   spdlog::debug("started loader thread");
 }
 
 void BufferHandler::stop_loader()
 {
-  running_ = false;
+  no_more_data_.store(false, std::memory_order_release);
+  running_.store(false, std::memory_order_release);
   cv_.notify_all();
   if (loader_.joinable()) loader_.request_stop();
 }
 
 std::optional<std_daq_protocol::ImageMetadata> BufferHandler::get_image(uint64_t image_id)
 {
-  spdlog::debug("get_image: image_id={}", image_id);
+  spdlog::debug("get_image: image_id={}, no_more_data={}", image_id,
+                no_more_data_.load(std::memory_order_acquire));
   std::unique_lock lock(mtx_);
 
   if (auto meta = try_pop_image(image_id)) return meta;
 
   request_loader_if_needed(image_id);
-  cv_.wait(lock, [this] { return !metadatas_.empty() || no_more_data_; });
+  cv_.wait(lock,
+           [this] { return !metadatas_.empty() || no_more_data_.load(std::memory_order_acquire); });
 
   if (auto meta = try_pop_image(image_id)) return meta;
   return std::nullopt;
@@ -59,19 +62,22 @@ void BufferHandler::loader_loop(std::stop_token stoken)
   while (!stoken.stop_requested()) {
     {
       std::unique_lock lock(mtx_);
-      cv_.wait(lock, [this] { return loader_active_ || !running_; });
-      if (!running_) break;
+      cv_.wait(lock, [this] {
+        return loader_active_.load(std::memory_order_acquire) ||
+               !running_.load(std::memory_order_acquire);
+      });
+      if (!running_.load(std::memory_order_acquire)) break;
 
-      loader_active_ = false;
+      loader_active_.store(false, std::memory_order_release);
+      no_more_data_.store(false, std::memory_order_release);
       metadatas_.clear();
-      no_more_data_ = false;
     }
 
     auto metadatas_opt = fetch_next_metadatas(loader_image_id_);
     if (!metadatas_opt) {
       {
         std::lock_guard lock(mtx_);
-        no_more_data_ = true;
+        no_more_data_.store(true, std::memory_order_release);
         cv_.notify_all();
       }
       continue;
@@ -104,11 +110,9 @@ std::optional<std_daq_protocol::ImageMetadata> BufferHandler::try_pop_image(uint
 void BufferHandler::request_loader_if_needed(uint64_t image_id)
 {
   spdlog::debug("request_loader_if_needed: image_id={}", image_id);
-  if (!loader_active_ || loader_image_id_ != image_id) {
-    loader_active_ = true;
-    loader_image_id_ = image_id;
-    cv_.notify_all();
-  }
+  auto prev_active = loader_active_.exchange(true, std::memory_order_acq_rel);
+  auto prev_id = loader_image_id_.exchange(image_id, std::memory_order_acq_rel);
+  if (!prev_active || prev_id != image_id) cv_.notify_all();
 }
 
 std::optional<std::vector<std_daq_protocol::BufferedMetadata>> BufferHandler::fetch_next_metadatas(
