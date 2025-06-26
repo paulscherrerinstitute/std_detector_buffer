@@ -48,7 +48,6 @@ std::optional<std_daq_protocol::ImageMetadata> BufferHandler::get_image(uint64_t
   cv_.wait(lock,
            [this] { return !metadatas_.empty() || no_more_data_.load(std::memory_order_acquire); });
 
-  spdlog::debug("one more time, no_more_data={}, metadatas_.size() = {}", no_more_data_.load(std::memory_order_acquire), metadatas_.size());
   if (!metadatas_.empty())
   spdlog::debug("{}",  metadatas_.front().DebugString());
   if (auto meta = try_pop_image(image_id)) return meta;
@@ -102,6 +101,7 @@ void BufferHandler::loader_loop(std::stop_token stoken)
 std::optional<std_daq_protocol::ImageMetadata> BufferHandler::try_pop_image(uint64_t image_id)
 {
   spdlog::debug("try_pop_image: image_id={}", image_id);
+  spdlog::debug("one more time, no_more_data={}, metadatas_.size() = {}", no_more_data_.load(std::memory_order_acquire), metadatas_.size());
   if (!metadatas_.empty() && metadatas_.front().image_id() >= image_id) {
     auto metadata = metadatas_.front();
     metadatas_.pop_front();
