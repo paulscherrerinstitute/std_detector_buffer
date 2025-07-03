@@ -3,8 +3,7 @@ project(std_data_chunk_sender)
 
 find_package(ZeroMQ REQUIRED)
 
-add_library(${PROJECT_NAME})
-add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+add_executable(${PROJECT_NAME})
 
 target_sources(${PROJECT_NAME}
     PRIVATE
