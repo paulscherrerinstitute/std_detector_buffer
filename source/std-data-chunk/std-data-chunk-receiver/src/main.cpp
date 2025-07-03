@@ -1,18 +1,16 @@
-// server.cpp
-#include <ucp/api/ucp.h>
-#include <ucs/type/status.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <iostream>
-#include <vector>
-#include <thread>
-#include <mutex>
-#include <chrono>
-#include <random>
+/////////////////////////////////////////////////////////////////////
+// Copyright (c) 2025 Paul Scherrer Institute. All rights reserved.
+/////////////////////////////////////////////////////////////////////
 
+#include <vector>
+#include <iostream>
+#include <thread>
+#include <chrono>
 #include <zmq.h>
+#include <algorithm>
 
 #include "std_buffer/rdma.pb.h"
+#include "std_data_chunker_common/ucx_rdma_endpoint.hpp"
 
 constexpr char ZMQ_SERVER_ENDPOINT[] = "tcp://localhost:5555";
 constexpr uint32_t PROTOCOL_VERSION = 1;
@@ -48,51 +46,33 @@ int main()
     std::cout << "Buffer size: " << resp.buffer_size() << "\n";
     std::cout << "rkey_blob: " << resp.rkey_blob().size() << " bytes\n";
 
-    const std::string& worker_addr_str = resp.worker_address();
-    const uint64_t buffer_base = resp.buffer_base();
-    const uint64_t buffer_size = resp.buffer_size();
-    const std::string& rkey_blob = resp.rkey_blob();
+    // Extract info from protobuf
+    std::span<const std::byte> worker_addr(
+        reinterpret_cast<const std::byte*>(resp.worker_address().data()),
+        resp.worker_address().size());
+    std::span<const std::byte> rkey_blob(
+        reinterpret_cast<const std::byte*>(resp.rkey_blob().data()),
+        resp.rkey_blob().size());
+    uint64_t buffer_base = resp.buffer_base();
+    uint64_t buffer_size = resp.buffer_size();
 
-    // --- 1. Initialize UCX context and worker ---
-    ucp_context_h ctx = nullptr;
-    ucp_worker_h worker = nullptr;
-    ucp_params_t params{};
-    params.field_mask = UCP_PARAM_FIELD_FEATURES;
-    params.features = UCP_FEATURE_RMA;
-    ucp_config_t* config = nullptr;
-    if (ucp_config_read(nullptr, nullptr, &config) != UCS_OK)
-      throw std::runtime_error("ucp_config_read failed");
-    if (ucp_init(&params, config, &ctx) != UCS_OK) throw std::runtime_error("ucp_init failed");
-    ucp_config_release(config);
-
-    ucp_worker_params_t wparams{};
-    wparams.field_mask = UCP_WORKER_PARAM_FIELD_THREAD_MODE;
-    wparams.thread_mode = UCS_THREAD_MODE_SINGLE;
-    if (ucp_worker_create(ctx, &wparams, &worker) != UCS_OK)
-      throw std::runtime_error("ucp_worker_create failed");
+    // --- 1. Initialize UCX client endpoint ---
+    auto endpoint = sdcc::ucx_rdma_endpoint::create_client();
 
     // --- 2. Create endpoint to server worker using received worker address ---
-    ucp_ep_params_t ep_params{};
-    ep_params.field_mask = UCP_EP_PARAM_FIELD_REMOTE_ADDRESS;
-    ep_params.address = reinterpret_cast<const ucp_address_t*>(worker_addr_str.data());
-    ucp_ep_h ep = nullptr;
-    if (ucp_ep_create(worker, &ep_params, &ep) != UCS_OK)
-      throw std::runtime_error("ucp_ep_create failed");
+    ucp_ep_h ep = endpoint.create_ep(worker_addr);
 
     // --- 3. Import rkey for remote memory access ---
-    ucp_rkey_h rkey = nullptr;
-    if (ucp_ep_rkey_unpack(ep, rkey_blob.data(), &rkey) != UCS_OK)
-      throw std::runtime_error("ucp_ep_rkey_unpack failed");
+    ucp_rkey_h rkey = endpoint.unpack_rkey(ep, rkey_blob);
 
     // --- 4. Perform a UCX RDMA GET from remote buffer ---
-    // Let's read first 4096 bytes as a demo
     size_t read_bytes = std::min<size_t>(4096, buffer_size);
     std::vector<uint8_t> local_buf(read_bytes, 0);
 
     ucp_request_param_t get_param{};
     bool completed = false;
     get_param.op_attr_mask = UCP_OP_ATTR_FIELD_CALLBACK | UCP_OP_ATTR_FIELD_USER_DATA;
-    get_param.cb.send = [](void* , ucs_status_t status, void* user_data) {
+    get_param.cb.send = [](void*, ucs_status_t status, void* user_data) {
       bool* completed_ptr = static_cast<bool*>(user_data);
       *completed_ptr = true;
       if (status != UCS_OK) std::cerr << "RDMA GET failed\n";
@@ -103,7 +83,7 @@ int main()
 
     if (UCS_PTR_IS_PTR(get_req)) {
       while (!completed) {
-        ucp_worker_progress(worker);
+        ucp_worker_progress(endpoint.worker());
         std::this_thread::sleep_for(std::chrono::microseconds(100));
       }
       ucp_request_free(get_req);
@@ -117,8 +97,6 @@ int main()
     // --- 5. Cleanup ---
     ucp_rkey_destroy(rkey);
     ucp_ep_destroy(ep);
-    ucp_worker_destroy(worker);
-    ucp_cleanup(ctx);
 
     std::cout << "RDMA GET complete and endpoint cleaned up.\n";
   }
