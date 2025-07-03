@@ -12,6 +12,7 @@ target_sources(${PROJECT_NAME}
         std_buffer/image_buffer.proto
         std_buffer/image_metadata.proto
         std_buffer/writer_action.proto
+        std_buffer/rdma.proto
 )
 
 protobuf_generate(

@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package ucx_ctrl;
+
+message HandshakeRequest {
+  string client_id = 1;
+  uint32  protocol_version = 2;
+}
+
+message HandshakeResponse {
+  bytes worker_address = 1;
+  uint64 buffer_base   = 2;
+  uint64 buffer_size   = 3;
+  bytes rkey_blob      = 4;
+  uint32  protocol_version = 5;
+}
+
+message ErrorResponse {
+  string error_msg = 1;
+  uint32 error_code = 2;
+}
