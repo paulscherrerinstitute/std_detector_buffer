@@ -7,8 +7,6 @@
 #include <ucp/api/ucp.h>
 #include <span>
 #include <string>
-#include <memory>
-#include <cstring>
 #include <stdexcept>
 #include <utility>
 
@@ -20,25 +18,20 @@ public:
   using buffer_view = std::span<std::byte>;
   using const_buffer_view = std::span<const std::byte>;
 
-  explicit ucx_rdma_endpoint(std::span<std::byte> buffer);
-  ucx_rdma_endpoint();
+  static ucx_rdma_endpoint create_server(std::span<std::byte> buffer);
+  static ucx_rdma_endpoint create_client();
+
   ucx_rdma_endpoint(ucx_rdma_endpoint&& other) noexcept;
   ucx_rdma_endpoint& operator=(ucx_rdma_endpoint&& other) noexcept;
   ucx_rdma_endpoint(const ucx_rdma_endpoint&) = delete;
   ucx_rdma_endpoint& operator=(const ucx_rdma_endpoint&) = delete;
 
-  ~ucx_rdma_endpoint() { cleanup(); }
+  ~ucx_rdma_endpoint();
 
-  std::span<const std::byte> worker_address() const
-  {
-    return {reinterpret_cast<const std::byte*>(worker_addr_), addr_len_};
-  }
-  std::span<const std::byte> rkey_blob() const
-  {
-    return {reinterpret_cast<const std::byte*>(rkey_buf_), rkey_size_};
-  }
-  std::uintptr_t buffer_base() const { return reinterpret_cast<std::uintptr_t>(buffer_.data()); }
-  size_t buffer_size() const { return buffer_.size(); }
+  [[nodiscard]] std::span<const std::byte> worker_address() const;
+  [[nodiscard]] std::span<const std::byte> rkey_blob() const;
+  [[nodiscard]] std::uintptr_t buffer_base() const;
+  [[nodiscard]] size_t buffer_size() const;
 
   void write_demo(std::string_view str);
 
@@ -49,12 +42,11 @@ public:
   ucp_context_h context() const { return ctx_; }
 
 private:
-  void cleanup() noexcept;
+  ucx_rdma_endpoint(std::span<std::byte> buffer, bool is_server);
+  explicit ucx_rdma_endpoint(bool is_server);
 
-  static void check(ucs_status_t st, const char* msg)
-  {
-    if (st != UCS_OK) throw std::runtime_error(msg);
-  }
+  void cleanup() noexcept;
+  static void check(ucs_status_t st, const char* msg);
 
   ucp_context_h ctx_ = nullptr;
   ucp_worker_h worker_ = nullptr;

@@ -1,24 +1,22 @@
 cmake_minimum_required(VERSION 3.17)
-project(std_data_chunker_common)
+project(std_data_chunk_sender)
+
+find_package(ZeroMQ REQUIRED)
 
 add_library(${PROJECT_NAME})
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 target_sources(${PROJECT_NAME}
     PRIVATE
-        include/std_data_chunker_common/ucx_rdma_endpoint.hpp
-        src/ucx_rdma_endpoint.cpp
+        src/main.cpp
 )
 
 sdb_package(${PROJECT_NAME})
-target_include_directories(${PROJECT_NAME} PUBLIC include PRIVATE include/std_data_chunker_common)
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
+        std_data_chunk::common
         std_daq_interface::std_daq_interface
     PRIVATE
-        ucp
-        uct
-        ucs
-        ucm
+        ZeroMQ::ZeroMQ
         std_detector_buffer::settings
 )

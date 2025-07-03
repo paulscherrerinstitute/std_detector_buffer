@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.17)
 project(std_data_chunker)
 
-add_subdirectory(std-data-chunker-common)
+add_subdirectory(std-data-chunk-common)
+add_subdirectory(std-data-chunk-sender)
 
 find_package(ZeroMQ REQUIRED)
 
